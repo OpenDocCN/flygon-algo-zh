@@ -5,15 +5,6 @@
 > 程序员的双手是魔术师的双手，他们把枯燥无味的代码变成了丰富多彩的软件。——《疯狂的程序员》
 
 * [在线阅读](https://algo.apachecn.org)
-## 目录
-
-+   [数据结构思维中文版](docs/think-dast-zh/SUMMARY.md)
-+   [Leetcode C++ 题解](docs/leetcode/cpp/SUMMARY.md)
-+   [Leetcode Java 题解](docs/leetcode/java/SUMMARY.md)
-+   [Leetcode JavaScript 题解](docs/leetcode/javascript/SUMMARY.md)
-+   [Leetcode Python 题解](docs/leetcode/python/SUMMARY.md)
-+   [剑指 Offer Java 题解](docs/jianzhioffer/java/SUMMARY.md)
-
 ## 下载
 
 ### Docker
