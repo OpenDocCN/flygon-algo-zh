@@ -1,0 +1,2811 @@
+- en: '[**24        Maximum Flow**](toc.xhtml#chap-24)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**24        最大流**](toc.xhtml#chap-24)'
+- en: Just as you can model a road map as a directed graph in order to find the shortest
+    path from one point to another, you can also interpret a directed graph as a “flow
+    network” and use it to answer questions about material flows. Imagine a material
+    coursing through a system from a source, where the material is produced, to a
+    sink, where it is consumed. The source produces the material at some steady rate,
+    and the sink consumes the material at the same rate. The “flow” of the material
+    at any point in the system is intuitively the rate at which the material moves.
+    Flow networks can model many problems, including liquids flowing through pipes,
+    parts through assembly lines, current through electrical networks, and information
+    through communication networks.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 就像你可以将道路图建模为一个有向图，以便找到从一个点到另一个点的最短路径一样，你也可以将一个有向图解释为一个“流网络”，并用它来回答关于物质流动的问题。想象一种物质从源头穿过系统流向汇点的情况，其中物质被生产的源头以某种稳定的速率产生物质，而汇点以相同的速率消耗物质。系统中任何点的物质“流动”直观上是物质移动的速率。流网络可以模拟许多问题，包括液体通过管道流动，零件通过装配线，电流通过电力网络，以及信息通过通信网络。
+- en: You can think of each directed edge in a flow network as a conduit for the material.
+    Each conduit has a stated capacity, given as a maximum rate at which the material
+    can flow through the conduit, such as 200 gallons of liquid per hour through a
+    pipe or 20 amperes of electrical current through a wire. Vertices are conduit
+    junctions, and other than the source and sink, material flows through the vertices
+    without collecting in them. In other words, the rate at which material enters
+    a vertex must equal the rate at which it leaves the vertex. We call this property
+    “flow conservation,” and it is equivalent to Kirchhoff’s current law when the
+    material is electrical current.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你可以将流网络中的每条有向边看作是物质的导管。每个导管都有一个规定的容量，表示物质可以通过导管流动的最大速率，比如每小时通过管道200加仑液体或通过电线20安培电流。顶点是导管的交汇点，除了源点和汇点外，物质在顶点之间流动而不在其中积聚。换句话说，物质进入顶点的速率必须等于离开顶点的速率。我们称这种性质为“流量守恒”，当物质是电流时，它等价于基尔霍夫电流定律。
+- en: The goal of the maximum-flow problem is to compute the greatest rate for shipping
+    material from the source to the sink without violating any capacity constraints.
+    It is one of the simplest problems concerning flow networks and, as we shall see
+    in this chapter, this problem can be solved by efficient algorithms. Moreover,
+    other network-flow problems are solvable by adapting the basic techniques used
+    in maximum-flow algorithms.
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最大流问题的目标是计算从源点到汇点运输物质的最大速率，而不违反任何容量约束。这是关于流网络的最简单问题之一，正如我们将在本章中看到的，这个问题可以通过高效的算法来解决。此外，通过调整最大流算法中使用的基本技术，其他网络流问题也是可以解决的。
+- en: This chapter presents two general methods for solving the maximum-flow problem.
+    [Section 24.1](chapter024.xhtml#Sec_24.1) formalizes the notions of flow networks
+    and flows, formally defining the maximum-flow problem. [Section 24.2](chapter024.xhtml#Sec_24.2)
+    describes the classical method of Ford and Fulkerson for finding maximum flows.
+    We finish up with a simple application of this method, finding a maximum matching
+    in an undirected bipartite graph, in [Section 24.3](chapter024.xhtml#Sec_24.3).
+    ([Section 25.1](chapter025.xhtml#Sec_25.1) will give a more efficient algorithm
+    that is specifically designed to find a maximum matching in a bipartite graph.)
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本章介绍了解决最大流问题的两种一般方法。[第24.1节](chapter024.xhtml#Sec_24.1) 形式化了流网络和流的概念，明确定义了最大流问题。[第24.2节](chapter024.xhtml#Sec_24.2)
+    描述了福特和福尔克森的经典方法，用于找到最大流。我们最后以这种方法的一个简单应用结束，找到一个无向二分图中的最大匹配，在[第24.3节](chapter024.xhtml#Sec_24.3)。([第25.1节](chapter025.xhtml#Sec_25.1)
+    将提供一个更有效的算法，专门设计用于在二分图中找到最大匹配。)
+- en: '[**24.1    Flow networks**](toc.xhtml#Rh1-141)'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**24.1    流网络**](toc.xhtml#Rh1-141)'
+- en: This section gives a graph-theoretic definition of flow networks, discusses
+    their properties, and defines the maximum-flow problem precisely. It also introduces
+    some helpful notation.
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节给出了流网络的图论定义，讨论了它们的性质，并准确地定义了最大流问题。它还介绍了一些有用的符号表示法。
+- en: '**Flow networks and flows**'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**流网络和流**'
+- en: 'A ***flow network*** *G* = (*V*, *E*) is a directed graph in which each edge
+    (*u*, *v*) ∈ *E* has a nonnegative ***capacity*** *c*(*u*, *v*) ≥ 0\. We further
+    require that if *E* contains an edge (*u*, *v*), then there is no edge (*v*, *u*)
+    in the reverse direction. (We’ll see shortly how to work around this restriction.)
+    If (*u*, *v*) ∉ *E*, then for convenience we define *c*(*u*, *v*) = 0, and we
+    disallow self-loops. Each flow network contains two distinguished vertices: a
+    ***source*** *s* and a ***sink*** *t*. For convenience, we assume that each vertex
+    lies on some path from the source to the sink. That is, for each vertex *v* ∈
+    *V*, the flow network contains a path *s* ⇝ *v* ⇝ *t*. Because each vertex other
+    than *s* has at least one entering edge, we have |*E*| ≥ |*V* | − 1\. [Figure
+    24.1](chapter024.xhtml#Fig_24-1) shows an example of a flow network.'
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个***流网络*** *G* = (*V*, *E*) 是一个有向图，其中每条边 (*u*, *v*) ∈ *E* 具有非负的***容量*** *c*(*u*,
+    *v*) ≥ 0。我们进一步要求，如果 *E* 包含一条边 (*u*, *v*)，那么在反向方向上没有边 (*v*, *u*)。（我们很快会看到如何解决这个限制。）如果
+    (*u*, *v*) ∉ *E*，那么为了方便起见，我们定义 *c*(*u*, *v*) = 0，并且不允许自环。每个流网络包含两个特殊的顶点：一个***源点*** *s*
+    和一个***汇点*** *t*。为了方便起见，我们假设每个顶点都位于从源点到汇点的某条路径上。也就是说，对于每个顶点 *v* ∈ *V*，流网络包含一条路径
+    *s* ⇝ *v* ⇝ *t*。因为除了 *s* 之外的每个顶点至少有一条进入边，所以我们有 |*E*| ≥ |*V* | − 1。[图 24.1](chapter024.xhtml#Fig_24-1)
+    展示了一个流网络的示例。
+- en: '![art](images/Art_P753.jpg)'
+  id: totrans-9
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P753.jpg)'
+- en: '**Figure 24.1 (a)** A flow network *G* = (*V*, *E*) for the Lucky Puck Company’s
+    trucking problem. The Vancouver factory is the source *s*, and the Winnipeg warehouse
+    is the sink *t*. The company ships pucks through intermediate cities, but only
+    *c*(*u*, *v*) crates per day can go from city *u* to city *v*. Each edge is labeled
+    with its capacity. **(b)** A flow *f* in *G* with value |*f* | = 19\. Each edge
+    (*u*, *v*) is labeled by *f* (*u*, *v*)/*c*(*u*, *v*). The slash notation merely
+    separates the flow and capacity and does not indicate division.'
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 24.1 (a)** 一个用于幸运冰球公司卡车问题的流网络 *G* = (*V*, *E*)。温哥华工厂是源 *s*，温尼伯仓库是汇 *t*。公司通过中间城市运送冰球，但每天只能从城市
+    *u* 运往城市 *v* *c*(*u*, *v*) 箱。每条边都标有其容量。**(b)** *G* 中值为 |*f* | = 19 的流 *f*。每条边
+    (*u*, *v*) 都标有 *f* (*u*, *v*)/*c*(*u*, *v*)。斜杠符号仅分隔流量和容量，并不表示除法。'
+- en: 'We are now ready to define flows more formally. Let *G* = (*V*, *E*) be a flow
+    network with a capacity function *c*. Let *s* be the source of the network, and
+    let *t* be the sink. A ***flow*** in *G* is a real-valued function *f* : *V* ×
+    *V* → ℝ that satisfies the following two properties:'
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '现在我们准备更正式地定义流量。设 *G* = (*V*, *E*) 是一个带有容量函数 *c* 的流网络。让 *s* 是网络的源头，*t* 是汇点。*G*
+    中的一个***流***是一个满足以下两个属性的实值函数 *f* : *V* × *V* → ℝ：'
+- en: '**Capacity constraint:** For all *u*, *v* ∈ *V*, we require'
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**容量约束：** 对于所有 *u*, *v* ∈ *V*，我们要求'
+- en: 0 ≤ *f*(*u*, *v*) ≤ *c*(*u*, *v*).
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 0 ≤ *f*(*u*, *v*) ≤ *c*(*u*, *v*)。
+- en: The flow from one vertex to another must be nonnegative and must not exceed
+    the given capacity.
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 从一个顶点到另一个顶点的流量必须是非负的，并且不能超过给定的容量。
+- en: '**Flow conservation:** For all *u* ∈ *V* − {*s*, *t*}, we require'
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**流量守恒：** 对于所有 *u* ∈ *V* − {*s*, *t*}，我们要求'
+- en: '![art](images/Art_P754.jpg)'
+  id: totrans-16
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P754.jpg)'
+- en: The total flow into a vertex other than the source or sink must equal the total
+    flow out of that vertex—informally, “flow in equals flow out.”
+  id: totrans-17
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 除源头和汇点外的顶点的总流入流量必须等于总流出流量——非正式地说，“流入等于流出”。
+- en: When (*u*, *v*) ∉ *E*, there can be no flow from *u* to *v*, and *f* (*u*, *v*)
+    = 0.
+  id: totrans-18
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当 (*u*, *v*) ∉ *E* 时，从 *u* 到 *v* 就没有流量，*f* (*u*, *v*) = 0。
+- en: We call the nonnegative quantity *f* (*u*, *v*) the flow from vertex *u* to
+    vertex *v*. The ***value*** |*f* | of a flow *f* is defined as
+  id: totrans-19
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们称非负量 *f* (*u*, *v*) 为从顶点 *u* 到顶点 *v* 的流量。流量 *f* 的***值*** |*f* | 定义为
+- en: '![art](images/Art_P755.jpg)'
+  id: totrans-20
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P755.jpg)'
+- en: that is, the total flow out of the source minus the flow into the source. (Here,
+    the |·| notation denotes flow value, not absolute value or cardinality.) Typically,
+    a flow network does not have any edges into the source, and the flow into the
+    source, given by the summation Σ[*v*∈*V*] *f*(*v*, *s*), is 0\. We include it,
+    however, because when we introduce residual networks later in this chapter, the
+    flow into the source can be positive. In the ***maximum-flow problem***, the input
+    is a flow network *G* with source *s* and sink *t*, and the goal is to find a
+    flow of maximum value.
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 即，源头流出的总流量减去流入源头的流量。（这里，|·| 表示流量值，而不是绝对值或基数。）通常，流网络没有任何边进入源头，而流入源头的流量，由 Σ[*v*∈*V*] *f*(*v*,
+    *s*) 给出，为 0。然而，我们包括它，因为当我们在本章后面介绍剩余网络时，流入源头的流量可以是正的。在***最大流问题***中，输入是一个带有源 *s*
+    和汇 *t* 的流网络 *G*，目标是找到最大值的流量。
+- en: '**An example of flow**'
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**流量的一个例子**'
+- en: A flow network can model the trucking problem shown in [Figure 24.1(a)](chapter024.xhtml#Fig_24-1).
+    The Lucky Puck Company has a factory (source *s*) in Vancouver that manufactures
+    hockey pucks, and it has a warehouse (sink *t*) in Winnipeg that stocks them.
+    Lucky Puck leases space on trucks from another firm to ship the pucks from the
+    factory to the warehouse. Because the trucks travel over specified routes (edges)
+    between cities (vertices) and have a limited capacity, Lucky Puck can ship at
+    most *c*(*u*, *v*) crates per day between each pair of cities *u* and *v* in [Figure
+    24.1(a)](chapter024.xhtml#Fig_24-1). Lucky Puck has no control over these routes
+    and capacities, and so the company cannot alter the flow network shown in [Figure
+    24.1(a)](chapter024.xhtml#Fig_24-1). They need to determine the largest number
+    *p* of crates per day that they can ship and then to produce this amount, since
+    there is no point in producing more pucks than they can ship to their warehouse.
+    Lucky Puck is not concerned with how long it takes for a given puck to get from
+    the factory to the warehouse. They care only that *p* crates per day leave the
+    factory and *p* crates per day arrive at the warehouse.
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个流网络可以模拟[图 24.1(a)](chapter024.xhtml#Fig_24-1)中显示的卡车问题。幸运冰球公司在温哥华有一个工厂（源 *s*），生产曲棍球球拍，而在温尼伯有一个仓库（汇
+    *t*），用于储存这些球拍。幸运冰球公司从另一家公司的卡车上租用空间，将球拍从工厂运送到仓库。由于卡车沿着指定的路线（边）在城市（顶点）之间行驶，并且有限的容量，幸运冰球公司每天只能在[图
+    24.1(a)](chapter024.xhtml#Fig_24-1)中的每对城市 *u* 和 *v* 之间运送最多 *c*(*u*, *v*) 箱。幸运冰球��司无法控制这些路线和容量，因此无法更改[图
+    24.1(a)](chapter024.xhtml#Fig_24-1)中显示的流网络。他们需要确定他们可以每天运送的最大箱数 *p*，然后生产这个数量，因为生产超过他们可以运送到仓库的球拍没有意义。幸运冰球公司不关心给定球拍从工厂到仓库需要多长时间。他们只关心每天有
+    *p* 箱球拍离开工厂，每天有 *p* 箱球拍到达仓库。
+- en: '![art](images/Art_P756.jpg)'
+  id: totrans-24
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P756.jpg)'
+- en: '**Figure 24.2** Converting a network with antiparallel edges to an equivalent
+    one with no antiparallel edges. **(a)** A flow network containing both the edges
+    (*v*[1], *v*[2]) and (*v*[2], *v*[1]). **(b)** An equivalent network with no antiparallel
+    edges. A new vertex *v*′ was added, and edge (*v*[1], *v*[2]) was replaced by
+    the pair of edges (*v*[1], *v*′) and (*v*′, *v*[2]), both with the same capacity
+    as (*v*[1], *v*[2]).'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 24.2** 将具有反向边的网络转换为没有反向边的等效网络。**(a)** 包含边 (*v*[1], *v*[2]) 和 (*v*[2], *v*[1])
+    的流网络。**(b)** 没有反向边的等效网络。添加了一个新顶点 *v*′，并用与 (*v*[1], *v*[2]) 相同容量的边 (*v*[1], *v*′)
+    和 (*v*′, *v*[2]) 替换了边 (*v*[1], *v*[2])。'
+- en: A flow in this network models the “flow” of shipments because the number of
+    crates shipped per day from one city to another is subject to a capacity constraint.
+    Additionally, the model must obey flow conservation, for in a steady state, the
+    rate at which pucks enter an intermediate city must equal the rate at which they
+    leave. Otherwise, crates would accumulate at intermediate cities.
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个网络中的流模拟了货物的“流动”，因为每天从一个城市运往另一个城市的箱子数量受到容量约束。此外，模型必须遵守流量守恒原则，因为在稳态下，进入中间城市的
+    puck 的速率必须等于离开的速率。否则，箱子会在中间城市积累。
+- en: '**Modeling problems with antiparallel edges**'
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**建模具有反向边的问题**'
+- en: 'Suppose that the trucking firm offers Lucky Puck the opportunity to lease space
+    for 10 crates in trucks going from Edmonton to Calgary. It might seem natural
+    to add this opportunity to our example and form the network shown in [Figure 24.2(a)](chapter024.xhtml#Fig_24-2).
+    This network suffers from one problem, however: it violates the original assumption
+    that if edge (*v*[1], *v*[2]) ∈ *E*, then (*v*[2], *v*[1]) ∉ *E*. We call the
+    two edges (*v*[1], *v*[2]) and (*v*[2], *v*[1]) ***antiparallel***. Thus, to model
+    a flow problem with antiparallel edges, the network must be transformed into an
+    equivalent one containing no antiparallel edges. [Figure 24.2(b)](chapter024.xhtml#Fig_24-2)
+    displays this equivalent network. To transform the network, choose one of the
+    two antiparallel edges, in this case (*v*[1], *v*[2]), and split it by adding
+    a new vertex *v*′ and replacing edge (*v*[1], *v*[2]) with the pair of edges (*v*[1],
+    *v*′) and (*v*′, *v*[2]). Also set the capacity of both new edges to the capacity
+    of the original edge. The resulting network satisfies the property that if an
+    edge belongs to the network, the reverse edge does not. As Exercise 24.1-1 asks
+    you to prove, the resulting network is equivalent to the original one.'
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设卡车公司为幸运 puck 公司提供了在从埃德蒙顿到卡尔加里的卡车上租用 10 个箱子的机会。将这个机会添加到我们的示例中并形成[图 24.2(a)](chapter024.xhtml#Fig_24-2)所示的网络可能看起来很自然。然而，这个网络存在一个问题：它违反了最初的假设，即如果边
+    (*v*[1], *v*[2]) ∈ *E*，那么 (*v*[2], *v*[1]) ∉ *E*。我们称这两条边 (*v*[1], *v*[2]) 和 (*v*[2],
+    *v*[1]) 为***反向边***。因此，为了建模具有反向边的流问题，必须将网络转换为一个不包含反向边的等效网络。[图 24.2(b)](chapter024.xhtml#Fig_24-2)展示了这个等效网络。要转换网络，选择两条反向边中的一条，例如
+    (*v*[1], *v*[2])，并通过添加一个新顶点 *v*′ 并用一对边 (*v*[1], *v*′) 和 (*v*′, *v*[2]) 替换边 (*v*[1],
+    *v*[2]) 来分割它。还要将两条新边的容量设置为原始边的容量。得到的网络满足这样的性质：如果一条边属于网络，则反向边不属于网络。正如练习 24.1-1
+    要求您证明的那样，得到的网络与原始网络等效。
+- en: '![art](images/Art_P757.jpg)'
+  id: totrans-29
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P757.jpg)'
+- en: '**Figure 24.3** Converting a multiple-source, multiple-sink maximum-flow problem
+    into a problem with a single source and a single sink. **(a)** A flow network
+    with three sources *S* = {*s*[1], *s*[2], *s*[3]} and two sinks *T* = {*t*[1],
+    *t*[2]}. **(b)** An equivalent single-source, single-sink flow network. Add a
+    supersource *s* and an edge with infinite capacity from *s* to each of the multiple
+    sources. Also add a supersink *t* and an edge with infinite capacity from each
+    of the multiple sinks to *t*.'
+  id: totrans-30
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 24.3** 将多源多汇最大流问题转换为具有单个源和单个汇的问题。**(a)** 一个具有三个源 *S* = {*s*[1], *s*[2],
+    *s*[3]} 和两个汇 *T* = {*t*[1], *t*[2]} 的流网络。**(b)** 一个等效的单源单汇流网络。添加一个超源 *s*，并从 *s*
+    到每个多源之间添加容量无限的边。同时添加一个超汇 *t*，并从每个多汇到 *t* 之间添加容量无限的边。'
+- en: '**Networks with multiple sources and sinks**'
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**具有多个源和汇的网络**'
+- en: A maximum-flow problem may have several sources and sinks, rather than just
+    one of each. The Lucky Puck Company, for example, might actually have a set of
+    *m* factories {*s*[1], *s*[2], …, *s*[*m*]} and a set of *n* warehouses {*t*[1],
+    *t*[2], …, *t*[*n*]}, as shown in [Figure 24.3(a)](chapter024.xhtml#Fig_24-3).
+    Fortunately, this problem is no harder than ordinary maximum flow.
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最大流问题可能有多个源和汇，而不仅仅是一个。例如，幸运 puck 公司可能实际上有一组 *m* 个工厂 {*s*[1], *s*[2], …, *s*[*m*]}
+    和一组 *n* 个仓库 {*t*[1], *t*[2], …, *t*[*n*]}，如[图 24.3(a)](chapter024.xhtml#Fig_24-3)所示。幸运的是，这个问题并不比普通的最大流问题更难。
+- en: The problem of determining a maximum flow in a network with multiple sources
+    and multiple sinks reduces to an ordinary maximum-flow problem. [Figure 24.3(b)](chapter024.xhtml#Fig_24-3)
+    shows how to convert the network from (a) to an ordinary flow network with only
+    a single source and a single sink. Add a ***supersource*** *s* and add a directed
+    edge (*s*, *s*[*i*]) with capacity *c*(*s*, *s*[*i*]) = ∞ for each *i* = 1, 2,
+    …, *m*. Similarly, create a new ***supersink*** *t* and add a directed edge (*t*[*i*],
+    *t*) with capacity *c*(*t*[*i*], *t*) = ∞ for each *i* = 1, 2, …, *n*. Intuitively,
+    any flow in the network in (a) corresponds to a flow in the network in (b), and
+    vice versa. The single supersource *s* provides as much flow as desired for the
+    multiple sources *s*[*i*], and the single supersink *t* likewise consumes as much
+    flow as desired for the multiple sinks *t*[*i*]. Exercise 24.1-2 asks you to prove
+    formally that the two problems are equivalent.
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在具有多个源和多个汇的网络中确定最大流的问题可以简化为普通的最大流问题。[图 24.3(b)](chapter024.xhtml#Fig_24-3)展示了如何将网络从
+    (a) 转换为只有单个源和单个汇的普通流网络。添加一个***超源*** *s*，并为每个 *i* = 1, 2, …, *m* 添加容量为 *c*(*s*,
+    *s*[*i*]) = ∞ 的有向边 (*s*, *s*[*i*])。类似地，创建一个新的***超汇*** *t*，并为每个 *i* = 1, 2, …,
+    *n* 添加容量为 *c*(*t*[*i*], *t*) = ∞ 的有向边 (*t*[*i*], *t*)。直观地，网络中的任何流都对应于 (a) 中的网络中的流，反之亦然。单个超源
+    *s* 为多个源 *s*[*i*] 提供所需的流量，单个超汇 *t* 同样为多个汇 *t*[*i*] 消耗所需的流量。练习 24.1-2 要求您正式证明这两个问题是等效的。
+- en: '**Exercises**'
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***24.1-1***'
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-1***'
+- en: Show that splitting an edge in a flow network yields an equivalent network.
+    More formally, suppose that flow network *G* contains edge (*u*, *v*), and define
+    a new flow network *G*′ by creating a new vertex *x* and replacing (*u*, *v*)
+    by new edges (*u*, *x*) and (*x*, *v*) with *c*(*u*, *x*) = *c*(*x*, *v*) = *c*(*u*,
+    *v*). Show that a maximum flow in *G*′ has the same value as a maximum flow in
+    *G*.
+  id: totrans-36
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示将流网络中的边分裂会产生一个等效网络。更正式地说，假设流网络*G*包含边(*u*, *v*)，并通过创建一个新顶点*x*并用新边(*u*, *x*)和(*x*,
+    *v*)替换(*u*, *v*)来定义一个新流网络*G*′，其中*c*(*u*, *x*) = *c*(*x*, *v*) = *c*(*u*, *v*)。展示*G*′中的最大流与*G*中的最大流具有相同的值。
+- en: '***24.1-2***'
+  id: totrans-37
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-2***'
+- en: Extend the flow properties and definitions to the multiple-source, multiple-sink
+    problem. Show that any flow in a multiple-source, multiple-sink flow network corresponds
+    to a flow of identical value in the single-source, single-sink network obtained
+    by adding a supersource and a supersink, and vice versa.
+  id: totrans-38
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将流的性质和定义扩展到多源多汇问题。展示多源多汇流网络中的任何流都对应于通过添加超源和超汇得到的单源单汇网络中具有相同值的流，反之亦然。
+- en: '***24.1-3***'
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-3***'
+- en: Suppose that a flow network *G* = (*V*, *E*) violates the assumption that the
+    network contains a path *s* ⇝ *v* ⇝ *t* for all vertices *v* ∈ *V*. Let *u* be
+    a vertex for which there is no path *s* ⇝ *u* ⇝ *t*. Show that there must exist
+    a maximum flow *f* in *G* such that *f* (*u*, *v*) = *f* (*v*, *u*) = 0 for all
+    vertices *v* ∈ *V*.
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设流网络*G* = (*V*, *E*)违反了网络包含一条路径*s* ⇝ *v* ⇝ *t*的假设，其中*v* ∈ *V*。让*u*是一个没有路径*s*
+    ⇝ *u* ⇝ *t*的顶点。展示必然存在一个在*G*中的最大流*f*，使得对于所有顶点*v* ∈ *V*，*f*(*u*, *v*) = *f*(*v*,
+    *u*) = 0。
+- en: '***24.1-4***'
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-4***'
+- en: Let *f* be a flow in a network, and let *α* be a real number. The ***scalar
+    flow product***, denoted *αf*, is a function from *V* × *V* to ℝ defined by
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*f*是网络中的一个流，*α*是一个实数。标量流乘积，记为*αf*，是一个从*V* × *V*到ℝ的函数，定义为
+- en: (*αf*)(*u*, *v*) = *α* · *f* (*u*, *v*).
+  id: totrans-43
+  prefs: []
+  type: TYPE_NORMAL
+  zh: (*αf*)(*u*, *v*) = *α* · *f*(*u*, *v*)。
+- en: Prove that the flows in a network form a ***convex set***. That is, show that
+    if *f*[1] and *f*[2] are flows, then so is *αf*[1] + (1 − *α*) *f*[2] for all
+    *α* in the range 0 ≤ *α* ≤ 1.
+  id: totrans-44
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明网络中的流形成一个***凸集***。也就是说，证明如果*f*[1]和*f*[2]是流，则对于范围0 ≤ *α* ≤ 1中的所有*α*，*αf*[1]
+    + (1 − *α*) *f*[2]也是流。
+- en: '***24.1-5***'
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-5***'
+- en: State the maximum-flow problem as a linear-programming problem.
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将最大流问题陈述为一个线性规划问题。
+- en: '***24.1-6***'
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-6***'
+- en: Professor Adam has two children who, unfortunately, dislike each other. The
+    problem is so severe that not only do they refuse to walk to school together,
+    but in fact each one refuses to walk on any block that the other child has stepped
+    on that day. The children have no problem with their paths crossing at a corner.
+    Fortunately both the professor’s house and the school are on corners, but beyond
+    that he is not sure if it is going to be possible to send both of his children
+    to the same school. The professor has a map of his town. Show how to formulate
+    the problem of determining whether both his children can go to the same school
+    as a maximum-flow problem.
+  id: totrans-48
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 亚当教授有两个不幸互相不喜欢的孩子。问题如此严重，以至于他们不仅拒绝一起上学，事实上，每个孩子都拒绝走任何另一个孩子当天走过的街区。孩子们不介意在街角相遇。幸运的是，教授的家和学校都在街角，但除此之外，他不确定是否可能让他的两个孩子去同一所学校。教授有他镇上的地图。展示如何将确定他的两个孩子是否能去同一所学校的问题制定为最大流问题。
+- en: '***24.1-7***'
+  id: totrans-49
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.1-7***'
+- en: Suppose that, in addition to edge capacities, a flow network has ***vertex capacities***.
+    That is each vertex *v* has a limit *l*(*v*) on how much flow can pass through
+    *v*. Show how to transform a flow network *G* = (*V*, *E*) with vertex capacities
+    into an equivalent flow network *G*′ = (*V*′, *E*′) without vertex capacities,
+    such that a maximum flow in *G*′ has the same value as a maximum flow in *G*.
+    How many vertices and edges does *G*′ have?
+  id: totrans-50
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设除了边的容量之外，流网络还具有***顶点容量***。也就是说，每个顶点*v*对通过*v*的流量有一个限制*l*(*v*)。展示如何将具有顶点容量的流网络*G*
+    = (*V*, *E*)转换为一个等效的没有顶点容量的流网络*G*′ = (*V*′, *E*′)，使得*G*′中的最大流与*G*中的最大流具有相同的值。*G*′有多少个顶点和边？
+- en: '[**24.2    The Ford-Fulkerson method**](toc.xhtml#Rh1-142)'
+  id: totrans-51
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**24.2    福特-福尔克森方法**](toc.xhtml#Rh1-142)'
+- en: 'This section presents the Ford-Fulkerson method for solving the maximum-flow
+    problem. We call it a “method” rather than an “algorithm” because it encompasses
+    several implementations with differing running times. The Ford-Fulkerson method
+    depends on three important ideas that transcend the method and are relevant to
+    many flow algorithms and problems: residual networks, augmenting paths, and cuts.
+    These ideas are essential to the important max-flow min-cut theorem (Theorem 24.6),
+    which characterizes the value of a maximum flow in terms of cuts of the flow network.
+    We end this section by presenting one specific implementation of the Ford-Fulkerson
+    method and analyzing its running time.'
+  id: totrans-52
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节介绍了解决最大流问题的福特-福尔克森方法。我们将其称为“方法”而不是“算法”，因为它包含了几种不同运行时间的实现。福特-福尔克森方法依赖于三个重要的概念，这些概念超越了方法本身，并与许多流算法和问题相关：残余网络、增广路径和割。这些概念对于重要的最大流最小割定理（定理24.6）至关重要，该定理以流网络的割来表征最大流的值。我们通过介绍福特-福尔克森方法的一个具体实现并分析其运行时间来结束本节。
+- en: The Ford-Fulkerson method iteratively increases the value of the flow. It starts
+    with *f* (*u*, *v*) = 0 for all *u*, *v* ∈ *V*, giving an initial flow of value
+    0\. Each iteration increases the flow value in *G* by finding an “augmenting path”
+    in an associated “residual network” *G*[*f*]. The edges of the augmenting path
+    in *G*[*f*] indicate on which edges in *G* to update the flow in order to increase
+    the flow value. Although each iteration of the Ford-Fulkerson method increases
+    the value of the flow, we’ll see that the flow on any particular edge of *G* may
+    increase or decrease. Although it might seem counterintuitive to decrease the
+    flow on an edge, doing so may enable flow to increase on other edges, allowing
+    more flow to travel from the source to the sink. The Ford-Fulkerson method, given
+    in the procedure FORD-FULKERSON-METHOD, repeatedly augments the flow until the
+    residual network has no more augmenting paths. The max-flow min-cut theorem shows
+    that upon termination, this process yields a maximum flow.
+  id: totrans-53
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Ford-Fulkerson 方法通过在相关的“残余网络” *G*[*f*] 中找到“增广路径”来迭代增加流的值。每次迭代都会在 *G* 中找到一个“增广路径”，从而增加流的值。增广路径在
+    *G*[*f*] 中的边表示在 *G* 中更新流以增加流值的边。尽管 Ford-Fulkerson 方法的每次迭代都会增加流的值，但我们会看到 *G* 的任何特定边上的流量可能增加或减少。尽管减少边上的流量可能看起来有些反直觉，但这样做可能会使其他边上的流量增加，从而使更多的流量从源流向汇流。Ford-Fulkerson
+    方法在 FORD-FULKERSON-METHOD 过程中重复增加流，直到残余网络没有更多的增广路径。最大流最小割定理表明，在终止时，这个过程会产生一个最大流。
+- en: FORD-FULKERSON-METHOD (*G*, *s*, *t*)
+  id: totrans-54
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FORD-FULKERSON-METHOD (*G*, *s*, *t*)
+- en: '| 1 | initialize flow *f* to 0 |'
+  id: totrans-55
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 将流 *f* 初始化为 0 |'
+- en: '| 2 | **while** there exists an augmenting path *p* in the residual network
+    *G*[*f*] |'
+  id: totrans-56
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **当**在残余网络 *G*[*f*] 中存在增广路径 *p* 时 |'
+- en: '| 3 | augment flow *f* along *p* |'
+  id: totrans-57
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | 沿着 *p* 增广流 *f* |'
+- en: '| 4 | **return** *f* |'
+  id: totrans-58
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **返回** *f* |'
+- en: In order to implement and analyze the Ford-Fulkerson method, we need to introduce
+    several additional concepts.
+  id: totrans-59
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了实现和分析 Ford-Fulkerson 方法，我们需要引入几个额外的概念。
+- en: '**Residual networks**'
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**残余网络**'
+- en: Intuitively, given a flow network *G* and a flow *f*, the residual network *G*[*f*]
+    consists of edges whose capacities represent how the flow can change on edges
+    of *G*. An edge of the flow network can admit an amount of additional flow equal
+    to the edge’s capacity minus the flow on that edge. If that value is positive,
+    that edge goes into *G*[*f*] with a “residual capacity” of *c*[*f*] (*u*, *v*)
+    = *c*(*u*, *v*) − *f* (*u*, *v*). The only edges of *G* that belong to *G*[*f*]
+    are those that can admit more flow. Those edges (*u*, *v*) whose flow equals their
+    capacity have *c*[*f*] (*u*, *v*) = 0, and they do not belong to *G*[*f*].
+  id: totrans-61
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 直观地，给定一个流网络 *G* 和一��流 *f*，残余网络 *G*[*f*] 包含的边的容量表示了流在 *G* 的边上如何改变。流网络的一条边可以接受等于边的容量减去该边上的流量的额外流量。如果该值为正，那么该边就以“残余容量”
+    *c*[*f*] (*u*, *v*) = *c*(*u*, *v*) − *f* (*u*, *v*) 形式进入 *G*[*f*]。属于 *G*[*f*]
+    的仅有那些可以接受更多流量的边。那些流量等于容量的边 (*u*, *v*) 其残余容量为 *c*[*f*] (*u*, *v*) = 0，它们不属于 *G*[*f*]。
+- en: You might be surprised that the residual network *G*[*f*] can also contain edges
+    that are not in *G*. As an algorithm manipulates the flow, with the goal of increasing
+    the total flow, it might need to decrease the flow on a particular edge in order
+    to increase the flow elsewhere. In order to represent a possible decrease in the
+    positive flow *f* (*u*, *v*) on an edge in *G*, the residual network *G*[*f*]
+    contains an edge (*v*, *u*) with residual capacity *c*[*f*] (*v*, *u*) = *f* (*u*,
+    *v*)—that is, an edge that can admit flow in the opposite direction to (*u*, *v*),
+    at most canceling out the flow on (*u*, *v*). These reverse edges in the residual
+    network allow an algorithm to send back flow it has already sent along an edge.
+    Sending flow back along an edge is equivalent to *decreasing* the flow on the
+    edge, which is a necessary operation in many algorithms.
+  id: totrans-62
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您可能会惊讶地发现，残余网络 *G*[*f*] 也可以包含不在 *G* 中的边。随着算法操作流，目标是增加总流量，可能需要减少特定边上的流量以便在其他地方增加流量。为了表示在
+    *G* 中的正流 *f* (*u*, *v*) 可能减少的情况，残余网络 *G*[*f*] 包含一条边 (*v*, *u*)，其残余容量为 *c*[*f*]
+    (*v*, *u*) = *f* (*u*, *v*) — 也就是说，一条边可以接受与 (*u*, *v*) 相反方向的流，最多抵消 (*u*, *v*)
+    上的流。残余网络中的这些反向边允许算法将已经沿一条边发送的流返回。沿一条边发送流相当于*减少*边上的流，这是许多算法中必要的操作。
+- en: More formally, for a flow network *G* = (*V*, *E*) with source *s*, sink *t*,
+    and a flow *f*, consider a pair of vertices *u*, *v* ∈ *V*. We define the ***residual
+    capacity*** *c*[*f*] (*u*, *v*) by
+  id: totrans-63
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 更正式地，对于一个具有源 *s*、汇 *t* 和流 *f* 的流网络 *G* = (*V*, *E*），考虑一对顶点 *u*, *v* ∈ *V*。我们通过定义***残余容量*** *c*[*f*]
+    (*u*, *v*) 来表示
+- en: '![art](images/Art_P758.jpg)'
+  id: totrans-64
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P758.jpg)'
+- en: In a flow network, (*u*, *v*) ∈ *E* implies (*v*, *u*) ∉ *E*, and so exactly
+    one case in equation (24.2) applies to each ordered pair of vertices.
+  id: totrans-65
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在一个流网络中，(*u*, *v*) ∈ *E* 意味着 (*v*, *u*) ∉ *E*，因此方程式（24.2）中的每个有序顶点对都适用于一个情况。
+- en: As an example of equation (24.2), if *c*(*u*, *v*) = 16 and *f* (*u*, *v*) =
+    11, then *f* (*u*, *v*) can increase by up to *c*[*f*] (*u*, *v*) = 5 units before
+    exceeding the capacity constraint on edge (*u*, *v*). Alternatively, up to 11
+    units of flow can return from *v* to *u*, so that *c*[*f*] (*v*, *u*) = 11.
+  id: totrans-66
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为方程式（24.2）的一个例子，如果 *c*(*u*, *v*) = 16 并且 *f* (*u*, *v*) = 11，则在超过边 (*u*, *v*)
+    的容量约束之前，*f* (*u*, *v*) 可以增加至多 *c*[*f*] (*u*, *v*) = 5 个单位。或者，最多可以有 11 个单位的流从 *v*
+    返回到 *u*，这样 *c*[*f*] (*v*, *u*) = 11。
+- en: Given a flow network *G* = (*V*, *E*) and a flow *f*, the ***residual network***
+    of *G* induced by *f* is *G*[*f*] = (*V*, *E*[*f*]), where
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个流网络 *G* = (*V*, *E*) 和一个流 *f*，由 *f* 引起的 *G* 的***残余网络***是 *G*[*f*] = (*V*,
+    *E*[*f*])，其中
+- en: '![art](images/Art_P759.jpg)'
+  id: totrans-68
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P759.jpg)'
+- en: '![art](images/Art_P760.jpg)'
+  id: totrans-69
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P760.jpg)'
+- en: '**Figure 24.4 (a)** The flow network *G* and flow *f* of [Figure 24.1(b)](chapter024.xhtml#Fig_24-1).
+    **(b)** The residual network *G*[*f*] with augmenting path *p*, having residual
+    capacity *c*[*f*] (*p*) = *c*[*f*] (*v*[2], *v*[3]) = 4, in blue. Edges with residual
+    capacity equal to 0, such as (*v*[1], *v*[3]), are not shown, a convention we
+    follow in the remainder of this section. **(c)** The flow in *G* that results
+    from augmenting along path *p* by its residual capacity 4\. Edges carrying no
+    flow, such as (*v*[3], *v*[2]), are labeled only by their capacity, another convention
+    we follow throughout. **(d)** The residual network induced by the flow in (c).'
+  id: totrans-70
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图24.4 (a)** [图24.1(b)](chapter024.xhtml#Fig_24-1)中的流网络*G*和流*f*。**(b)** 具有增广路径*p*的残余网络*G*[*f*]，其残余容量为*c*[*f*]
+    (*p*) = *c*[*f*] (*v*[2], *v*[3]) = 4，用蓝色标出。残余容量为0的边，如(*v*[1], *v*[3])，未显示，这是我们在本节其余部分遵循的惯例。**(c)**
+    沿着路径*p*增广后在*G*中的流，其增广容量为4。不携带流量的边，如(*v*[3], *v*[2])，仅标记其容量，这是我们在整个过程中遵循的另一个惯例。**(d)**
+    (c)中流导致的残余网络。'
+- en: That is, as promised above, each edge of the residual network, or ***residual
+    edge***, can admit a flow that is greater than 0\. [Figure 24.4(a)](chapter024.xhtml#Fig_24-4)
+    repeats the flow network *G* and flow *f* of [Figure 24.1(b)](chapter024.xhtml#Fig_24-1),
+    and [Figure 24.4(b)](chapter024.xhtml#Fig_24-4) shows the corresponding residual
+    network *G*[*f*]. The edges in *E*[*f*] are either edges in *E* or their reversals,
+    and thus
+  id: totrans-71
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 即，正如上面所承诺的，残余网络的每条边，或者***残余边***，都可以容纳大于0的流量。[图24.4(a)](chapter024.xhtml#Fig_24-4)重复了流网络*G*和流*f*的[图24.1(b)](chapter024.xhtml#Fig_24-1)，而[图24.4(b)](chapter024.xhtml#Fig_24-4)展示了相应的残余网络*G*[*f*]。*E*[*f*]中的边要么是*E*中的边，要么是它们的反向边，因此
+- en: '|*E*[*f*]| ≤ 2 |*E*|.'
+  id: totrans-72
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '|*E*[*f*]| ≤ 2 |*E*|.'
+- en: Observe that the residual network *G*[*f*] is similar to a flow network with
+    capacities given by *c*[*f*]. It does not satisfy the definition of a flow network,
+    however, because it could contain antiparallel edges. Other than this difference,
+    a residual network has the same properties as a flow network, and we can define
+    a flow in the residual network as one that satisfies the definition of a flow,
+    but with respect to capacities *c*[*f*] in the residual network *G*[*f*].
+  id: totrans-73
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 注意到残余网络*G*[*f*]类似于具有*c*[*f*]给定容量的流网络。然而，它不满足流网络的定义，因为它可能包含反向边。除此之外，残余网络具有与流网络相同的属性，我们可以定义残余网络中的流，使其满足流的定义，但是相对于残余网络*G*[*f*]中的容量*c*[*f*]。
+- en: A flow in a residual network provides a roadmap for adding flow to the original
+    flow network. If *f* is a flow in *G* and *f*′ is a flow in the corresponding
+    residual network *G*[*f*], we define *f* ↑ *f*′, the ***augmentation*** of flow
+    *f* by *f* ′, to be a function from *V* × *V* to ℝ, defined by
+  id: totrans-74
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 残余网络中的流提供了向原始流网络添加流量的路线图。如果*f*是*G*中的一个流，*f*′是相应残余网络*G*[*f*]中的一个流，我们定义*f* ↑ *f*′，即通过*f*
+    ′增加*f*的***增广***，为一个从*V* × *V*到ℝ的函数，定义如下
+- en: '![art](images/Art_P761.jpg)'
+  id: totrans-75
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P761.jpg)'
+- en: The intuition behind this definition follows the definition of the residual
+    network. The flow on (*u*, *v*) increases by *f* ′(*u*, *v*), but decreases by
+    *f* ′(*v*, *u*) because pushing flow on the reverse edge in the residual network
+    signifies decreasing the flow in the original network. Pushing flow on the reverse
+    edge in the residual network is also known as ***cancellation***. For example,
+    suppose that 5 crates of hockey pucks go from *u* to *v* and 2 crates go from
+    *v* to *u*. That is equivalent (from the perspective of the final result) to sending
+    3 crates from *u* to *v* and none from *v* to *u*. Cancellation of this type is
+    crucial for any maximum-flow algorithm.
+  id: totrans-76
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个定义背后的直觉遵循残余网络的定义。(*u*, *v*)上的流量增加了*f* ′(*u*, *v*)，但是减少了*f* ′(*v*, *u*)，因为在残余网络中推送反向边上的流量意味着减少原始网络中的流量。在残余网络中推送反向边上的流量也被称为***取消***。例如，假设有5箱曲棍球从*u*到*v*，2箱从*v*到*u*。从最终结果的角度来看，这相当于从*u*到*v*发送3箱，从*v*到*u*不发送。这种类型的取消对于任何最大流算法都至关重要。
+- en: The following lemma shows that augmenting a flow in *G* by a flow in *G*[*f*]
+    yields a new flow in *G* with a greater flow value.
+  id: totrans-77
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下引理表明，通过*G*中的流增广*G*[*f*]中的流，可以得到*G*中流量更大的新流。
+- en: '***Lemma 24.1***'
+  id: totrans-78
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理24.1***'
+- en: Let *G* = (*V*, *E*) be a flow network with source *s* and sink *t*, and let
+    *f* be a flow in *G*. Let *G*[*f*] be the residual network of *G* induced by *f*,
+    and let *f* ′ be a flow in *G*[*f*]. Then the function *f* ↑ *f* ′ defined in
+    equation (24.4) is a flow in *G* with value |*f* ↑ *f* ′| = |*f* | + |*f* ′|.
+  id: totrans-79
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)是一个具有源*s*和汇*t*的流网络，*f*是*G*中的一个流。设*G*[*f*]是由*f*诱导的*G*的残余网络，*f*
+    ′是*G*[*f*]中的一个流。那么方程(24.4)定义的*f* ↑ *f* ′是*G*中的一个流，其值为|*f* ↑ *f* ′| = |*f* | +
+    |*f* ′|。
+- en: '***Proof***   We first verify that *f* ↑ *f* ′ obeys the capacity constraint
+    for each edge in *E* and flow conservation at each vertex in *V* − {*s*, *t*}.'
+  id: totrans-80
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 我们首先验证*f* ↑ *f* ′遵守*E*中每条边的容量约束和*V* − {*s*, *t*}中每个顶点的流量守恒。'
+- en: For the capacity constraint, first observe that if (*u*, *v*) ∈ *E*, then *c*[*f*]
+    (*v*, *u*) = *f* (*u*, *v*). Because *f* ′ is a flow in *G*[*f*], we have *f*
+    ′(*v*, *u*) ≤ *c*[*f*] (*v*, *u*), which gives *f* ′(*v*, *u*) ≤ *f* (*u*, *v*).
+    Therefore,
+  id: totrans-81
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于容量约束，首先观察到如果(*u*, *v*) ∈ *E*，那么*c*[*f*] (*v*, *u*) = *f* (*u*, *v*)。因为*f*
+    ′是*G*[*f*]中的一个流，我们有*f* ′(*v*, *u*) ≤ *c*[*f*] (*v*, *u*)，这给出*f* ′(*v*, *u*) ≤
+    *f* (*u*, *v*)。因此，
+- en: '| (*f* ↑ *f*′)(*u*, *v*) | = | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* ′(*v*,
+    *u*) | (by equation (24.4)) |'
+  id: totrans-82
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*f* ↑ *f*′)(*u*, *v*) | = | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* ′(*v*,
+    *u*) | (根据方程(24.4)) |'
+- en: '|  | ≥ | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* (*u*, *v*) | (because *f* ′(*v*,
+    *u*) ≤ *f* (*u*, *v*)) |'
+  id: totrans-83
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≥ | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* (*u*, *v*) | (因为*f* ′(*v*,
+    *u*) ≤ *f* (*u*, *v*)) |'
+- en: '|  | = | *f* ′(*u*, *v*) |  |'
+  id: totrans-84
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *f* ′(*u*, *v*) |  |'
+- en: '|  | ≥ | 0. |  |'
+  id: totrans-85
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≥ | 0. |  |'
+- en: In addition,
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 此外，
+- en: '| (*f* ↑ *f*′)(*u*, *v*) |'
+  id: totrans-87
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*f* ↑ *f*′)(*u*, *v*) |'
+- en: '|  | = | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* ′(*v*, *u*) | (by equation
+    (24.4)) |'
+  id: totrans-88
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *f* (*u*, *v*) + *f* ′(*u*, *v*) − *f* ′(*v*, *u*) | (根据方程(24.4))
+    |'
+- en: '|  | ≤ | *f* (*u*, *v*) + *f* ′(*u*, *v*) | (because flows are nonnegative)
+    |'
+  id: totrans-89
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≤ | *f* (*u*, *v*) + *f* ′(*u*, *v*) | (因为流量是非负的) |'
+- en: '|  | ≤ | *f* (*u*, *v*) + *c*[*f*] (*u*, *v*) | (capacity constraint) |'
+  id: totrans-90
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≤ | *f* (*u*, *v*) + *c*[*f*] (*u*, *v*) |（容量约束）|'
+- en: '|  | = | *f* (*u*, *v*) + *c*(*u*, *v*) − *f* (*u*, *v*) | (definition of *c*[*f*])
+    |'
+  id: totrans-91
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *f* (*u*, *v*) + *c*(*u*, *v*) − *f* (*u*, *v*) |（*c*[*f*] 的定义）|'
+- en: '|  | = | *c*(*u*, *v*). |  |'
+  id: totrans-92
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *c*(*u*, *v*)。 |  |'
+- en: To show that flow conservation holds and that |*f* ↑ *f* ′| = |*f* | + |*f*
+    ′|, we first prove the claim that for all *u* ∈ *V*, we have
+  id: totrans-93
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了证明流量守恒成立以及 |*f* ↑ *f* ′| = |*f* | + |*f* ′|，我们首先证明对于所有 *u* ∈ *V*，我们有
+- en: '![art](images/Art_P762.jpg)'
+  id: totrans-94
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P762.jpg)'
+- en: 'Because we disallow antiparallel edges in *G* (but not in *G*[*f*]), we know
+    that for each vertex *u*, there can be an edge (*u*, *v*) or (*v*, *u*) in *G*,
+    but never both. For a fixed vertex *u*, define *V*[*l*](*u*) = {*v* : (*u*, *v*)
+    ∈ *E*} to be the set of vertices with edges in *G* leaving *u*, and define *V*[*e*](*u*)
+    = {*v* : (*v*, *u*) ∈ *E*} to be the set of vertices with edges in *G* entering
+    *u*. We have *V*[*l*](*u*) ∪ *V*[*e*](*u*) ⊆ *V* and, because *G* contains no
+    antiparallel edges, *V*[*l*](*u*) ∩ *V*[*e*](*u*) = ∅. By the definition of flow
+    augmentation in equation (24.4), only vertices *v* in *V*[*l*](*u*) can have positive
+    (*f* ↑ *f*′)(*u*, *v*), and only vertices *v* in *V*[*e*](*u*) can have positive
+    (*f* ↑ *f* ′)(*v*, *u*). Starting from the left-hand side of equation (24.5),
+    we use this fact and then reorder and group terms, giving'
+  id: totrans-95
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为我们在 *G* 中不允许反平行边（但在 *G*[*f*] 中允许），所以对于每个顶点 *u*，*G* 中可以有边（*u*, *v*）或（*v*, *u*），但永远不会同时存在。
+    对于固定的顶点 *u*，定义 *V*[*l*](*u*) = {*v* :（*u*, *v*）∈ *E*} 为具有从 *u* 出发的边的顶点集，定义 *V*[*e*](*u*)
+    = {*v* :（*v*, *u*）∈ *E*} 为具有进入 *u* 的边的顶点集。 我们有 *V*[*l*](*u*) ∪ *V*[*e*](*u*) ⊆
+    *V*，并且，因为 *G* 不包含反平行边，*V*[*l*](*u*) ∩ *V*[*e*](*u*) = ∅。 根据方程（24.4）中流增广的定义，只有
+    *V*[*l*](*u*) 中的顶点 *v* 可以具有正的 (*f* ↑ *f*′)(*u*, *v*)，只有 *V*[*e*](*u*) 中的顶点 *v*
+    可以具有正的 (*f* ↑ *f* ′)(*v*, *u*)。 从方程（24.5）的左侧开始，我们利用这一事实，然后重新排列和分组项，得到
+- en: '![art](images/Art_P763.jpg)'
+  id: totrans-96
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P763.jpg)'
+- en: In equation (24.6), all four summations can extend to sum over *V*, since each
+    additional term has value 0\. (Exercise 24.2-1 asks you to prove this formally.)
+    Taking all four summations over *V*, instead of just subsets of *V*, proves the
+    claim in equation (24.5).
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在方程（24.6）中，所有四个求和都可以延伸到对 *V* 的求和，因为每个额外项的值为 0。 （练习 24.2-1 要求您正式证明这一点。）对 *V*
+    的所有四个求和，而不仅仅是 *V* 的子集，证明了方程（24.5）中的声明。
+- en: Now we are ready to prove flow conservation for *f* ↑ *f* ′ and that |*f* ↑
+    *f*′| = | *f* | + |*f* ′|. For the latter property, let *u* = *s* in equation
+    (24.5). Then, we have
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们准备证明 *f* ↑ *f* ′ 的流量守恒以及 |*f* ↑ *f*′| = | *f* | + |*f* ′|。 对于后者的性质，让 *u*
+    = *s* 在方程（24.5）中。 然后，我们有
+- en: '![art](images/Art_P764.jpg)'
+  id: totrans-99
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P764.jpg)'
+- en: For flow conservation, observe that for any vertex *u* that is neither *s* nor
+    *t*, flow conservation for *f* and *f* ′ means that the right-hand side of equation
+    (24.5) is 0, and thus Σ[*v*∈*V*] (*f* ↑ *f*′)(*u*, *v*) = Σ[*v*∈*V*] (*f* ↑ *f*′)(*v*,
+    *u*).
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于流量守恒，观察到对于任何既不是 *s* 也不是 *t* 的顶点 *u*，*f* 和 *f* ′ 的流量守恒意味着方程（24.5）的右侧为 0，因此
+    Σ[*v*∈*V*] (*f* ↑ *f*′)(*u*, *v*) = Σ[*v*∈*V*] (*f* ↑ *f*′)(*v*, *u*)。
+- en: ▪
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Augmenting paths**'
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**增广路径**'
+- en: Given a flow network *G* = (*V*, *E*) and a flow *f*, an ***augmenting path*** *p*
+    is a simple path from *s* to *t* in the residual network *G*[*f*]. By the definition
+    of the residual network, the flow on an edge (*u*, *v*) of an augmenting path
+    may increase by up to *c*[*f*] (*u*, *v*) without violating the capacity constraint
+    on whichever of (*u*, *v*) and (*v*, *u*) belongs to the original flow network
+    *G*.
+  id: totrans-103
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个流网络 *G* = (*V*, *E*) 和一个流 *f*，一个***增广路径*** *p* 是残余网络 *G*[*f*] 中从 *s* 到 *t*
+    的简单路径。根据残余网络的定义，增广路径上边（*u*, *v*）的流量最多可以增加 *c*[*f*] (*u*, *v*) 而不违反原始流网络 *G* 上的容量约束。
+- en: The blue path in [Figure 24.4(b)](chapter024.xhtml#Fig_24-4) is an augmenting
+    path. Treating the residual network *G*[*f*] in the figure as a flow network,
+    the flow through each edge of this path can increase by up to 4 units without
+    violating a capacity constraint, since the smallest residual capacity on this
+    path is *c*[*f*] (*v*[2], *v*[3]) = 4\. We call the maximum amount by which we
+    can increase the flow on each edge in an augmenting path *p* the ***residual capacity***
+    of *p*, given by
+  id: totrans-104
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图 24.4(b)](chapter024.xhtml#Fig_24-4) 中的蓝色路径是一个增广路径。 将图中的残余网络 *G*[*f*] 视为流网络，这条路径上每条边的流量最多可以增加
+    4 个单位而不违反容量约束，因为该路径上最小的残余容量是 *c*[*f*] (*v*[2], *v*[3]) = 4。 我们称增广路径 *p* 上每条边可以增加的最大流量为***残余容量***，由以下给出'
+- en: '*c*[*f*] (*p*) = min {*c*[*f*] (*u*, *v*) : (*u*, *v*) is in *p*}.'
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*c*[*f*] (*p*) = min {*c*[*f*] (*u*, *v*) : (*u*, *v*) 在 *p* 中}。'
+- en: The following lemma, which Exercise 24.2-7 asks you to prove, makes the above
+    argument more precise.
+  id: totrans-106
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下引理要求您证明，使上述论点更加明确。
+- en: '***Lemma 24.2***'
+  id: totrans-107
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 24.2***'
+- en: 'Let *G* = (*V*, *E*) be a flow network, let *f* be a flow in *G*, and let *p*
+    be an augmenting path in *G*[*f*]. Define a function *f*[*p*] : *V* × *V* → ℝ
+    by'
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设 *G* = (*V*, *E*) 为一个流网络，*f* 为 *G* 中的一个流，*p* 为 *G*[*f*] 中的一个增广路径。 定义一个函数 *f*[*p*]：*V*
+    × *V* → ℝ，其中
+- en: '![art](images/Art_P765.jpg)'
+  id: totrans-109
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P765.jpg)'
+- en: Then, *f*[*p*] is a flow in *G*[*f*] with value |*f*[*p*]| = *c*[*f*] (*p*)
+    > 0.
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 那么，*f*[*p*] 是 *G*[*f*] 中值为 |*f*[*p*]| = *c*[*f*] (*p*) > 0 的流。
+- en: ▪
+  id: totrans-111
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The following corollary shows that augmenting *f* by *f*[*p*] produces another
+    flow in *G* whose value is closer to the maximum. [Figure 24.4(c)](chapter024.xhtml#Fig_24-4)
+    shows the result of augmenting the flow *f* from [Figure 24.4(a)](chapter024.xhtml#Fig_24-4)
+    by the flow *f*[*p*] in [Figure 24.4(b)](chapter024.xhtml#Fig_24-4), and [Figure
+    24.4(d)](chapter024.xhtml#Fig_24-4) shows the ensuing residual network.
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下推论显示，通过 *f*[*p*] 增广 *f* 会产生另一个流，其值更接近最大值。[图 24.4(c)](chapter024.xhtml#Fig_24-4)
+    展示了通过在 [图 24.4(a)](chapter024.xhtml#Fig_24-4) 的流中增广 *f*[*p*] 的结果，以及 [图 24.4(d)](chapter024.xhtml#Fig_24-4)
+    展示了随后的残余网络。
+- en: '***Corollary 24.3***'
+  id: totrans-113
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论 24.3***'
+- en: Let *G* = (*V*, *E*) be a flow network, let *f* be a flow in *G*, and let *p*
+    be an augmenting path in *G*[*f*]. Let *f*[*p*] be defined as in equation (24.7),
+    and suppose that *f* is augmented by *f*[*p*]. Then the function *f* ↑ *f*[*p*]
+    is a flow in *G* with value |*f* ↑ *f*[*p*]| = |*f*| + |*f*[*p*]| > |*f*|.
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设 *G* = (*V*, *E*) 是一个流网络，*f* 是 *G* 中的一条流，*p* 是 *G*[*f*] 中的一条增广路径。定义 *f*[*p*]
+    如方程 (24.7) 中所示，并假设 *f* 被 *f*[*p*] 增广。那么函数 *f* ↑ *f*[*p*] 是 *G* 中的一条流，其值为 |*f*
+    ↑ *f*[*p*]| = |*f*| + |*f*[*p*]| > |*f*|。
+- en: '***Proof***   Immediate from Lemmas 24.1 and 24.2.'
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 由引理 24.1 和 24.2 立即得出。'
+- en: ▪
+  id: totrans-116
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Cuts of flow networks**'
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**流网络的割**'
+- en: The Ford-Fulkerson method repeatedly augments the flow along augmenting paths
+    until it has found a maximum flow. How do we know that when the algorithm terminates,
+    it has actually found a maximum flow? The max-flow min-cut theorem, which we will
+    prove shortly, tells us that a flow is maximum if and only if its residual network
+    contains no augmenting path. To prove this theorem, though, we must first explore
+    the notion of a cut of a flow network.
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Ford-Fulkerson 方法反复沿着增广路径增加流量，直到找到最大流。当算法终止时，我们如何知道它实际上找到了最大流？最大流最小割定理告诉我们，当残余网络不包含增广路径时，流是最大的。然而，要证明这个定理，我们必须首先探讨流网络的割的概念。
+- en: A ***cut*** (*S*, *T*) of flow network *G* = (*V*, *E*) is a partition of *V*
+    into *S* and *T* = *V* − *S* such that *s* ∈ *S* and *t* ∈ *T*. (This definition
+    is similar to the definition of “cut” that we used for minimum spanning trees
+    in [Chapter 21](chapter021.xhtml), except that here we are cutting a directed
+    graph rather than an undirected graph, and we insist that *s* ∈ *S* and *t* ∈
+    *T*.) If *f* is a flow, then the ***net flow*** *f*(*S*, *T*) across the cut (*S*,
+    *T*) is defined to be
+  id: totrans-119
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 流网络的一个***割*** (*S*, *T*) 是 *V* 的一个划分为 *S* 和 *T* = *V* − *S*，使得 *s* ∈ *S* 且 *t*
+    ∈ *T*。（这个定义类似于我们在[第 21 章](chapter021.xhtml)中用于最小生成树的“割”的定义，只是这里我们切割的是有向图而不是无向图，并且我们坚持
+    *s* ∈ *S* 和 *t* ∈ *T*。）如果 *f* 是一条流，则割 (*S*, *T*) 上的***净流量*** *f*(*S*, *T*) 定义为
+- en: '![art](images/Art_P766.jpg)'
+  id: totrans-120
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P766.jpg)'
+- en: The ***capacity*** of the cut (*S*, *T*) is
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 割 (*S*, *T*) 的***容量***为
+- en: '![art](images/Art_P767.jpg)'
+  id: totrans-122
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P767.jpg)'
+- en: A ***minimum cut*** of a network is a cut whose capacity is minimum over all
+    cuts of the network.
+  id: totrans-123
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 网络的***最小割***是网络中所有割中容量最小的割。
+- en: You probably noticed that the definitions of flow across a cut and capacity
+    of a cut differ in that flow counts edges going in both directions across the
+    cut, but capacity counts only edges going from the source side of the cut toward
+    the sink side. This asymmetry is intentional and important. The reason for this
+    difference will become apparent later in this section.
+  id: totrans-124
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您可能注意到，流过割的流量和割的容量的定义不同，流量计算穿过割的双向边的数量，但容量只计算从源端到汇端的边的数量。这种不对称性是有意而为之的，并且非常重要。这种差异的原因将在本节后面变得明显。
+- en: '[Figure 24.5](chapter024.xhtml#Fig_24-5) shows the cut ({*s*, *v*[1], *v*[2]},
+    {*v*[3], *v*[4], *t*}) in the flow network of [Figure 24.1(b)](chapter024.xhtml#Fig_24-1).
+    The net flow across this cut is'
+  id: totrans-125
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图 24.5](chapter024.xhtml#Fig_24-5) 显示了 [图 24.1(b)](chapter024.xhtml#Fig_24-1)
+    中流网络中的割 ({*s*, *v*[1], *v*[2]}, {*v*[3], *v*[4], *t*})。这个割的净流量为'
+- en: '| *f* (*v*[1], *v*[3]) + *f* (*v*[2], *v*[4]) − *f* (*v*[3], *v*[2]) | = |
+    12 + 11 − 4 |'
+  id: totrans-126
+  prefs: []
+  type: TYPE_TB
+  zh: '| *f* (*v*[1], *v*[3]) + *f* (*v*[2], *v*[4]) − *f* (*v*[3], *v*[2]) | = |
+    12 + 11 − 4 |'
+- en: '|  | = | 19, |'
+  id: totrans-127
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | 19, |'
+- en: and the capacity of this cut is
+  id: totrans-128
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 此割的容量为
+- en: '![art](images/Art_P768.jpg)'
+  id: totrans-129
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P768.jpg)'
+- en: '**Figure 24.5** A cut (*S*, *T*) in the flow network of [Figure 24.1(b)](chapter024.xhtml#Fig_24-1),
+    where *S* = {*s*, *v*[1], *v*[2]} and *T* = {*v*[3], *v*[4], *t*}. The vertices
+    in *S* are orange, and the vertices in *T* are tan. The net flow across (*S*,
+    *T*) is *f* (*S*, *T*) = 19, and the capacity is *c*(*S*, *T*) = 26.'
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 24.5** [图 24.1(b)](chapter024.xhtml#Fig_24-1) 中流网络中的割 (*S*, *T*)，其中 *S*
+    = {*s*, *v*[1], *v*[2]}，*T* = {*v*[3], *v*[4], *t*}。*S* 中的顶点为橙色，*T* 中的顶点为棕色。(*S*,
+    *T*) 上的净流量为 *f* (*S*, *T*) = 19，容量为 *c*(*S*, *T*) = 26。'
+- en: '| *c*(*v*[1], *v*[3]) + *c*(*v*[2], *v*[4]) | = | 12 + 14 |'
+  id: totrans-131
+  prefs: []
+  type: TYPE_TB
+  zh: '| *c*(*v*[1], *v*[3]) + *c*(*v*[2], *v*[4]) | = | 12 + 14 |'
+- en: '|  | = | 26. |'
+  id: totrans-132
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | 26. |'
+- en: The following lemma shows that, for a given flow *f*, the net flow across any
+    cut is the same, and it equals |*f*|, the value of the flow.
+  id: totrans-133
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下面的引理表明，对于给定的流 *f*，任何割的净流量都是相同的，并且等于流的值 |*f*|。
+- en: '***Lemma 24.4***'
+  id: totrans-134
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 24.4***'
+- en: Let *f* be a flow in a flow network *G* with source *s* and sink *t*, and let
+    (*S*, *T*) be any cut of *G*. Then the net flow across (*S*, *T*) is *f* (*S*,
+    *T*) =| *f*|.
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设 *f* 是流网络 *G* 中的一条流，具有源 *s* 和汇 *t*，(*S*, *T*) 是 *G* 的任何割。那么 (*S*, *T*) 上的净流量为
+    *f* (*S*, *T*) = | *f* |。
+- en: '***Proof***   For any vertex *u* ∈ *V* − {*s*, *t*}, rewrite the flow-conservation
+    condition as'
+  id: totrans-136
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 对于任何顶点 *u* ∈ *V* − {*s*, *t*}，将流守恒条件重写为'
+- en: '![art](images/Art_P769.jpg)'
+  id: totrans-137
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P769.jpg)'
+- en: Taking the definition of| *f*| from equation (24.1) and adding the left-hand
+    side of equation (24.10), which equals 0, summed over all vertices in *S* − {*s*},
+    gives
+  id: totrans-138
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将方程 (24.1) 中的 | *f*| 的定义与方程 (24.10) 中左侧的和（等于 0）相加，对 *S* − {*s*} 中的所有顶点求和，得到
+- en: '![art](images/Art_P770.jpg)'
+  id: totrans-139
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P770.jpg)'
+- en: Expanding the right-hand summation and regrouping terms yields
+  id: totrans-140
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展开右侧的求和并重新分组项，得到
+- en: '![art](images/Art_P771.jpg)'
+  id: totrans-141
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P771.jpg)'
+- en: Because *V* = *S* ∪ *T* and *S* ∩ *T* = ∅, splitting each summation over *V*
+    into summations over *S* and *T* gives
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为 *V* = *S* ∪ *T* 且 *S* ∩ *T* = ∅，将 *V* 上的每个求和分成 *S* 和 *T* 上的求和，得到
+- en: '![art](images/Art_P772.jpg)'
+  id: totrans-143
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P772.jpg)'
+- en: The two summations within the parentheses are actually the same, since for all
+    vertices *x*, *y* ∈ *S*, the term *f* (*x*, *y*) appears once in each summation.
+    Hence, these summations cancel, yielding
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 括号内的两个求和实际上是相同的，因为对于所有 *S* 中的顶点 *x*、*y*，项 *f* (*x*, *y*) 在每个求和中各出现一次。因此，这些求和相互抵消，得到
+- en: '![art](images/Art_P773.jpg)'
+  id: totrans-145
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P773.jpg)'
+- en: ▪
+  id: totrans-146
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: A corollary to Lemma 24.4 shows how cut capacities bound the value of a flow.
+  id: totrans-147
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 引理 24.4 的推论显示了割容量如何限制流的值。
+- en: '***Corollary 24.5***'
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论 24.5***'
+- en: The value of any flow *f* in a flow network *G* is bounded from above by the
+    capacity of any cut of *G*.
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 流网络 *G* 中任何流 *f* 的值都受到 *G* 的任何割的容量的上限约束。
+- en: '***Proof***   Let (*S*, *T*) be any cut of *G* and let *f* be any flow. By
+    Lemma 24.4 and the capacity constraint,'
+  id: totrans-150
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   设 (*S*, *T*) 是 *G* 的任意割，*f* 是任意流。根据引理 24.4 和容量约束，'
+- en: '![art](images/Art_P774.jpg)'
+  id: totrans-151
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P774.jpg)'
+- en: ▪
+  id: totrans-152
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Corollary 24.5 yields the immediate consequence that the value of a maximum
+    flow in a network is bounded from above by the capacity of a minimum cut of the
+    network. The important max-flow min-cut theorem, which we now state and prove,
+    says that the value of a maximum flow is in fact equal to the capacity of a minimum
+    cut.
+  id: totrans-153
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 推论 24.5 得出的直接结论是网络中最大流的值上界是网络最小割的容量。重要的最大流最小割定理，我们现在陈述并证明，说的是最大流的值实际上等于最小割的容量。
+- en: '***Theorem 24.6 (Max-flow min-cut theorem)***'
+  id: totrans-154
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定�� 24.6（最大流最小割定理）***'
+- en: 'If *f* is a flow in a flow network *G* = (*V*, *E*) with source *s* and sink
+    *t*, then the following conditions are equivalent:'
+  id: totrans-155
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果 *f* 是具有源 *s* 和汇 *t* 的流网络 *G* = (*V*, *E*) 中的流，则以下条件是等价的：
+- en: '*f* is a maximum flow in *G*.'
+  id: totrans-156
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '*f* 是 *G* 中的最大流。'
+- en: The residual network *G*[*f*] contains no augmenting paths.
+  id: totrans-157
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 残余网络 *G*[*f*] 不包含增广路径。
+- en: '|*f*| = *c*(*S*, *T*) for some cut (*S*, *T*) of *G*.'
+  id: totrans-158
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '|*f*| = *c*(*S*, *T*) 对于 *G* 的某个割 (*S*, *T*)。'
+- en: '***Proof***   (1) ⇒ (2): Suppose for the sake of contradiction that *f* is
+    a maximum flow in *G* but that *G*[*f*] has an augmenting path *p*. Then, by Corollary
+    24.3, the flow found by augmenting *f* by *f*[*p*], where *f*[*p*] is given by
+    equation (24.7), is a flow in *G* with value strictly greater than |*f*|, contradicting
+    the assumption that *f* is a maximum flow.'
+  id: totrans-159
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   (1) ⇒ (2): 假设为了推导矛盾，*f* 是 *G* 中的最大流，但 *G*[*f*] 有一条增广路径 *p*。然后，根据推论
+    24.3，通过用方程 (24.7) 给出的 *f*[*p*] 增广 *f* 找到的流是 *G* 中值严格大于 |*f*| 的流，这与 *f* 是最大流的假设相矛盾。'
+- en: '(2) ⇒ (3): Suppose that *G*[*f*] has no augmenting path, that is, that *G*[*f*]
+    contains no path from *s* to *t*. Define'
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '(2) ⇒ (3): 假设 *G*[*f*] 没有增广路径，也就是说，*G*[*f*] 中没有从 *s* 到 *t* 的路径。定义'
+- en: '*S* = {*v* ∈ *V* : there exists a path from *s* to *v* in *G*[*f*] }'
+  id: totrans-161
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*S* = {*v* ∈ *V* : 存在一条从 *s* 到 *v* 的路径在 *G*[*f*] 中}'
+- en: 'and *T* = *V* − *S*. The partition (*S*, *T*) is a cut: we have *s* ∈ *S* trivially
+    and *t* ∉ *S* because there is no path from *s* to *t* in *G*[*f*]. Now consider
+    a pair of vertices *u* ∈ *S* and *v* ∈ *T*. If (*u*, *v*) ∈ *E*, we must have
+    *f* (*u*, *v*) = *c*(*u*, *v*), since otherwise (*u*, *v*) ∈ *E*[*f*], which would
+    place *v* in set *S*. If (*v*, *u*) ∈ *E*, we must have *f* (*v*, *u*) = 0, because
+    otherwise *c*[*f*] (*u*, *v*) = *f* (*v*, *u*) would be positive and we would
+    have (*u*, *v*) ∈ *E*[*f*], which again would place *v* in *S*. Of course, if
+    neither (*u*, *v*) nor (*v*, *u*) belongs to *E*, then *f* (*u*, *v*) = *f* (*v*,
+    *u*) = 0\. We thus have'
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 并且 *T* = *V* − *S*。划分 (*S*, *T*) 是一个割：我们有 *s* ∈ *S* 是显然的，而 *t* ∉ *S* 因为在 *G*[*f*]
+    中没有从 *s* 到 *t* 的路径。现在考虑一对顶点 *u* ∈ *S* 和 *v* ∈ *T*。如果 (*u*, *v*) ∈ *E*，我们必须有 *f*
+    (*u*, *v*) = *c*(*u*, *v*)，否则 (*u*, *v*) ∈ *E*[*f*]，这会将 *v* 放在集合 *S* 中。如果 (*v*,
+    *u*) ∈ *E*，我们必须有 *f* (*v*, *u*) = 0，因为否则 *c*[*f*] (*u*, *v*) = *f* (*v*, *u*)
+    将是正的，我们会有 (*u*, *v*) ∈ *E*[*f*]，这同样会将 *v* 放在 *S* 中。当然，如果既不是 (*u*, *v*) 也不是 (*v*,
+    *u*) 属于 *E*，那么 *f* (*u*, *v*) = *f* (*v*, *u*) = 0。因此我们有
+- en: '![art](images/Art_P775.jpg)'
+  id: totrans-163
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P775.jpg)'
+- en: By Lemma 24.4, therefore, |*f*| = *f* (*S*, *T*) = *c*(*S*, *T*).
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，根据引理 24.4，|*f*| = *f* (*S*, *T*) = *c*(*S*, *T*)。
+- en: '(3) ⇒ (1): By Corollary 24.5, |*f*| ≤ *c*(*S*, *T*) for all cuts (*S*, *T*).
+    The condition |*f*| = *c*(*S*, *T*) thus implies that *f* is a maximum flow.'
+  id: totrans-165
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '(3) ⇒ (1): 根据推论 24.5，对于所有割 (*S*, *T*)，|*f*| ≤ *c*(*S*, *T*)。因此条件 |*f*| = *c*(*S*,
+    *T*) 意味着 *f* 是最大流。'
+- en: ▪
+  id: totrans-166
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**The basic Ford-Fulkerson algorithm**'
+  id: totrans-167
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**基本的福特-福尔克森算法**'
+- en: Each iteration of the Ford-Fulkerson method finds *some* augmenting path *p*
+    and uses *p* to modify the flow *f*. As Lemma 24.2 and Corollary 24.3 suggest,
+    replacing *f* by *f* ↑ *f*[*p*] produces a new flow whose value is |*f*| + |*f*[*p*]|.
+    The procedure FORD-FULKERSON on the next page implements the method by updating
+    the flow attribute (*u*, *v*).*f* for each edge (*u*, *v*) ∈ *E*.^([1](#footnote_1))
+    It assumes implicitly that (*u*, *v*).*f* = 0 if (*u*, *v*) ∉ *E*. The procedure
+    also assumes that the capacities *c*(*u*, *v*) come with the flow network, and
+    that *c*(*u*, *v*) = 0 if (*u*, *v*) ∉ *E*. The procedure computes the residual
+    capacity *c*[*f*] (*u*, *v*) in accordance with the formula (24.2). The expression
+    *c*[*f*] (*p*) in the code is just a temporary variable that stores the residual
+    capacity of the path *p*.
+  id: totrans-168
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 福特-福尔克森方法的每次迭代找到 *一条* 增广路径 *p* 并使用 *p* 修改流 *f*。正如引理 24.2 和推论 24.3 所建议的，用 *f*
+    替换 *f* ↑ *f*[*p*] 会产生一个新的流，其值为 |*f*| + |*f*[*p*]|。下一页的 FORD-FULKERSON 程序通过更新每条边
+    (*u*, *v*) ∈ *E* 的流属性 (*u*, *v*).*f* 来实现该方法。^([1](#footnote_1)) 它隐含地假设如果 (*u*,
+    *v*) ∉ *E*，则 (*u*, *v*).*f* = 0。该程序还假设容量 *c*(*u*, *v*) 随着流网络提供，并且如果 (*u*, *v*)
+    ∉ *E*，则 *c*(*u*, *v*) = 0。该程序根据公式 (24.2) 计算残余容量 *c*[*f*] (*u*, *v*)。代码中的 *c*[*f*]
+    (*p*) 表达的只是一个临时变量，用于存储路径 *p* 的残余容量。
+- en: FORD-FULKERSON (*G*, *s*, *t*)
+  id: totrans-169
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 福特-福尔克森算法 (*G*, *s*, *t*)
+- en: '| 1 | **for** each edge (*u*, *v*) ∈ *G*.*E* |'
+  id: totrans-170
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | **对于** 每条边 (*u*, *v*) ∈ *G*.*E* |'
+- en: '| 2 | (*u*, *v*).*f* = 0 |'
+  id: totrans-171
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | (*u*, *v*).*f* = 0 |'
+- en: '| 3 | **while** there exists a path *p* from *s* to *t* in the residual network
+    *G*[*f*] |'
+  id: totrans-172
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **当** 残余网络 *G*[*f*] 中存在一条从 *s* 到 *t* 的路径 *p* 时 |'
+- en: '| 4 | *c*[*f*] (*p*) = min {*c*[*f*] (*u*, *v*) : (*u*, *v*) is in *p*} |'
+  id: totrans-173
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | *c*[*f*] (*p*) = min {*c*[*f*] (*u*, *v*) : (*u*, *v*) 在 *p* 中} |'
+- en: '| 5 | **for** each edge (*u*, *v*) in *p* |'
+  id: totrans-174
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **对于** 路径 *p* 中的每条边 (*u*, *v*) |'
+- en: '| 6 | **if** (*u*, *v*) ∈ *G*.*E* |'
+  id: totrans-175
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | **如果** (*u*, *v*) ∈ *G*.*E* |'
+- en: '| 7 | (*u*, *v*).*f* = (*u*, *v*).*f* + *c*[*f*] (*p*) |'
+  id: totrans-176
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | (*u*, *v*).*f* = (*u*, *v*).*f* + *c*[*f*] (*p*) |'
+- en: '| 8 | **else** (*v*, *u*).*f* = (*v*, *u*).*f* − *c*[*f*] (*p*) |'
+  id: totrans-177
+  prefs: []
+  type: TYPE_TB
+  zh: '| 8 | **否则** (*v*, *u*).*f* = (*v*, *u*).*f* − *c*[*f*] (*p*) |'
+- en: '| 9 | **return** *f* |'
+  id: totrans-178
+  prefs: []
+  type: TYPE_TB
+  zh: '| 9 | **返回** *f* |'
+- en: The FORD-FULKERSON procedure simply expands on the FORD-FULKERSON-METHOD pseudocode
+    given earlier. [Figure 24.6](chapter024.xhtml#Fig_24-6) shows the result of each
+    iteration in a sample run. Lines 1–2 initialize the flow *f* to 0\. The **while**
+    loop of lines 3–8 repeatedly finds an augmenting path *p* in *G*[*f*] and augments
+    flow *f* along *p* by the residual capacity *c*[*f*] (*p*). Each residual edge
+    in path *p* is either an edge in the original network or the reversal of an edge
+    in the original network. Lines 6–8 update the flow in each case appropriately,
+    adding flow when the residual edge is an original edge and subtracting it otherwise.
+    When no augmenting paths exist, the flow *f* is a maximum flow.
+  id: totrans-179
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FORD-FULKERSON过程简单地扩展了之前给出的FORD-FULKERSON-METHOD伪代码。[图24.6](chapter024.xhtml#Fig_24-6)展示了一个示例运行中每次迭代的结果。第1-2行将流*f*初始化为0。第3-8行的**while**循环重复在*G*[*f*]中找到增广路径*p*并通过剩余容量*c*[*f*]
+    (*p*)增广流*f*。路径*p*中的每个残余边要么是原始网络中的边，要么是原始网络中边的反向。第6-8行适当地更新每种情况下的流量，当残余边是原始边时增加流量，否则减少流量。当不存在增广路径时，流*f*是最大流。
+- en: '**Analysis of Ford-Fulkerson**'
+  id: totrans-180
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**Ford-Fulkerson的分析**'
+- en: 'The running time of FORD-FULKERSON depends on the augmenting path *p* and how
+    it’s found in line 3\. If the edge capacities are irrational numbers, it’s possible
+    to choose the augmenting path so that the algorithm never terminates: the value
+    of the flow increases with successive augmentations, but never converges to the
+    maximum flow value. The good news is that if the algorithm finds the augmenting
+    path by using a breadth-first search (which we saw in [Section 20.2](chapter020.xhtml#Sec_20.2)),
+    it runs in polynomial time. Before proving this result, we obtain a simple bound
+    for the case in which all capacities are integers and the algorithm finds any
+    augmenting path.'
+  id: totrans-181
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FORD-FULKERSON的运行时间取决于增广路径*p*以及在第3行中如何找到它。如果边的容量是无理数，那么可能选择增广路径使得算法永远不会终止：流的值随着连续增广而增加，但永远不会收敛到最大流值。好消息是，如果算法通过使用广度优先搜索找到增广路径（我们在[第20.2节](chapter020.xhtml#Sec_20.2)中看到过），它将在多项式时间内运行。在证明这个结果之前，我们为所有容量为整数且算法找到任何增广路径的情况获得一个简单的界限。
+- en: '![art](images/Art_P776.jpg)'
+  id: totrans-182
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P776.jpg)'
+- en: '**Figure 24.6** The execution of the basic Ford-Fulkerson algorithm. **(a)–(e)**
+    Successive iterations of the **while** loop. The left side of each part shows
+    the residual network *G*[*f*] from line 3 with a blue augmenting path *p*. The
+    right side of each part shows the new flow *f* that results from augmenting *f*
+    by *f*[*p*]. The residual network in (a) is the input flow network *G*. **(f)**
+    The residual network at the last **while** loop test. It has no augmenting paths,
+    and the flow *f* shown in (e) is therefore a maximum flow. The value of the maximum
+    flow found is 23.'
+  id: totrans-183
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图24.6** 基本Ford-Fulkerson算法的执行。**(a)-(e)** **while**循环的连续迭代。每部分的左侧显示了第3行中带有蓝色���广路径*p*的残余网络*G*[*f*]。每部分的右侧显示了通过增广*f*[*p*]得到的新流*f*。在(a)中的残余网络是输入流网络*G*。**(f)**
+    最后一次**while**循环测试时的残余网络。它没有增广路径，因此在(e)中显示的流*f*是最大流。找到的最大流值为23。'
+- en: '![art](images/Art_P777.jpg)'
+  id: totrans-184
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P777.jpg)'
+- en: '**Figure 24.7 (a)** A flow network for which FORD-FULKERSON can take Θ(*E*
+    | *f**|) time, where *f** is a maximum flow, shown here with |*f**| = 2,000,000\.
+    The blue path is an augmenting path with residual capacity 1\. **(b)** The resulting
+    residual network, with another augmenting path whose residual capacity is 1\.
+    **(c)** The resulting residual network.'
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图24.7 (a)** 一个FORD-FULKERSON可能需要Θ(*E* | *f**|)时间的流网络，其中*f**是最大流，在这里|*f**|
+    = 2,000,000。蓝色路径是具有剩余容量1的增广路径。**(b)** 结果残余网络，具有另一个剩余容量为1的增广路径。**(c)** 结果残余网络。'
+- en: In practice, the maximum-flow problem often arises with integer capacities.
+    If the capacities are rational numbers, an appropriate scaling transformation
+    can make them all integers. If *f** denotes a maximum flow in the transformed
+    network, then a straightforward implementation of FORD-FULKERSON executes the
+    **while** loop of lines 3–8 at most |*f**| times, since the flow value increases
+    by at least 1 unit in each iteration.
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在实践中，最大流问题通常涉及整数容量。如果容量是有理数，适当的缩放转换可以使它们都是整数。如果*f*表示转换后网络中的最大流，则FORD-FULKERSON的简单实现在最多|*f**|次执行第3-8行的**while**循环，因为流值在每次迭代中至少增加1单位。
+- en: 'A good implementation should perform the work done within the **while** loop
+    efficiently. It should represent the flow network *G* = (*V*, *E*) with the right
+    data structure and find an augmenting path by a linear-time algorithm. Let’s assume
+    that the implementation keeps a data structure corresponding to a directed graph
+    *G*′ = (*V*, *E*′), where *E*′ = {(*u*, *v*) : (*u*, *v*) ∈ *E* or (*v*, *u*)
+    ∈ *E*}. Edges in the network *G* are also edges in *G*′, making it straightforward
+    to maintain capacities and flows in this data structure. Given a flow *f* on *G*,
+    the edges in the residual network *G*[*f*] consist of all edges (*u*, *v*) of
+    *G*′ such that *c*[*f*] (*u*, *v*) > 0, where *c*[*f*] conforms to equation (24.2).
+    The time to find a path in a residual network is therefore *O*(*V* + *E*′) = *O*(*E*)
+    using either depth-first search or breadth-first search. Each iteration of the
+    **while** loop thus takes *O*(*E*) time, as does the initialization in lines 1–2,
+    making the total running time of the FORD-FULKERSON algorithm *O*(*E* |*f**|).'
+  id: totrans-187
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '一个良好的实现应该高效地执行**while**循环中的工作。它应该用正确的数据结构表示流网络*G* = (*V*, *E*)，并通过线性时间算法找到增广路径。假设实现保持一个对应于有向图*G*′
+    = (*V*, *E*′)的数据结构，其中*E*′ = {(*u*, *v*) : (*u*, *v*) ∈ *E* 或 (*v*, *u*) ∈ *E*}。网络*G*中的边也是*G*′中的边，这样就可以简单地在这个数据结构中维护容量和流量。给定流*f*在*G*上，残余网络*G*[*f*]中的边包括所有*G*′中的边(*u*,
+    *v*)，使得*c*[*f*] (*u*, *v*) > 0，其中*c*[*f*]符合方程(24.2)。因此，在残余网络中找到路径的时间是*O*(*V* +
+    *E*′) = *O*(*E*)，可以使用深度优先搜索或广度优先搜索。因此，**while**循环的每次迭代都需要*O*(*E*)的时间，以及第1-2行的初始化，使得FORD-FULKERSON算法的总运行时间为*O*(*E*
+    |*f**|)。'
+- en: 'When the capacities are integers and the optimal flow value |*f**| is small,
+    the running time of the Ford-Fulkerson algorithm is good. [Figure 24.7(a)](chapter024.xhtml#Fig_24-7)
+    shows an example of what can happen on a simple flow network for which |*f**|
+    is large. A maximum flow in this network has value 2,000,000: 1,000,000 units
+    of flow traverse the path *s* → *u* → *t*, and another 1,000,000 units traverse
+    the path *s* → *v* → *t*. If the first augmenting path found by FORD-FULKERSON
+    is *s* → *u* → *v* → *t*, shown in [Figure 24.7(a)](chapter024.xhtml#Fig_24-7),
+    the flow has value 1 after the first iteration. The resulting residual network
+    appears in [Figure 24.7(b)](chapter024.xhtml#Fig_24-7). If the second iteration
+    finds the augmenting path *s* → *v* → *u* → *t*, as shown in [Figure 24.7(b)](chapter024.xhtml#Fig_24-7),
+    the flow then has value 2\. [Figure 24.7(c)](chapter024.xhtml#Fig_24-7) shows
+    the resulting residual network. If the algorithm continues alternately choosing
+    the augmenting paths *s* → *u* → *v* → *t* and *s* → *v* → *u* → *t*, it performs
+    a total of 2,000,000 augmentations, increasing the flow value by only 1 unit in
+    each.'
+  id: totrans-188
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当容量为整数且最优流值 |*f**| 较小时，Ford-Fulkerson 算法的运行时间很好。[图 24.7(a)](chapter024.xhtml#Fig_24-7)
+    展示了对于最优流值较大的简单流网络可能发生的情况的示例。这个网络中的最大流值为 2,000,000：1,000,000 单位的流量经过路径 *s* → *u*
+    → *t*，另外 1,000,000 单位的流量经过路径 *s* → *v* → *t*。如果 FORD-FULKERSON 找到的第一个增广路径是 *s*
+    → *u* → *v* → *t*，如 [图 24.7(a)](chapter024.xhtml#Fig_24-7) 所示，在第一次迭代后，流量值为 1。得到的剩余网络显示在
+    [图 24.7(b)](chapter024.xhtml#Fig_24-7) 中。如果第二次迭代找到增广路径 *s* → *v* → *u* → *t*，如
+    [图 24.7(b)](chapter024.xhtml#Fig_24-7) 所示，那么流量值为 2。[图 24.7(c)](chapter024.xhtml#Fig_24-7)
+    显示了得到的剩余网络。如果算法继续交替选择增广路径 *s* → *u* → *v* → *t* 和 *s* → *v* → *u* → *t*，它总共执行
+    2,000,000 次增广，每次增加流量值 1 单位。
+- en: '**The Edmonds-Karp algorithm**'
+  id: totrans-189
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**Edmonds-Karp 算法**'
+- en: In the example of [Figure 24.7](chapter024.xhtml#Fig_24-7), the algorithm never
+    chooses the augmenting path with the fewest edges. It should have. By using breadth-first
+    search to find an augmenting path in the residual network, the algorithm runs
+    in polynomial time, independent of the maximum flow value. We call the Ford-Fulkerson
+    method so implemented the ***Edmonds-Karp algorithm***.
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在 [图 24.7](chapter024.xhtml#Fig_24-7) 的示例中，算法从未选择具有最少边的增广路径。它应该选择。通过使用广度优先搜索在剩余网络中找到增广路径，算法在多项式时间内运行，与最大流值无关。我们将这样实现的
+    Ford-Fulkerson 方法称为 ***Edmonds-Karp 算法***。
+- en: Let’s now prove that the Edmonds-Karp algorithm runs in *O*(*VE*²) time. The
+    analysis depends on the distances to vertices in the residual network *G*[*f*].
+    The notation *δ*[*f*] (*u*, *v*) denotes the shortest-path distance from *u* to
+    *v* in *G*[*f*], where each edge has unit distance.
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们证明 Edmonds-Karp 算法的运行时间为 *O*(*VE*²)。分析取决于剩余网络 *G*[*f*] 中顶点的距离。符号 *δ*[*f*]
+    (*u*, *v*) 表示在 *G*[*f*] 中从 *u* 到 *v* 的最短路径距离，其中每条边的距离为单位距离。
+- en: '***Lemma 24.7***'
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 24.7***'
+- en: If the Edmonds-Karp algorithm is run on a flow network *G* = (*V*, *E*) with
+    source *s* and sink *t*, then for all vertices *v* ∈ *V* − {*s*, *t*}, the shortest-path
+    distance *δ*[*f*] (*s*, *v*) in the residual network *G*[*f*] increases monotonically
+    with each flow augmentation.
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果在具有源点 *s* 和汇点 *t* 的流网络 *G* = (*V*, *E*) 上运行 Edmonds-Karp 算法，则对于所有顶点 *v* ∈
+    *V* − {*s*, *t*}，在剩余网络 *G*[*f*] 中，源点 *s* 到顶点 *v* 的最短路径距离 *δ*[*f*] (*s*, *v*) 随着每次流增广单调递增。
+- en: '***Proof***   We’ll suppose that a flow augmentation occurs that causes the
+    shortest-path distance from *s* to some vertex *v* ∈ *V* − {*s*, *t*} to decrease
+    and then derive a contradiction. Let *f* be the flow just before an augmentation
+    that decreases some shortest-path distance, and let *f*′ be the flow just afterward.
+    Let *v* be a vertex with the minimum *δ*[*f′*] (*s*, *v*) whose distance was decreased
+    by the augmentation, so that *δ*[*f*]′ (*s*, *v*) < *δ*[*f*] (*s*, *v*). Let *p*
+    = *s* ⇝ *u* → *v* be a shortest path from *s* to *v* in *G*[*f*]′, so that (*u*,
+    *v*) ∈ *E*[*f*]′ and'
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们假设进行了一次流增广，导致从源点 *s* 到某个顶点 *v* ∈ *V* − {*s*, *t*} 的最短路径距离减少，然后推导出矛盾。设
+    *f* 为减少某个最短路径距离的增广之前的流，*f*′ 为增广之后的流。设 *v* 是一个由增广导致距离减少的最小 *δ*[*f′*] (*s*, *v*)
+    的顶点，因此 *δ*[*f*]′ (*s*, *v*) < *δ*[*f*] (*s*, *v*)。设 *p* = *s* ⇝ *u* → *v* 是 *G*[*f*]′
+    中从 *s* 到 *v* 的最短路径，使得 (*u*, *v*) ∈ *E*[*f*]′，且'
+- en: '![art](images/Art_P778.jpg)'
+  id: totrans-195
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P778.jpg)'
+- en: Because of how we chose *v*, we know that the distance of vertex *u* from the
+    source *s* did not decrease, that is,
+  id: totrans-196
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于我们选择了 *v*，我们知道顶点 *u* 到源点 *s* 的距离没有减少，也就是说，
+- en: '![art](images/Art_P779.jpg)'
+  id: totrans-197
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P779.jpg)'
+- en: We claim that (*u*, *v*) ∉ *E*[*f*]. Why? If we have (*u*, *v*) ∈ *E*[*f*],
+    then we also have
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们声称 (*u*, *v*) ∉ *E*[*f*]。为什么？如果我们有 (*u*, *v*) ∈ *E*[*f*]，那么我们也有
+- en: '| *δ*[*f*] (*s*, *v*) | ≤ | *δ[f]* (*s*, *u*) + 1 | (by Lemma 22.10, the triangle
+    inequality) |'
+  id: totrans-199
+  prefs: []
+  type: TYPE_TB
+  zh: '| *δ*[*f*] (*s*, *v*) | ≤ | *δ[f]* (*s*, *u*) + 1 | (根据引理 22.10，三角不等式) |'
+- en: '|  | ≤ | *δ[f]*′ (*s*, *u*) + 1 | (by inequality (24.12)) |'
+  id: totrans-200
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≤ | *δ[f]*′ (*s*, *u*) + 1 | (根据不等式（24.12）) |'
+- en: '|  | = | *δ*[*f*]′ (*s*, *v*) | (by equation (24.11)), |'
+  id: totrans-201
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *δ*[*f*]′ (*s*, *v*) | (根据方程（24.11）) |'
+- en: which contradicts our assumption that *δ*[*f*′] (*s*, *v*) < *δ*[*f*] (*s*,
+    *v*).
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这与我们假设的 *δ*[*f*′] (*s*, *v*) < *δ*[*f*] (*s*, *v*) 相矛盾。
+- en: How can we have (*u*, *v*) ∉ *E*[*f*] and (*u*, *v*) ∈ *E*[*f*′]? The augmentation
+    must have increased the flow from *v* to *u*, so that edge (*v*, *u*) was in the
+    augmenting path. The augmenting path was a shortest path from *s* to *t* in *G*[*f*],
+    and since any subpath of a shortest path is itself a shortest path, this augmenting
+    path includes a shortest path from *s* to *u* in *G*[*f*] that has (*v*, *u*)
+    as its last edge. Therefore,
+  id: totrans-203
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们怎么可能有 (*u*, *v*) ∉ *E*[*f*] 且 (*u*, *v*) ∈ *E*[*f*′]？增广必须增加了从 *v* 到 *u* 的流量，因此边
+    (*v*, *u*) 在增广路径中。增广路径是 *G*[*f*] 中从 *s* 到 *t* 的最短路径，而且由于最短路径的任何子路径也是最短路径，这个增广路径包括了
+    *G*[*f*] 中从 *s* 到 *u* 的最短路径，其最后一条边为 (*v*, *u*)。因此，
+- en: '| *δ*[*f*] (*s*, *v*) | = | *δ*[*f*] (*s*, *u*) − 1 |  |'
+  id: totrans-204
+  prefs: []
+  type: TYPE_TB
+  zh: '| *δ*[*f*] (*s*, *v*) | = | *δ*[*f*] (*s*, *u*) − 1 |  |'
+- en: '|  | ≤ | *δ*[*f*′] (*s*, *u*) − 1 | (by inequality (24.12)) |'
+  id: totrans-205
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≤ | *δ*[*f*′] (*s*, *u*) − 1 | (根据不等式（24.12）) |'
+- en: '|  | = | *δ*[*f*′] (*s*, *v*) − 2 | (by equation (24.11)), |'
+  id: totrans-206
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *δ*[*f*′] (*s*, *v*) − 2 | (根据方程（24.11）) |'
+- en: so that *δ*[*f*′] (*s*, *v*) > *δ*[*f*] (*s*, *v*), contradicting our assumption
+    that *δ*[*f*′] (*s*, *v*) < *δ*[*f*] (*s*, *v*). We conclude that our assumption
+    that such a vertex *v* exists is incorrect.
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 使得*δ*[*f*′] (*s*, *v*) > *δ*[*f*] (*s*, *v*)，与我们假设*δ*[*f*′] (*s*, *v*) < *δ*[*f*]
+    (*s*, *v*)相矛盾。我们得出结论，我们假设存在这样一个顶点*v*是错误的。
+- en: ▪
+  id: totrans-208
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The next theorem bounds the number of iterations of the Edmonds-Karp algorithm.
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一个定理限制了Edmonds-Karp算法的迭代次数。
+- en: '***Theorem 24.8***'
+  id: totrans-210
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 24.8***'
+- en: If the Edmonds-Karp algorithm is run on a flow network *G* = (*V*, *E*) with
+    source *s* and sink *t*, then the total number of flow augmentations performed
+    by the algorithm is *O*(*VE*).
+  id: totrans-211
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果在具有源*s*和汇*t*的流网络*G* = (*V*, *E*)上运行Edmonds-Karp算法，则算法执行的总流增加次数为*O*(*VE*)。
+- en: '***Proof***   We say that an edge (*u*, *v*) in a residual network *G*[*f*]
+    is ***critical*** on an augmenting path *p* if the residual capacity of *p* is
+    the residual capacity of (*u*, *v*), that is, if *c*[*f*] (*p*) = *c*[*f*] (*u*,
+    *v*). After flow is augmented along an augmenting path, any critical edge on the
+    path disappears from the residual network. Moreover, at least one edge on any
+    augmenting path must be critical. We’ll show that each of the |*E*| edges can
+    become critical at most |*V*|/2 times.'
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 我们说在剩余网络*G*[*f*]中，如果增广路径*p*的剩余容量等于(*u*, *v*)的剩余容量，即如果*c*[*f*] (*p*)
+    = *c*[*f*] (*u*, *v*)，则边(*u*, *v*)是增广路径*p*上的***关键***边。在沿着增广路径增加流量后，路径上的任何关键边都会从剩余网络中消失。此外，任何增广路径上至少有一条边必须是关键的。我们将展示每条边最多可以变得关键|*V*|/2次。'
+- en: Let *u* and *v* be vertices in *V* that are connected by an edge in *E*. Since
+    augmenting paths are shortest paths, when (*u*, *v*) is critical for the first
+    time, we have
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*V*中连接的顶点*u*和*v*通过边*E*相连。由于增广路径是最短路径，当(*u*, *v*)第一次变得关键时，我们有
+- en: '*δ*[*f*] (*s*, *v*) = *δ*[*f*] (*s*, *u*) + 1.'
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*δ*[*f*] (*s*, *v*) = *δ*[*f*] (*s*, *u*) + 1.'
+- en: Once the flow is augmented, the edge (*u*, *v*) disappears from the residual
+    network. It cannot reappear later on another augmenting path until after the flow
+    from *u* to *v* is decreased, which occurs only if (*v*, *u*) appears on an augmenting
+    path. If *f* ′ is the flow in *G* when this event occurs, then we have
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一旦流被增加，边(*u*, *v*)就会从剩余网络中消失。它直到从*u*到*v*的流减少后才可能在另一条增广路径上再次出现，这只有���(*v*, *u*)出现在增广路径上时才会发生。如果*f*′是此事件发生时*G*中的流，则我们有
+- en: '*δ*[*f*′] (*s*, *u*) = *δ*[*f*′] (*s*, *v*) + 1.'
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*δ*[*f*′] (*s*, *u*) = *δ*[*f*′] (*s*, *v*) + 1.'
+- en: Since *δ*[*f*] (*s*, *v*) ≤ *δ*[*f*′] (*s*, *v*) by Lemma 24.7, we have
+  id: totrans-217
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于引理24.7，*δ*[*f*] (*s*, *v*) ≤ *δ*[*f*′] (*s*, *v*)，我们有
+- en: '| *δ*[*f*′] (*s*, *u*) | = | *δ*[*f*′] (*s*, *v*) + 1 |'
+  id: totrans-218
+  prefs: []
+  type: TYPE_TB
+  zh: '| *δ*[*f*′] (*s*, *u*) | = | *δ*[*f*′] (*s*, *v*) + 1 |'
+- en: '|  | ≥ | *δ*[*f*] (*s*, *v*) + 1 |'
+  id: totrans-219
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≥ | *δ*[*f*] (*s*, *v*) + 1 |'
+- en: '|  | = | *δ*[*f*] (*s*, *u*) + 2. |'
+  id: totrans-220
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *δ*[*f*] (*s*, *u*) + 2. |'
+- en: Consequently, from the time (*u*, *v*) becomes critical to the time when it
+    next becomes critical, the distance of *u* from the source increases by at least
+    2\. The distance of *u* from the source is initially at least 0\. Because edge
+    (*u*, *v*) is on an augmenting path, and augmenting paths end at *t*, we know
+    that *u* cannot be *t*, so that in any residual network that has a path from *s*
+    to *u*, the shortest such path has at most |*V*| − 2 edges. Thus, after the first
+    time that (*u*, *v*) becomes critical, it can become critical at most (|*V*| −
+    2)/2 = |*V*|/2 − 1 times more, for a total of at most |*V*|/2 times. Since there
+    are *O*(*E*) pairs of vertices that can have an edge between them in a residual
+    network, the total number of critical edges during the entire execution of the
+    Edmonds-Karp algorithm is *O*(*VE*). Each augmenting path has at least one critical
+    edge, and hence the theorem follows.
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，从(*u*, *v*)变得关键的时间到下次变得关键的时间，*u*到源的距离至少增加2。*u*到源的距离最初至少为0。因为边(*u*, *v*)在增广路径上，增广路径以*t*结束，我们知道*u*不能是*t*，所以在任何具有从*s*到*u*的路径的剩余网络中，最短路径至多有|*V*|
+    − 2条边。因此，在(*u*, *v*)第一次变得关键后，它最多可以再次变得关键(|*V*| − 2)/2 = |*V*|/2 − 1次，总共最多为|*V*|/2次。由于在剩余网络中可以有*O*(*E*)对顶点之间可以有边相连，整个Edmonds-Karp算法执行过程中的关键边的总数为*O*(*VE*)。每条增广路径至少有一条关键边，因此定理成立。
+- en: ▪
+  id: totrans-222
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Because each iteration of FORD-FULKERSON takes *O*(*E*) time when it uses breadth-first
+    search to find the augmenting path, the total running time of the Edmonds-Karp
+    algorithm is *O*(*VE*²).
+  id: totrans-223
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当FORD-FULKERSON每次使用广度优先搜索找到增广路径时，每次迭代需要*O*(*E*)时间，因此Edmonds-Karp算法的总运行时间为*O*(*VE*²)。
+- en: '**Exercises**'
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***24.2-1***'
+  id: totrans-225
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-1***'
+- en: Prove that the summations in equation (24.6) equal the summations on the right-hand
+    side of equation (24.5).
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明方程式(24.6)中的求和等于方程式(24.5)右侧的求和。
+- en: '***24.2-2***'
+  id: totrans-227
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-2***'
+- en: In [Figure 24.1(b)](chapter024.xhtml#Fig_24-1), what is the net flow across
+    the cut ({*s*, *v*[2], *v*[4]}, {*v*[1], *v*[3], *t*})? What is the capacity of
+    this cut?
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[图 24.1(b)](chapter024.xhtml#Fig_24-1)中，穿过切割({*s*, *v*[2], *v*[4]}, {*v*[1],
+    *v*[3], *t*})的净流是多少？这个切割的容量是多少？
+- en: '***24.2-3***'
+  id: totrans-229
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-3***'
+- en: Show the execution of the Edmonds-Karp algorithm on the flow network of [Figure
+    24.1(a)](chapter024.xhtml#Fig_24-1).
+  id: totrans-230
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示在[图 24.1(a)](chapter024.xhtml#Fig_24-1)的流网络上执行Edmonds-Karp算法。
+- en: '***24.2-4***'
+  id: totrans-231
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-4***'
+- en: In the example of [Figure 24.6](chapter024.xhtml#Fig_24-6), what is the minimum
+    cut corresponding to the maximum flow shown? Of the augmenting paths appearing
+    in the example, which one cancels flow?
+  id: totrans-232
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[图 24.6](chapter024.xhtml#Fig_24-6)的例子中，对应于所示最大流的最小割是什么？在例子中出现的增广路径中，哪一条取消了流量？
+- en: '***24.2-5***'
+  id: totrans-233
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-5***'
+- en: The construction in [Section 24.1](chapter024.xhtml#Sec_24.1) to convert a flow
+    network with multiple sources and sinks into a single-source, single-sink network
+    adds edges with infinite capacity. Prove that any flow in the resulting network
+    has a finite value if the edges of the original network with multiple sources
+    and sinks have finite capacity.
+  id: totrans-234
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[Section 24.1](chapter024.xhtml#Sec_24.1)中的构造将具有多个源和汇点的流网络转换为单源、单汇网络，添加了容量无限的边。证明如果原始具有多个源和汇点的网络的边具有有限容量，则结果网络中的任何流都具有有限值。
+- en: '***24.2-6***'
+  id: totrans-235
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-6***'
+- en: Suppose that each source *s*[*i*] in a flow network with multiple sources and
+    sinks produces exactly *p*[*i*] units of flow, so that Σ[*v*∈*V*] *f* (*s*[*i*],
+    *v*) = *p*[*i*]. Suppose also that each sink *t*[*j*] consumes exactly *q*[*j*]
+    units, so that Σ[*v*∈*V*] *f* (*v*, *t*[*j*]) = *q*[*j*], where Σ[*i*] *p[i]*
+    = Σ[*j*] *q[j]*. Show how to convert the problem of finding a flow *f* that obeys
+    these additional constraints into the problem of finding a maximum flow in a single-source,
+    single-sink flow network.
+  id: totrans-236
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设流网络中的每个源*s*[i]产生的流量恰好为*p*[i]单位，即Σ[*v*∈*V*] *f* (*s*[i], *v*) = *p*[i]。假设每个汇*t*[j]消耗的流量也恰好为*q*[j]单位，即Σ[*v*∈*V*]
+    *f* (*v*, *t*[j]) = *q*[j]，其中Σ[*i*] *p[i]* = Σ[*j*] *q[j]*。展示如何将满足这些额外约束条件的流*f*的问题转化为在单源、单汇流网络中找到最大流的问题。
+- en: '***24.2-7***'
+  id: totrans-237
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-7***'
+- en: Prove Lemma 24.2.
+  id: totrans-238
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明引理24.2。
+- en: '***24.2-8***'
+  id: totrans-239
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-8***'
+- en: Suppose that we redefine the residual network to disallow edges into *s*. Argue
+    that the procedure FORD-FULKERSON still correctly computes a maximum flow.
+  id: totrans-240
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设我们重新定义剩余网络，不允许边进入*s*。论证FORD-FULKERSON过程仍然正确计算最大流。
+- en: '***24.2-9***'
+  id: totrans-241
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-9***'
+- en: Suppose that both *f* and *f* ′ are flows in a flow network. Does the augmented
+    flow *f* ↑ *f* ′ satisfy the flow conservation property? Does it satisfy the capacity
+    constraint?
+  id: totrans-242
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设*f*和*f*′都是流网络中的流。增广流*f* ↑ *f*′是否满足流量守恒性质？是否满足容量约束？
+- en: '***24.2-10***'
+  id: totrans-243
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-10***'
+- en: Show how to find a maximum flow in a flow network *G* = (*V*, *E*) by a sequence
+    of at most |*E*| augmenting paths. (*Hint:* Determine the paths *after* finding
+    the maximum flow.)
+  id: totrans-244
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何通过一系列最多|*E*|条增广路径找到流网络*G* = (*V*, *E*)中的最大流。（提示：在找到最大流之后确定路径。）
+- en: '***24.2-11***'
+  id: totrans-245
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-11***'
+- en: The ***edge connectivity*** of an undirected graph is the minimum number *k*
+    of edges that must be removed to disconnect the graph. For example, the edge connectivity
+    of a tree is 1, and the edge connectivity of a cyclic chain of vertices is 2\.
+    Show how to determine the edge connectivity of an undirected graph *G* = (*V*,
+    *E*) by running a maximum-flow algorithm on at most |*V*| flow networks, each
+    having *O*(*V* + *E*) vertices and *O*(*E*) edges.
+  id: totrans-246
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 无向图的***边连通度***是必须移除的最小边数*k*，以使图断开连接。例如，树的边连通度为1，而顶点的循环链的边连通度为2。展示如何通过在最多|*V*|个流网络上运行最大流算法来确定无向图*G*
+    = (*V*, *E*)的边连通度，每个流网络具有*O*(*V* + *E*)个顶点和*O*(*E*)条边。
+- en: '***24.2-12***'
+  id: totrans-247
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-12***'
+- en: You are given a flow network *G*, where *G* contains edges entering the source
+    *s*. Let *f* be a flow in *G* with |*f*| ≥ 0 in which one of the edges (*v*, *s*)
+    entering the source has *f* (*v*, *s*) = 1\. Prove that there must exist another
+    flow *f* ′ with *f* ′(*v*, *s*) = 0 such that |*f*| = |*f*′|. Give an *O*(*E*)-time
+    algorithm to compute *f*′, given *f* and assuming that all edge capacities are
+    integers.
+  id: totrans-248
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个流网络*G*，其中*G*包含进入源*s*的边。设*f*是*G*中的流，其中|*f*| ≥ 0，其中进入源的边(*v*, *s*)之一具有*f*(*v*,
+    *s*) = 1。证明必定存在另一个流*f*′，其中*f*′(*v*, *s*) = 0，使得|*f*| = |*f*′|。给出一个在假定所有边容量为整数的情况下，计算*f*′的*O*(*E*)时间复杂度算法。
+- en: '***24.2-13***'
+  id: totrans-249
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.2-13***'
+- en: Suppose that you wish to find, among all minimum cuts in a flow network *G*
+    with integer capacities, one that contains the smallest number of edges. Show
+    how to modify the capacities of *G* to create a new flow network *G*′ in which
+    any minimum cut in *G*′ is a minimum cut with the smallest number of edges in
+    *G*.
+  id: totrans-250
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设你希望在具有整数容量的流网络*G*中找到所有最小割中包含最少边的一个。展示如何修改*G*的容量，创建一个新的流网络*G*′，其中*G*′中的任何最小割都是*G*中边数最少的最小割。
+- en: '[**24.3    Maximum bipartite matching**](toc.xhtml#Rh1-143)'
+  id: totrans-251
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**24.3    最大二分图匹配**](toc.xhtml#Rh1-143)'
+- en: 'Some combinatorial problems can be cast as maximum-flow problems, such as the
+    multiple-source, multiple-sink maximum-flow problem from [Section 24.1](chapter024.xhtml#Sec_24.1).
+    Other combinatorial problems seem on the surface to have little to do with flow
+    networks, but they can in fact be reduced to maximum-flow problems. This section
+    presents one such problem: finding a maximum matching in a bipartite graph. In
+    order to solve this problem, we’ll take advantage of an integrality property provided
+    by the Ford-Fulkerson method. We’ll also see how to use the Ford-Fulkerson method
+    to solve the maximum-bipartite-matching problem on a graph *G* = (*V*, *E*) in
+    *O*(*VE*) time. [Section 25.1](chapter025.xhtml#Sec_25.1) will present an algorithm
+    specifically designed to solve this problem.'
+  id: totrans-252
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一些组合问题可以被视为最大流问题，例如[第24.1节](chapter024.xhtml#Sec_24.1)中的多源、多汇最大流问题。其他组合问题表面上似乎与流网络无关，但实际上可以简化为最大流问题。本节介绍了一个这样的问题：在二分图中找到最大匹配。为了解决这个问题，我们将利用Ford-Fulkerson方法提供的整数性质。我们还将看到如何利用Ford-Fulkerson方法在时间复杂度为*O*(*VE*)的图*G*
+    = (*V*, *E*)上解决最大二分图匹配问题。[第25.1节](chapter025.xhtml#Sec_25.1)将介绍一个专门设计用于解决这个问题的算法。
+- en: '**The maximum-bipartite-matching problem**'
+  id: totrans-253
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最大二分图匹配问题**'
+- en: 'Given an undirected graph *G* = (*V*, *E*), a ***matching*** is a subset of
+    edges *M* ⊆ *E* such that for all vertices *v* ∈ *V*, at most one edge of *M*
+    is incident on *v*. We say that a vertex *v* ∈ *V* is ***matched*** by the matching
+    *M* if some edge in *M* is incident on *v*, and otherwise, *v* is ***unmatched***.
+    A ***maximum matching*** is a matching of maximum cardinality, that is, a matching
+    *M* such that for any matching *M*′, we have |*M*| ≥ |*M*′|. In this section,
+    we restrict our attention to finding maximum matchings in bipartite graphs: graphs
+    in which the vertex set can be partitioned into *V* = *L* ∪ *R*, where *L* and
+    *R* are disjoint and all edges in *E* go between *L* and *R*. We further assume
+    that every vertex in *V* has at least one incident edge. [Figure 24.8](chapter024.xhtml#Fig_24-8)
+    illustrates the notion of a matching in a bipartite graph.'
+  id: totrans-254
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个无向图*G* = (*V*, *E*), 一个***匹配***是边的子集*M* ⊆ *E*，使得对于所有顶点*v* ∈ *V*，最多只有一条*M*中的边与*v*关联。我们说顶点*v*
+    ∈ *V*被匹配到了匹配*M*，如果*M*中的某条边与*v*关联，否则，*v*是***未匹配***的。一个***最大匹配***是基数最大的匹配，即，一个匹配*M*使得对于任何匹配*M*′，我们有|*M*|
+    ≥ |*M*′|。在本节中，我们将注意力限制在二分图中寻找最大匹配：图中的顶点集可以被划分为*V* = *L* ∪ *R*，其中*L*和*R*是不相交的，所有边在*L*和*R*之间。我们进一步假设*V*中的每个顶点至少有一条关联边。[图24.8](chapter024.xhtml#Fig_24-8)说明了二分图中匹配的概念。
+- en: The problem of finding a maximum matching in a bipartite graph has many practical
+    applications. As an example, consider matching a set *L* of machines with a set
+    *R* of tasks to be performed simultaneously. An edge (*u*, *v*) in *E* signifies
+    that a particular machine *u* ∈ *L* is capable of performing a particular task
+    *v* ∈ *R*. A maximum matching provides work for as many machines as possible.
+  id: totrans-255
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在二分图中找到最大匹配问题有许多实际应用。例如，考虑将一组机器*L*与一组需要同时执行的任务*R*匹配。边(*u*, *v*) ∈ *E*表示特定机器*u*
+    ∈ *L*能够执行特定任务*v* ∈ *R*。最大匹配为尽可能多的机器提供工作。
+- en: '![art](images/Art_P780.jpg)'
+  id: totrans-256
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P780.jpg)'
+- en: '**Figure 24.8** A bipartite graph *G* = (*V*, *E*) with vertex partition *V*
+    = *L* ∪ *R*. **(a)** A matching with cardinality 2, indicated by blue edges. **(b)**
+    A maximum matching with cardinality 3\. **(c)** The corresponding flow network
+    *G*′ with a maximum flow shown. Each edge has unit capacity. Blue edges have a
+    flow of 1, and all other edges carry no flow. The blue edges from *L* to *R* correspond
+    to those in the maximum matching from (b).'
+  id: totrans-257
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图24.8** 一个二分图*G* = (*V*, *E*)，顶点划分为*V* = *L* ∪ *R*。**(a)** 基数为2的匹配，用蓝色边表示。**(b)**
+    基数为3的最大匹配。**(c)** 对应的流网络*G*′，显示了最大流。每条边的容量为1。蓝色边的流量为1，所有其他边没有流量。从*L*到*R*的蓝色边对应于(b)中的最大匹配中的边。'
+- en: '**Finding a maximum bipartite matching**'
+  id: totrans-258
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**寻找最大二分匹配**'
+- en: 'The Ford-Fulkerson method provides a basis for finding a maximum matching in
+    an undirected bipartite graph *G* = (*V*, *E*) in time polynomial in |*V*| and
+    |*E*|. The trick is to construct a flow network in which flows correspond to matchings,
+    as shown in [Figure 24.8(c)](chapter024.xhtml#Fig_24-8). We define the ***corresponding
+    flow network*** *G*′ = (*V*′, *E*′) for the bipartite graph *G* as follows. Let
+    the source *s* and sink *t* be new vertices not in *V*, and let *V*′ = *V* ∪ {*s*,
+    *t*}. If the vertex partition of *G* is *V* = *L* ∪ *R*, the directed edges of
+    *G*′ are the edges of *E*, directed from *L* to *R*, along with |*V* | new directed
+    edges:'
+  id: totrans-259
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Ford-Fulkerson方法为在时间复杂度为|*V*|和|*E*|的多项式时间内找到无向二分图*G* = (*V*, *E*)中的最大匹配提供了基础。关键在于构造一个流网络，其中流对应于匹配，如[图24.8(c)](chapter024.xhtml#Fig_24-8)所示。我们为二分图*G*定义了***对应的流网络***
+    *G*′ = (*V*′, *E*′)如下。让源点*s*和汇点*t*成为不在*V*中的新顶点，并且让*V*′ = *V* ∪ {*s*, *t*}。如果*G*的顶点划分为*V*
+    = *L* ∪ *R*，那么*G*′的有向边是*E*的边，从*L*指向*R*，以及|*V* |条新的有向边：
+- en: '| *E*′ | = | {(*s*, *u*) : *u* ∈ *L*} |'
+  id: totrans-260
+  prefs: []
+  type: TYPE_TB
+  zh: '|*E*′| = |{(*s*, *u*) : *u* ∈ *L*}|'
+- en: '|  |  | ∪ {(*u*, *v*) : *u* ∈ *L*, *v* ∈ *R*, and (*u*, *v*) ∈ *E*} |'
+  id: totrans-261
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  | ∪ {(*u*, *v*) : *u* ∈ *L*, *v* ∈ *R*, 且(*u*, *v*) ∈ *E*} |'
+- en: '|  |  | ∪ {(*v*, *t*) : *v* ∈ *R*}. |'
+  id: totrans-262
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  | ∪ {(*v*, *t*) : *v* ∈ *R*}. |'
+- en: To complete the construction, assign unit capacity to each edge in *E*′. Since
+    each vertex in *V* has at least one incident edge, |*E*| ≥ |*V*|/2\. Thus, |*E*|
+    ≤ |*E*′| = |*E*| + |*V*| ≤ 3 |*E*|, and so |*E*′| = Θ(*E*).
+  id: totrans-263
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了完成构造，为*E*′中的每条边分配单位容量。由于*V*中的每个顶点至少有一条关联边，|*E*| ≥ |*V*|/2\. 因此，|*E*| ≤ |*E*′|
+    = |*E*| + |*V*| ≤ 3 |*E*|，所以|*E*′| = Θ(*E*)。
+- en: The following lemma shows that a matching in *G* corresponds directly to a flow
+    in *G*’s corresponding flow network *G*′. We say that a flow *f* on a flow network
+    *G* = (*V*, *E*) is ***integer-valued*** if *f* (*u*, *v*) is an integer for all
+    (*u*, *v*) ∈ *V* × *V*.
+  id: totrans-264
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下引理表明*G*中的匹配直接对应于*G*’的对应流网络*G*′中的流。我们说在流网络*G* = (*V*, *E*)上的流*f*是***整数值***的，如果对于所有(*u*,
+    *v*) ∈ *V* × *V*，*f*(*u*, *v*)是整数。
+- en: '***Lemma 24.9***'
+  id: totrans-265
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理24.9***'
+- en: Let *G* = (*V*, *E*) be a bipartite graph with vertex partition *V* = *L* ∪
+    *R*, and let *G*′ = (*V*′, *E*′) be its corresponding flow network. If *M* is
+    a matching in *G*, then there is an integer-valued flow *f* in *G*′ with value
+    |*f*| = |*M*|. Conversely, if *f* is an integer-valued flow in *G*′, then there
+    is a matching *M* in *G* with cardinality |*M*| = |*f*| consisting of edges (*u*,
+    *v*) ∈ *E* such that *f* (*u*, *v*) > 0.
+  id: totrans-266
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)是一个顶点划分为*V* = *L* ∪ *R*的二分图，*G*′ = (*V*′, *E*′)是其对应的流网络。如果*M*是*G*中的一个匹配，那么在*G*′中存在一个值为|M|的整数流*f*。反之，如果*f*是*G*′中的整数值流，则在*G*中存在一个基数为|f|
+    = |M|的匹配*M*，由边(*u*, *v*) ∈ *E*组成，使得*f*(*u*, *v*) > 0。
+- en: '***Proof***   We first show that a matching *M* in *G* corresponds to an integer-valued
+    flow *f* in *G*′. Define *f* as follows. If (*u*, *v*) ∈ *M*, then *f* (*s*, *u*)
+    = *f* (*u*, *v*) = *f* (*v*, *t*) = 1\. For all other edges (*u*, *v*) ∈ *E*′,
+    define *f* (*u*, *v*) = 0\. It is simple to verify that *f* satisfies the capacity
+    constraint and flow conservation.'
+  id: totrans-267
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 我们首先证明在*G*中的匹配*M*对应于*G*′中的整数值流*f*。定义*f*如下。如果(*u*, *v*) ∈ *M*，那么*f*(*s*,
+    *u*) = *f*(*u*, *v*) = *f*(*v*, *t*) = 1\. 对于*E*′中的所有其他边(*u*, *v*)，定义*f*(*u*,
+    *v*) = 0\. 很容易验证*f*满足容量���束和流守恒。'
+- en: Intuitively, each edge (*u*, *v*) ∈ *M* corresponds to 1 unit of flow in *G*′
+    that traverses the path *s* → *u* → *v* → *t*. Moreover, the paths induced by
+    edges in *M* are vertex-disjoint, except for *s* and *t*. The net flow across
+    cut (*L* ∪ {*s*}, *R* ∪ {*t*}) is equal to |*M*|, and thus, by Lemma 24.4, the
+    value of the flow is |*f*| = |*M*|.
+  id: totrans-268
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 直观地说，每条边 (*u*, *v*) ∈ *M* 对应于 *G*′ 中穿过路径 *s* → *u* → *v* → *t* 的 1 单位流量。此外，由
+    *M* 中的边引发的路径是顶点不相交的，除了 *s* 和 *t*。割 (*L* ∪ {*s*}, *R* ∪ {*t*}) 上的净流量等于 |*M*|，因此根据引理
+    24.4，流量的值为 |*f*| = |*M*|。
+- en: To prove the converse, let *f* be an integer-valued flow in *G*′ and, as in
+    the statement of the lemma, let
+  id: totrans-269
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要证明逆命题，让 *f* 是 *G*′ 中的整数值流量，并且如引理陈述中所述，让
+- en: '*M* = {(*u*, *v*) : *u* ∈ *L*, *v* ∈ *R*, and *f* (*u*, *v*) > 0}.'
+  id: totrans-270
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*M* = {(*u*, *v*) : *u* ∈ *L*, *v* ∈ *R*, 且 *f* (*u*, *v*) > 0}。'
+- en: Each vertex *u* ∈ *L* has only one entering edge, namely (*s*, *u*), and its
+    capacity is 1\. Thus, each *u* ∈ *L* has at most 1 unit of flow entering it, and
+    if 1 unit of flow does enter, by flow conservation, 1 unit of flow must leave.
+    Furthermore, since the flow *f* is integer-valued, for each *u* ∈ *L*, the 1 unit
+    of flow can enter on at most one edge and can leave on at most one edge. Thus,
+    1 unit of flow enters *u* if and only if there is exactly one vertex *v* ∈ *R*
+    such that *f* (*u*, *v*) = 1, and at most one edge leaving each *u* ∈ *L* carries
+    positive flow. A symmetric argument applies to each *v* ∈ *R*. The set *M* is
+    therefore a matching.
+  id: totrans-271
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 每个 *L* 中的顶点 *u* 只有一条进入边，即 (*s*, *u*)，其容量为 1。因此，每个 *L* 中的 *u* 最多有 1 单位流量进入，如果进入
+    1 单位流量，则根据流量守恒，必须离开 1 单位流量。此外，由于流量 *f* 是整数值的，对于每个 *L* 中的 *u*，1 单位流量最多可以通过一条边进入，并且最多可以通过一条边离开。因此，1
+    单位流量进入 *u* 当且仅当存在正好一个 *R* 中的顶点 *v*，使得 *f* (*u*, *v*) = 1，并且最多有一条边离开每个 *L* 中的 *u*
+    携带正流量。对每个 *R* 中的 *v* 也适用对称的论证。因此，集合 *M* 因此是一个匹配。
+- en: To see that |*M*| = |*f*|, observe that of the edges (*u*, *v*) ∈ *E*′ such
+    that *u* ∈ *L* and *v* ∈ *R*,
+  id: totrans-272
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 观察到 |*M*| = |*f*|，即对于 (*u*, *v*) ∈ *E*′，其中 *u* ∈ *L* 且 *v* ∈ *R*，
+- en: '![art](images/Art_P781.jpg)'
+  id: totrans-273
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P781.jpg)'
+- en: Consequently, *f* (*L* ∪ {*s*}, *R* ∪ {*t*}), the net flow across cut (*L* ∪
+    {*s*}, *R* ∪ {*t*}), is equal to |*M*|. Lemma 24.4 gives that |*f*| = *f* (*L*
+    ∪ {*s*}, *R* ∪ {*t*}) = |*M*|.
+  id: totrans-274
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，*f* (*L* ∪ {*s*}, *R* ∪ {*t*})，即割 (*L* ∪ {*s*}, *R* ∪ {*t*}) 上的净流量，等于 |*M*|。引理
+    24.4 给出了 |*f*| = *f* (*L* ∪ {*s*}, *R* ∪ {*t*}) = |*M*|。
+- en: ▪
+  id: totrans-275
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Based on Lemma 24.9, we would like to conclude that a maximum matching in a
+    bipartite graph *G* corresponds to a maximum flow in its corresponding flow network
+    *G*′, and therefore running a maximum-flow algorithm on *G*′ provides a maximum
+    matching in *G*. The only hitch in this reasoning is that the maximum-flow algorithm
+    might return a flow in *G*′ for which some *f* (*u*, *v*) is not an integer, even
+    though the flow value |*f*| must be an integer. The following theorem shows that
+    the Ford-Fulkerson method cannot produce a solution with this problem.
+  id: totrans-276
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 根据引理 24.9，我们希望得出结论：二分图 *G* 中的最大匹配对应于其对应流网络 *G*′ 中的最大流，因此在 *G*′ 上运行最大流算法提供了 *G*
+    中的最大匹配。这种推理的唯一问题是最大流算法可能返回一个在 *G*′ 中某些 *f* (*u*, *v*) 不是整数的流，尽管流值 |*f*| 必须是整数。以下定理显示
+    Ford-Fulkerson 方法无法产生具有此问题的解决方案。
+- en: '***Theorem 24.10 (Integrality theorem)***'
+  id: totrans-277
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 24.10（整性定理）***'
+- en: If the capacity function *c* takes on only integer values, then the maximum
+    flow *f* produced by the Ford-Fulkerson method has the property that |*f*| is
+    an integer. Moreover, for all vertices *u* and *v*, the value of *f* (*u*, *v*)
+    is an integer.
+  id: totrans-278
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果容量函数 *c* 只取整数值，则 Ford-Fulkerson 方法产生的最大流 *f* 具有 |*f*| 是整数的特性。此外，对于所有顶点 *u*
+    和 *v*，*f* (*u*, *v*) 的值是整数��
+- en: '***Proof***   Exercise 24.3-2 asks you to provide the proof by induction on
+    the number of iterations.'
+  id: totrans-279
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   练习 24.3-2 要求你通过对迭代次数进行归纳来提供证明。'
+- en: ▪
+  id: totrans-280
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: We can now prove the following corollary to Lemma 24.9.
+  id: totrans-281
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们可以证明引理 24.9 的以下推论。
+- en: '***Corollary 24.11***'
+  id: totrans-282
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论 24.11***'
+- en: The cardinality of a maximum matching *M* in a bipartite graph *G* equals the
+    value of a maximum flow *f* in its corresponding flow network *G*′.
+  id: totrans-283
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 二分图 *G* 中的最大匹配 *M* 的基数等于其对应流网络 *G*′ 中的最大流 *f* 的值。
+- en: '***Proof***   We use the nomenclature from Lemma 24.9\. Suppose that *M* is
+    a maximum matching in *G* and that the corresponding flow *f* in *G*′ is not maximum.
+    Then there is a maximum flow *f*′ in *G*′ such that |*f*′| > |*f*|. Since the
+    capacities in *G*′ are integer-valued, by Theorem 24.10, we can assume that *f*′
+    is integer-valued. Thus, *f*′ corresponds to a matching *M*′ in *G* with cardinality
+    |*M*′| = |*f*′| > |*f*| = |*M*|, contradicting our assumption that *M* is a maximum
+    matching. In a similar manner, we can show that if *f* is a maximum flow in *G*′,
+    its corresponding matching is a maximum matching on *G*.'
+  id: totrans-284
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们使用引理 24.9 中的术语。假设 *M* 是 *G* 中的最大匹配，并且对应的 *G*′ 中的流 *f* 不是最大的。那么存在
+    *G*′ 中的最大流 *f*′，使得 |*f*′| > |*f*|。由于 *G*′ 中的容量是整数值，根据定理 24.10，我们可以假设 *f*′ 是整数值的。因此，*f*′
+    对应于 *G* 中基数为 |*M*′| = |*f*′| > |*f*| = |*M*| 的匹配 *M*′，与我们假设的 *M* 是最大匹配相矛盾。类似地，我们可以证明如果
+    *f* 是 *G*′ 中的最大流，则其对应的匹配是 *G* 上的最大匹配。'
+- en: ▪
+  id: totrans-285
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Thus, to find a maximum matching in a bipartite undirected graph *G*, create
+    the flow network *G*′, run the Ford-Fulkerson method on *G*′, and convert the
+    integer-valued maximum flow found into a maximum matching for *G*. Since any matching
+    in a bipartite graph has cardinality at most min {|*L*|, |*R*|} = *O*(*V*), the
+    value of the maximum flow in *G*′ is *O*(*V*). Therefore, finding a maximum matching
+    in a bipartite graph takes *O*(*VE*′) = *O*(*VE*) time, since |*E*′| = Θ(*E*).
+  id: totrans-286
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，要在二分无向图 *G* 中找到最大匹配，需要创建流网络 *G*′，在 *G*′ 上运行 Ford-Fulkerson 方法，并将找到的整数值最大流转换为
+    *G* 的最大匹配。由于二分图中的任何匹配的基数最多为 min {|*L*|, |*R*|} = *O*(*V*)，所以 *G*′ 中的最大流值为 *O*(*V*)。因此，在二分图中找到最大匹配需要
+    *O*(*VE*′) = *O*(*VE*) 的时间，因为 |*E*′| = Θ(*E*)。
+- en: '**Exercises**'
+  id: totrans-287
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***24.3-1***'
+  id: totrans-288
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.3-1***'
+- en: Run the Ford-Fulkerson algorithm on the flow network in [Figure 24.8(c)](chapter024.xhtml#Fig_24-8)
+    and show the residual network after each flow augmentation. Number the vertices
+    in *L* top to bottom from 1 to 5 and in *R* top to bottom from 6 to 9\. For each
+    iteration, pick the augmenting path that is lexicographically smallest.
+  id: totrans-289
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在 [图 24.8(c)](chapter024.xhtml#Fig_24-8) 中的流网络上运行 Ford-Fulkerson 算法，并展示每次流增广后的剩余网络。将
+    *L* 中的顶点从上到下编号为 1 到 5，将 *R* 中的顶点从上到下编号为 6 到 9。对于每次迭代，选择字典序最小的增广路径。
+- en: '***24.3-2***'
+  id: totrans-290
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.3-2***'
+- en: Prove Theorem 24.10\. Use induction on the number of iterations of the Ford-Fulkerson
+    method.
+  id: totrans-291
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明定理 24.10。使用 Ford-Fulkerson 方法的迭代次数进行归纳。
+- en: '***24.3-3***'
+  id: totrans-292
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24.3-3***'
+- en: Let *G* = (*V*, *E*) be a bipartite graph with vertex partition *V* = *L* ∪
+    *R*, and let *G*′ be its corresponding flow network. Give a good upper bound on
+    the length of any augmenting path found in *G*′ during the execution of FORD-FULKERSON.
+  id: totrans-293
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设 *G* = (*V*, *E*) 是一个顶点划分为 *V* = *L* ∪ *R* 的二分图，*G*′ 是其对应的流网络。在执行 FORD-FULKERSON
+    过程中，给出 *G*′ 中找到的任何增广路径的长度的良好上界。
+- en: '**Problems**'
+  id: totrans-294
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***24-1     Escape problem***'
+  id: totrans-295
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-1     逃生问题***'
+- en: An *n*×*n* ***grid*** is an undirected graph consisting of *n* rows and *n*
+    columns of vertices, as shown in [Figure 24.9](chapter024.xhtml#Fig_24-9). We
+    denote the vertex in the *i*th row and the *j* th column by (*i*, *j*). All vertices
+    in a grid have exactly four neighbors, except for the boundary vertices, which
+    are the points (*i*, *j*) for which *i* = 1, *i* = *n*, *j* = 1, or *j* = *n*.
+  id: totrans-296
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个 *n*×*n* ***网格*** 是一个由 *n* 行和 *n* 列顶点组成的无向图，如 [图 24.9](chapter024.xhtml#Fig_24-9)
+    所示。我们用 (*i*, *j*) 表示网格中第 *i* 行第 *j* 列的顶点。网格中的所有顶点都恰好有四个邻居，除了边界顶点，即当 *i* = 1，*i*
+    = *n*，*j* = 1 或 *j* = *n* 时。
+- en: Given *m* ≤ *n*² starting points (*x*[1], *y*[1]), (*x*[2], *y*[2]), …, (*x*[*m*],
+    *y*[*m*]) in the grid, the ***escape problem*** is to determine whether there
+    are *m* vertex-disjoint paths from the starting points to any *m* different points
+    on the boundary. For example, the grid in [Figure 24.9(a)](chapter024.xhtml#Fig_24-9)
+    has an escape, but the grid in [Figure 24.9(b)](chapter024.xhtml#Fig_24-9) does
+    not.
+  id: totrans-297
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定 *m* ≤ *n*² 个起始点 (*x*[1], *y*[1]), (*x*[2], *y*[2]), …, (*x*[*m*], *y*[*m*])
+    在网格中，***逃生问题*** 是确定是否存在从起始点到边界上任意 *m* 个不同点的 *m* 条顶点不相交路径。例如，[图 24.9(a)](chapter024.xhtml#Fig_24-9)
+    中的网格有一个逃生路径，但[图 24.9(b)](chapter024.xhtml#Fig_24-9) 中的网格没有。
+- en: '![art](images/Art_P782.jpg)'
+  id: totrans-298
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P782.jpg)'
+- en: '**Figure 24.9** Grids for the escape problem. Starting points are blue, and
+    other grid vertices are tan. **(a)** A grid with an escape, shown by blue paths.
+    **(b)** A grid with no escape.'
+  id: totrans-299
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 24.9** 逃生问题的网格。起始点为蓝色，其他网格顶点为棕色。**(a)** 具有逃生路径的网格，由蓝色路径显示。**(b)** 没有逃生路径的网格。'
+- en: '***a.*** Consider a flow network in which vertices, as well as edges, have
+    capacities. That is, the total positive flow entering any given vertex is subject
+    to a capacity constraint. Show how to reduce the problem of determining the maximum
+    flow in a network with edge and vertex capacities to an ordinary maximum-flow
+    problem on a flow network of comparable size.'
+  id: totrans-300
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 考虑一个流网络，其中顶点和边都有容量。也就是说，进入任何给定顶点的总正流受到容量约束。展示如何将确定具有边和顶点容量的网络中的最大流问题减少为在具有可比大小的流网络上的普通最大流问题。'
+- en: '***b.*** Describe an efficient algorithm to solve the escape problem, and analyze
+    its running time.'
+  id: totrans-301
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 描述解决逃生问题的高效算法，并分析其运行时间。'
+- en: '***24-2     Minimum path cover***'
+  id: totrans-302
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-2     最小路径覆盖***'
+- en: A ***path cover*** of a directed graph *G* = (*V*, *E*) is a set *P* of vertex-disjoint
+    paths such that every vertex in *V* is included in exactly one path in *P*. Paths
+    may start and end anywhere, and they may be of any length, including 0\. A ***minimum
+    path cover*** of *G* is a path cover containing the fewest possible paths.
+  id: totrans-303
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 有向图 *G* = (*V*, *E*) 的一个***路径覆盖***是一个包含顶点不相交路径的集合 *P*，使得 *V* 中的每个顶点恰好包含在 *P*
+    中的一条路径中。路径可以从任何地方开始和结束，长度可以是任意的，包括 0。*G* 的一个***最小路径覆盖***是包含最少可能路径的路径覆盖。
+- en: '***a.*** Give an efficient algorithm to find a minimum path cover of a directed
+    acyclic graph *G* = (*V*, *E*). (*Hint:* Assuming that *V* = {1, 2, …, *n*}, construct
+    a flow network based on the graph *G*′ = (*V*′, *E*′), where'
+  id: totrans-304
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 给出一个在有向无环图 *G* = (*V*, *E*) 中找到最小路径覆盖的高效算法。(*提示:* 假设 *V* = {1, 2,
+    …, *n*}，基于图 *G*′ = (*V*′, *E*′) 构建一个流网络，其中'
+- en: '*V*′ = {*x*[0], *x*[1], …, *x*[*n*]} ∪ {*y*[0], *y*[1], …, *y*[*n*]},'
+  id: totrans-305
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*V*′ = {*x*[0], *x*[1], …, *x*[*n*]} ∪ {*y*[0], *y*[1], …, *y*[*n*]},'
+- en: '*E*′ = {(*x*[0], *x*[*i*]) : *i* ∈ *V* } ∪ {(*y*[*i*], *y*[0]) : *i* ∈ *V*
+    } ∪ {(*x*[*i*], *y*[*j*]) : (*i*, *j*) ∈ *E*},'
+  id: totrans-306
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*E*′ = {(*x*[0], *x*[*i*]) : *i* ∈ *V* } ∪ {(*y*[*i*], *y*[0]) : *i* ∈ *V*
+    } ∪ {(*x*[*i*], *y*[*j*]) : (*i*, *j*) ∈ *E*},'
+- en: and run a maximum-flow algorithm.)
+  id: totrans-307
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 并运行最大流算法。)
+- en: '***b.*** Does your algorithm work for directed graphs that contain cycles?
+    Explain.'
+  id: totrans-308
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 你的算法是否适用于包含循环的有向图？解释。'
+- en: '***24-3     Hiring consulting experts***'
+  id: totrans-309
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-3     雇佣咨询专家***'
+- en: Professor Fieri wants to open a consulting company for the food industry. He
+    has identified *n* important food categories, which he represents by the set *C*
+    = {*C*[1], *C*[2], …, *C*[*n*]}. In each category *C*[*k*], he can hire an expert
+    in that category for *e*[*k*] > 0 dollars. The consulting company has lined up
+    a set *J* = {*J*[1], *J*[2], …, *J*[*m*]} of potential jobs. In order to perform
+    job *J*[*i*], the company needs to have hired experts in a subset *R*[*i*] ⊆ *C*
+    of categories. Each expert can work on multiple jobs simultaneously. If the company
+    chooses to accept job *J*[*i*], it must have hired experts in all categories in
+    *R*[*i*], and it takes in revenue of *p*[*i*] > 0 dollars.
+  id: totrans-310
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 费里教授想要为食品行业开设一家咨询公司。他已经确定了 *n* 个重要的食品类别，用集合 *C* = {*C*[1], *C*[2], …, *C*[*n*]}
+    表示。在每个类别 *C*[*k*] 中，他可以雇佣该类别的专家，费用为 *e*[*k*] > 0 美元。咨询公司已经列出了一组潜在的工作岗位 *J* = {*J*[1],
+    *J*[2], …, *J*[*m*]}。为了执行工作 *J*[*i*]，公司需要在一些类别 *R*[*i*] ⊆ *C* ��雇佣专家。每个专家可以同时从事多项工作。如果公司选择接受工作
+    *J*[*i*]，则必须在 *R*[*i*] 的所有类别中雇佣专家，并且将获得 *p*[*i*] > 0 美元的收入。
+- en: Professor Fieri’s job is to determine which categories to hire experts in and
+    which jobs to accept in order to maximize the net revenue, which is the total
+    income from jobs accepted minus the total cost of employing the experts.
+  id: totrans-311
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 费里教授的工作是确定在哪些类别中雇佣专家以及接受哪些工作，以最大化净收入，即接受工作的总收入减去雇佣专家的总成本。
+- en: Consider the following flow network *G*. It contains a source vertex *s*, vertices
+    *C*[1], *C*[2], …, *C*[*n*], vertices *J*[1], *J*[2], …, *J*[*m*], and a sink
+    vertex *t*. For *k* = 1, 2 …, *n*, the flow network contains an edge (*s*, *C*[*k*])
+    with capacity *c*(*s*, *C[k]*) = *e*[*k*], and for *i* = 1, 2, …, *m*, the flow
+    network contains an edge (*J*[*i*], *t*) with capacity *c*(*J[i]*, *t*) = *p*[*i*].
+    For *k* = 1, 2, …, *n* and *i* = 1, 2, …, *m*, if *C*[*k*] ∈ *R*[*i*], then *G*
+    contains an edge (*C*[*k*], *J*[*i*]) with capacity *c*(*C*[*k*], *J*[*i*]) =
+    ∞.
+  id: totrans-312
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑以下流网络 *G*。它包含一个源顶点 *s*，顶点 *C*[1]、*C*[2]、…、*C*[*n*]，顶点 *J*[1]、*J*[2]、…、*J*[*m*]，以及一个汇点
+    *t*。对于 *k* = 1, 2，…，*n*，流网络包含一条边 (*s*, *C*[*k*])，容量为 *c*(*s*, *C[k]*) = *e*[*k*]，对于
+    *i* = 1, 2，…，*m*，流网络包含一条边 (*J*[*i*], *t*)，容量为 *c*(*J[i]*, *t*) = *p*[*i*]。对于 *k*
+    = 1, 2，…，*n* 和 *i* = 1, 2，…，*m*，如果 *C*[*k*] ∈ *R*[*i*]，那么 *G* 包含一条边 (*C*[*k*],
+    *J*[*i*])，容量为 *c*(*C*[*k*], *J*[*i*]) = ∞。
+- en: '***a.*** Show that if *J*[*i*] ∈ *T* for a finite-capacity cut (*S*, *T*) of
+    *G*, then *C*[*k*] ∈ *T* for each *C*[*k*] ∈ *R*[*i*].'
+  id: totrans-313
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 展示如果对于 *G* 的有限容量割 (*S*, *T*)，*J*[*i*] ∈ *T*，那么对于每个 *C*[*k*] ∈ *R*[*i*]，*C*[*k*]
+    ∈ *T*。'
+- en: '***b.*** Show how to determine the maximum net revenue from the capacity of
+    a minimum cut of *G* and the given *p*[*i*] values.'
+  id: totrans-314
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 展示如何通过 *G* 的最小割容量和给定的 *p*[*i*] 值确定最大净收入。'
+- en: '***c.*** Give an efficient algorithm to determine which jobs to accept and
+    which experts to hire. Analyze the running time of your algorithm in terms of
+    *m*, *n*, and ![art](images/Art_P783.jpg).'
+  id: totrans-315
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 给出一个有效的算法来确定接受哪些工作和雇佣哪些专家。根据 *m*、*n* 和 ![art](images/Art_P783.jpg)
+    分析算法的运行时间。'
+- en: '***24-4     Updating maximum flow***'
+  id: totrans-316
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-4     更新最大流量***'
+- en: Let *G* = (*V*, *E*) be a flow network with source *s*, sink *t*, and integer
+    capacities. Suppose that you are given a maximum flow in *G*.
+  id: totrans-317
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设 *G* = (*V*, *E*) 是一个带有源 *s*、汇 *t* 和整数容量的流网络。假设你已经得到了 *G* 中的最大流量。
+- en: '***a.*** Suppose that the capacity of a single edge (*u*, *v*) ∈ *E* increases
+    by 1\. Give an *O*(*V* + *E*)-time algorithm to update the maximum flow.'
+  id: totrans-318
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 假设单条边 (*u*, *v*) ∈ *E* 的容量增加 1\. 给出一个 *O*(*V* + *E*) 时间复杂度的算法来更新最大流量。'
+- en: '***b.*** Suppose that the capacity of a single edge (*u*, *v*) ∈ *E* decreases
+    by 1\. Give an *O*(*V* + *E*)-time algorithm to update the maximum flow.'
+  id: totrans-319
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 假设单条边 (*u*, *v*) ∈ *E* 的容量减少 1\. 给出一个 *O*(*V* + *E*) 时间复杂度的算法来更新最大流量。'
+- en: '***24-5     Maximum flow by scaling***'
+  id: totrans-320
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-5     按比例缩放的最大流***'
+- en: 'Let *G* = (*V*, *E*) be a flow network with source *s*, sink *t*, and an integer
+    capacity *c*(*u*, *v*) on each edge (*u*, *v*) ∈ *E*. Let *C* = max {*c*(*u*,
+    *v*) : (*u*, *v*) ∈ *E*}.'
+  id: totrans-321
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '假设 *G* = (*V*, *E*) 是一个带有源 *s*、汇 *t* 和每条边 (*u*, *v*) ∈ *E* 上整数容量 *c*(*u*, *v*)
+    的流网络。让 *C* = max {*c*(*u*, *v*) : (*u*, *v*) ∈ *E*}。'
+- en: '***a.*** Argue that a minimum cut of *G* has capacity at most *C* |*E*|.'
+  id: totrans-322
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 论证 *G* 的最小割容量最多为 *C* |*E*|。'
+- en: '***b.*** For a given number *K*, show how to find an augmenting path of capacity
+    at least *K* in *O*(*E*) time, if such a path exists.'
+  id: totrans-323
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 对于给定的数 *K*，展示如何在 *O*(*E*) 时间内找到容量至少为 *K* 的增广路径，如果存在的话。'
+- en: The procedure MAX-FLOW-BY-SCALING appearing on the following page modifies the
+    basic FORD-FULKERSON-METHOD procedure to compute a maximum flow in *G*.
+  id: totrans-324
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 出现在下一页的 MAX-FLOW-BY-SCALING 程序修改了基本的 FORD-FULKERSON-METHOD 程序，以计算 *G* 中的最大流量。
+- en: '***c.*** Argue that MAX-FLOW-BY-SCALING returns a maximum flow.'
+  id: totrans-325
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 论证 MAX-FLOW-BY-SCALING 返回最大流量。'
+- en: '***d.*** Show that the capacity of a minimum cut of the residual network *G*[*f*]
+    is less than 2*K* |*E*| each time line 4 executes.'
+  id: totrans-326
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 展示残余网络 *G*[*f*] 的最小割容量每次执行第 4 行时都小于 2*K* |*E*|。'
+- en: '***e.*** Argue that the inner **while** loop of lines 5–6 executes *O*(*E*)
+    times for each value of *K*.'
+  id: totrans-327
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 论证第 5-6 行的内部 **while** 循环对于每个 *K* 的值执行 *O*(*E*) 次。'
+- en: MAX-FLOW-BY-SCALING (*G*, *s*, *t*)
+  id: totrans-328
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MAX-FLOW-BY-SCALING (*G*, *s*, *t*)
+- en: '| 1 | *C* = max {*c*(*u*, *v*) : (*u*, *v*) ∈ *E*} |'
+  id: totrans-329
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *C* = max {*c*(*u*, *v*) : (*u*, *v*) ∈ *E*} |'
+- en: '| 2 | initialize flow *f* to 0 |'
+  id: totrans-330
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | 将流量 *f* 初始化为 0 |'
+- en: '| 3 | *K* = 2^(⌊lg *C*⌋) |'
+  id: totrans-331
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | *K* = 2^(⌊lg *C*⌋) |'
+- en: '| 4 | **while** *K* ≥ 1 |'
+  id: totrans-332
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **当** *K* ≥ 1 |'
+- en: '| 5 | **while** there exists an augmenting path *p* of capacity at least *K*
+    |'
+  id: totrans-333
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **当** 存在容量至少为 *K* 的增广路径 *p* **时** |'
+- en: '| 6 | augment flow *f* along *p* |'
+  id: totrans-334
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | 沿着 *p* 增加流量 *f* |'
+- en: '| 7 | *K* = *K*/2 |'
+  id: totrans-335
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | *K* = *K*/2 |'
+- en: '| 8 | **return** *f* |'
+  id: totrans-336
+  prefs: []
+  type: TYPE_TB
+  zh: '| 8 | **返回** *f* |'
+- en: '***f.*** Conclude that MAX-FLOW-BY-SCALING can be implemented so that it runs
+    in *O*(*E*² lg *C*) time.'
+  id: totrans-337
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 得出结论，MAX-FLOW-BY-SCALING 可以实现以 *O*(*E*² lg *C*) 的时间运行。'
+- en: '***24-6     Widest augmenting path***'
+  id: totrans-338
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-6     最宽增广路径***'
+- en: 'The Edmonds-Karp algorithm implements the Ford-Fulkerson algorithm by always
+    choosing a shortest augmenting path in the residual network. Suppose instead that
+    the Ford-Fulkerson algorithm chooses a ***widest augmenting path***: an augmenting
+    path with the greatest residual capacity. Assume that *G* = (*V*, *E*) is a flow
+    network with source *s* and sink *t*, that all capacities are integer, and that
+    the largest capacity is *C*. In this problem, you will show that choosing a widest
+    augmenting path results in at most |*E*| ln |*f**| augmentations to find a maximum
+    flow *f**.'
+  id: totrans-339
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Edmonds-Karp 算法通过总是选择残余网络中最短的增广路径来实现 Ford-Fulkerson 算法。假设 Ford-Fulkerson 算法选择了一个***最宽增广路径***：一个剩余容量最大的增广路径。假设
+    *G* = (*V*, *E*) 是一个带有源 *s* 和汇 *t* 的流网络，所有容量都���整数，最大容量为 *C*。在这个问题中，你将展示选择最宽的增广路径最多需要
+    |*E*| ln |*f**| 次增广来找到最大流量 *f**。
+- en: '***a.*** Show how to adjust Dijkstra’s algorithm to find the widest augmenting
+    path in the residual network.'
+  id: totrans-340
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 展示如何调整 Dijkstra 算法以在残余网络中找到最宽的增广路径。'
+- en: '***b.*** Show that a maximum flow in *G* can be formed by successive flow augmentations
+    along at most |*E*| paths from *s* to *t*.'
+  id: totrans-341
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 展示在 *G* 中最大流量可以通过沿着从 *s* 到 *t* 的至多 |*E*| 条路径连续增加流量来形成。'
+- en: '***c.*** Given a flow *f*, argue that the residual network *G*[*f*] has an
+    augmenting path *p* with residual capacity *c*[*f*] (*p*) ≥ (|*f**| − |*f*|)/|*E*|.'
+  id: totrans-342
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 给定一个流 *f*，说明残余网络 *G*[*f*] 中存在一条残余容量为 *c*[*f*] (*p*) ≥ (|*f**| − |*f*|)/|*E*|
+    的增广路径 *p*。'
+- en: '***d.*** Assuming that each augmenting path is a widest augmenting path, let
+    *f*[*i*] be the flow after augmenting the flow by the *i*th augmenting path, where
+    *f*[0] has *f* (*u*, *v*) = 0 for all edges (*u*, *v*). Show that |*f**| − |*f*[*i*]|
+    ≤ |*f**| (1 − 1/|*E*|)^(*i*).'
+  id: totrans-343
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 假设每条增广路径都是最宽的增广路径，让 *f*[*i*] 表示在第 *i* 条增广路径后的流��其中 *f*[0] 对所有边 (*u*,
+    *v*) 有 *f* (*u*, *v*) = 0。展示 |*f**| − |*f*[*i*]| ≤ |*f**| (1 − 1/|*E*|)^(*i*)。'
+- en: '***e.*** Show that |*f** | − |*f*[*i*]| < |*f**| *e*^(−*i*/|*E*|).'
+  id: totrans-344
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 证明 |*f** | − |*f*[*i*]| < |*f**| *e*^(−*i*/|*E*|)。'
+- en: '***f.*** Conclude that after the flow is augmented at most |*E*| ln |*f**|
+    times, the flow is a maximum flow.'
+  id: totrans-345
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 得出结论，在最多 |*E*| ln |*f**| 次增广流后，流就是一个最大流。'
+- en: '***24-7     Global minimum cut***'
+  id: totrans-346
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***24-7     全局最小割***'
+- en: A ***global cut*** in an undirected graph *G* = (*V*, *E*) is a partition (see
+    page 1156) of *V* into two nonempty sets *V*[1] and *V*[2]. This definition is
+    like the definition of cut that we have used in this chapter, except that we no
+    longer have distinguished vertices *s* and *t*. Any edge (*u*, *v*) with *u* ∈
+    *V*[1] and *v* ∈ *V*[2] is said to ***cross*** the cut.
+  id: totrans-347
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 无向图 *G* = (*V*, *E*) 中的一个 ***全局割*** 是将 *V* 划分为两个非空集合 *V*[1] 和 *V*[2]（见第1156页）。这个定义类似于本章中使用的割的定义，只是我们不再有区分的顶点
+    *s* 和 *t*。任何边 (*u*, *v*)，其中 *u* ∈ *V*[1] 且 *v* ∈ *V*[2]，被称为 ***穿越*** 这个割。
+- en: We can extend this definition of a cut to a multigraph *G* = (*V*, *E*) (see
+    page 1167), and we denote by *c*(*u*, *v*) the number of edges in the multigraph
+    with endpoints *u* and *v*. A global cut in a multigraph is still a partition
+    of the vertices, and the value of a global cut (*V*[1], *V*[2]) is ![art](images/Art_P784.jpg).
+    A solution to the ***global-minimum-cut problem*** is a cut (*V*[1], *V*[2]) such
+    that *c*(*V*[1], *V*[2]) is minimum. Let *μ*(*G*) denote the value of a global
+    minimum cut in a graph or multigraph *G*.
+  id: totrans-348
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们可以将这个割的定义扩展到一个多重图 *G* = (*V*, *E*)（见第1167页），我们用 *c*(*u*, *v*) 表示多重图中以 *u*
+    和 *v* 为端点的边的数量。多重图中的全局割仍然是顶点的一个划分，全局割 (*V*[1], *V*[2]) 的值为 ![art](images/Art_P784.jpg)。解决
+    ***全局最小割问题*** 的一个解是一个割 (*V*[1], *V*[2])，使得 *c*(*V*[1], *V*[2]) 最小。设 *μ*(*G*) 表示图或多重图
+    *G* 中全局最小割的值。
+- en: '***a.*** Show how to find a global minimum cut of a graph *G* = (*V*, *E*)
+    by solving ![art](images/Art_P785.jpg) maximum-flow problems, each with a different
+    pair of vertices as the source and sink, and taking the mininum value of the cuts
+    found.'
+  id: totrans-349
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 展示如何通过解决 ![art](images/Art_P785.jpg) 个不同源和汇对的最大流问题，并取找到的割的最小值，来找到图
+    *G* = (*V*, *E*) 的全局最小割。'
+- en: '***b.*** Give an algorithm to find a global minimum cut by solving only Θ(*V*)
+    maximum-flow problems. What is the running time of your algorithm?'
+  id: totrans-350
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 给出一个算法，通过仅解决 Θ(*V*) 个最大流问题来找到全局最小割。你的算法的运行时间是多少？'
+- en: The remainder of this problem develops an algorithm for the global-minimum-cut
+    problem that does not use any maximum-flow computations. It uses the notion of
+    an edge contraction, defined on page 1168, with one crucial difference. The algorithm
+    maintains a multigraph, so that upon contracting an edge (*u*, *v*), it creates
+    a new vertex *x*, and for any other vertex *y* ∈ *V*, the number of edges between
+    *x* and *y* is *c*(*u*, *y*) + *c*(*v*, *y*). The algorithm does not maintain
+    self-loops, and so it sets *c*(*x*, *x*) to 0\. Denote by *G*/(*u*, *v*) the multigraph
+    that results from contracting edge (*u*, *v*) in multigraph *G*.
+  id: totrans-351
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个问题的剩余部分开发了一个解决全局最小割问题的算法，该算法不使用任何最大流计算。它使用了边收缩的概念，定义在第1168页，有一个关键的区别。该算法维护一个多重图，因此在收缩一条边
+    (*u*, *v*) 时，它创建一个新顶点 *x*，对于任何其他顶点 *y* ∈ *V*，*x* 和 *y* 之间的边的数量是 *c*(*u*, *y*)
+    + *c*(*v*, *y*)。该算法不维护自环，因此将 *c*(*x*, *x*) 设为 0。用 *G*/(*u*, *v*) 表示在多重图 *G* 中收缩边
+    (*u*, *v*) 后得到的多重图。
+- en: Consider what can happen to the minimum cut when an edge is contracted. Assume
+    that, at all points, the minimum cut in a multigraph *G* is unique. We’ll remove
+    this assumption later.
+  id: totrans-352
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑当一条边被收缩时最小割可能发生的情况。假设在任何时刻，多重图 *G* 中的最小割是唯一的。我们稍后会去掉这个假设。
+- en: '***c.*** Show that for any edge (*u*, *v*), we have *μ*(*G*/(*u*, *v*)) ≤ *μ*(*G*).
+    Under what conditions is *μ*(*G*/(*u*, *v*)) < *μ*(*G*)?'
+  id: totrans-353
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 展示对于任何边 (*u*, *v*)，我们有 *μ*(*G*/(*u*, *v*)) ≤ *μ*(*G*)。在什么条件下 *μ*(*G*/(*u*,
+    *v*)) < *μ*(*G*)？'
+- en: Next, you will show that if you pick an edge uniformly at random, the probability
+    that it belongs to the minimum cut is small.
+  id: totrans-354
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 接下来，你将展示，如果随机选择一条边，它属于最小割的概率很小。
+- en: '***d.*** Show that for any multigraph *G* = (*V*, *E*), the value of the global
+    minimum cut is at most the average degree of a vertex: that *μ*(*G*) ≤ 2 |*E*|/|*V*|,
+    where |*E*| denotes the total number of edges in the multigraph.'
+  id: totrans-355
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 展示对于任何多重图 *G* = (*V*, *E*)，全局最小割的值至多是一个顶点的平均度数：即 *μ*(*G*) ≤ 2 |*E*|/|*V*|，其中
+    |*E*| 表示多重图中的总边数。'
+- en: '***e.*** Using the results from parts (c) and (d), show that, if we pick an
+    edge (*u*, *v*) uniformly at random, then the probability that (*u*, *v*) belongs
+    to the minimum cut is at most 2/*V*.'
+  id: totrans-356
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 利用部分 (c) 和 (d) 的结果，证明，如果我们随机选择一条边 (*u*, *v*)，那么 (*u*, *v*) 属于最小割的概率至多为
+    2/*V*。'
+- en: Consider the algorithm that repeatedly chooses an edge at random and contracts
+    it until the multigraph has exactly two vertices, say *u* and *v*. At that point,
+    the multigraph corresponds to a cut in the original graph, with vertex *u* representing
+    all the nodes in one side of the original graph, and *v* representing all the
+    vertices on the other side. The number of edges given by *c*(*u*, *v*) corresponds
+    exactly to the number of edges crossing the corresponding cut in the original
+    graph. We call this algorithm the ***contraction algorithm***.
+  id: totrans-357
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑一个算法，它反复随机选择一条边并将其收缩，直到多重图仅剩两个顶点，称为*u*和*v*。此时，多重图对应于原始图中的一个割，其中顶点*u*代表原始图一侧的所有节点，而*v*代表另一侧的所有顶点。由*c*(*u*,
+    *v*)给出的边数恰好对应于原始图中相应割线上的穿越边数。我们称这个算法为***收缩算法***。
+- en: '***f.*** Suppose that the contraction algorithm terminates with a multigraph
+    whose only vertices are *u* and *v*. Show that ![art](images/Art_P786.jpg).'
+  id: totrans-358
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 假设收缩算法以仅剩*u*和*v*两个顶点的多重图终止。证明 ![art](images/Art_P786.jpg)。'
+- en: '***g.*** Prove that if the contraction algorithm repeats ![art](images/Art_P787.jpg)
+    times, then the probability that at least one of the runs returns the minimum
+    cut is at least 1 − 1/|*V*|.'
+  id: totrans-359
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***g.*** 证明如果收缩算法重复 ![art](images/Art_P787.jpg) 次，则至少有一次运行返回最小割的概率至少为1 − 1/|*V*|。'
+- en: '***h.*** Give a detailed implementation of the contraction algorithm that runs
+    in *O*(*V*²) time.'
+  id: totrans-360
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***h.*** 给出一个在*O*(*V*²)时间内运行的收缩算法的详细实现。'
+- en: '***i.*** Combine the previous parts and remove the assumption that the minimum
+    cut must be unique, to conclude that running the contraction algorithm ![art](images/Art_P788.jpg)
+    times yields an algorithm that runs in *O*(*V*⁴ lg *V*) time and returns a minimum
+    cut with probability at least 1 − 1/*V*.'
+  id: totrans-361
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***i.*** 结合前面的部分，并移除最小割必须唯一的假设，得出运行收缩算法 ![art](images/Art_P788.jpg) 次会产生一个在*O*(*V*⁴
+    lg *V*)时间内运行并返回至少概率为1 − 1/*V*的最小割的算法。'
+- en: '**Chapter notes**'
+  id: totrans-362
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: Ahuja, Magnanti, and Orlin [[7](bibliography001.xhtml#endnote_7)], Even [[137](bibliography001.xhtml#endnote_137)],
+    Lawler [[276](bibliography001.xhtml#endnote_276)], Papadimitriou and Steiglitz
+    [[353](bibliography001.xhtml#endnote_353)], Tarjan [[429](bibliography001.xhtml#endnote_429)],
+    and Williamson [[458](bibliography001.xhtml#endnote_458)] are good references
+    for network flows and related algorithms. Schrijver [[399](bibliography001.xhtml#endnote_399)]
+    has written an interesting review of historical developments in the field of network
+    flows.
+  id: totrans-363
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Ahuja、Magnanti和Orlin [[7](bibliography001.xhtml#endnote_7)]，Even [[137](bibliography001.xhtml#endnote_137)]，Lawler
+    [[276](bibliography001.xhtml#endnote_276)]，Papadimitriou和Steiglitz [[353](bibliography001.xhtml#endnote_353)]，Tarjan
+    [[429](bibliography001.xhtml#endnote_429)]和Williamson [[458](bibliography001.xhtml#endnote_458)]
+    是网络流和相关算法的良好参考资料。Schrijver [[399](bibliography001.xhtml#endnote_399)] 对网络流领域的历史发展进行了有趣的回顾。
+- en: The Ford-Fulkerson method is due to Ford and Fulkerson [[149](bibliography001.xhtml#endnote_149)],
+    who originated the formal study of many of the problems in the area of network
+    flow, including the maximum-flow and bipartite-matching problems. Many early implementations
+    of the Ford-Fulkerson method found augmenting paths using breadth-first search.
+    Edmonds and Karp [[132](bibliography001.xhtml#endnote_132)], and independently
+    Dinic [[119](bibliography001.xhtml#endnote_119)], proved that this strategy yields
+    a polynomial-time algorithm. A related idea, that of using “blocking flows,” was
+    also first developed by Dinic [[119](bibliography001.xhtml#endnote_119)].
+  id: totrans-364
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Ford-Fulkerson方法归因于Ford和Fulkerson [[149](bibliography001.xhtml#endnote_149)]，他们首次对网络流领域中许多问题进行了正式研究，包括最大��和二分匹配问题。许多早期的Ford-Fulkerson方法实现使用广度优先搜索找到增广路径。Edmonds和Karp
+    [[132](bibliography001.xhtml#endnote_132)]，以及独立的Dinic [[119](bibliography001.xhtml#endnote_119)]，证明了这种策略产生了一个多项式时间算法。另一个相关的想法，即使用“阻塞流”，也是由Dinic
+    [[119](bibliography001.xhtml#endnote_119)] 首次开发的。
+- en: A class of algorithms known as ***push-relabel algorithms***, due to Goldberg
+    [[185](bibliography001.xhtml#endnote_185)] and Goldberg and Tarjan [[188](bibliography001.xhtml#endnote_188)],
+    takes a different approach from the Ford-Fulkerson method. Push-relabel algorithms
+    allow flow conservation to be violated at vertices other than the source and sink
+    as they execute. Using an idea first developed by Karzonov [[251](bibliography001.xhtml#endnote_251)],
+    they allow a ***preflow*** in which the flow into a vertex may exceed the flow
+    out of the vertex. Such a vertex is said to be ***overflowing***. Initially, every
+    edge leaving the source is filled to capacity, so that all neighbors of the source
+    are overflowing. In a push-relabel algorithm, each vertex is assigned an integer
+    height. An overflowing vertex may push flow to a neighboring vertex to which it
+    has a residual edge provided that it is higher than the neighbor. If all residual
+    edges from an overflowing vertex go to neighbors with equal or greater heights,
+    then the vertex may increase its height. Once all vertices other than the sink
+    are no longer overflowing, the preflow is not only a legal flow, but also a maximum
+    flow.
+  id: totrans-365
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一类称为***推-重标记算法***的算法，由Goldberg [[185](bibliography001.xhtml#endnote_185)] 和Goldberg和Tarjan
+    [[188](bibliography001.xhtml#endnote_188)] 提出，采用了与Ford-Fulkerson方法不同的方法。推-重标记算法允许在执行过程中违反除源和汇点外其他顶点的流量守恒。使用Karzonov
+    [[251](bibliography001.xhtml#endnote_251)]首次开发的想法，它们允许存在一个***预流***，其中流入顶点的流量可能超过流出顶点的流量。这样的顶点被称为***溢出***。最初，源点离开的每条边都被填满到容量，以便源点的所有邻居都处于溢出状态。在推-重标记算法中，每个顶点被分配一个整数高度。溢出顶点可以将流量推送到具有剩余边的邻接顶点，前提是它的高度高于邻接顶点。如果溢出顶点的所有剩余边都指向具有相等或更高高度的邻接顶点，则该顶点可以增加其高度。一旦除汇点外的所有顶点不再溢出，预流不仅是合法流，而且是最大流。
+- en: Goldberg and Tarjan [[188](bibliography001.xhtml#endnote_188)] gave an *O*(*V*³)-time
+    algorithm that uses a queue to maintain the set of overflowing vertices, as well
+    as an algorithm that uses dynamic trees to achieve a running time of *O*(*VE*
+    lg(*V*²/*E* + 2)). Several other researchers developed improved variants and implementations
+    [[9](bibliography001.xhtml#endnote_9), [10](bibliography001.xhtml#endnote_10),
+    [15](bibliography001.xhtml#endnote_15), [86](bibliography001.xhtml#endnote_86),
+    [87](bibliography001.xhtml#endnote_87), [255](bibliography001.xhtml#endnote_255),
+    [358](bibliography001.xhtml#endnote_358)], the fastest of which, by King, Rao,
+    and Tarjan [[255](bibliography001.xhtml#endnote_255)], runs in *O*(*VE* log[*E*/(*V*
+    lg *V*)] *V*) time.
+  id: totrans-366
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Goldberg 和 Tarjan [[188](bibliography001.xhtml#endnote_188)] 给出了一个 *O*(*V*³)
+    时间复杂度的算法，该算法使用队列来维护溢出顶点集合，以及一个使用动态树实现的算法，其运行时间为 *O*(*VE* lg(*V*²/*E* + 2))。其他几位研究人员开发了改进的变体和实现
+    [[9](bibliography001.xhtml#endnote_9), [10](bibliography001.xhtml#endnote_10),
+    [15](bibliography001.xhtml#endnote_15), [86](bibliography001.xhtml#endnote_86),
+    [87](bibliography001.xhtml#endnote_87), [255](bibliography001.xhtml#endnote_255),
+    [358](bibliography001.xhtml#endnote_358)], 其中最快的是由 King, Rao 和 Tarjan 提出的算法 [[255](bibliography001.xhtml#endnote_255)],
+    其运行时间为 *O*(*VE* log[*E*/(*V* lg *V*)] *V*)。
+- en: Another efficient algorithm for maximum flow, by Goldberg and Rao [[187](bibliography001.xhtml#endnote_187)],
+    runs in *O* (min{*V*^(2/3), *E*^(1/2)} *E* lg (*V*²/*E* + 2) lg *C*) time, where
+    *C* is the maximum capacity any edge. Orlin [[350](bibliography001.xhtml#endnote_350)]
+    gave an algorithm in the same spirit as this algorithm that runs in *O*(*VE* +
+    *E*^(31/16) lg² *V*) time. Combining it with the algorithm of King, Rao, and Tarjan
+    results in an *O*(*VE*)-time algorithm.
+  id: totrans-367
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 另一个高效的最大流算法，由 Goldberg 和 Rao 提出 [[187](bibliography001.xhtml#endnote_187)],
+    其运行时间为 *O* (min{*V*^(2/3), *E*^(1/2)} *E* lg (*V*²/*E* + 2) lg *C*), 其中 *C* 是任意边的最大容量。Orlin
+    [[350](bibliography001.xhtml#endnote_350)] 给出了一种与该算法类似的算法，其运行时间为 *O*(*VE* + *E*^(31/16)
+    lg² *V*)。将其与 King, Rao 和 Tarjan 的算法结合起来，得到一个 *O*(*VE*) 时间复杂度的算法。
+- en: A different approach to maximum flows and related problems is to use techniques
+    from continuous optimization including electrical flows and interior-point methods.
+    The first breakthrough in this line of work is due to Madry [[308](bibliography001.xhtml#endnote_308)],
+    who gave an *Õ*(*E*^(10/7))-time algorithm for unit-capacity maximum flow and
+    bipartite maximum matching. (See Problem 3-6 on page 73 for a definition of *Õ*.)
+    There has been a series of papers in this area for matchings, maximum flows, and
+    minimum-cost flows. The fastest algorithm to date in this line of work for maximum
+    flow is due to Lee and Sidford [[285](bibliography001.xhtml#endnote_285)], taking
+    ![art](images/Art_P789.jpg) time. If the capacities are not too large, this algorithm
+    is faster than the *O*(*VE*)-time algorithm mentioned above. Another algorithm,
+    due to Liu and Sidford [[303](bibliography001.xhtml#endnote_303)] runs in *Õ*(*E*^(11/8)*C*^(1/4))
+    time, where *C* is the maximum capacity of any edge. This algorithm does not run
+    in polynomial time, but for small enough capacities, it is faster than the previous
+    ones.
+  id: totrans-368
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解决最大流及相关问题的另一种方法是使用连续优化技术，包括电流流和内点方法。这一领域的第一次突破是由 Madry [[308](bibliography001.xhtml#endnote_308)]
+    提出的，他给出了一个 *Õ*(*E*^(10/7)) 时间复杂度的算法，用于单位容量最大流和二部图最大匹配。这一领域已经出现了一系列关于匹配、最大流和最小费用流的论文。到目前为止，这一领域中最快的最大流算法是由
+    Lee 和 Sidford 提出的 [[285](bibliography001.xhtml#endnote_285)], 耗时 ![art](images/Art_P789.jpg)。如果容量不是太大，这个算法比上面提到的
+    *O*(*VE*) 时间复杂度的算法更快。另一个算法，由 Liu 和 Sidford 提出 [[303](bibliography001.xhtml#endnote_303)],
+    运行时间为 *Õ*(*E*^(11/8)*C*^(1/4))，其中 *C* 是任意边的最大容量。这个算法并不在多项式时间内运行，但对于足够小的容量，它比之前的算法更快。
+- en: In practice, push-relabel algorithms currently dominate algorithms based on
+    augmenting paths, continuous-optimization, and linear programming for the maximum-flow
+    problem [[88](bibliography001.xhtml#endnote_88)].
+  id: totrans-369
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在实践中，推-重标记算法目前主导基于增广路径、连续优化和线性规划的最大流问题算法 [[88](bibliography001.xhtml#endnote_88)]。
+- en: '[¹](#footnote_ref_1) Recall from [Section 20.1](chapter020.xhtml#Sec_20.1)
+    that we represent an attribute *f* for edge (*u*, *v*) with the same style of
+    notation—(*u*, *v*).*f*—that we use for an attribute of any other object.'
+  id: totrans-370
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 从 [Section 20.1](chapter020.xhtml#Sec_20.1) 回顾，我们用相同的符号表示法—(*u*,
+    *v*).*f*—来表示边 (*u*, *v*) 的属性 *f*，就像我们用于其他对象的属性一样。'

@@ -1,0 +1,87 @@
+- en: '[***Part VI    Graph Algorithms***](toc.xhtml#part-6)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[***第六部分    图算法***](toc.xhtml#part-6)'
+- en: '[**Introduction**](toc.xhtml#Rh1-117)'
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**介绍**](toc.xhtml#Rh1-117)'
+- en: Graph problems pervade computer science, and algorithms for working with them
+    are fundamental to the field. Hundreds of interesting computational problems are
+    couched in terms of graphs. This part touches on a few of the more significant
+    ones.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 图问题在计算机科学中随处可见，处理它们的算法对该领域至关重要。数百个有趣的计算问题都涉及图。本部分涉及了一些更重要的问题。
+- en: '[Chapter 20](chapter020.xhtml) shows how to represent a graph in a computer
+    and then discusses algorithms based on searching a graph using either breadth-first
+    search or depth-first search. The chapter gives two applications of depth-first
+    search: topologically sorting a directed acyclic graph and decomposing a directed
+    graph into its strongly connected components.'
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第20章](chapter020.xhtml)展示了如何在计算机中表示图，然后讨论了基于广度优先搜索或深度优先搜索搜索图的算法。该章节给出了深度优先搜索的两个应用：有向无环图的拓扑排序和将有向图分解为其强连通分量。'
+- en: '[Chapter 21](chapter021.xhtml) describes how to compute a minimum-weight spanning
+    tree of a graph: the least-weight way of connecting all of the vertices together
+    when each edge has an associated weight. The algorithms for computing minimum
+    spanning trees serve as good examples of greedy algorithms (see [Chapter 15](chapter015.xhtml)).'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第21章](chapter021.xhtml)描述了如何计算图的最小生成树：连接所有顶点的最小权重方式，当每条边都有关联的权重时。计算最小生成树的算法是贪婪算法的良好示例（参见[第15章](chapter015.xhtml)）。'
+- en: '[Chapters 22](chapter022.xhtml) and [23](chapter023.xhtml) consider how to
+    compute shortest paths between vertices when each edge has an associated length
+    or “weight.” [Chapter 22](chapter022.xhtml) shows how to find shortest paths from
+    a given source vertex to all other vertices, and [Chapter 23](chapter023.xhtml)
+    examines methods to compute shortest paths between every pair of vertices.'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第22章](chapter022.xhtml)和[第23章](chapter023.xhtml)考虑了在每条边都有关联长度或“权重”时如何计算顶点之间的最短路径。[第22章](chapter022.xhtml)展示了如何从给定源顶点找到所有其他顶点的最短路径，而[第23章](chapter023.xhtml)则研究了计算每对顶点之间的最短路径的方法。'
+- en: '[Chapter 24](chapter024.xhtml) shows how to compute a maximum flow of material
+    in a flow network, which is a directed graph having a specified source vertex
+    of material, a specified sink vertex, and specified capacities for the amount
+    of material that can traverse each directed edge. This general problem arises
+    in many forms, and a good algorithm for computing maximum flows can help solve
+    a variety of related problems efficiently.'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第24章](chapter024.xhtml)展示了如何计算流网络中物质的最大流量，流网络是一个具有指定源顶点、指定汇顶点和指定边缘可传输物质容量的有向图。这个一般性问题以多种形式出现，一个好的计算最大流的算法可以帮助高效解决各种相关问题。'
+- en: 'Finally, [Chapter 25](chapter025.xhtml) explores matchings in bipartite graphs:
+    methods for pairing up vertices that are partitioned into two sets by selecting
+    edges that go between the sets. Bipartite-matching problems model several situations
+    that arise in the real world. The chapter examines how to find a matching of maximum
+    cardinality; the “stable-marriage problem,” which has the highly practical application
+    of matching medical residents to hospitals; and assignment problems, which maximize
+    the total weight of a bipartite matching.'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最后，[第25章](chapter025.xhtml)探讨了二分图中的匹配问题：通过选择连接两个集合的边来配对顶点的方法。二分图匹配问题模拟了现实世界中出现的几种情况。该章探讨了如何找到最大基数匹配；“稳定婚姻问题”，其高度实用的应用是将医学住院医生与医院匹配；以及分配问题，最大化二分图匹配的总权重。
+- en: When we characterize the running time of a graph algorithm on a given graph
+    *G* = (*V*, *E*), we usually measure the size of the input in terms of the number
+    of vertices |*V*| and the number of edges |*E*| of the graph. That is, we denote
+    the size of the input with two parameters, not just one. We adopt a common notational
+    convention for these parameters. Inside asymptotic notation (such as *O*-notation
+    or *Θ*-notation), and *only* inside such notation, the symbol *V* denotes |*V*
+    | and the symbol *E* denotes |*E*|. For example, we might say, “the algorithm
+    runs in *O*(*VE*) time,” meaning that the algorithm runs in *O*(|*V*| |*E*|) time.
+    This convention makes the running-time formulas easier to read, without risk of
+    ambiguity.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当我们描述给定图*G* = (*V*, *E*)上的图算法的运行时间时，通常以图的顶点数|*V*|和边数|*E*|来衡量输入的大小。也就是说，我们用两个参数来表示输入的大小，而不仅仅是一个。我们采用了这些参数的一个常见符号约定。在渐近符号（如*O*记号或*Θ*记号）内，符号*V*表示|*V*|，符号*E*表示|*E*|。例如，我们可能会说，“该算法的运行时间为*O*(*VE*)”，意思是该算法的运行时间为*O*(|*V*|
+    |*E*|)。这种约定使得运行时间公式更易阅读，而不会存在歧义。
+- en: Another convention we adopt appears in pseudocode. We denote the vertex set
+    of a graph *G* by *G*.*V* and its edge set by *G*.*E*. That is, the pseudocode
+    views vertex and edge sets as attributes of a graph.
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们采用的另一个惯例出现在伪代码中。我们用*G*.*V*表示图*G*的顶点集，用*G*.*E*表示其边集。也就是说，伪代码将顶点和边集视为图的属性。

@@ -1,0 +1,2979 @@
+- en: '[**20        Elementary Graph Algorithms**](toc.xhtml#chap-20)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20        基本图算法**](toc.xhtml#chap-20)'
+- en: This chapter presents methods for representing a graph and for searching a graph.
+    Searching a graph means systematically following the edges of the graph so as
+    to visit the vertices of the graph. A graph-searching algorithm can discover much
+    about the structure of a graph. Many algorithms begin by searching their input
+    graph to obtain this structural information. Several other graph algorithms elaborate
+    on basic graph searching. Techniques for searching a graph lie at the heart of
+    the field of graph algorithms.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本章介绍了表示图和搜索图的方法。搜索图意味着系统地沿着图的边访问图的顶点。图搜索算法可以发现关于图结构的许多信息。许多算法从搜索它们的输入图开始，以获取这些结构信息。几个其他图算法详细介绍了基本的图搜索。搜索图的技术是图算法领域的核心。
+- en: '[Section 20.1](chapter020.xhtml#Sec_20.1) discusses the two most common computational
+    representations of graphs: as adjacency lists and as adjacency matrices. [Section
+    20.2](chapter020.xhtml#Sec_20.2) presents a simple graph-searching algorithm called
+    breadth-first search and shows how to create a breadth-first tree. [Section 20.3](chapter020.xhtml#Sec_20.3)
+    presents depth-first search and proves some standard results about the order in
+    which depth-first search visits vertices. [Section 20.4](chapter020.xhtml#Sec_20.4)
+    provides our first real application of depth-first search: topologically sorting
+    a directed acyclic graph. A second application of depth-first search, finding
+    the strongly connected components of a directed graph, is the topic of [Section
+    20.5](chapter020.xhtml#Sec_20.5).'
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第20.1节](chapter020.xhtml#Sec_20.1)讨论了图的两种最常见的计算表示形式：邻接表和邻接矩阵。[第20.2节](chapter020.xhtml#Sec_20.2)介绍了一种简单的图搜索算法，称为广度优先搜索，并展示了如何创建广度优先树。[第20.3节](chapter020.xhtml#Sec_20.3)介绍了深度优先搜索，并证明了深度优先搜索访问顶点的顺序的一些标准结果。[第20.4节](chapter020.xhtml#Sec_20.4)提供了深度优先搜索的第一个真实应用：对有向无环图进行拓扑排序。深度优先搜索的第二个应用是找到有向图的强连通分量，这是[第20.5节](chapter020.xhtml#Sec_20.5)的主题。'
+- en: '[**20.1    Representations of graphs**](toc.xhtml#Rh1-118)'
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20.1    图的表示**](toc.xhtml#Rh1-118)'
+- en: 'You can choose between two standard ways to represent a graph *G* = (*V, E*):
+    as a collection of adjacency lists or as an adjacency matrix. Either way applies
+    to both directed and undirected graphs. Because the adjacency-list representation
+    provides a compact way to represent ***sparse*** graphs—those for which |*E*|
+    is much less than |*V*|²—it is usually the method of choice. Most of the graph
+    algorithms presented in this book assume that an input graph is represented in
+    adjacency-list form. You might prefer an adjacency-matrix representation, however,
+    when the graph is ***dense***—|*E*| is close to |*V*|²—or when you need to be
+    able to tell quickly whether there is an edge connecting two given vertices. For
+    example, two of the all-pairs shortest-paths algorithms presented in [Chapter
+    23](chapter023.xhtml) assume that their input graphs are represented by adjacency
+    matrices.'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你可以选择两种标准方法来表示图*G* = (*V, E*)：作为邻接表的集合或作为邻接矩阵。这两种方法都适用于有向图和无向图。由于邻接表表示提供了一种紧凑表示***稀疏***图的方法——即|*E*|远小于|*V*|²——通常是首选的方法。本书中介绍的大多数图算法假定输入图以邻接表形式表示。然而，当图是***稠密***的——|*E*|接近|*V*|²——或者当你需要快速判断是否存在连接两个给定顶点的边时，你可能更喜欢邻接矩阵表示。例如，本书中介绍的两种全对最短路径算法假定它们的输入图由邻接矩阵表示。
+- en: '![art](images/Art_P600.jpg)'
+  id: totrans-5
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P600.jpg)'
+- en: '**Figure 20.1** Two representations of an undirected graph. **(a)** An undirected
+    graph *G* with 5 vertices and 7 edges. **(b)** An adjacency-list representation
+    of *G*. **(c)** The adjacency-matrix representation of *G*.'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.1** 无向图的两种表示。**(a)** 一个有5个顶点和7条边的无向图*G*。**(b)** *G*的邻接表表示。**(c)** *G*的邻接矩阵表示。'
+- en: '![art](images/Art_P601.jpg)'
+  id: totrans-7
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P601.jpg)'
+- en: '**Figure 20.2** Two representations of a directed graph. **(a)** A directed
+    graph *G* with 6 vertices and 8 edges. **(b)** An adjacency-list representation
+    of *G*. **(c)** The adjacency-matrix representation of *G*.'
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.2** 有向图的两种表示。**(a)** 一个有6个顶点和8条边的有向图*G*。**(b)** *G*的邻接表表示。**(c)** *G*的邻接矩阵表示。'
+- en: The ***adjacency-list representation*** of a graph *G* = (*V*, *E*) consists
+    of an array *Adj* of |*V*| lists, one for each vertex in *V*. For each *u* ∈ *V*,
+    the adjacency list *Adj*[*u*] contains all the vertices *v* such that there is
+    an edge (*u*, *v*) ∈ *E*. That is, *Adj*[*u*] consists of all the vertices adjacent
+    to *u* in *G*. (Alternatively, it can contain pointers to these vertices.) Since
+    the adjacency lists represent the edges of a graph, our pseudocode treats the
+    array *Adj* as an attribute of the graph, just like the edge set *E*. In pseudocode,
+    therefore, you will see notation such as *G*.*Adj*[*u*]. [Figure 20.1(b)](chapter020.xhtml#Fig_20-1)
+    is an adjacency-list representation of the undirected graph in [Figure 20.1(a)](chapter020.xhtml#Fig_20-1).
+    Similarly, [Figure 20.2(b)](chapter020.xhtml#Fig_20-2) is an adjacency-list representation
+    of the directed graph in [Figure 20.2(a)](chapter020.xhtml#Fig_20-2).
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 图*G* = (*V*, *E*)的***邻接表表示***包括一个数组*Adj*，其中包含|*V*|个列表，每个列表对应*V*中的一个顶点。对于每个*u*
+    ∈ *V*，邻接表*Adj*[*u*]包含所有顶点*v*，使得存在边(*u*, *v*) ∈ *E*。也就是说，*Adj*[*u*]包含*G*中与*u*相邻的所有顶点。（或者，它可以包含指向这些顶点的指针。）由于邻接表表示图的边，我们的伪代码将数组*Adj*视为图的属性，就像边集*E*一样。因此，在伪代码中，你会看到类似*G*.*Adj*[*u*]的表示。[图20.1(b)](chapter020.xhtml#Fig_20-1)是无向图[图20.1(a)](chapter020.xhtml#Fig_20-1)的邻接表表示。同样，[图20.2(b)](chapter020.xhtml#Fig_20-2)是有向图[图20.2(a)](chapter020.xhtml#Fig_20-2)的邻接表表示。
+- en: If *G* is a directed graph, the sum of the lengths of all the adjacency lists
+    is |*E*|, since an edge of the form (*u*, *v*) is represented by having *v* appear
+    in *Adj*[*u*]. If *G* is an undirected graph, the sum of the lengths of all the
+    adjacency lists is 2 |*E*|, since if (*u*, *v*) is an undirected edge, then *u*
+    appears in *v*’s adjacency list and vice versa. For both directed and undirected
+    graphs, the adjacency-list representation has the desirable property that the
+    amount of memory it requires is Θ(*V* + *E*). Finding each edge in the graph also
+    takes Θ(*V* + *E*) time, rather than just Θ(*E*), since each of the |*V*| adjacency
+    lists must be examined. Of course, if |*E*| = Ω(*V*)—such as in a connected, undirected
+    graph or a strongly connected, directed graph—we can say that finding each edge
+    takes Θ(*E*) time.
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果*G*是有向图，则所有邻接表长度之和为|*E*|，因为形式为(*u*, *v*)的边由*v*出现在*Adj*[*u*]中表示。如果*G*是无向图，则所有邻接表长度之和为2
+    |*E*|，因为如果(*u*, *v*)是无向边，则*u*出现在*v*的邻接表中，反之亦然。对于有向和无向图，邻接表表示法具有所需内存量为Θ(*V* + *E*)的优点。查找图中的每条边也需要Θ(*V*
+    + *E*)的时间，而不仅仅是Θ(*E*)，因为必须检查每个|*V*|邻接表。当然，如果|*E*| = Ω(*V*)，例如在连通的无向图或强连通的有向图中，我们可以说查找每条边需要Θ(*E*)的时间。
+- en: 'Adjacency lists can also represent ***weighted graphs***, that is, graphs for
+    which each edge has an associated ***weight*** given by a ***weight function***
+    *w* : *E* → ℝ. For example, let *G* = (*V*, *E*) be a weighted graph with weight
+    function *w*. Then you can simply store the weight *w*(*u*, *v*) of the edge (*u*,
+    *v*) ∈ *E* with vertex *v* in *u*’s adjacency list. The adjacency-list representation
+    is quite robust in that you can modify it to support many other graph variants.'
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '邻接表还可以表示***加权图***，即每条边都有由***权重函数*** *w* : *E* → ℝ给出的***权重***的图。例如，让*G* = (*V*,
+    *E*)是具有权重函数*w*的加权图。然后，您可以简单地将边(*u*, *v*) ∈ *E*的权重*w*(*u*, *v*)与顶点*v*在*u*的邻接表中存储。邻接表表示法非常健壮，因为您可以修改它以支持许多其他图变体。'
+- en: A potential disadvantage of the adjacency-list representation is that it provides
+    no quicker way to determine whether a given edge (*u*, *v*) is present in the
+    graph than to search for *v* in the adjacency list *Adj*[*u*]. An adjacency-matrix
+    representation of the graph remedies this disadvantage, but at the cost of using
+    asymptotically more memory. (See Exercise 20.1-8 for suggestions of variations
+    on adjacency lists that permit faster edge lookup.)
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 邻接表表示法的一个潜在缺点是它没有更快的方法来确定给定边(*u*, *v*)是否存在于图中，而不是在邻接表*Adj*[*u*]中搜索*v*。邻接矩阵表示法弥补了这一缺点，但以使用渐近更多的内存为代价。（参见练习20.1-8，了解允许更快查找边的邻接表变体建议。）
+- en: The ***adjacency-matrix representation*** of a graph *G* = (*V*, *E*) assumes
+    that the vertices are numbered 1, 2, … , |*V*| in some arbitrary manner. Then
+    the adjacency-matrix representation of a graph *G* consists of a |*V*| × |*V*|
+    matrix *A* = (*a[ij]*) such that
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 图*G* = (*V*, *E*)的***邻接矩阵表示***假定顶点以某种任意方式编号为1, 2, … , |*V*|。然后，图*G*的邻接矩阵表示由一个|*V*|
+    × |*V*|矩阵*A* = (*a[ij]*)组成，使得
+- en: '![art](images/Art_P602.jpg)'
+  id: totrans-14
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P602.jpg)'
+- en: '[Figures 20.1(c)](chapter020.xhtml#Fig_20-1) and [20.2(c)](chapter020.xhtml#Fig_20-2)
+    are the adjacency matrices of the undirected and directed graphs in [Figures 20.1(a)](chapter020.xhtml#Fig_20-1)
+    and [20.2(a)](chapter020.xhtml#Fig_20-2), respectively. The adjacency matrix of
+    a graph requires Θ(*V*²) memory, independent of the number of edges in the graph.
+    Because finding each edge in the graph requires examining the entire adjacency
+    matrix, doing so takes Θ(*V*²) time.'
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图20.1(c)](chapter020.xhtml#Fig_20-1)和[20.2(c)](chapter020.xhtml#Fig_20-2)是[图20.1(a)](chapter020.xhtml#Fig_20-1)和[20.2(a)](chapter020.xhtml#Fig_20-2)中无向和有向图的邻接矩阵。图的邻接矩阵需要Θ(*V*²)的内存，与图中的边数无关。因为查找图中的每条边需要检查整个邻接矩阵，所以这需要Θ(*V*²)的时间。'
+- en: 'Observe the symmetry along the main diagonal of the adjacency matrix in [Figure
+    20.1(c)](chapter020.xhtml#Fig_20-1). Since in an undirected graph, (*u*, *v*)
+    and (*v*, *u*) represent the same edge, the adjacency matrix A of an undirected
+    graph is its own transpose: *A* = *A*^T. In some applications, it pays to store
+    only the entries on and above the diagonal of the adjacency matrix, thereby cutting
+    the memory needed to store the graph almost in half.'
+  id: totrans-16
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 观察邻接矩阵在[图20.1(c)](chapter020.xhtml#Fig_20-1)中沿主对角线的对称性。由于在无向图中，(*u*, *v*)和(*v*,
+    *u*)代表相同的边，无向图的邻接矩阵*A*是其自身的转置：*A* = *A*^T。在某些应用中，仅存储邻接矩阵对角线上方的条目可能更有利，从而将存储图所需的内存几乎减少了一半。
+- en: Like the adjacency-list representation of a graph, an adjacency matrix can represent
+    a weighted graph. For example, if *G* = (*V*, *E*) is a weighted graph with edge-weight
+    function *w*, you can store the weight *w*(*u*, *v*) of the edge (*u*, *v*) ∈
+    *E* as the entry in row *u* and column *v* of the adjacency matrix. If an edge
+    does not exist, you can store a NIL value as its corresponding matrix entry, though
+    for many problems it is convenient to use a value such as 0 or ∞.
+  id: totrans-17
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 像图的邻接表表示法一样，邻接矩阵也可以表示加权图。例如，如果*G* = (*V*, *E*)是具有边权函数*w*的加权图，则可以将边(*u*, *v*)
+    ∈ *E*的权重*w*(*u*, *v*)存储为邻接矩阵中第*u*行和第*v*列的条目。如果边不存在，则可以将NIL值存储为相应的矩阵条目，尽管对于许多问题来说，使用值如0或∞更方便。
+- en: 'Although the adjacency-list representation is asymptotically at least as space-efficient
+    as the adjacency-matrix representation, adjacency matrices are simpler, and so
+    you might prefer them when graphs are reasonably small. Moreover, adjacency matrices
+    carry a further advantage for unweighted graphs: they require only one bit per
+    entry.'
+  id: totrans-18
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 虽然邻接表表示法在空间效率上至少与邻接矩阵表示法一样好，但邻接矩阵更简单，因此在图形相对较小的情况下，您可能更喜欢它们。此外，对于无权图，邻接矩阵具有进一步的优势：每个条目仅需要一个比特。
+- en: '**Representing attributes**'
+  id: totrans-19
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**表示属性**'
+- en: Most algorithms that operate on graphs need to maintain attributes for vertices
+    and/or edges. We indicate these attributes using our usual notation, such as *v.d*
+    for an attribute *d* of a vertex *v*. When we indicate edges as pairs of vertices,
+    we use the same style of notation. For example, if edges have an attribute *f*,
+    then we denote this attribute for edge (*u*, *v*) by (*u*, *v*).*f*. For the purpose
+    of presenting and understanding algorithms, our attribute notation suffices.
+  id: totrans-20
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 大多数操作图的算法需要维护顶点和/或边的属性。我们使用通常的符号表示这些属性，例如* v.d*表示顶点* v*的属性*d*。当我们将边表示为顶点对时，我们使用相同的符号表示法。例如，如果边有一个属性*f*，那么我们用(*u*,
+    *v*).*f*表示边(*u*, *v*)的属性。为了呈现和理解算法，我们的属性表示法足够了。
+- en: 'Implementing vertex and edge attributes in real programs can be another story
+    entirely. There is no one best way to store and access vertex and edge attributes.
+    For a given situation, your decision will likely depend on the programming language
+    you are using, the algorithm you are implementing, and how the rest of your program
+    uses the graph. If you represent a graph using adjacency lists, one design choice
+    is to represent vertex attributes in additional arrays, such as an array *d*[1
+    : |*V*|] that parallels the *Adj* array. If the vertices adjacent to *u* belong
+    to *Adj*[*u*], then the attribute *u.d* can actually be stored in the array entry
+    *d*[*u*]. Many other ways of implementing attributes are possible. For example,
+    in an object-oriented programming language, vertex attributes might be represented
+    as instance variables within a subclass of a Vertex class.'
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '在实际程序中实现顶点和边属性可能是另一回事。没有一种最佳的方法来存储和访问顶点和边属性。对于给定的情况，你的决定可能取决于你使用的编程语言、你正在实现的算法以及程序的其余部分如何使用图。如果你使用邻接表表示图，一种设计选择是在额外的数组中表示顶点属性，例如一个与*Adj*数组平行的数组*d*[1
+    : |*V*|]。如果与*u*相邻的顶点属于*Adj*[*u*]，那么属性*u.d*实际上可以存储在数组条目*d*[*u*]中。还有许多其他实现属性的方法。例如，在面向对象的编程语言中，顶点属性可以表示为Vertex类的子类中的实例变量。'
+- en: '**Exercises**'
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***20.1-1***'
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-1***'
+- en: Given an adjacency-list representation of a directed graph, how long does it
+    take to compute the out-degree of every vertex? How long does it take to compute
+    the in-degrees?
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个有向图的邻接表表示，计算每个顶点的出度需要多长时间？计算入度需要多长时间？
+- en: '***20.1-2***'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-2***'
+- en: Give an adjacency-list representation for a complete binary tree on 7 vertices.
+    Give an equivalent adjacency-matrix representation. Assume that the edges are
+    undirected and that the vertices are numbered from 1 to 7 as in a binary heap.
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个有7个顶点的完全二叉树的邻接表表示。给出一个等效的邻接矩阵表示。假设边是无向的，顶点从1到7编号，如二叉堆中一样。
+- en: '***20.1-3***'
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-3***'
+- en: 'The ***transpose*** of a directed graph *G* = (*V*, *E*) is the graph G^T =
+    (*V*, *E*^T), where *E*^T = {(*v*, *u*) ∈ *V* × *V* : (*u*, *v*) ∈ *E*}. That
+    is, *G*^T is *G* with all its edges reversed. Describe efficient algorithms for
+    computing *G*^T from *G*, for both the adjacency-list and adjacency-matrix representations
+    of *G*. Analyze the running times of your algorithms.'
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '有向图*G* = (*V*, *E*)的***转置***是图*G*^T = (*V*, *E*^T)，其中*E*^T = {(*v*, *u*) ∈
+    *V* × *V* : (*u*, *v*) ∈ *E*}。也就是说，*G*^T是*G*的所有边都被反转的图。描述从*G*计算*G*^T的高效算法，对于*G*的邻接表和邻接矩阵表示，分析你的算法的运行时间。'
+- en: '***20.1-4***'
+  id: totrans-29
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-4***'
+- en: Given an adjacency-list representation of a multigraph *G* = (*V*, *E*), describe
+    an *O*(*V* + *E*)-time algorithm to compute the adjacency-list representation
+    of the “equivalent” undirected graph *G*′ = (*V*, *E*′), where *E*′ consists of
+    the edges in *E* with all multiple edges between two vertices replaced by a single
+    edge and with all self-loops removed.
+  id: totrans-30
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个多重图*G* = (*V*, *E*)的邻接表表示，描述一个*O*(*V* + *E*)时间复杂度的算法，计算“等效”无向图*G*′ = (*V*,
+    *E*′)的邻接表表示，其中*E*′由*E*中的边组成，两个顶点之间的所有多重边被替换为一条边，并且所有自环被移除。
+- en: '***20.1-5***'
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-5***'
+- en: The ***square*** of a directed graph *G* = (*V*, *E*) is the graph *G*² = (*V*,
+    *E*²) such that (*u*, *v*) ∈ *E*² if and only if *G* contains a path with at most
+    two edges between *u* and *v*. Describe efficient algorithms for computing *G*²
+    from *G* for both the adjacency-list and adjacency-matrix representations of *G*.
+    Analyze the running times of your algorithms.
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 有向图*G* = (*V*, *E*)的***平方***是图*G*² = (*V*, *E*²)，其中当且仅当*G*包含* u*和* v*之间至多两条边的路径时，(*u*,
+    *v*) ∈ *E*²。描述从*G*的邻接表和邻接矩阵表示中计算*G*²的高效算法。分析你的算法的运行时间。
+- en: '***20.1-6***'
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-6***'
+- en: Most graph algorithms that take an adjacency-matrix representation as input
+    require Ω(*V*²) time, but there are some exceptions. Show how to determine whether
+    a directed graph *G* contains a ***universal sink***—a vertex with in-degree |*V*|
+    – 1 and out-degree 0—in *O*(*V*) time, given an adjacency matrix for *G*.
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 大多数以邻接矩阵表示为输入的图算法需要Ω(*V*²)的时间，但也有一些例外。展示如何在*O*(*V*)时间内确定有向图*G*是否包含一个***全局汇点***—一个入度为|*V*|
+    – 1且出度为0的顶点，给定*G*的邻接矩阵。
+- en: '***20.1-7***'
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-7***'
+- en: The ***incidence matrix*** of a directed graph *G* = (*V*, *E*) with no self-loops
+    is a |*V*| × |*E*| matrix *B* = (*b[ij]*) such that
+  id: totrans-36
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 无自环的有向图*G* = (*V*, *E*)的***关联矩阵***是一个|*V*| × |*E*|矩阵*B* = (*b[ij]*)，使得
+- en: '![art](images/Art_P603.jpg)'
+  id: totrans-37
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P603.jpg)'
+- en: Describe what the entries of the matrix product *BB*^T represent, where *B*^T
+    is the transpose of *B*.
+  id: totrans-38
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 描述矩阵乘积*BB*^T的条目代表什么，其中*B*^T是*B*的转置。
+- en: '***20.1-8***'
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.1-8***'
+- en: Suppose that instead of a linked list, each array entry *Adj*[*u*] is a hash
+    table containing the vertices *v* for which (*u*, *v*) ∈ *E*, with collisions
+    resolved by chaining. Under the assumption of uniform independent hashing, if
+    all edge lookups are equally likely, what is the expected time to determine whether
+    an edge is in the graph? What disadvantages does this scheme have? Suggest an
+    alternate data structure for each edge list that solves these problems. Does your
+    alternative have disadvantages compared with the hash table?
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设每个数组条目*Adj*[*u*]不是链表，而是包含(*u*, *v*) ∈ *E*的顶点*v*的哈希表，冲突通过链接解决。在均匀独立哈希的假设下，如果所有边查找都是等概率的，确定边是否在图中的预期时间是多少？这种方案有什么缺点？为每个边列表提出一种解决这些问题的替代数据结构。您的替代方案与哈希表相比有什么缺点？
+- en: '[**20.2    Breadth-first search**](toc.xhtml#Rh1-119)'
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20.2    广度优先搜索**](toc.xhtml#Rh1-119)'
+- en: '***Breadth-first search*** is one of the simplest algorithms for searching
+    a graph and the archetype for many important graph algorithms. Prim’s minimum-spanning-tree
+    algorithm ([Section 21.2](chapter021.xhtml#Sec_21.2)) and Dijkstra’s single-source
+    shortest-paths algorithm ([Section 22.3](chapter022.xhtml#Sec_22.3)) use ideas
+    similar to those in breadth-first search.'
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***广度优先搜索***是搜索图的最简单算法之一，也是许多重要图算法的原型。Prim的最小生成树算法（[第21.2节](chapter021.xhtml#Sec_21.2)）和Dijkstra的单源最短路径算法（[第22.3节](chapter022.xhtml#Sec_22.3)）使用与广度优先搜索类似���思想。'
+- en: Given a graph *G* = (*V*, *E*) and a distinguished ***source*** vertex *s*,
+    breadth-first search systematically explores the edges of *G* to “discover” every
+    vertex that is reachable from *s*. It computes the distance from *s* to each reachable
+    vertex, where the distance to a vertex *v* equals the smallest number of edges
+    needed to go from *s* to *v*. Breadth-first search also produces a “breadth-first
+    tree” with root *s* that contains all reachable vertices. For any vertex *v* reachable
+    from *s*, the simple path in the breadth-first tree from *s* to *v* corresponds
+    to a shortest path from *s* to *v* in *G*, that is, a path containing the smallest
+    number of edges. The algorithm works on both directed and undirected graphs.
+  id: totrans-43
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个图*G* = (*V*, *E*)和一个特殊的***源***顶点*s*，广度优先搜索系统地探索*G*的边，以“发现”从*s*可达的每个顶点。它计算从*s*到每个可达顶点的距离，其中到达顶点*v*的距离等于从*s*到*v*所需的最小边数。广度优先搜索还生成一个以*s*为根的“广度优先树”，其中包含所有可达顶点。对于从*s*可达的任何顶点*v*，广度优先树中从*s*到*v*的简单路径对应于*G*中从*s*到*v*的最短路径，即包含最小边数的路径。该算法适用于有向图和无向图。
+- en: Breadth-first search is so named because it expands the frontier between discovered
+    and undiscovered vertices uniformly across the breadth of the frontier. You can
+    think of it as discovering vertices in waves emanating from the source vertex.
+    That is, starting from *s*, the algorithm first discovers all neighbors of *s*,
+    which have distance 1\. Then it discovers all vertices with distance 2, then all
+    vertices with distance 3, and so on, until it has discovered every vertex reachable
+    from *s*.
+  id: totrans-44
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 广度优先搜索之所以被命名为广度优先搜索，是因为它在已发现和未发现顶点之间的前沿上均匀地扩展。您可以将其视为从源顶点发出的波浪中发现顶点。也就是说，从*s*开始，算法首先发现所有距离为1的*s*的邻居。然后它发现所有距离为2的顶点，然后是所有距离为3的顶点，依此类推，直到它发现了从*s*可达的每个顶点。
+- en: In order to keep track of the waves of vertices, breadth-first search could
+    maintain separate arrays or lists of the vertices at each distance from the source
+    vertex. Instead, it uses a single first-in, first-out queue (see [Section 10.1.3](chapter010.xhtml#Sec_10.1.3))
+    containing some vertices at a distance *k*, possibly followed by some vertices
+    at distance *k* + 1\. The queue, therefore, contains portions of two consecutive
+    waves at any time.
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了跟踪顶点的波浪，广度优先搜索可以维护源顶点距离的各个顶点的单独数组或列表。相反，它使用一个先进先出队列（参见[第10.1.3节](chapter010.xhtml#Sec_10.1.3)），其中包含距离*k*的一些顶点，可能后面跟着距离*k*
+    + 1的一些顶点。因此，队列在任何时候包含两个连续波浪的部分。
+- en: 'To keep track of progress, breadth-first search colors each vertex white, gray,
+    or black. All vertices start out white, and vertices not reachable from the source
+    vertex *s* stay white the entire time. A vertex that is reachable from *s* is
+    ***discovered*** the first time it is encountered during the search, at which
+    time it becomes gray, indicating that is now on the frontier of the search: the
+    boundary between discovered and undiscovered vertices. The queue contains all
+    the gray vertices. Eventually, all the edges of a gray vertex will be explored,
+    so that all of its neighbors will be discovered. Once all of a vertex’s edges
+    have been explored, the vertex is behind the frontier of the search, and it goes
+    from gray to black.^([1](#footnote_1))'
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了跟踪进度，广度优先搜索将每个顶点着色为白色、灰色或黑色。所有顶点都开始为白色，而从源顶点*s*不可达的顶点在整个搜索过程中保持为白色。从*s*可达的顶点在搜索期间首次遇到时被***发现***，此时它变为灰色，表示它现在在搜索的前沿：已发现和未发现顶点之间的边界。队列包含所有灰色顶点。最终，灰色顶点的所有边将被探索，以便发现所有邻居。一旦顶点的所有边都被探索，该顶点就在搜索的前沿之后，从灰色变为黑色。^([1](#footnote_1))
+- en: 'Breadth-first search constructs a breadth-first tree, initially containing
+    only its root, which is the source vertex *s*. Whenever the search discovers a
+    white vertex *v* in the course of scanning the adjacency list of a gray vertex
+    *u*, the vertex *v* and the edge (*u*, *v*) are added to the tree. We say that
+    *u* is the ***predecessor*** or ***parent*** of *v* in the breadth-first tree.
+    Since every vertex reachable from *s* is discovered at most once, each vertex
+    reachable from *s* has exactly one parent. (There is one exception: because *s*
+    is the root of the breadth-first tree, it has no parent.) Ancestor and descendant
+    relationships in the breadth-first tree are defined relative to the root *s* as
+    usual: if *u* is on the simple path in the tree from the root *s* to vertex *v*,
+    then *u* is an ancestor of *v* and *v* is a descendant of *u*.'
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 广度优先搜索构建一个广度优先树，最初只包含其根，即源顶点 *s*。每当搜索在扫描灰色顶点 *u* 的邻接表时发现一个白色顶点 *v*，则将顶点 *v*
+    和边 (*u*, *v*) 添加到树中。我们说 *u* 是 *v* 在广度优先树中的***前驱***或***父节点***。由于从 *s* 可达的每个顶点最多被发现一次，因此从
+    *s* 可达的每个顶点都有一个父节点。（有一个例外：因为 *s* 是广度优先树的根，它没有父节点。）广度优先树中的祖先和后代关系相对于根 *s* 定义如下：如果
+    *u* 在树中从根 *s* 到顶点 *v* 的简单路径上，则 *u* 是 *v* 的祖先，*v* 是 *u* 的后代。
+- en: 'The breadth-first-search procedure BFS on the following page assumes that the
+    graph *G* = (*V*, *E*) is represented using adjacency lists. It denotes the queue
+    by *Q*, and it attaches three additional attributes to each vertex *v* in the
+    graph:'
+  id: totrans-48
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 广度优先搜索过程 BFS 假设图 *G* = (*V*, *E*) 使用邻接表表示。它用 *Q* 表示队列，并为图中的每个顶点 *v* 附加三个额外属性：
+- en: '*v.color* is the color of *v*: WHITE, GRAY, or BLACK.'
+  id: totrans-49
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*v.color* 是 *v* 的颜色：WHITE、GRAY 或 BLACK。'
+- en: '*v.d* holds the distance from the source vertex *s* to *v*, as computed by
+    the algorithm.'
+  id: totrans-50
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*v.d* 保存从源顶点 *s* 到 *v* 的距离，由算法计算得出。'
+- en: '*v*.*π* is *v*’s predecessor in the breadth-first tree. If *v* has no predecessor
+    because it is the source vertex or is undiscovered, then *v*.*π* NIL.'
+  id: totrans-51
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*v*.*π* 是 *v* 在广度优先树中的前驱。如果 *v* 没有前驱，因为它是源顶点或者未被发现，则 *v*.*π* 为 NIL。'
+- en: '[Figure 20.3](chapter020.xhtml#Fig_20-3) illustrates the progress of BFS on
+    an undirected graph.'
+  id: totrans-52
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图 20.3](chapter020.xhtml#Fig_20-3) 展示了在无向图上进行 BFS 的进展。'
+- en: The procedure BFS works as follows. With the exception of the source vertex
+    *s*, lines 1–4 paint every vertex white, set *u.d* = ∞ for each vertex *u*, and
+    set the parent of every vertex to be NIL. Because the source vertex *s* is always
+    the first vertex discovered, lines 5–7 paint *s* gray, set *s.d* to 0, and set
+    the predecessor of *s* to NIL. Lines 8–9 create the queue *Q*, initially containing
+    just the source vertex.
+  id: totrans-53
+  prefs: []
+  type: TYPE_NORMAL
+  zh: BFS 过程的工作方式如下。除了源顶点 *s* 外，第 1-4 行将每个顶点涂成白色，对每个顶点 *u* 设置 *u.d* = ∞，并将每个顶点的父节点设置为
+    NIL。由于源顶点 *s* 总是第一个被发现的顶点，第 5-7 行将 *s* 涂成灰色，将 *s.d* 设置为 0，并将 *s* 的前驱设置为 NIL。第
+    8-9 行创建队列 *Q*，最初只包含源顶点。
+- en: 'The **while** loop of lines 10–18 iterates as long as there remain gray vertices,
+    which are on the frontier: discovered vertices that have not yet had their adjacency
+    lists fully examined. This **while** loop maintains the following invariant:'
+  id: totrans-54
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第 10-18 行的 **while** 循环在仍有灰色顶点存在时进行迭代：这些顶点位于前沿，即已被发现但尚未完全检查其邻接表的顶点。这个 **while**
+    循环维持以下不变性：
+- en: At the test in line 10, the queue *Q* consists of the set of gray vertices.
+  id: totrans-55
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在第 10 行的测试中，队列 *Q* 包含一组灰色顶点。
+- en: Although we won’t use this loop invariant to prove correctness, it is easy to
+    see that it holds prior to the first iteration and that each iteration of the
+    loop maintains the invariant. Prior to the first iteration, the only gray vertex,
+    and the only vertex in *Q*, is the source vertex *s*. Line 11 determines the gray
+    vertex *u* at the head of the queue *Q* and removes it from *Q*. The **for** loop
+    of lines 12–17 considers each vertex *v* in the adjacency list of *u*. If *v*
+    is white, then it has not yet been discovered, and the procedure discovers it
+    by executing lines 14–17\. These lines paint vertex *v* gray, set *v*’s distance
+    *v.d* to *u.d* + 1, record *u* as *v*’s parent *v.π*, and place *v* at the tail
+    of the queue *Q*. Once the procedure has examined all the vertices on *u*’s adjacency
+    list, it blackens *u* in line 18, indicating that *u* is now behind the frontier.
+    The loop invariant is maintained because whenever a vertex is painted gray (in
+    line 14) it is also enqueued (in line 17), and whenever a vertex is dequeued (in
+    line 11) it is also painted black (in line 18).
+  id: totrans-56
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管我们不会使用这个循环不变性来证明正确性，但很容易看出在第一次迭代之前它是成立的，并且每次循环迭代都会维持这个不变性。在第一次迭代之前，唯一的灰色顶点，也是唯一在
+    *Q* 中的顶点，是源顶点 *s*。第 11 行确定队列 *Q* 头部的灰色顶点 *u* 并将其从 *Q* 中移除。第 12-17 行的 **for** 循环考虑
+    *u* 的邻接表中的每个顶点 *v*。如果 *v* 是白色的，则表示它尚未被发现，过程通过执行第 14-17 行来发现它。这些行将顶点 *v* 涂成灰色，将
+    *v* 的距离 *v.d* 设置为 *u.d* + 1，记录 *u* 为 *v* 的父节点 *v.π*，并将 *v* 放在队列 *Q* 的尾部。一旦过程检查完
+    *u* 的邻接表中的所有顶点，它会在第 18 行将 *u* 涂黑，表示 *u* 现在在前沿之后。循环不变性得以维持，因为每当一个顶点被涂成灰色（第 14 行）时，它也被入队（第
+    17 行），每当一个顶点被出队（第 11 行）时，它也被涂黑（第 18 行）。
+- en: BFS(*G, s*)
+  id: totrans-57
+  prefs: []
+  type: TYPE_NORMAL
+  zh: BFS(*G, s*)
+- en: '|   1 | **for** each vertex *u* ∈ *G.V* – {*s*} |  |'
+  id: totrans-58
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | **对于** 每个顶点 *u* ∈ *G.V* – {*s*} **执行** |  |'
+- en: '|   2 | *u.color* = WHITE |  |'
+  id: totrans-59
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *u.color* = WHITE |  |'
+- en: '|   3 | *u.d* = ∞ |  |'
+  id: totrans-60
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | *u.d* = ∞ |  |'
+- en: '|   4 | *u*.*π* NIL |  |'
+  id: totrans-61
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | *u*.*π* NIL |  |'
+- en: '|   5 | *s.color* = GRAY |  |'
+  id: totrans-62
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | *s.color* = GRAY |  |'
+- en: '|   6 | *s.d* = 0 |  |'
+  id: totrans-63
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | *s.d* = 0 |  |'
+- en: '|   7 | *s*.*π* NIL |  |'
+  id: totrans-64
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | *s*.*π* NIL |  |'
+- en: '|   8 | *Q* = Ø |  |'
+  id: totrans-65
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *Q* = Ø |  |'
+- en: '|   9 | ENQUEUE(*Q, s*) |  |'
+  id: totrans-66
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | 入队(*Q, s*) |  |'
+- en: '| 10 | **while** *Q* ≠ Ø |  |'
+  id: totrans-67
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **当** *Q* ≠ Ø **时** |  |'
+- en: '| 11 | *u* = DEQUEUE(*Q*) |  |'
+  id: totrans-68
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | *u* = 出队(*Q*) |  |'
+- en: '| 12 | **for** each vertex *v* in *G.Adj*[*u*] | // search the neighbors of
+    *u* |'
+  id: totrans-69
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | **对于** *u* 的邻接表中的每个顶点 *v* | // 搜索 *u* 的邻居 |'
+- en: '| 13 | **if** *v.color* == WHITE | // is *v* being discovered now? |'
+  id: totrans-70
+  prefs: []
+  type: TYPE_TB
+  zh: '| 13 | **如果** *v.color* == WHITE **则** | // *v* 现在被发现了吗？ |'
+- en: '| 14 | *v.color* = GRAY |  |'
+  id: totrans-71
+  prefs: []
+  type: TYPE_TB
+  zh: '| 14 | *v.color* = GRAY |  |'
+- en: '| 15 | *v.d* = *u.d* + 1 |  |'
+  id: totrans-72
+  prefs: []
+  type: TYPE_TB
+  zh: '| 15 | *v.d* = *u.d* + 1 |  |'
+- en: '| 16 | *v*.*π* = *u* |  |'
+  id: totrans-73
+  prefs: []
+  type: TYPE_TB
+  zh: '| 16 | *v*.*π* = *u* |  |'
+- en: '| 17 | ENQUEUEd(*Q*, *v*) | // *v* is now on the frontier |'
+  id: totrans-74
+  prefs: []
+  type: TYPE_TB
+  zh: '| 17 | 入队(*Q*, *v*) | // *v* 现在位于前沿 |'
+- en: '| 18 | *u.color* = BLACK | // *u* is now behind the frontier |'
+  id: totrans-75
+  prefs: []
+  type: TYPE_TB
+  zh: '| 18 | *u.color* = BLACK | // *u*现在在前沿之后 |'
+- en: 'The results of breadth-first search may depend upon the order in which the
+    neighbors of a given vertex are visited in line 12: the breadth-first tree may
+    vary, but the distances *d* computed by the algorithm do not. (See Exercise 20.2-5.)'
+  id: totrans-76
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 广度优先搜索的结果可能取决于在第12行访问给定顶点的邻居的顺序：广度优先树可能会有所不同，但算法计算的距离*d*不会变化。（参见练习20.2-5。）
+- en: A simple change allows the BFS procedure to terminate in many cases before the
+    queue *Q* becomes empty. Because each vertex is discovered at most once and receives
+    a finite *d* value only when it is discovered, the algorithm can terminate once
+    every vertex has a finite *d* value. If BFS keeps count of how many vertices have
+    been discovered, it can terminate once either the queue *Q* is empty or all |*V*|
+    vertices are discovered.
+  id: totrans-77
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过简单的改变，BFS过程可以在队列*Q*变空之前的许多情况下终止。由于每个顶点最多被发现一次，并且只有在被发现时才接收到有限的*d*值，所以一旦每个顶点都有一个有限的*d*值，算法就可以终止。如果BFS记录了已发现的顶点数量，那么它可以在队列*Q*为空或所有|*V*|个顶点都被发现时终止。
+- en: '![art](images/Art_P604.jpg)'
+  id: totrans-78
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P604.jpg)'
+- en: '**Figure 20.3** The operation of BFS on an undirected graph. Each part shows
+    the graph and the queue *Q* at the beginning of each iteration of the **while**
+    loop of lines 10–18\. Vertex distances appear within each vertex and below vertices
+    in the queue. The tan region surrounds the frontier of the search, consisting
+    of the vertices in the queue. The light blue region surrounds the vertices behind
+    the frontier, which have been dequeued. Each part highlights in orange the vertex
+    dequeued and the breadth-first tree edges added, if any, in the previous iteration.
+    Blue edges belong to the breadth-first tree constructed so far.'
+  id: totrans-79
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.3** BFS在无向图上的操作。每个部分显示了图和每次迭代的**while**循环（第10-18行）开始时的队列*Q*。顶点距离显示在每个顶点内部和队列下方。棕色区域围绕搜索的前沿，包括队列中的顶点。浅蓝色区域围绕前沿后面的顶点，这些顶点已经出队。每个部分都突出显示了上一次迭代中出队的顶点和添加的广度优先树边（如果有）。蓝色边属于迄今为止构建的广度优先树。'
+- en: '**Analysis**'
+  id: totrans-80
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**分析**'
+- en: Before proving the various properties of breadth-first search, let’s take on
+    the easier job of analyzing its running time on an input graph *G* = (*V*, *E*).
+    We use aggregate analysis, as we saw in [Section 16.1](chapter016.xhtml#Sec_16.1).
+    After initialization, breadth-first search never whitens a vertex, and thus the
+    test in line 13 ensures that each vertex is enqueued at most once, and hence dequeued
+    at most once. The operations of enqueuing and dequeuing take *O*(1) time, and
+    so the total time devoted to queue operations is *O*(*V*). Because the procedure
+    scans the adjacency list of each vertex only when the vertex is dequeued, it scans
+    each adjacency list at most once. Since the sum of the lengths of all |*V*| adjacency
+    lists is Θ(*E*), the total time spent in scanning adjacency lists is *O*(*V* +
+    *E*). The overhead for initialization is *O*(*V*), and thus the total running
+    time of the BFS procedure is *O*(*V* + *E*). Thus, breadth-first search runs in
+    time linear in the size of the adjacency-list representation of *G*.
+  id: totrans-81
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在证明广度优先搜索的各种属性之前，让我们先来分析其在输入图*G* = (*V*, *E*)上的运行时间。我们使用聚合分析，就像我们在[第16.1节](chapter016.xhtml#Sec_16.1)中看到的那样。初始化后，广度优先搜索永远不会将顶点变白，因此第13行的测试确保每个顶点最多入队一次，因此最多出队一次。入队和出队操作都需要*O*(1)的时间，因此用于队列操作的总时间是*O*(*V*)。因为该过程只在顶点出队时扫描其邻接表，所以每个邻接表最多被扫描一次。由于所有|*V*|个邻接表长度之和为Θ(*E*)，所以扫描邻接表的总时间是*O*(*V*
+    + *E*)。初始化的开销为*O*(*V*)，因此BFS过程的总运行时间为*O*(*V* + *E*)。因此，广度优先搜索的运行时间与*G*的邻接表表示的大小成线性关系。
+- en: '**Shortest paths**'
+  id: totrans-82
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最短路径**'
+- en: Now, let’s see why breadth-first search finds the shortest distance from a given
+    source vertex *s* to each vertex in a graph. Define the ***shortest-path distance***
+    δ(*s*, *v*) from *s* to *v* as the minimum number of edges in any path from vertex
+    *s* to vertex *v*. If there is no path from *s* to *v*, then δ(*s*, *v*) = ∞.
+    We call a path of length δ(*s*, *v*) from *s* to *v* a ***shortest path***^([2](#footnote_2))
+    from *s* to *v*. Before showing that breadth-first search correctly computes shortest-path
+    distances, we investigate an important property of shortest-path distances.
+  id: totrans-83
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在，让我们看看为什么广度优先搜索可以找到从给定源顶点*s*到图中每个顶点的最短距离。将从顶点*s*到顶点*v*的***最短路径距离*** δ(*s*,
+    *v*)定义为任何路径中边数最少的路径。如果从*s*到*v*没有路径，则δ(*s*, *v*) = ∞。我们将从*s*到*v*长度为δ(*s*, *v*)的路径称为***最短路径***^([2](#footnote_2))从*s*到*v*。在展示广度优先搜索正确计算最短路径距离之前，我们研究最短路径距离的一个重要属性。
+- en: '***Lemma 20.1***'
+  id: totrans-84
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理20.1***'
+- en: Let *G* = (*V*, *E*) be a directed or undirected graph, and let *s* ∈ *V* be
+    an arbitrary vertex. Then, for any edge (*u*, *v*) ∈ *E*,
+  id: totrans-85
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)为有向或无向图，*s* ∈ *V*为任意顶点。那么，对于任意边(*u*, *v*) ∈ *E*，
+- en: δ(*s*, *v*) ≤ δ(*s*, *u*) + 1.
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: δ(*s*, *v*) ≤ δ(*s*, *u*) + 1。
+- en: '***Proof***   If *u* is reachable from *s*, then so is *v*. In this case, the
+    shortest path from *s* to *v* cannot be longer than the shortest path from *s*
+    to *u* followed by the edge (*u*, *v*), and thus the inequality holds. If *u*
+    is not reachable from *s*, then δ(*s*, *u*) = ∞, and again, the inequality holds.'
+  id: totrans-87
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   如果*u*可从*s*到达，则*v*也可到达。在这种情况下，从*s*到*v*的最短路径不可能比从*s*到*u*再经过边(*u*,
+    *v*)的最短路径更长，因此不等式成立。如果*u*无法从*s*到达，则δ(*s*, *u*) = ∞，同样，不等式成立。'
+- en: ▪
+  id: totrans-88
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Our goal is to show that the BFS procedure properly computes *v.d* = δ(*s*,
+    *v*) for each vertex *v* ∈ *V*. We first show that *v.d* bounds δ(*s*, *v*) from
+    above.
+  id: totrans-89
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们的目标是展示BFS过程正确计算了每个顶点*v* ∈ *V*的*v.d* = δ(*s*, *v*)。我们首先展示*v.d*从上方界定了δ(*s*,
+    *v*)。
+- en: '***Lemma 20.2***'
+  id: totrans-90
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理20.2***'
+- en: Let *G* = (*V*, *E*) be a directed or undirected graph, and suppose that BFS
+    is run on *G* from a given source vertex *s* ∈ *V*. Then, for each vertex *v*
+    ∈ *V*, the value *v.d* computed by BFS satisfies *v.d* ≥ δ(*s*, *v*) at all times,
+    including at termination.
+  id: totrans-91
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)为有向或无向图，并假设从给定源顶点*s* ∈ *V*在*G*上运行BFS。那么，对于每个顶点*v* ∈ *V*，BFS计算的*v.d*值始终满足*v.d*
+    ≥ δ(*s*, *v*)，包括终止时。
+- en: '***Proof***   The lemma is true intuitively, because any finite value assigned
+    to *v.d* equals the number of edges on some path from *s* to *v*. The formal proof
+    is by induction on the number of ENQUEUE operations. The inductive hypothesis
+    is that *v.d* ≥ δ(*s*, *v*) for all *v* ∈ *V*.'
+  id: totrans-92
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   引理在直观上是正确的，因为分配给*v.d*的任何有限值等于从*s*到*v*的某条路径上的边数。正式的证明通过对ENQUEUE操作的次数进行归纳。归纳假设是对于所有*v*
+    ∈ *V*，*v.d* ≥ δ(*s*, *v*)。'
+- en: The base case of the induction is the situation immediately after enqueuing
+    *s* in line 9 of BFS. The inductive hypothesis holds here, because *s.d* = 0 =
+    δ(*s*, *s*) and *v.d* = 1 ∞ δ(*s*, *v*) for all *v* ∈ *V* – {*s*}.
+  id: totrans-93
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 归纳的基础情况是在BFS的第9行将*s*入队后的情况。归纳假设在这里成立，因为*s.d* = 0 = δ(*s*, *s*)，对于所有*v* ∈ *V*
+    – {*s*}，*v.d* = 1 ∞ δ(*s*, *v*)。
+- en: For the inductive step, consider a white vertex *v* that is discovered during
+    the search from a vertex *u*. The inductive hypothesis implies that *u.d* ≥ δ(*s*,
+    *u*). The assignment performed by line 15 and Lemma 20.1 give
+  id: totrans-94
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于归纳步骤，考虑在从顶点*u*开始搜索时发现的白色顶点*v*。归纳假设意味着*u.d* ≥ δ(*s*, *u*)。第15行的赋值和引理20.1给出
+- en: '| *v.d* | = | *u.d* + 1 |'
+  id: totrans-95
+  prefs: []
+  type: TYPE_TB
+  zh: '| *v.d* | = | *u.d* + 1 |'
+- en: '|  | ≥ | δ(*s*, *u*) + 1 |'
+  id: totrans-96
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≥ | δ(*s*, *u*) + 1 |'
+- en: '|  | ≥ | δ(*s*, *v*). |'
+  id: totrans-97
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≥ | δ(*s*, *v*). |'
+- en: Vertex *v* is then enqueued, and it is never enqueued again because it is also
+    grayed and lines 14–17 execute only for white vertices. Thus, the value of *v.d*
+    never changes again, and the inductive hypothesis is maintained.
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然后顶点*v*被入队，并且它再也不会被入队，因为它也被标记为灰色，而第14-17行仅对白色顶点执行。因此，*v.d*的值再也不会改变，归纳假设得以保持。
+- en: ▪
+  id: totrans-99
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: To prove that *v.d* = δ(*s*, *v*), we first show more precisely how the queue
+    *Q* operates during the course of BFS. The next lemma shows that at all times,
+    the *d* values of vertices in the queue either are all the same or form a sequence
+    〈*k*, *k*, … , *k*, *k* + 1, *k* + 1, … , *k* + 1〉 for some integer *k* ≥ 0.
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了证明*v.d* = δ(*s*, *v*)，我们首先更详细地展示*BFS*过程中队列*Q*的操作。下一个引理表明，在任何时候，队列中顶点的*d*值要么都相同，要么形成一个序列〈*k*，*k*，…，*k*，*k*
+    + 1，*k* + 1，…，*k* + 1〉，其中*k* ≥ 0为整数。
+- en: '***Lemma 20.3***'
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理20.3***'
+- en: Suppose that during the execution of BFS on a graph *G* = (*V*, *E*), the queue
+    *Q* contains the vertices 〈*v*[1], *v*[2], … , *v[r]*〉, where *v*[1] is the head
+    of *Q* and *v[r]* is the tail. Then, *v[r].d* ≤ *v*[1].*d* + 1 and *v[i].d* ≤
+    *v*[*i*+1].*d* for *i* = 1, 2, … , *r* – 1.
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设在图*G* = (*V*, *E*)上执行*BFS*时，队列*Q*包含顶点〈*v*[1]，*v*[2]，…，*v[r]*〉，其中*v*[1]是*Q*的头部，*v[r]*是尾部。那么，*v[r].d*
+    ≤ *v*[1].*d* + 1，且对于*i* = 1, 2, …，*r* – 1，*v[i].d* ≤ *v*[*i*+1].*d*。
+- en: '***Proof***   The proof is by induction on the number of queue operations.
+    Initially, when the queue contains only *s*, the lemma trivially holds.'
+  id: totrans-103
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   证明通过对队列操作次数进行归纳。最初，当队列只包含*s*时，引理显然成立。'
+- en: For the inductive step, we must prove that the lemma holds after both dequeuing
+    and enqueuing a vertex. First, we examine dequeuing. When the head *v*[1] of the
+    queue is dequeued, *v*[2] becomes the new head. (If the queue becomes empty, then
+    the lemma holds vacuously.) By the inductive hypothesis, *v*[1].*d* ≤ *v*[2].*d*.
+    But then we have *v[r].d* ≤ *v*[1].*d*+1 ≤ *v*[2].*d* + 1, and the remaining inequalities
+    are unaffected. Thus, the lemma follows with *v*[2] as the new head.
+  id: totrans-104
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于归纳步骤，我们必须证明引理在出队和入队顶点后仍然成立。首先，我们来看看出队操作。当队列的头部*v*[1]被出队时，*v*[2]成为新的头部。（如果队列变为空，则引理成立。）根据归纳假设，*v*[1].*d*
+    ≤ *v*[2].*d*。然后我们有*v[r].d* ≤ *v*[1].*d*+1 ≤ *v*[2].*d* + 1，其余不等式不受影响。因此，当*v*[2]成为新头部时引理成立。
+- en: Now, we examine enqueuing. When line 17 of BFS enqueues a vertex *v* onto a
+    queue containing vertices 〈*v*[1], *v*[2], … , *v[r]*〉, the enqueued vertex becomes
+    *v*[*r*+1]. If the queue was empty before *v* was enqueued, then after enqueuing
+    *v*, we have *r* = 1 and the lemma trivially holds. Now suppose that the queue
+    was nonempty when *v* was enqueued. At that time, the procedure has most recently
+    removed vertex *u*, whose adjacency list is currently being scanned, from the
+    queue *Q*. Just before *u* was removed, we had *u* = *v*[1] and the inductive
+    hypothesis held, so that *u.d* ≤ *v*[2].*d* and *v[r].d* ≤ *u.d* + 1\. After *u*
+    is removed from the queue, the vertex that had been *v*[2] becomes the new head
+    *v*[1] of the queue, so that now *u.d* ≤ *v*[1].*d*. Thus, *v*[*r*+1].*d* = *v.d*
+    = *u.d* + 1 ≤ *v*[1].*d* + 1\. Since *v[r].d* ≤ *u.d* + 1, we have *v[r].d* ≤
+    *u.d* + 1 = *v.d* = *v*[*r*+1].*d*, and the remaining inequalities are unaffected.
+    Thus, the lemma follows when *v* is enqueued.
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在，我们来看看入队操作。当BFS的第17行将顶点*v*入队到包含顶点〈*v*[1]，*v*[2]，…，*v[r]*〉的队列时，入队的顶点变为*v*[*r*+1]。如果在*v*入队之前队列是空的，那么入队*v*后，我们有*r*
+    = 1，引理显然成立。现在假设在*v*入队时队列不为空。此时，程序最近从队列*Q*中移除了顶点*u*，其邻接表当前正在被扫描。在*u*被移除之前，我们有*u*
+    = *v*[1]，归纳假设成立，因此*u.d* ≤ *v*[2].*d*和*v[r].d* ≤ *u.d* + 1。在*u*从队列中移除后，原先的*v*[2]成为新的头部*v*[1]，因此现在*u.d*
+    ≤ *v*[1].*d*。因此，*v*[*r*+1].*d* = *v.d* = *u.d* + 1 ≤ *v*[1].*d* + 1。由于*v[r].d*
+    ≤ *u.d* + 1，我们有*v[r].d* ≤ *u.d* + 1 = *v.d* = *v*[*r*+1].*d*，其余不等式不受影响。因此，当*v*入队时引理成立。
+- en: ▪
+  id: totrans-106
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The following corollary shows that the *d* values at the time that vertices
+    are enqueued monotonically increase over time.
+  id: totrans-107
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下推论表明，顶点入队时的*d*值随时间单调递增。
+- en: '***Corollary 20.4***'
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论20.4***'
+- en: Suppose that vertices *v[i]* and *v[j]* are enqueued during the execution of
+    BFS, and that *v[i]* is enqueued before *v[j]*. Then *v[i].d* ≤ *v[j].d* at the
+    time that *v[j]* is enqueued.
+  id: totrans-109
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设在BFS执行过程中，顶点*v[i]*和*v[j]*被入队，并且*v[i]*在*v[j]*之前被入队。那么在*v[j]*被入队时，*v[i].d* ≤
+    *v[j].d*。
+- en: '***Proof***   Immediate from Lemma 20.3 and the property that each vertex receives
+    a finite *d* value at most once during the course of BFS.'
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   根据引理20.3和每个顶点在*BFS*过程中最多只接收一次有限*d*值的属性，立即得出。'
+- en: ▪
+  id: totrans-111
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: We can now prove that breadth-first search correctly finds shortest-path distances.
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们可以证明广度优先搜索正确地找到最短路径距离。
+- en: '***Theorem 20.5 (Correctness of breadth-first search)***'
+  id: totrans-113
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理20.5（广度优先搜索的正确性）***'
+- en: Let *G* = (*V*, *E*) be a directed or undirected graph, and suppose that BFS
+    is run on *G* from a given source vertex *s* ∈ *V*. Then, during its execution,
+    BFS discovers every vertex *v* ∈ *V* that is reachable from the source *s*, and
+    upon termination, *v.d* = δ(*s*, *v*) for all *v* ∈ *V*. Moreover, for any vertex
+    *v* ≠ *s* that is reachable from *s*, one of the shortest paths from *s* to *v*
+    is a shortest path from *s* to *v*.*π* followed by the edge (*v*.*π*, *v*).
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)为有向或无向图，并假设从给定源顶点*s* ∈ *V*在*G*上运行BFS。在执行过程中，BFS发现了从源*s*可达的每个顶点*v*
+    ∈ *V*，并在终止时，对于所有*v* ∈ *V*，*v.d* = δ(*s*, *v*)。此外，对于从*s*可达的任何*v* ≠ *s*的顶点，从*s*到*v*的最短路径之一是从*s*到*v*.*π*，后跟边(*v*.*π*,
+    *v*)。
+- en: '***Proof***   Assume for the purpose of contradiction that some vertex receives
+    a *d* value not equal to its shortest-path distance. Of all such vertices, let
+    *v* be a vertex that has the minimum δ(*s*, *v*). By Lemma 20.2, we have *v.d*
+    ≥ δ(*s*, *v*), and thus *v.d* > δ(*s*, *v*). We cannot have *v* = *s*, because
+    *s.d* = 0 and δ(*s*, *s*) = 0\. Vertex *v* must be reachable from *s*, for otherwise
+    we would have δ(*s*, *v*) = ∞ ≥ *v.d*. Let *u* be the vertex immediately preceding
+    *v* on some shortest path from *s* to *v* (since *v* ≠ *s*, vertex *u* must exist),
+    so that δ(*s*, *v*) = δ(*s*, *u*)+1\. Because δ(*s*, *u*) < δ(*s*, *v*), and because
+    of how we chose *v*, we have *u.d* = δ(*s*, *u*). Putting these properties together
+    gives'
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   为了推导矛盾，假设某个顶点接收到与其最短路径距离不相等的*d*值。在所有这样的顶点中，让*v*是具有最小δ(*s*, *v*)的顶点。根据引理20.2，我们有*v.d*
+    ≥ δ(*s*, *v*)，因此*v.d* > δ(*s*, *v*)。我们不能有*v* = *s*，因为*s.d* = 0且δ(*s*, *s*) = 0。顶点*v*必须从*s*可达，否则我们将有δ(*s*,
+    *v*) = ∞ ≥ *v.d*。让*u*是在从*s*到*v*的某条最短路径上紧接着*v*的顶点（因为*v* ≠ *s*，所以顶点*u*必须存在），使得δ(*s*,
+    *v*) = δ(*s*, *u*)+1。因为δ(*s*, *u*) < δ(*s*, *v*)，并且���于我们选择了*v*的方式，我们有*u.d* =
+    δ(*s*, *u*)。将这些属性放在一起得到'
+- en: '![art](images/Art_P605.jpg)'
+  id: totrans-116
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P605.jpg)'
+- en: Now consider the time when BFS chooses to dequeue vertex *u* from *Q* in line
+    11\. At this time, vertex *v* is either white, gray, or black. We shall show that
+    each of these cases leads to a contradiction of inequality (20.1). If *v* is white,
+    then line 15 sets *v.d* = *u.d* + 1, contradicting inequality (20.1). If *v* is
+    black, then it was already removed from the queue and, by Corollary 20.4, we have
+    *v.d* ≤ *u.d*, again contradicting inequality (20.1). If *v* is gray, then it
+    was painted gray upon dequeuing some vertex *w*, which was removed from *Q* earlier
+    than *u* and for which *v.d* = *w.d* + 1\. By Corollary 20.4, however, *w.d* ≤
+    *u.d*, and so *v.d* = *w.d* + 1 ≤ *u.d* + 1, once again contradicting inequality
+    (20.1).
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在考虑BFS在第11行选择从*Q*中出列顶点*u*的时间。此时，顶点*v*要么是白色、灰色或黑色。我们将展示这些情况中的每一种都导致不等式(20.1)的矛盾。如果*v*是白色，则第15行设置*v.d*
+    = *u.d* + 1，与不等式(20.1)矛盾。如果*v*是黑色，则它已从队列中移除，并且根据推论20.4，我们有*v.d* ≤ *u.d*，再次与不等式(20.1)矛盾。如果*v*是灰色，则在出列某个顶点*w*时将其涂成灰色，该顶点*w*比*u*更早地从*Q*中移除，并且*v.d*
+    = *w.d* + 1。然而，根据推论20.4，*w.d* ≤ *u.d*，因此*v.d* = *w.d* + 1 ≤ *u.d* + 1，再次与不等式(20.1)矛盾。
+- en: Thus we conclude that *v.d* = δ(*s*, *v*) for all *v* ∈ *V*. All vertices *v*
+    reachable from *s* must be discovered, for otherwise they would have ∞ = *v.d*
+    > δ(*s*, *v*). To conclude the proof of the theorem, observe from lines 15–16
+    that if *v*.*π* = *u*, then *v.d* = *u.d* + 1\. Thus, to form a shortest path
+    from *s* to *v*, take a shortest path from *s* to *v*.*π* and then traverse the
+    edge (*v*.*π* *v*).
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此我们得出结论，对于所有*v* ∈ *V*，*v.d* = δ(*s*, *v*)。所有从*s*可达的顶点必须被发现，否则它们将有∞ = *v.d*
+    > δ(*s*, *v*)。为了完成定理的证明，从第15-16行观察到，如果*v*.*π* = *u*，那么*v.d* = *u.d* + 1。因此，要形成从*s*到*v*的最短路径，从*s*到*v*.*π*取一条最短路径，然后遍历边(*v*.*π*
+    *v*)。
+- en: ▪
+  id: totrans-119
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Breadth-first trees**'
+  id: totrans-120
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**广度优先树**'
+- en: The blue edges in [Figure 20.3](chapter020.xhtml#Fig_20-3) show the breadth-first
+    tree built by the BFS procedure as it searches the graph. The tree corresponds
+    to the *π* attributes. More formally, for a graph *G* = (*V*, *E*) with source
+    *s*, we define the ***predecessor subgraph*** of *G* as *G*[*π*] = (*V*[*π*],
+    *E*[*π*]), where
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图20.3](chapter020.xhtml#Fig_20-3)中的蓝色边显示了BFS过程构建的广度优先树，该树对应于*π*属性。更正式地说，对于具有源*s*的图*G*
+    = (*V*, *E*)，我们将*G*的***前驱子图***定义为*G*[*π*] = (*V*[*π*], *E*[*π*])，其中'
+- en: '![art](images/Art_P606.jpg)'
+  id: totrans-122
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P606.jpg)'
+- en: and
+  id: totrans-123
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 和
+- en: '![art](images/Art_P607.jpg)'
+  id: totrans-124
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P607.jpg)'
+- en: The predecessor subgraph *G*[*π*] is a ***breadth-first tree*** if *V*[*π*]
+    consists of the vertices reachable from *s* and, for all *v* ∈ *V*[*π*], the subgraph
+    *G*[*π*] contains a unique simple path from *s* to *v* that is also a shortest
+    path from *s* to *v* in *G*. A breadth-first tree is in fact a tree, since it
+    is connected and |*E*[*π*]| = |*V*[*π*]| − 1 (see Theorem B.2 on page 1169). We
+    call the edges in *E*[*π*]***tree edges***.
+  id: totrans-125
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果*V*[*π*]由从*s*可达的顶点组成，并且对于所有*v* ∈ *V*[*π*]，子图*G*[*π*]包含从*s*到*v*的唯一简单路径，该路径也是*G*中从*s*到*v*的最短路径。广度优先树实际上是一棵树，因为它是连通的且|*E*[*π*]|
+    = |*V*[*π*]| − 1（参见第1169页的定理B.2）。我们称*E*[*π*]中的边为***树边***。
+- en: The following lemma shows that the predecessor subgraph produced by the BFS
+    procedure is a breadth-first tree.
+  id: totrans-126
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下面的引理表明，BFS过程产生的前驱子图是一棵广度优先树。
+- en: '***Lemma 20.6***'
+  id: totrans-127
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理20.6***'
+- en: When applied to a directed or undirected graph *G* = (*V*, *E*), procedure BFS
+    constructs *π* so that the predecessor subgraph *G*[*π*] = (*V*[*π*], *E*[*π*])
+    is a breadth-first tree.
+  id: totrans-128
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当应用于有向或无向图*G* = (*V*, *E*)时，BFS过程构造*π*，使得前驱子图*G*[*π*] = (*V*[*π*], *E*[*π*])是一棵广度优先树。
+- en: '***Proof***   Line 16 of BFS sets *v*.*π* = *u* if and only if (*u*, *v*) =
+    *E* and δ(*s*, *v*) < ∞—that is, if *v* is reachable from *s*—and thus *V*[*π*]
+    consists of the vertices in *V* reachable from *s*. Since the predecessor subgraph
+    *G*[*π*] forms a tree, by Theorem B.2, it contains a unique simple path from *s*
+    to each vertex in *V*[*π*]. Applying Theorem 20.5 inductively yields that every
+    such path is a shortest path in *G*.'
+  id: totrans-129
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   BFS 的第16行设置 *v*.*π* = *u* 当且仅当 (*u*, *v*) = *E* 且 δ(*s*, *v*) <
+    ∞——也就是说，*v* 是从 *s* 可达的——因此 *V*[*π*] 包含从 *s* 可达的顶点。由于前任子图 *G*[*π*] 形成一棵树，根据定理 B.2，它包含从
+    *s* 到 *V*[*π*] 中每个顶点的唯一简单路径。通过定理 20.5 的归纳应用，得出每条路径都是 *G* 中的最短路径。'
+- en: The PRINT-PATH procedure prints out the vertices on a shortest path from *s*
+    to *v*, assuming that BFS has already computed a breadth-first tree. This procedure
+    runs in time linear in the number of vertices in the path printed, since each
+    recursive call is for a path one vertex shorter.
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: PRINT-PATH 过程打印出从 *s* 到 *v* 的最短路径上的顶点，假设 BFS 已经计算出了广度优先树。该过程的运行时间与打印路径中顶点数量成线性关系，因为每个递归调用都是为了一个顶点更少的路径。
+- en: PRINT-PATH(*G*, *s*, *v*)
+  id: totrans-131
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 打印路径(*G*, *s*, *v*)
+- en: '|   1 | **if** *v* == *s* |'
+  id: totrans-132
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | **if** *v* == *s* |'
+- en: '|   2 | print *s* |'
+  id: totrans-133
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | 打印 *s* |'
+- en: '|   3 | **elseif** *v*.*π* == NIL |'
+  id: totrans-134
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | **elseif** *v*.*π* == NIL |'
+- en: '|   4 | print “no path from” *s* “to” *v* “exists” |'
+  id: totrans-135
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | 打印“从” *s* “到” *v* “不存在路径” |'
+- en: '|   5 | **else** PRINT-PATH(*G*, *s*, *v*.*π*) |'
+  id: totrans-136
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | **else** PRINT-PATH(*G*, *s*, *v*.*π*) |'
+- en: '|   6 | print *v* |'
+  id: totrans-137
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | 打印 *v* |'
+- en: '**Exercises**'
+  id: totrans-138
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***20.2-1***'
+  id: totrans-139
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-1***'
+- en: Show the *d* and *π* values that result from running breadth-first search on
+    the directed graph of [Figure 20.2(a)](chapter020.xhtml#Fig_20-2), using vertex
+    3 as the source.
+  id: totrans-140
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示在有向图[图 20.2(a)](chapter020.xhtml#Fig_20-2)上以顶点 3 为源运行广度优先搜索后得到的 *d* 和 *π*
+    值。
+- en: '***20.2-2***'
+  id: totrans-141
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-2***'
+- en: Show the *d* and *π* values that result from running breadth-first search on
+    the undirected graph of [Figure 20.3](chapter020.xhtml#Fig_20-3), using vertex
+    *u* as the source. Assume that neighbors of a vertex are visited in alphabetical
+    order.
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示在无向图[图 20.3](chapter020.xhtml#Fig_20-3)上以顶点 *u* 为源运行广度优先搜索后得到的 *d* 和 *π* 值。假设顶点的邻居按字母顺序访问。
+- en: '***20.2-3***'
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-3***'
+- en: Show that using a single bit to store each vertex color suffices by arguing
+    that the BFS procedure produces the same result if line 18 is removed. Then show
+    how to obviate the need for vertex colors altogether.
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过论证，使用单个位来存储每个顶点的颜色就足够了，因为如果删除第18行，BFS过程产生的结果是相同的。然后展示如何完全避免顶点颜色的需要。
+- en: '***20.2-4***'
+  id: totrans-145
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-4***'
+- en: What is the running time of BFS if we represent its input graph by an adjacency
+    matrix and modify the algorithm to handle this form of input?
+  id: totrans-146
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果我们用邻接矩阵表示 BFS 的输入图，并修改算法以处理这种形式的输入，BFS 的运行时间是多少？
+- en: '***20.2-5***'
+  id: totrans-147
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-5***'
+- en: Argue that in a breadth-first search, the value *u.d* assigned to a vertex *u*
+    is independent of the order in which the vertices appear in each adjacency list.
+    Using [Figure 20.3](chapter020.xhtml#Fig_20-3) as an example, show that the breadth-first
+    tree computed by BFS can depend on the ordering within adjacency lists.
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 论证在广度优先搜索中，对顶点 *u* 赋予的值 *u.d* 与顶点在每个邻接表中出现的顺序无关。以[图 20.3](chapter020.xhtml#Fig_20-3)为例，展示广度优先搜索计算的广度优先树可能取决于邻接表内的顺序。
+- en: '***20.2-6***'
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-6***'
+- en: Give an example of a directed graph *G* = (*V*, *E*), a source vertex *s* ∈
+    *V*, and a set of tree edges *E*[*π*] ⊆ *E* such that for each vertex *v* ∈ *V*,
+    the unique simple path in the graph (*V*, *E*[*π*]) from *s* to *v* is a shortest
+    path in *G*, yet the set of edges *E*[*π*] cannot be produced by running BFS on
+    *G*, no matter how the vertices are ordered in each adjacency list.
+  id: totrans-150
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个有向图 *G* = (*V*, *E*)、源顶点 *s* ∈ *V* 和一组树边 *E*[*π*] ⊆ *E* 的示例，使得对于每个顶点 *v*
+    ∈ *V*，图中从 *s* 到 *v* 的唯一简单路径是 *G* 中的最短路径，但无论如何排列每个邻接表中的顶点，边集 *E*[*π*] 都无法通过在 *G*
+    上运行 BFS 来产生。
+- en: '***20.2-7***'
+  id: totrans-151
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.2-7***'
+- en: 'There are two types of professional wrestlers: “faces” (short for “babyfaces,”
+    i.e., “good guys”) and “heels” (“bad guys”). Between any pair of professional
+    wrestlers, there may or may not be a rivalry. You are given the names of *n* professional
+    wrestlers and a list of *r* pairs of wrestlers for which there are rivalries.
+    Give an *O*(*n* + *r*)-time algorithm that determines whether it is possible to
+    designate some of the wrestlers as faces and the remainder as heels such that
+    each rivalry is between a face and a heel. If it is possible to perform such a
+    designation, your algorithm should produce it.'
+  id: totrans-152
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 有两种职业摔跤手：“面孔”（简称“babyfaces”，即“好人”��和“脚跟”（“坏人”）。在任何一对职业摔跤手之间，可能存在对抗，也可能不存在。给定
+    *n* 名职业摔跤手的姓名和 *r* 对存在对抗的摔跤手，给出一个 *O*(*n* + *r*) 时间复杂度的算法，确定是否可以将一些摔跤手指定为“面孔”，其余的指定为“脚跟”，使得每场对抗都是面孔和脚跟之间的。如果可以进行这样的指定，你的算法应该给出结果。
+- en: ★ ***20.2-8***
+  id: totrans-153
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***20.2-8***
+- en: 'The ***diameter*** of a tree *T* = (*V*, *E*) is defined as max {δ(*u*, *v*)
+    : *u*, *v* ∈ *V*}, that is, the largest of all shortest-path distances in the
+    tree. Give an efficient algorithm to compute the diameter of a tree, and analyze
+    the running time of your algorithm.'
+  id: totrans-154
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '树 *T* = (*V*, *E*) 的***直径***定义为 max {δ(*u*, *v*) : *u*, *v* ∈ *V*}，即树中所有最短路径距离的最大值。给出一个计算树直径的高效算法，并分析算法的运行时间。'
+- en: '[**20.3    Depth-first search**](toc.xhtml#Rh1-120)'
+  id: totrans-155
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20.3    深度优先搜索**](toc.xhtml#Rh1-120)'
+- en: As its name implies, depth-first search searches “deeper” in the graph whenever
+    possible. Depth-first search explores edges out of the most recently discovered
+    vertex *v* that still has unexplored edges leaving it. Once all of *v*’s edges
+    have been explored, the search “backtracks” to explore edges leaving the vertex
+    from which *v* was discovered. This process continues until all vertices that
+    are reachable from the original source vertex have been discovered. If any undiscovered
+    vertices remain, then depth-first search selects one of them as a new source,
+    repeating the search from that source. The algorithm repeats this entire process
+    until it has discovered every vertex.^([3](#footnote_3))
+  id: totrans-156
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 正如其名称所示，深度优先搜索在可能的情况下在图中进行“更深入”的搜索。深度优先搜索探索最近发现的仍有未探索边的顶点 *v* 的边。一旦 *v* 的所有边都被探索完，搜索就“回溯”以探索从发现
+    *v* 的顶点离开的边。这个过程一直持续，直到从原始源顶点可达的所有顶点都被发现。如果还有未发现的顶点，则深度优先搜索选择其中一个作为新源，从该源重复搜索。该算法重复整个过程，直到发现每个顶点为止。^([3](#footnote_3))
+- en: 'As in breadth-first search, whenever depth-first search discovers a vertex
+    *v* during a scan of the adjacency list of an already discovered vertex *u*, it
+    records this event by setting *v*’s predecessor attribute *v*.*π* to *u*. Unlike
+    breadth-first search, whose predecessor subgraph forms a tree, depth-first search
+    produces a predecessor subgraph that might contain several trees, because the
+    search may repeat from multiple sources. Therefore, we define the ***predecessor
+    subgraph*** of a depth-first search slightly differently from that of a breadth-first
+    search: it always includes all vertices, and it accounts for multiple sources.
+    Specifically, for a depth-first search the predecessor subgraph is *G*[*π*] =
+    (*V*, *E*[*π*]), where'
+  id: totrans-157
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 与广度优先搜索一样，每当深度优先搜索在已发现顶点 *u* 的邻接表扫描期间发现顶点 *v* 时，它通过将 *v* 的前任属性 *v*.*π* 设置为 *u*
+    来记录此事件。与广度优先搜索不同，其前驱子图形成一棵树，深度优先搜索生成的前驱子图可能包含多棵树，因为搜索可能从多个源重复。因此，我们对深度优先搜索的前驱子图的定义与广度优先搜索略有不同：它始终包括所有顶点，并考虑多个源。具体来说，对于深度优先搜索，前驱子图是
+    *G*[*π*] = (*V*, *E*[*π*])，其中
+- en: '*E*[*π*] = {(*v*.*π*, *v*) : *v* ∈ *V* and *v*.*π* ≠ NIL}.'
+  id: totrans-158
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*E*[*π*] = {(*v*.*π*, *v*) : *v* ∈ *V* 且 *v*.*π* ≠ NIL}。'
+- en: The predecessor subgraph of a depth-first search forms a ***depth-first forest***
+    comprising several ***depth-first trees***. The edges in *E*[*π*] are ***tree
+    edges***.
+  id: totrans-159
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 深度优先搜索的前驱子图形成一个由多个***深度优先树***组成的***深度优先森林***。*E*[*π*]中的边是***树边***。
+- en: Like breadth-first search, depth-first search colors vertices during the search
+    to indicate their state. Each vertex is initially white, is grayed when it is
+    ***discovered*** in the search, and is blackened when it is ***finished***, that
+    is, when its adjacency list has been examined completely. This technique guarantees
+    that each vertex ends up in exactly one depth-first tree, so that these trees
+    are disjoint.
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 与广度优先搜索类似，深度优先搜索在搜索过程中为顶点着色以指示其状态。每个顶点最��是白色的，在搜索中发现时变为灰色，在搜索完成时变为黑色，也就是当其邻接表被完全检查时。这种技术确保每个顶点最终都在恰好一个深度优先树中，因此这些树是不相交的。
+- en: 'Besides creating a depth-first forest, depth-first search also ***timestamps***
+    each vertex. Each vertex *v* has two timestamps: the first timestamp *v.d* records
+    when *v* is first discovered (and grayed), and the second timestamp *v.f* records
+    when the search finishes examining *v*’s adjacency list (and blackens *v*). These
+    timestamps provide important information about the structure of the graph and
+    are generally helpful in reasoning about the behavior of depth-first search.'
+  id: totrans-161
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 除了创建深度优先森林外，深度优先搜索还为每个顶点***标记时间戳***。每个顶点 *v* 有两个时间戳：第一个时间戳 *v.d* 记录了 *v* 首次被发现（并变为灰色），第二个时间戳
+    *v.f* 记录了搜索完成检查 *v* 的邻接表时的时间（并将 *v* 变为黑色）。这些时间戳提供了关于图的结构的重要信息，并且通常有助于推理深度优先搜索的行为。
+- en: The procedure DFS on the facing page records when it discovers vertex *u* in
+    the attribute *u.d* and when it finishes vertex *u* in the attribute *u.f*. These
+    timestamps are integers between 1 and 2 |*V*|, since there is one discovery event
+    and one finishing event for each of the |*V*| vertices. For every vertex *u*,
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本页上的DFS过程记录了它何时发现顶点 *u*（在属性 *u.d* 中）以及何时完成顶点 *u*（在属性 *u.f* 中）。这些时间戳是介于1和2 |*V*|之间的整数，因为每个顶点都有一个发现事件和一个完成事件。对于每个顶点
+    *u*，
+- en: '![art](images/Art_P608.jpg)'
+  id: totrans-163
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P608.jpg)'
+- en: Vertex *u* is WHITE before time *u.d*, GRAY between time *u.d* and time *u.f*,
+    and BLACK thereafter. In the DFS procedure, the input graph *G* may be undirected
+    or directed. The variable *time* is a global variable used for timestamping. [Figure
+    20.4](chapter020.xhtml#Fig_20-4) illustrates the progress of DFS on the graph
+    shown in [Figure 20.2](chapter020.xhtml#Fig_20-2) (but with vertices labeled by
+    letters rather than numbers).
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 顶点 *u* 在时间 *u.d* 之前是白色的，在时间 *u.d* 和时间 *u.f* 之间是灰色的，在时间 *u.f* 之后是黑色的。在DFS过程中，输入图
+    *G* 可能是无向的或有向的。变量 *time* 是用于时间戳的全局变量。[图20.4](chapter020.xhtml#Fig_20-4)展示了在[图20.2](chapter020.xhtml#Fig_20-2)中显示的图上进行DFS的进展（但顶点用字母标记而不是数字）。
+- en: DFS(*G*)
+  id: totrans-165
+  prefs: []
+  type: TYPE_NORMAL
+  zh: DFS(*G*)
+- en: '|   1 | **for** each vertex *u* ∈ *G.V* |'
+  id: totrans-166
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | **对于** 每个顶点 *u* ∈ *G.V* |'
+- en: '|   2 | *u.color* = WHITE |'
+  id: totrans-167
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *u.color* = WHITE |'
+- en: '|   3 | *u*.*π* = NIL |'
+  id: totrans-168
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | *u*.*π* = NIL |'
+- en: '|   4 | *time* = 0 |'
+  id: totrans-169
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | *time* = 0 |'
+- en: '|   5 | **for** each vertex *u* ∈ *G.V* |'
+  id: totrans-170
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | **对于** 每个顶点 *u* ∈ *G.V* |'
+- en: '|   6 | **if** *u.color* == WHITE |'
+  id: totrans-171
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **如果** *u.color* == WHITE |'
+- en: '|   7 | DFS-VISIT(*G*, *u*) |'
+  id: totrans-172
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | DFS-VISIT(*G*, *u*) |'
+- en: '| DFS-VISIT(*G*, *u*) |'
+  id: totrans-173
+  prefs: []
+  type: TYPE_TB
+  zh: '| DFS-VISIT(*G*, *u*) |'
+- en: '|   1 | *time* = *time* + 1 | // white vertex *u* has just been discovered
+    |'
+  id: totrans-174
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | *time* = *time* + 1 | // 白色顶点 *u* 刚刚被发现 |'
+- en: '|   2 | *u.d* = *time* |  |'
+  id: totrans-175
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *u.d* = *time* |  |'
+- en: '|   3 | *u.color* = GRAY |  |'
+  id: totrans-176
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | *u.color* = GRAY |  |'
+- en: '|   4 | **for** each vertex *v* in *G.Adj*[*u*] | // explore each edge (*u*,
+    *v*) |'
+  id: totrans-177
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **对于** 图 *G.Adj*[*u*] 中的每个顶点 *v* | // 探索每条边 (*u*, *v*) |'
+- en: '|   5 | **if** *v.color* == WHITE |  |'
+  id: totrans-178
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | **如果** *v.color* == WHITE |  |'
+- en: '|   6 | *v*.*π* = *u* |  |'
+  id: totrans-179
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | *v*.*π* = *u* |  |'
+- en: '|   7 | DFS-VISIT(*G*, *v*) |  |'
+  id: totrans-180
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | DFS-VISIT(*G*, *v*) |  |'
+- en: '|   8 | *time* = *time* + 1 |'
+  id: totrans-181
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *time* = *time* + 1 |'
+- en: '|   9 | *u.f* = *time* |'
+  id: totrans-182
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | *u.f* = *time* |'
+- en: '| 10 | *u.color* = BLACK | // blacken *u*; it is finished |'
+  id: totrans-183
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | *u.color* = BLACK | // 将*u*标记为黑色；搜索完成 |'
+- en: The DFS procedure works as follows. Lines 1–3 paint all vertices white and initialize
+    their *π* attributes to NIL. Line 4 resets the global time counter. Lines 5–7
+    check each vertex in *V* in turn and, when a white vertex is found, visit it by
+    calling DFS-VISIT. Upon every call of DFS-VISIT(*G*, *u*) in line 7, vertex *u*
+    becomes the root of a new tree in the depth-first forest. When DFS returns, every
+    vertex *u* has been assigned a ***discovery time*** *u.d* and a ***finish time***
+    *u.f*.
+  id: totrans-184
+  prefs: []
+  type: TYPE_NORMAL
+  zh: DFS过程的工作方式如下。第1-3行将所有顶点涂为白色，并将它们的*π*属性初始化为NIL。第4行重置全局时间计数器。第5-7行依次检查*V*中的每个顶点，当找到一个白色顶点时，通过调用DFS-VISIT来访问它。在第7行的每次调用DFS-VISIT(*G*,
+    *u*)时，顶点*u*成为深度优先森林中新树的根。当DFS返回时，每个顶点*u*都被分配了一个***发现时间*** *u.d*和一个***完成时间*** *u.f*。
+- en: In each call DFS-VISIT(*G*, *u*), vertex *u* is initially white. Lines 1–3 increment
+    the global variable *time*, record the new value of *time* as the discovery time
+    *u.d*, and paint *u* gray. Lines 4–7 examine each vertex *v* adjacent to *u* and
+    recursively visit *v* if it is white. As line 4 considers each vertex *v* ∈ *Adj*[*u*],
+    the depth-first search ***explores*** edge (*u*, *v*). Finally, after every edge
+    leaving *u* has been explored, lines 8–10 increment *time*, record the finish
+    time in *u.f*, and paint *u* black.
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在每次调用DFS-VISIT(*G*, *u*)时，顶点*u*最初是白色的。第1-3行增加全局变量*time*，将新值*time*记录为发现时间*u.d*，并将*u*标记为灰色。第4-7行检查与*u*相邻的每个顶点*v*，如果*v*是白色，则递归访问*v*。由于第4行考虑每个*v*
+    ∈ *Adj*[*u*]，深度优先搜索***探索***边(*u*, *v*)。最后，在离开*u*的每条边都被探索后，第8-10行增加*time*，在*u.f*中记录完成时间，并将*u*标记为黑色。
+- en: The results of depth-first search may depend upon the order in which line 5
+    of DFS examines the vertices and upon the order in which line 4 of DFS-VISIT visits
+    the neighbors of a vertex. These different visitation orders tend not to cause
+    problems in practice, because many applications of depth-first search can use
+    the result from any depth-first search.
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 深度优先搜索的结果可能取决于DFS的第5行检查顶点的顺序，以及DFS-VISIT的第4行访问顶点的顺序。这些不同的访问顺序在实践中往往不会引起问题，因为深度优先搜索的许多应用可以使用任何深度优先搜索的结果。
+- en: '![art](images/Art_P609.jpg)'
+  id: totrans-187
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P609.jpg)'
+- en: '**Figure 20.4** The progress of the depth-first-search algorithm DFS on a directed
+    graph. Edges are classified as they are explored: tree edges are labeled T, back
+    edges B, forward edges F, and cross edges *C*. Timestamps within vertices indicate
+    discovery time/finish times. Tree edges are highlighted in blue. Orange highlights
+    indicate vertices whose discovery or finish times change and edges that are explored
+    in each step.'
+  id: totrans-188
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.4** 在有向图上进行深度优先搜索算法DFS的进展。边在被探索时被分类：树边标记为T，回边标记为B，前向边标记为F，交叉边标记为*C*。顶点内的时间戳表示发现时间/完成时间。树边用蓝色突出显示。橙色突出显示指示发现或完成时间发生变化的顶点和在每一步中被探索的边。'
+- en: What is the running time of DFS? The loops on lines 1–3 and lines 5–7 of DFS
+    take Θ(*V*) time, exclusive of the time to execute the calls to DFS-VISIT. As
+    we did for breadth-first search, we use aggregate analysis. The procedure DFS-VISIT
+    is called exactly once for each vertex *v* ∈ *V*, since the vertex *u* on which
+    DFS-VISIT is invoked must be white and the first thing DFS-VISIT does is paint
+    vertex *u* gray. During an execution of DFS-VISIT(*G*, *v*), the loop in lines
+    4–7 executes |*Adj*[*v*]| times. Since Σ[*v*∈*V*] |*Adj*[*v*]| = Θ(*E*) and DFS-VISIT
+    is called once per vertex, the total cost of executing lines 4–7 of DFS-VISIT
+    is Θ(*V* + *E*). The running time of DFS is therefore Θ(*V* + *E*).
+  id: totrans-189
+  prefs: []
+  type: TYPE_NORMAL
+  zh: DFS的运行时间是多少？DFS的第1-3行和第5-7行上的循环需要Θ(*V*)时间，不包括执行DFS-VISIT的调用所需的时间。与广度优先搜索一样，我们使用聚合分析。由于必须对每个顶点*v*
+    ∈ *V*调用一次DFS-VISIT过程，因为调用DFS-VISIT的顶点*u*必须是白色的，而DFS-VISIT要做的第一件事就是将顶点*u*标记为灰色。在执行DFS-VISIT(*G*,
+    *v*)期间，第4-7行的循环执行|*Adj*[*v*]|次。由于Σ[*v*∈*V*] |*Adj*[*v*]| = Θ(*E*)，并且每个顶点调用一次DFS-VISIT，因此执行DFS-VISIT的第4-7行的总成本为Θ(*V*
+    + *E*)。因此，DFS的运行时间为Θ(*V* + *E*)。
+- en: '**Properties of depth-first search**'
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**深度优先搜索的属性**'
+- en: Depth-first search yields valuable information about the structure of a graph.
+    Perhaps the most basic property of depth-first search is that the predecessor
+    subgraph *G*[*π*] does indeed form a forest of trees, since the structure of the
+    depth-first trees exactly mirrors the structure of recursive calls of DFS-VISIT.
+    That is, *u* = *v*.*π* if and only if DFS-VISIT(*G*, *v*) was called during a
+    search of *u*’s adjacency list. Additionally, vertex *v* is a descendant of vertex
+    *u* in the depth-first forest if and only if *v* is discovered during the time
+    in which *u* is gray.
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 深度优先搜索为图的结构提供了有价值的信息。也许深度优先搜索最基本的特性是，前驱子图*G*[*π*]确实形成了树的森林，因为深度优先树的结构确切地反映了DFS-VISIT的递归调用结构。也就是说，当且仅当在搜索*u*的邻接表时调用DFS-VISIT(*G*,
+    *v*)时，*u* = *v*.*π*。此外，如果*v*是在*u*为灰色时被发现，则顶点*v*是深度优先森林中顶点*u*的后代。
+- en: Another important property of depth-first search is that discovery and finish
+    times have ***parenthesis structure***. If the DFS-VISIT procedure were to print
+    a left parenthesis “(*u*” when it discovers vertex *u* and to print a right parenthesis
+    “*u*)” when it finishes *u*, then the printed expression would be well formed
+    in the sense that the parentheses are properly nested. For example, the depth-first
+    search of [Figure 20.5(a)](chapter020.xhtml#Fig_20-5) corresponds to the parenthesization
+    shown in [Figure 20.5(b)](chapter020.xhtml#Fig_20-5). The following theorem provides
+    another way to characterize the parenthesis structure.
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 深度优先搜索的另一个重要特性是发现和完成时间具有***括号结构***。如果DFS-VISIT过程在发现顶点*u*时打印左括号“(*u*”，在完成*u*时打印右括号“*u*)”，那么打印的表达式将是良好形式的，因为括号是正确嵌套的。例如，[图20.5(a)](chapter020.xhtml#Fig_20-5)的深度优先搜索对应于[图20.5(b)](chapter020.xhtml#Fig_20-5)中显示的括号化。以下定理提供了另一种表征括号结构的方法。
+- en: '***Theorem 20.7 (Parenthesis theorem)***'
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 20.7（括号定理）***'
+- en: 'In any depth-first search of a (directed or undirected) graph *G* = (*V*, *E*),
+    for any two vertices *u* and *v*, exactly one of the following three conditions
+    holds:'
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在（有向或无向）图*G* = (*V*, *E*)的任何深度优先搜索中，对于任意两个顶点*u*和*v*，以下三个条件中恰好一个成立：
+- en: the intervals [*u.d*, *u.f*] and [*v.d*, *v.f*] are entirely disjoint, and neither
+    *u* nor *v* is a descendant of the other in the depth-first forest,
+  id: totrans-195
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 区间[*u.d*, *u.f*]和[*v.d*, *v.f*]完全不相交，*u*和*v*都不是深度优先森林中的另一个后代，
+- en: the interval [*u.d*, *u.f*] is contained entirely within the interval [*v.d*,
+    *v.f*], and *u* is a descendant of *v* in a depth-first tree, or
+  id: totrans-196
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 区间[*u.d*, *u.f*]完全包含在区间[*v.d*, *v.f*]内，*u*是深度优先树中*v*的后代，或
+- en: the interval [*v.d*, *v.f*] is contained entirely within the interval [*u.d*,
+    *u.f*], and *v* is a descendant of *u* in a depth-first tree.
+  id: totrans-197
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 区间[*v.d*, *v.f*]完全包含在区间[*u.d*, *u.f*]内，*v*是深度优先树中*u*的后代。
+- en: '***Proof***   We begin with the case in which *u.d* < *v.d*. We consider two
+    subcases, according to whether *v.d* < *u.f*. The first subcase occurs when *v.d*
+    < *u.f*, so that *v* was discovered while *u* was still gray, which implies that
+    *v* is a descendant of *u*. Moreover, since *v* was discovered after *u*, all
+    of its outgoing edges are explored, and *v* is finished, before the search returns
+    to and finishes *u*. In this case, therefore, the interval [*v.d*, *v.f*] is entirely
+    contained within the interval [*u.d*, *u.f*]. In the other subcase, *u.f* < *v.d*,
+    and by inequality (20.4), *u.d* < *u.f* < *v.d* < *v.f*, and thus the intervals
+    [*u.d*, *u.f*] and [*v.d*, *v.f*] are disjoint. Because the intervals are disjoint,
+    neither vertex was discovered while the other was gray, and so neither vertex
+    is a descendant of the other.'
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们从*u.d* < *v.d*的情况开始。我们根据*v.d* < *u.f*是否成立考虑两种子情况。第一种子情况是*v.d*
+    < *u.f*，这意味着*v*在*u*仍然是灰色时被发现，这意味着*v*是*u*的后代。此外，由于*v*是在*u*之后被发现的，它的所有出边都被探索，*v*在返回并完成*u*之前就已完成。因此，在这种情况下，区间[*v.d*,
+    *v.f*]完全包含在区间[*u.d*, *u.f*]内。在另一种子情况中，*u.f* < *v.d*，根据不等式（20.4），*u.d* < *u.f*
+    < *v.d* < *v.f*，因此区间[*u.d*, *u.f*]和[*v.d*, *v.f*]是不相交的。由于区间不相交，没有一个顶点是在另一个顶点仍然是灰色时被发现的，因此没有一个顶点是另一个的后代。'
+- en: '![art](images/Art_P610.jpg)'
+  id: totrans-199
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P610.jpg)'
+- en: '**Figure 20.5** Properties of depth-first search. **(a)** The result of a depth-first
+    search of a directed graph. Vertices are timestamped and edge types are indicated
+    as in [Figure 20.4](chapter020.xhtml#Fig_20-4). **(b)** Intervals for the discovery
+    time and finish time of each vertex correspond to the parenthesization shown.
+    Each rectangle spans the interval given by the discovery and finish times of the
+    corresponding vertex. Only tree edges are shown. If two intervals overlap, then
+    one is nested within the other, and the vertex corresponding to the smaller interval
+    is a descendant of the vertex corresponding to the larger. **(c)** The graph of
+    part (a) redrawn with all tree and forward edges going down within a depth-first
+    tree and all back edges going up from a descendant to an ancestor.'
+  id: totrans-200
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 20.5** 深度优先搜索的性质。 **(a)** 有向图的深度优先搜索结果。顶点被标记时间戳，边的类型如[图 20.4](chapter020.xhtml#Fig_20-4)中所示。
+    **(b)** 每个顶点的发现时间和完成时间的区间对应于所示的括号化。每个矩形跨越由相应顶点的发现时间和完成时间给出的区间。只显示树边。如果两个区间重叠，则一个区间嵌套在另一个区间内，对应于较小区间的顶点是较大区间的后代。
+    **(c)** 部分（a）的图重新绘制，其中所有树边和前向边在深度优先树内向下，所有反向边从后代向祖先向上。'
+- en: The case in which *v.d* < *u.d* is similar, with the roles of *u* and *v* reversed
+    in the above argument.
+  id: totrans-201
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当*v.d* < *u.d*时，情况类似，只是在上述论证中*u*和*v*的角色互换。
+- en: ▪
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '***Corollary 20.8 (Nesting of descendants’ intervals)***'
+  id: totrans-203
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论 20.8（后代间隔的嵌套）***'
+- en: Vertex *v* is a proper descendant of vertex *u* in the depth-first forest for
+    a (directed or undirected) graph *G* if and only if *u.d* < *v.d* < *v.f* < *u.f*.
+  id: totrans-204
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于（有向或无向）图*G*的深度优先森林中，顶点*v*是顶点*u*的真后代，当且仅当*u.d* < *v.d* < *v.f* < *u.f*。
+- en: '***Proof***   Immediate from Theorem 20.7.'
+  id: totrans-205
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   根据定理 20.7，立即得出。'
+- en: ▪
+  id: totrans-206
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The next theorem gives another important characterization of when one vertex
+    is a descendant of another in the depth-first forest.
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一个定理给出了另一个重要的特征，即何时一个顶点是深度优先森林中另一个顶点的后代。
+- en: '***Theorem 20.9 (White-path theorem)***'
+  id: totrans-208
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 20.9（白色路径定理）***'
+- en: In a depth-first forest of a (directed or undirected) graph *G* = (*V*, *E*),
+    vertex *v* is a descendant of vertex *u* if and only if at the time *u.d* that
+    the search discovers *u*, there is a path from *u* to *v* consisting entirely
+    of white vertices.
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在图*G* = (*V*, *E*)的深度优先森林中，顶点*v*是顶点*u*的后代，当且仅当搜索发现*u*时，从*u*到*v*存在一条完全由白色顶点组成的路径。
+- en: '***Proof***   ⇒: If *v* = *u*, then the path from *u* to *v* contains just
+    vertex *u*, which is still white when *u.d* receives a value. Now, suppose that
+    *v* is a proper descendant of *u* in the depth-first forest. By Corollary 20.8,
+    *u.d* < *v.d*, and so *v* is white at time *u.d*. Since *v* can be any descendant
+    of *u*, all vertices on the unique simple path from *u* to *v* in the depth-first
+    forest are white at time *u.d*.'
+  id: totrans-210
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   ⇒：如果*v* = *u*，那么从*u*到*v*的路径只包含顶点*u*，当*u.d*接收一个值时，*u*仍然是白色的。现在，假设*v*是深度优先森林中*u*的真后代。根据推论
+    20.8，*u.d* < *v.d*，因此*v*在时间*u.d*时是白色的。由于*v*可以是*u*的任何后代，深度优先森林中从*u*到*v*的唯一简单路径上的所有顶点在时间*u.d*时都是白色的。'
+- en: '⇐: Suppose that there is a path of white vertices from *u* to *v* at time *u.d*,
+    but *v* does not become a descendant of *u* in the depth-first tree. Without loss
+    of generality, assume that every vertex other than *v* along the path becomes
+    a descendant of *u*. (Otherwise, let *v* be the closest vertex to *u* along the
+    path that doesn’t become a descendant of *u*.) Let *w* be the predecessor of *v*
+    in the path, so that *w* is a descendant of *u* (*w* and *u* may in fact be the
+    same vertex). By Corollary 20.8, *w.f* ≤ *u.f*. Because *v* must be discovered
+    after *u* is discovered, but before *w* is finished, *u.d* < *v.d* < *w.f* ≤ *u.f*.
+    Theorem 20.7 then implies that the interval [*v.d*, *v.f*] is contained entirely
+    within the interval [*u.d*, *u.f*]. By Corollary 20.8, *v* must after all be a
+    descendant of *u*.'
+  id: totrans-211
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ⇐：假设在时间*u.d*从*u*到*v*存在一条白色顶点路径，但*v*在深度优先树中不成为*u*的后代。不失一般性，假设沿着路径除了*v*之外的每个顶点都成为*u*的后代。（否则，让*v*是沿着路径到*u*最近的不成为*u*后代的顶点。）让*w*是路径中*v*的前任，因此*w*是*u*的后代（*w*和*u*实际上可能是同一个顶点）。根据推论20.8，*w.f*
+    ≤ *u.f*。因为*v*必须在*u*被发现后但在*w*完成之前被发现，但*u.d* < *v.d* < *w.f* ≤ *u.f*。然��定理20.7意味着区间[*v.d*,
+    *v.f*]完全包含在区间[*u.d*, *u.f*]中。根据推论20.8，*v*最终必须成为*u*的后代。
+- en: ▪
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Classification of edges**'
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**边的分类**'
+- en: You can obtain important information about a graph by classifying its edges
+    during a depth-first search. For example, [Section 20.4](chapter020.xhtml#Sec_20.4)
+    will show that a directed graph is acyclic if and only if a depth-first search
+    yields no “back” edges (Lemma 20.11).
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您可以通过在深度优先搜索期间对图的边进行分类来获得关于图的重要信息。例如，[20.4节](chapter020.xhtml#Sec_20.4)将展示，如果深度优先搜索不产生“后向”边（引理20.11），则有向图是无环的。
+- en: 'The depth-first forest *G*[*π*] produced by a depth-first search on graph *G*
+    can contain four types of edges:'
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由深度优先搜索图*G*上的深度优先森林*G*[*π*]可以包含四种类型的边：
+- en: '***Tree edges*** are edges in the depth-first forest *G*[*π*]. Edge (*u*, *v*)
+    is a tree edge if *v* was first discovered by exploring edge (*u*, *v*).'
+  id: totrans-216
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '***树边*** 是深度优先森林*G*[*π*]中的边。如果边(*u*, *v*)是树边，则*v*是通过探索边(*u*, *v*)首次发现的。'
+- en: '***Back edges*** are those edges (*u*, *v*) connecting a vertex *u* to an ancestor
+    *v* in a depth-first tree. We consider self-loops, which may occur in directed
+    graphs, to be back edges.'
+  id: totrans-217
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '***后向边*** 是指连接深度优先树中顶点*u*到其祖先*v*的边(*u*, *v*)。我们认为可能出现在有向图中的自环是后向边。'
+- en: '***Forward edges*** are those nontree edges (*u*, *v*) connecting a vertex
+    *u* to a proper descendant *v* in a depth-first tree.'
+  id: totrans-218
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '***前向边*** 是指连接深度优先树中顶点*u*到其适当后代*v*的非树边(*u*, *v*)。'
+- en: '***Cross edges*** are all other edges. They can go between vertices in the
+    same depth-first tree, as long as one vertex is not an ancestor of the other,
+    or they can go between vertices in different depth-first trees.'
+  id: totrans-219
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '***交叉边*** 是指除了其他所有边。它们可以在同一深度优先树中的顶点之间移动，只要一个顶点不是另一个的祖先，或者它们可以在不同深度优先树中的顶点之间移动。'
+- en: In [Figures 20.4](chapter020.xhtml#Fig_20-4) and [20.5](chapter020.xhtml#Fig_20-5),
+    edge labels indicate edge types. [Figure 20.5(c)](chapter020.xhtml#Fig_20-5) also
+    shows how to redraw the graph of [Figure 20.5(a)](chapter020.xhtml#Fig_20-5) so
+    that all tree and forward edges head downward in a depth-first tree and all back
+    edges go up. You can redraw any graph in this fashion.
+  id: totrans-220
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[图20.4](chapter020.xhtml#Fig_20-4)和[20.5](chapter020.xhtml#Fig_20-5)中，边标签表示边的类型。[图20.5(c)](chapter020.xhtml#Fig_20-5)还展示了如何重新绘制[图20.5(a)](chapter020.xhtml#Fig_20-5)的图形，以便所有树和前向边向下指向深度优先树，而所有后向边向上。您可以以这种方式重新绘制任何图形。
+- en: 'The DFS algorithm has enough information to classify some edges as it encounters
+    them. The key idea is that when an edge (*u*, *v*) is first explored, the color
+    of vertex *v* says something about the edge:'
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: DFS算法在遇到某些边时具有足够的信息对其进行分类。关键思想是当边(*u*, *v*)首次被探索时，顶点*v*的颜色对边有所说明：
+- en: WHITE indicates a tree edge,
+  id: totrans-222
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 白色表示树边，
+- en: GRAY indicates a back edge, and
+  id: totrans-223
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 灰色表示后向边，而
+- en: BLACK indicates a forward or cross edge.
+  id: totrans-224
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 黑色表示前向或交叉边。
+- en: The first case is immediate from the specification of the algorithm. For the
+    second case, observe that the gray vertices always form a linear chain of descendants
+    corresponding to the stack of active DFS-VISIT invocations. The number of gray
+    vertices is 1 more than the depth in the depth-first forest of the vertex most
+    recently discovered. Depth-first search always explores from the deepest gray
+    vertex, so that an edge that reaches another gray vertex has reached an ancestor.
+    The third case handles the remaining possibility. Exercise 20.3-5 asks you to
+    show that such an edge (*u*, *v*) is a forward edge if *u.d* < *v.d* and a cross
+    edge if *u.d* > *v.d*.
+  id: totrans-225
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第一种情况立即从算法的规范中得出。对于第二种情况，请注意灰色顶点始终形成与活动DFS-VISIT调用堆栈对应的后代线性链。灰色顶点的数量比最近发现的顶点在深度优先森林中的深度多1。深度优先搜索总是从最深的灰色顶点开始探索，因此到达另一个灰色顶点的边已经到达了祖先。第三种情况处理了剩余的可能性。练习20.3-5要求您展示这样的边（*u*，*v*）如果*u.d*
+    < *v.d*则为前向边，如果*u.d* > *v.d*则为交叉边。
+- en: According to the following theorem, forward and cross edges never occur in a
+    depth-first search of an undirected graph.
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 根据以下定理，在无向图的深度优先搜索中永远不会出现前向和交叉边。
+- en: '***Theorem 20.10***'
+  id: totrans-227
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理20.10***'
+- en: In a depth-first search of an undirected graph *G*, every edge of *G* is either
+    a tree edge or a back edge.
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在无向图*G*的深度优先搜索中，*G*的每条边都是树边或后向边。
+- en: '***Proof***   Let (*u*, *v*) be an arbitrary edge of *G*, and suppose without
+    loss of generality that *u.d* < *v.d*. Then, while *u* is gray, the search must
+    discover and finish *v* before it finishes *u*, since *v* is on u’s adjacency
+    list. If the first time that the search explores edge (*u*, *v*), it is in the
+    direction from *u* to *v*, then *v* is undiscovered (white) until that time, for
+    otherwise the search would have explored this edge already in the direction from
+    *v* to *u*. Thus, (*u*, *v*) becomes a tree edge. If the search explores (*u*,
+    *v*) first in the direction from *v* to *u*, then (*u*, *v*) is a back edge, since
+    there must be a path of tree edges from *u* to *v*.'
+  id: totrans-229
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 让(*u*, *v*)是*G*的任意边，假设不失一般性地*u.d* < *v.d*。那么，当*u*是灰色时，搜索必须在完成*u*之前发现并完成*v*，因为*v*在*u*的邻接表中。如果搜索第一次探索边(*u*,
+    *v*)是从*u*到*v*的方向，那么*v*是未发现的（白色）直到那时，否则搜索将在*v*到*u*的方向上已经探索了这条边。因此，(*u*, *v*)成为树边。如果搜索首先以从*v*到*u*的方向探索(*u*,
+    *v*)，那么(*u*, *v*)是后向边，因为必须存在一条从*u*到*v*的树边路径。'
+- en: ▪
+  id: totrans-230
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Since (*u*, *v*) and (*v*, *u*) are really the same edge in an undirected graph,
+    the proof of Theorem 20.10 says how to classify the edge. When searching from
+    a vertex, which must be gray, if the adjacent vertex is white, then the edge is
+    a tree edge. Otherwise, the edge is a back edge.
+  id: totrans-231
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于(*u*, *v*)和(*v*, *u*)在无向图中实际上是同一条边，定理20.10的证明说明了如何对边进行分类。当从一个顶点搜索时，该顶点必须是灰色的，如果相邻顶点是白色的，则该边是树边。否则，该边是后向边。
+- en: The next two sections apply the above theorems about depth-first search.
+  id: totrans-232
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 接下来的两节应用了关于深度优先搜索的上述定理。
+- en: '![art](images/Art_P611.jpg)'
+  id: totrans-233
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P611.jpg)'
+- en: '**Figure 20.6** A directed graph for use in Exercises 20.3-2 and 20.5-2.'
+  id: totrans-234
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.6** 用于练习20.3-2和20.5-2的有向图。'
+- en: '**Exercises**'
+  id: totrans-235
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***20.3-1***'
+  id: totrans-236
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-1***'
+- en: Make a 3-by-3 chart with row and column labels WHITE, GRAY, and BLACK. In each
+    cell (*i*, *j*), indicate whether, at any point during a depth-first search of
+    a directed graph, there can be an edge from a vertex of color *i* to a vertex
+    of color *j*. For each possible edge, indicate what edge types it can be. Make
+    a second such chart for depth-first search of an undirected graph.
+  id: totrans-237
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 制作���个带有行和列标签WHITE、GRAY和BLACK的3x3表格。在每个单元格(*i*, *j*)中，指出在有向图的深度优先搜索过程中，是否可能存在从颜色为*i*的顶点到颜色为*j*的顶点的边。对于每种可能的边，指出它可以是什么类型的边。再制作一个类似的表格，用于无向图的深度优先搜索。
+- en: '***20.3-2***'
+  id: totrans-238
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-2***'
+- en: Show how depth-first search works on the graph of [Figure 20.6](chapter020.xhtml#Fig_20-6).
+    Assume that the **for** loop of lines 5–7 of the DFS procedure considers the vertices
+    in alphabetical order, and assume that each adjacency list is ordered alphabetically.
+    Show the discovery and finish times for each vertex, and show the classification
+    of each edge.
+  id: totrans-239
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示深度优先搜索在[图20.6](chapter020.xhtml#Fig_20-6)的图上的工作原理。假设DFS过程的第5-7行的**for**循环按字母顺序考虑顶点，并假设每个邻接表按字母顺序排序。展示每个顶点的发现和完成时间，并展示每条边的分类。
+- en: '***20.3-3***'
+  id: totrans-240
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-3***'
+- en: Show the parenthesis structure of the depth-first search of [Figure 20.4](chapter020.xhtml#Fig_20-4).
+  id: totrans-241
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示[图20.4](chapter020.xhtml#Fig_20-4)的深度优先搜索的括号结构。
+- en: '***20.3-4***'
+  id: totrans-242
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-4***'
+- en: Show that using a single bit to store each vertex color suffices by arguing
+    that the DFS procedure produces the same result if line 10 of DFS-VISIT is removed.
+  id: totrans-243
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过论证DFS过程如果移除DFS-VISIT的第10行将产生相同结果，证明使用单个位来存储每个顶点颜色足够。
+- en: '***20.3-5***'
+  id: totrans-244
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-5***'
+- en: Show that in a directed graph, edge (*u*, *v*) is
+  id: totrans-245
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明在有向图中，边(*u*, *v*)是
+- en: '***a.*** a tree edge or forward edge if and only if *u.d* < *v.d* < *v.f* <
+    *u.f*,'
+  id: totrans-246
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 当且仅当*u.d* < *v.d* < *v.f* < *u.f*时，为树边或前向边，'
+- en: '***b.*** a back edge if and only if *v.d* ≤ *u.d* < *u.f* ≤ *v.f*, and'
+  id: totrans-247
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 当且仅当*v.d* ≤ *u.d* < *u.f* ≤ *v.f*时，为后向边，以及'
+- en: '***c.*** a cross edge if and only if *v.d* < *v.f* < *u.d* < *u.f*.'
+  id: totrans-248
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 当且仅当*v.d* < *v.f* < *u.d* < *u.f*时，为交叉边。'
+- en: '***20.3-6***'
+  id: totrans-249
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-6***'
+- en: Rewrite the procedure DFS, using a stack to eliminate recursion.
+  id: totrans-250
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 重写DFS过程，使用栈来消除递归。
+- en: '***20.3-7***'
+  id: totrans-251
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-7***'
+- en: Give a counterexample to the conjecture that if a directed graph *G* contains
+    a path from *u* to *v*, and if *u.d* < *v.d* in a depth-first search of *G*, then
+    *v* is a descendant of *u* in the depth-first forest produced.
+  id: totrans-252
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个反例来反驳这样的猜想：如果有向图*G*包含从*u*到*v*的路径，并且在*G*的深度优先搜索中*u.d* < *v.d*，那么*v*是生成的深度优先森林中*u*的后代。
+- en: '***20.3-8***'
+  id: totrans-253
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-8***'
+- en: Give a counterexample to the conjecture that if a directed graph *G* contains
+    a path from *u* to *v*, then any depth-first search must result in *v.d* ≤ *u.f*.
+  id: totrans-254
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个反例来反驳这样的猜想：如果有向图*G*包含从*u*到*v*的路径，则任何深度优先搜索必须导致*v.d* ≤ *u.f*。
+- en: '***20.3-9***'
+  id: totrans-255
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-9***'
+- en: Modify the pseudocode for depth-first search so that it prints out every edge
+    in the directed graph *G*, together with its type. Show what modifications, if
+    any, you need to make if *G* is undirected.
+  id: totrans-256
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 修改深度优先搜索的伪代码，以便打印出有向图*G*中的每条边及其类型。展示如果*G*是无向的，你需要做出哪些修改（如果有的话）。
+- en: '***20.3-10***'
+  id: totrans-257
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-10***'
+- en: Explain how a vertex *u* of a directed graph can end up in a depth-first tree
+    containing only *u*, even though *u* has both incoming and outgoing edges in *G*.
+  id: totrans-258
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解释一个有向图的顶点*u*如何最终成为一个只包含*u*的深度优先树，尽管*u*在*G*中有入边和出边。
+- en: '***20.3-11***'
+  id: totrans-259
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-11***'
+- en: Let *G* = (*V*, *E*) be a connected, undirected graph. Give an *O*(*V* + *E*)-time
+    algorithm to compute a path in *G* that traverses each edge in *E* exactly once
+    in each direction. Describe how you can find your way out of a maze if you are
+    given a large supply of pennies.
+  id: totrans-260
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)是一个连通的无向图。给出一个*O*(*V* + *E*)时间复杂度的算法，用于计算在*G*中沿着每条边正反方向穿越一次的路径。描述如果给你大量的便士，你如何找到迷宫的出口。
+- en: '***20.3-12***'
+  id: totrans-261
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.3-12***'
+- en: Show how to use a depth-first search of an undirected graph *G* to identify
+    the connected components of *G*, so that the depth-first forest contains as many
+    trees as *G* has connected components. More precisely, show how to modify depth-first
+    search so that it assigns to each vertex *v* an integer label *v.cc* between 1
+    and *k*, where *k* is the number of connected components of *G*, such that *u.cc*
+    = *v.cc* if and only if *u* and *v* belong to the same connected component.
+  id: totrans-262
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何使用无向图*G*的深度优先搜索来识别*G*的连通分量，使得深度优先森林包含与*G*的连通分量数量相同的树。更确切地说，展示如何修改深度优先搜索，使得对于每个顶点*v*，都分配一个介于1和*k*之间的整数标签*v.cc*，其中*k*是*G*的连通分量数量，这样当且仅当*u*和*v*属于同一个连通分量时*u.cc*
+    = *v.cc*。
+- en: ★ ***20.3-13***
+  id: totrans-263
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***20.3-13***
+- en: A directed graph *G* = (*V*, *E*) is ***singly connected*** if *u* ⇝ *v* implies
+    that *G* contains at most one simple path from *u* to *v* for all vertices *u*,
+    *v* ∈ *V*. Give an efficient algorithm to determine whether a directed graph is
+    singly connected.
+  id: totrans-264
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个有向图*G* = (*V*, *E*)是***单连通***的，如果*u* ⇝ *v* 意味着*G*对于所有顶点*u*, *v* ∈ *V*最多包含一条从*u*到*v*的简单路径。给出一个有效的算法来确定一个有向图是否是单连通的。
+- en: '[**20.4    Topological sort**](toc.xhtml#Rh1-121)'
+  id: totrans-265
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20.4    拓扑排序**](toc.xhtml#Rh1-121)'
+- en: This section shows how to use depth-first search to perform a topological sort
+    of a directed acyclic graph, or a “dag” as it is sometimes called. A ***topological
+    sort*** of a dag *G* = (*V*, *E*) is a linear ordering of all its vertices such
+    that if *G* contains an edge (*u*, *v*), then *u* appears before *v* in the ordering.
+    Topological sorting is defined only on directed graphs that are acyclic; no linear
+    ordering is possible when a directed graph contains a cycle. Think of a topological
+    sort of a graph as an ordering of its vertices along a horizontal line so that
+    all directed edges go from left to right. Topological sorting is thus different
+    from the usual kind of “sorting” studied in [Part II](part002.xhtml).
+  id: totrans-266
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节展示如何使用深度优先搜索对有向无环图进行拓扑排序，有时也称为“dag”。有向无环图*G* = (*V*, *E*)的***拓扑排序***是对其所有顶点的线性排序，使得如果*G*包含一条边(*u*,
+    *v*)，那么在排序中*u*出现在*v*之前。拓扑排序仅定义在无环的有向图上；当一个有向图包含循环时，不可能有线性排序。将图的拓扑排序视为沿着水平线排列其顶点的顺序，使得所有的有向边都从左到右。因此，拓扑排序与[第二部分](part002.xhtml)中研究的通常“排序”方式不同。
+- en: Many applications use directed acyclic graphs to indicate precedences among
+    events. [Figure 20.7](chapter020.xhtml#Fig_20-7) gives an example that arises
+    when Professor Bumstead gets dressed in the morning. The professor must don certain
+    garments before others (e.g., socks before shoes). Other items may be put on in
+    any order (e.g., socks and pants). A directed edge (*u*, *v*) in the dag of [Figure
+    20.7(a)](chapter020.xhtml#Fig_20-7) indicates that garment *u* must be donned
+    before garment *v*. A topological sort of this dag therefore gives a possible
+    order for getting dressed. [Figure 20.7(b)](chapter020.xhtml#Fig_20-7) shows the
+    topologically sorted dag as an ordering of vertices along a horizontal line such
+    that all directed edges go from left to right.
+  id: totrans-267
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 许多应用使用有向无环图来表示事件之间的先后关系。[图 20.7](chapter020.xhtml#Fig_20-7)给出了一个例子，即当Bumstead教授早上穿衣服时会出现的情况。教授必须在其他衣物之前穿上某些衣物（例如，先穿袜子再穿鞋）。其他物品可以以任何顺序穿上（例如，袜子和裤子）。在[图
+    20.7(a)](chapter020.xhtml#Fig_20-7)的dag中，有向边(*u*, *v*)表示衣物*u*必须在衣物*v*之前穿上。因此，这个dag的拓扑排序给出了穿衣服的可能顺序。[图
+    20.7(b)](chapter020.xhtml#Fig_20-7)展示了拓扑排序��的dag，顶点按照完成时间逆序排列，所有的有向边都从左到右。
+- en: The procedure TOPOLOGICAL-SORT topologically sorts a dag. [Figure 20.7(b)](chapter020.xhtml#Fig_20-7)
+    shows how the topologically sorted vertices appear in reverse order of their finish
+    times.
+  id: totrans-268
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 过程TOPOLOGICAL-SORT对dag进行拓扑排序。[图 20.7(b)](chapter020.xhtml#Fig_20-7)展示了拓扑排序后的顶点按照完成时间逆序排列的样子。
+- en: TOPOLOGICAL-SORT(*G*)
+  id: totrans-269
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 拓扑排序(*G*)
+- en: '| 1 | call DFS(*G*) to compute finish times *v.f* for each vertex *v* |'
+  id: totrans-270
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 调用DFS(*G*)计算每个顶点*v*的完成时间*v.f* |'
+- en: '| 2 | as each vertex is finished, insert it onto the front of a linked list
+    |'
+  id: totrans-271
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | 每个顶点完成时，将其插入链表的前端 |'
+- en: '| 3 | **return** the linked list of vertices |'
+  id: totrans-272
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **返回** 顶点的链表 |'
+- en: The TOPOLOGICAL-SORT procedure runs in Θ(*V* + *E*) time, since depth-first
+    search takes Θ(*V* + *E*) time and it takes *O*(1) time to insert each of the
+    |*V*| vertices onto the front of the linked list.
+  id: totrans-273
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 拓扑排序过程的运行时间为Θ(*V* + *E*)，因为深度优先搜索需要Θ(*V* + *E*)的时间，而将每个|*V*|个顶点插入链表的前端只需要*O*(1)的时间。
+- en: To prove the correctness of this remarkably simple and efficient algorithm,
+    we start with the following key lemma characterizing directed acyclic graphs.
+  id: totrans-274
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了证明这个非常简单和高效算法的正确性，我们从以下关键引理开始，描述有向无环图的特性。
+- en: '***Lemma 20.11***'
+  id: totrans-275
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 20.11***'
+- en: A directed graph *G* is acyclic if and only if a depth-first search of *G* yields
+    no back edges.
+  id: totrans-276
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个有向图*G*是无环的当且仅当对*G*进行深度优先搜索不产生反向边。
+- en: '![art](images/Art_P612.jpg)'
+  id: totrans-277
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P612.jpg)'
+- en: '**Figure 20.7 (a)** Professor Bumstead topologically sorts his clothing when
+    getting dressed. Each directed edge (*u*, *v*) means that garment *u* must be
+    put on before garment *v*. The discovery and finish times from a depth-first search
+    are shown next to each vertex. **(b)** The same graph shown topologically sorted,
+    with its vertices arranged from left to right in order of decreasing finish time.
+    All directed edges go from left to right.'
+  id: totrans-278
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 20.7 (a)** 当Bumstead教授穿衣服时，他会对衣物进行拓扑排序。每条有向边(*u*, *v*)表示衣物*u*必须在衣物*v*之前穿上。深度优先搜索的发现和完成时间显示在每个顶点旁边。**(b)**
+    同一图以拓扑排序显示，其顶点按完成时间递减的顺序从左到右排列。所有的有向边都从左到右。'
+- en: '***Proof***   ⇒: Suppose that a depth-first search produces a back edge (*u*,
+    *v*). Then vertex *v* is an ancestor of vertex *u* in the depth-first forest.
+    Thus, *G* contains a path from *v* to *u*, and the back edge (*u*, *v*) completes
+    a cycle.'
+  id: totrans-279
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   ⇒: 假设深度优先搜索产生了一条反向边(*u*, *v*)。那么顶点*v*是深度优先森林中顶点*u*的祖先。因此，*G*包含一条从*v*到*u*的路径，而反向边(*u*,
+    *v*)形成了一个循环。'
+- en: '⇐: Suppose that *G* contains a cycle *c*. We show that a depth-first search
+    of *G* yields a back edge. Let *v* be the first vertex to be discovered in *c*,
+    and let (*u*, *v*) be the preceding edge in *c*. At time *v.d*, the vertices of
+    c form a path of white vertices from *v* to *u*. By the white-path theorem, vertex
+    *u* becomes a descendant of *v* in the depth-first forest. Therefore, (*u*, *v*)
+    is a back edge.'
+  id: totrans-280
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ⇐：假设*G*包含一个循环*c*。我们展示了对*G*进行深度优先搜索会产生一条回边。设*v*是在*c*中被发现的第一个顶点，(*u*, *v*)是在*c*中的前一条边。在时间*v.d*，c的顶点形成了一条从*v*到*u*的白色顶点路径。根据白色路径定理，顶点*u*在深度优先树中成为了*v*的后代。因此，(*u*,
+    *v*)是一条回边。
+- en: ▪
+  id: totrans-281
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '***Theorem 20.12***'
+  id: totrans-282
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理20.12***'
+- en: TOPOLOGICAL-SORT produces a topological sort of the directed acyclic graph provided
+    as its input.
+  id: totrans-283
+  prefs: []
+  type: TYPE_NORMAL
+  zh: TOPOLOGICAL-SORT会对其输入的有向无环图进行拓扑排序。
+- en: '***Proof***   Suppose that DFS is run on a given dag *G* = (*V*, *E*) to determine
+    finish times for its vertices. It suffices to show that for any pair of distinct
+    vertices *u*, *v* ∈ *V*, if *G* contains an edge from *u* to *v*, then *v.f* <
+    *u.f*. Consider any edge (*u*, *v*) explored by DFS(*G*). When this edge is explored,
+    *v* cannot be gray, since then *v* would be an ancestor of *u* and (*u*, *v*)
+    would be a back edge, contradicting Lemma 20.11\. Therefore, *v* must be either
+    white or black. If *v* is white, it becomes a descendant of *u*, and so *v.f*
+    < *u.f*. If *v* is black, it has already been finished, so that *v.f* has already
+    been set. Because the search is still exploring from *u*, it has yet to assign
+    a timestamp to *u.f*, so that the timestamp eventually assigned to *u.f* is greater
+    than *v.f*. Thus, *v.f* < *u.f* for any edge (*u*, *v*) in the dag, proving the
+    theorem.'
+  id: totrans-284
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   假设在给定的有向无环图*G* = (*V*, *E*)上运行DFS以确定其顶点的完成时间。我们只需证明对于任意不同的顶点*u*、*v*
+    ∈ *V*，如果*G*包含从*u*到*v*的边，则*v.f* < *u.f*。考虑DFS(*G*)探索的任意边(*u*, *v*)。当探索这条边时，*v*不能是灰色的，因为那样的话*v*将是*u*的祖先，(*u*,
+    *v*)将是一条回边，与引理20.11相矛盾。因此，*v*必须是白色或黑色。如果*v*是白色的，它将成为*u*的后代，因此*v.f* < *u.f*。如果*v*是黑色的，它已经完成，所以*v.f*已经被设置。因为搜索仍在从*u*探索，它尚未为*u.f*分配时间戳，所以最终分配给*u.f*的时间戳大于*v.f*。因此，对于有向无环图中的任意边(*u*,
+    *v*)，有*v.f* < *u.f*，证明了定理。'
+- en: ▪
+  id: totrans-285
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '![art](images/Art_P613.jpg)'
+  id: totrans-286
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P613.jpg)'
+- en: '**Figure 20.8** A dag for topological sorting.'
+  id: totrans-287
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.8** 用于拓扑排序的有向无环图。'
+- en: '**Exercises**'
+  id: totrans-288
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**习题**'
+- en: '***20.4-1***'
+  id: totrans-289
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.4-1***'
+- en: Show the ordering of vertices produced by TOPOLOGICAL-SORT when it is run on
+    the dag of [Figure 20.8](chapter020.xhtml#Fig_20-8). Assume that the **for** loop
+    of lines 5–7 of the DFS procedure considers the vertices in alphabetical order,
+    and assume that each adjacency list is ordered alphabetically.
+  id: totrans-290
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示当在[图20.8](chapter020.xhtml#Fig_20-8)的有向无环图上运行TOPOLOGICAL-SORT时，顶点的排序。假设DFS过程的5-7行的**for**循环按字母顺序考虑顶点，并假设每个邻接表按字母顺序排序。
+- en: '***20.4-2***'
+  id: totrans-291
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.4-2***'
+- en: 'Give a linear-time algorithm that, given a directed acyclic graph *G* = (*V*,
+    *E*) and two vertices *a*, *b* ∈ *V*, returns the number of simple paths from
+    *a* to *b* in *G*. For example, the directed acyclic graph of [Figure 20.8](chapter020.xhtml#Fig_20-8)
+    contains exactly four simple paths from vertex *p* to vertex *v*: 〈*p*, *o*, *v*〉,
+    〈*p*, *o*, *r*, *y*, *v*〉, 〈*p*, *o*, *s*, *r*, *y*, *v*〉, and 〈*p*, *s*, *r*,
+    *y*, *v*〉. Your algorithm needs only to count the simple paths, not list them.'
+  id: totrans-292
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个线性时间算法，对于给定的有向无环图*G* = (*V*, *E*)和两个顶点*a*、*b* ∈ *V*，返回*G*中从*a*到*b*的简单路径数量。例如，[图20.8](chapter020.xhtml#Fig_20-8)的有向无环图中，从顶点*p*到顶点*v*恰好有四条简单路径：〈*p*,
+    *o*, *v*〉、〈*p*, *o*, *r*, *y*, *v*〉、〈*p*, *o*, *s*, *r*, *y*, *v*〉和〈*p*, *s*,
+    *r*, *y*, *v*〉。你的算法只需要计算简单路径的数量，而不需要列出它们。
+- en: '***20.4-3***'
+  id: totrans-293
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.4-3***'
+- en: Give an algorithm that determines whether an undirected graph *G* = (*V*, *E*)
+    contains a simple cycle. Your algorithm should run in *O*(*V*) time, independent
+    of |*E*|.
+  id: totrans-294
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个算法，确定无向图*G* = (*V*, *E*)是否包含简单循环。你的算法应该在*O*(*V*)时间内运行，与|*E*|无关。
+- en: '***20.4-4***'
+  id: totrans-295
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.4-4***'
+- en: 'Prove or disprove: If a directed graph *G* contains cycles, then the vertex
+    ordering produced by TOPOLOGICAL-SORT(*G*) minimizes the number of “bad” edges
+    that are inconsistent with the ordering produced.'
+  id: totrans-296
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明或反驳：如果一个有向图*G*包含循环，那么拓扑排序(*G*)产生的顶点排序会最小化与产生的排序不一致的“坏”边的数量。
+- en: '***20.4-5***'
+  id: totrans-297
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.4-5***'
+- en: Another way to topologically sort a directed acyclic graph *G* = (*V*, *E*)
+    is to repeatedly find a vertex of in-degree 0, output it, and remove it and all
+    of its outgoing edges from the graph. Explain how to implement this idea so that
+    it runs in time *O*(*V* + *E*). What happens to this algorithm if *G* has cycles?
+  id: totrans-298
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 另一种对有向无环图*G* = (*V*, *E*)进行拓扑排序的方法是重复找到入度为0的顶点，输出它，并从图中删除它及其所有出边。解释如何实现这个想法，使其在*O*(*V*
+    + *E*)的时间内运行。如果*G*有循环，这个算法会发生什么？
+- en: '[**20.5    Strongly connected components**](toc.xhtml#Rh1-122)'
+  id: totrans-299
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**20.5    强连通分量**](toc.xhtml#Rh1-122)'
+- en: 'We now consider a classic application of depth-first search: decomposing a
+    directed graph into its strongly connected components. This section shows how
+    to do so using two depth-first searches. Many algorithms that work with directed
+    graphs begin with such a decomposition. After decomposing the graph into strongly
+    connected components, such algorithms run separately on each one and then combine
+    the solutions according to the structure of connections among components.'
+  id: totrans-300
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们考虑深度优先搜索的一个经典应用：将有向图分解为其强连通分量。本节展示了如何使用两次深度优先搜索来实现这一点。许多处理有向图的算法都从这样的分解开始。在将图分解为强连通分量之后，这些算法分别在每个分量上运行，然后根据分量之间的连接结构组合解决方案。
+- en: Recall from [Appendix B](appendix002.xhtml) that a strongly connected component
+    of a directed graph *G* = (*V*, *E*) is a maximal set of vertices *C* ⊆ *V* such
+    that for every pair of vertices *u*, *v* ∈ *C*, both *u* ⇝ *v* and *v* ⇝ *u*,
+    that is, vertices *u* and *v* are reachable from each other. [Figure 20.9](chapter020.xhtml#Fig_20-9)
+    shows an example.
+  id: totrans-301
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 从[附录B](appendix002.xhtml)回顾，有向图*G* = (*V*, *E*)的强连通分量是指一个最大的顶点集合*C* ⊆ *V*，使得对于*C*中的每一对顶点*u*、*v*
+    ∈ *C*，都有*u* ⇝ *v*和*v* ⇝ *u*，也就是说，顶点*u*和*v*是互相可达的。[图20.9](chapter020.xhtml#Fig_20-9)展示了一个例子。
+- en: 'The algorithm for finding the strongly connected components of a directed graph
+    *G* = (*V*, *E*) uses the transpose of *G*, which we defined in Exercise 20.1-3
+    to be the graph *G*^T = (*V*, *E*^T), where *E*^T = {(*u*, *v*) : (*v*, *u*) ∈
+    *E*}. That is, *E*^T consists of the edges of *G* with their directions reversed.
+    Given an adjacency-list representation of *G*, the time to create *G*^T is Θ(*V*
+    + *E*). The graphs *G* and *G*^T have exactly the same strongly connected components:
+    *u* and *v* are reachable from each other in *G* if and only if they are reachable
+    from each other in *G*^T. [Figure 20.9(b)](chapter020.xhtml#Fig_20-9) shows the
+    transpose of the graph in [Figure 20.9(a)](chapter020.xhtml#Fig_20-9), with the
+    strongly connected components shaded blue in both parts.'
+  id: totrans-302
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 用于找到有向图*G* = (*V*, *E*)的强连通分量的算法使用了*G*的转置，我们在练习20.1-3中定义了转置*G*^T = (*V*, *E*^T)的图，其中*E*^T
+    = {(*u*, *v*)：(*v*, *u*) ∈ *E*}。也就是说，*E*^T由*G*的边以相反方向组成。给定*G*的邻接表表示，创建*G*^T的时间为Θ(*V*
+    + *E*)。图*G*和*G*^T具有完全相同的强连通分量：在*G*中，*u*和*v*互相可达，当且仅当它们在*G*^T中互相可达。[图20.9(b)]展示了[图20.9(a)]中的图的转置，其中强连通分量在两部分中都被着蓝色。
+- en: The linear-time (i.e., Θ(*V* + *E*)-time) procedure STRONGLY-CONNECTED-COMPONENTS
+    on the next page computes the strongly connected components of a directed graph
+    *G* = (*V*, *E*) using two depth-first searches, one on *G* and one on *G*^T.
+  id: totrans-303
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一页的线性时间（即Θ(*V* + *E*)时间）过程STRONGLY-CONNECTED-COMPONENTS计算了有向图*G* = (*V*, *E*)的强连通分量，使用了两次深度优先搜索，一次在*G*上，一次在*G*^T上。
+- en: The idea behind this algorithm comes from a key property of the ***component
+    graph*** *G*^(SCC) = (*V*^(SCC), *E*^(SCC)), defined as follows. Suppose that
+    *G* has strongly connected components *C*[1], *C*[2], … , *C[k]*. The vertex set
+    *V*^(SCC) is {*v*[1], *v*[2], … , *v[k]*}, and it contains one vertex *v[i]* for
+    each strongly connected component *C[i]* of *G*. There is an edge (*v[i]*, *v[j]*)
+    ∈ *E*^(SCC) if *G* contains a directed edge (*x*, *y*) for some *x* ∈ *C[i]* and
+    some *y* ∈ *C[j]*. Looked at another way, if we contract all edges whose incident
+    vertices are within the same strongly connected component of *G* so that only
+    a single vertex remains, the resulting graph is *G*^(SCC). [Figure 20.9(c)](chapter020.xhtml#Fig_20-9)
+    shows the component graph of the graph in [Figure 20.9(a)](chapter020.xhtml#Fig_20-9).
+  id: totrans-304
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个算法的思想来自于***组件图*** *G*^(SCC) = (*V*^(SCC), *E*^(SCC))的一个关键属性，定义如下。假设*G*有强连通分量*C*[1]，*C*[2]，…，*C[k]*。顶点集*V*^(SCC)为{*v*[1]，*v*[2]，…，*v[k]*}，它包含*G*的每个强连通分量*C[i]*的一个顶点*v[i]*。如果*G*包含一个有向边(*x*,
+    *y*)，其中*x* ∈ *C[i]*且*y* ∈ *C[j]*，则存在一条边(*v[i]*, *v[j]*) ∈ *E*^(SCC)。从另一个角度看，如果我们收缩所有边，使得边上的顶点在同一个强连通分量内，只剩下一个单一顶点，那么得到的图就是*G*^(SCC)。[图20.9(c)]展示了[图20.9(a)]中的图的组件图。
+- en: '![art](images/Art_P614.jpg)'
+  id: totrans-305
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P614.jpg)'
+- en: '**Figure 20.9 (a)** A directed graph *G*. Each region shaded light blue is
+    a strongly connected component of *G*. Each vertex is labeled with its discovery
+    and finish times in a depth-first search, and tree edges are dark blue. **(b)**
+    The graph *G*^T, the transpose of *G*, with the depth-first forest computed in
+    line 3 of STRONGLY-CONNECTED-COMPONENTS shown and tree edges shaded dark blue.
+    Each strongly connected component corresponds to one depth-first tree. Orange
+    vertices *b*, *c*, *g*, and *h* are the roots of the depth-first trees produced
+    by the depth-first search of *G*^T. **(c)** The acyclic component graph *G*^(SCC)
+    obtained by contracting all edges within each strongly connected component of
+    *G* so that only a single vertex remains in each component.'
+  id: totrans-306
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图20.9 (a)** 一个有向图*G*。每个浅蓝色阴影区域是*G*的一个强连通分量。每个顶点都标有它在深度优先搜索中的发现和完成时间，树边为深蓝色。**(b)**
+    图*G*^T，*G*的转置，其中第3行计算的深度优先森林和树边为深蓝色。每个强连通分量对应一个深度优先树。橙色顶点*b*，*c*，*g*和*h*是由对*G*^T进行深度优先搜索产生的深度优先树的根。**(c)**
+    通过收缩*G*中每个强连通分量内的所有边，使得每个分量中只剩下一个单一顶点，得到的无环组件图*G*^(SCC)。'
+- en: STRONGLY-CONNECTED-COMPONENTS(*G*)
+  id: totrans-307
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 强连通分量(*G*)
+- en: '| 1 | call DFS(*G*) to compute finish times *u.f* for each vertex *u* |'
+  id: totrans-308
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 调用DFS(*G*)计算每个顶点*u*的完成时间*u.f* |'
+- en: '| 2 | create *G*^T |'
+  id: totrans-309
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | 创建*G*^T |'
+- en: '| 3 | call DFS(*G*^T), but in the main loop of DFS, consider the vertices in
+    order of decreasing *u.f* (as computed in line 1) |'
+  id: totrans-310
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | 调用DFS(*G*^T)，但在DFS的主循环中，按照递减的*u.f*顺序考虑顶点 |'
+- en: '| 4 | output the vertices of each tree in the depth-first forest formed in
+    line 3 as a separate strongly connected component |'
+  id: totrans-311
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | 输出第3行形成的深度优先森林中每棵树的顶点作为一个单独的强连通分量 |'
+- en: The following lemma gives the key property that the component graph is acyclic.
+    We’ll see that the algorithm uses this property to visit the vertices of the component
+    graph in topologically sorted order, by considering vertices in the second depth-first
+    search in decreasing order of the finish times that were computed in the first
+    depth-first search.
+  id: totrans-312
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下面的引理给出了组件图是无环的关键属性。我们将看到算法如何利用这一属性按照拓扑排序顺序访问组件图的顶点，通过考虑第二次深度优先搜索中按照第一次深度优先搜索计算的完成时间递减顺序考虑顶点。
+- en: '***Lemma 20.13***'
+  id: totrans-313
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理20.13***'
+- en: Let *C* and *C*′ be distinct strongly connected components in directed graph
+    *G* = (*V*, *E*), let *u*, *v* ∈ *C*, let *u*′, *v*′ ∈ *C*′, and suppose that
+    *G* contains a path *u* ⇝ *u*′. Then *G* cannot also contain a path *v*′ ⇝ *v*.
+  id: totrans-314
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*C*和*C*′是有向图*G* = (*V*, *E*)中不同的强连通分量，设*u*，*v* ∈ *C*，设*u*′，*v*′ ∈ *C*′，并假设*G*包含路径*u*
+    ⇝ *u*′。那么*G*不能同时包含路径*v*′ ⇝ *v*。
+- en: '***Proof***   If *G* contains a path *v*′ ⇝ *v*, then it contains paths *u*
+    ⇝ *u*′ ⇝ *v*′ and *v*′ ⇝ *v* ⇝ *u*. Thus, *u* and *v*′ are reachable from each
+    other, thereby contradicting the assumption that *C* and *C*′ are distinct strongly
+    connected components.'
+  id: totrans-315
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 如果*G*包含路径*v*′ ⇝ *v*，那么它包含路径*u* ⇝ *u*′ ⇝ *v*′和*v*′ ⇝ *v* ⇝ *u*。因此，*u*和*v*′是互相可达的，从而与*C*和*C*′是不同的强连通分量的假设相矛盾。'
+- en: ▪
+  id: totrans-316
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Because the STRONGLY-CONNECTED-COMPONENTS procedure performs two depth-first
+    searches, there are two distinct sets of discovery and finish times. In this section,
+    discovery and finish times always refer to those computed by the *first* call
+    of DFS, in line 1.
+  id: totrans-317
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为STRONGLY-CONNECTED-COMPONENTS过程执行两次深度优先搜索，存在两组不同的发现时间和完成时间。在本节中，发现时间和完成时间始终指的是由DFS的*第一次*调用计算��到的时间，在第1行。
+- en: 'The notation for discovery and finish times extends to sets of vertices. For
+    a subset *U* of vertices, *d*(*U*) and *f*(*U*) are the earliest discovery time
+    and latest finish time, respectively, of any vertex in *U*: *d*(*U*) = min {*u.d*
+    : *u* ∈ *U*} and *f*(*U*) = max {*u.f* : *u* ∈ *U*}.'
+  id: totrans-318
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '发现时间和完成时间的符号扩展到顶点集合。对于顶点集合*U*，*U*的最早发现时间和最晚完成时间分别为*U*中任何顶点的最早发现时间和最晚完成时间：*d*(*U*)
+    = min {*u.d* : *u* ∈ *U*}，*f*(*U*) = max {*u.f* : *u* ∈ *U*}。'
+- en: The following lemma and its corollary give a key property relating strongly
+    connected components and finish times in the first depth-first search.
+  id: totrans-319
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下面的引理及其推论给出了第一次深度优先搜索中强连通分量和完成时间之间的关键属性。
+- en: '***Lemma 20.14***'
+  id: totrans-320
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 20.14***'
+- en: Let *C* and *C*′ be distinct strongly connected components in directed graph
+    *G* = (*V*, *E*). Suppose that there is an edge (*u*, *v*) ∈ *E*, where *u* ∈
+    *C*′ and *v* ∈ *C*. Then *f*(*C*′) > *f*(*C*).
+  id: totrans-321
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*C*和*C*′是有向图*G* = (*V*, *E*)中不同的强连通分量。假设存在一条边(*u*, *v*) ∈ *E*，其中*u* ∈ *C*′且*v*
+    ∈ *C*。那么*f*(*C*′) > *f*(*C*)。
+- en: '***Proof***   We consider two cases, depending on which strongly connected
+    component, *C* or *C*′, had the first discovered vertex during the first depth-first
+    search.'
+  id: totrans-322
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们考虑两种情况，取决于第一次深度优先搜索中哪个强连通分量，*C*或*C*′，有第一个被发现的顶点。'
+- en: 'If *d*(*C*′) < *d*(*C*), let x be the first vertex discovered in *C*′. At time
+    *x.d*, all vertices in *C* and *C*′ are white. At that time, *G* contains a path
+    from *x* to each vertex in *C*′ consisting only of white vertices. Because (*u*,
+    *v*) ∈ *E*, for any vertex *w* ∈ *C*, there is also a path in *G* at time *x.d*
+    from *x* to *w* consisting only of white vertices: *x* ⇝ *u* → *v* ⇝ *w*. By the
+    white-path theorem, all vertices in *C* and *C*′ become descendants of *x* in
+    the depth-first tree. By Corollary 20.8, *x* has the latest finish time of any
+    of its descendants, and so *x.f* = *f*(*C*′) > *f*(*C*).'
+  id: totrans-323
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果 *d*(*C*′) < *d*(*C*), 让*x*是*C*′中第一个被发现的顶点。在时间*x.d*，*C*和*C*′中的所有顶点都是白色的。此时，*G*包含从*x*到*C*′中每个顶点的路径，路径仅由白色顶点组成。因为(*u*,
+    *v*) ∈ *E*，对于*C*中的任何顶点*w*，在时间*x.d*，*G*中也存在一条从*x*到*w*的路径，路径仅由白色顶点组成：*x* ⇝ *u* →
+    *v* ⇝ *w*。根据白色路径定理，*C*和*C*′中的所有顶点都成为深度优先树中*x*的后代。根据推论 20.8，*x*是其后代中最晚完成的，因此*x.f*
+    = *f*(*C*′) > *f*(*C*)。
+- en: Otherwise, *d*(*C*′) > *d*(*C*). Let y be the first vertex discovered in *C*,
+    so that *y.d* = *d*(*C*). At time *y.d*, all vertices in *C* are white and *G*
+    contains a path from *y* to each vertex in *C* consisting only of white vertices.
+    By the white-path theorem, all vertices in *C* become descendants of *y* in the
+    depth-first tree, and by Corollary 20.8, *y.f* = *f*(*C*). Because *d*(*C*′) >
+    *d*(*C*) = *y.d*, all vertices in *C*′ are white at time *y.d*. Since there is
+    an edge (*u*, *v*) from *C*′ to *C*, Lemma 20.13 implies that there cannot be
+    a path from *C* to *C*′. Hence, no vertex in *C*′ is reachable from *y*. At time
+    *y.f*, therefore, all vertices in *C*′ are still white. Thus, for any vertex *w*
+    ∈ *C*′, we have *w.f* > *y.f*, which implies that *f*(*C*′) > *f*(*C*).
+  id: totrans-324
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 否则，*d*(*C*′) > *d*(*C*)。设*y*是*C*中第一个被发现的顶点，使得*y.d* = *d*(*C*)。在时间*y.d*，*C*中的所有顶点都是白色的，*G*包含从*y*到*C*中每个顶点的路径，路径仅由白色顶点组成。根据白色路径定理，*C*中的所有顶点都成为深度优先树中*y*的后代，根据推论
+    20.8，*y.f* = *f*(*C*)。因为*d*(*C*′) > *d*(*C*) = *y.d*，在时间*y.d*，*C*′中的所有顶点都是白色的。由于存在一条从*C*′到*C*的边(*u*,
+    *v*)，引理 20.13暗示从*C*到*C*′不可能存在路径。因此，没有顶点在*C*′中可以从*y*到达。因此，在时间*y.f*，*C*′中的所有顶点仍然是白色的。因此，对于*C*′中的任何顶点*w*，我们有*w.f*
+    > *y.f*，这意味着*f*(*C*′) > *f*(*C*)。
+- en: ▪
+  id: totrans-325
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '***Corollary 20.15***'
+  id: totrans-326
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论 20.15***'
+- en: Let *C* and *C*′ be distinct strongly connected components in directed graph
+    *G* = (*V*, *E*), and suppose that *f*(*C*) > *f*(*C*′). Then *E*^T contains no
+    edge (*v*, *u*) such that *u* = *C*′ and *v* ∈ *C*.
+  id: totrans-327
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*C*和*C*′是有向图*G* = (*V*, *E*)中不同的强连通分量，并假设*f*(*C*) > *f*(*C*′)。那么*E*^T不包含任何(*v*,
+    *u*) ∈ *E*的边，其中*u* = *C*′且*v* ∈ *C*。
+- en: '***Proof***   The contrapositive of Lemma 20.14 says that if *f*(*C*′) < *f*(*C*),
+    then there is no edge (*u*, *v*) ∈ *E* such that *u* ∈ *C*′ and *v* ∈ *C*. Because
+    the strongly connected components of *G* and *G*^T are the same, if there is no
+    such edge (*u*, *v*) ∈ *E*, then there is no edge (*v*, *u*) ∈ *E*^T such that
+    *u* ∈ *C*′ and *v* ∈ *C*.'
+  id: totrans-328
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   引理 20.14的逆否命题表明，如果*f*(*C*′) < *f*(*C*)，那么不存在(*u*, *v*) ∈ *E*的边，其中*u*
+    ∈ *C*′且*v* ∈ *C*。因为*G*和*G*^T的强连通分量是相同的，如果不存在这样的边(*u*, *v*) ∈ *E*，那么也不存在(*v*, *u*)
+    ∈ *E*^T的边，其中*u* ∈ *C*′且*v* ∈ *C*。'
+- en: ▪
+  id: totrans-329
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Corollary 20.15 provides the key to understanding why the strongly connected
+    components algorithm works. Let’s examine what happens during the second depth-first
+    search, which is on *G*^T. The search starts from the vertex *x* whose finish
+    time from the first depth-first search is maximum. This vertex belongs to some
+    strongly connected component *C*, and since *x.f* is maximum, *f*(*C*) is maximum
+    over all strongly connected components. When the search starts from *x*, it visits
+    all vertices in *C*. By Corollary 20.15, *G*^T contains no edges from *C* to any
+    other strongly connected component, and so the search from *x* never visits vertices
+    in any other component. Thus, the tree rooted at *x* contains exactly the vertices
+    of *C*. Having completed visiting all vertices in *C*, the second depth-first
+    search selects as a new root a vertex from some other strongly connected component
+    *C*′ whose finish time *f*(*C*′) is maximum over all components other than *C*.
+    Again, the search visits all vertices in *C*′. But by Corollary 20.15, if any
+    edges in *G*^T go from *C*′ to any other component, they must go to *C*, which
+    the second depth-first search has already visited. In general, when the depth-first
+    search of *G*^T in line 3 visits any strongly connected component, any edges out
+    of that component must be to components that the search has already visited. Each
+    depth-first tree, therefore, corresponds to exactly one strongly connected component.
+    The following theorem formalizes this argument.
+  id: totrans-330
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 推论 20.15 提供了理解强连通分量算法为何有效的关键。让我们来看看第二次深度优先搜索（在 *G*^T 上）的过程。搜索从第一次深度优先搜索中完成时间最长的顶点
+    *x* 开始。这个顶点属于某个强连通分量 *C*，并且由于 *x.f* 是最大的，*f*(*C*) 在所有强连通分量中是最大的。当搜索从 *x* 开始时，它访问
+    *C* 中的所有顶点。根据推论 20.15，*G*^T 不包含从 *C* 到其他强连通分量的边，因此从 *x* 开始的搜索永远不会访问其他分量中的顶点。因此，以
+    *x* 为根的树恰好包含 *C* 的所有顶点。访问完 *C* 中的所有顶点后，第二次深度优先搜索选择一个新的根，这个根来自某个其他强连通分量 *C*′，其完成时间
+    *f*(*C*′) 在除 *C* 外的所有分量中是最大的。同样，搜索访问 *C*′ 中的所有顶点。但根据推论 20.15，如果 *G*^T 中有任何边从 *C*′
+    出发到其他分量，它们必须指向 *C*，而第二次深度优先搜索已经访问过 *C*。一般来说，当第 3 行中的 *G*^T 的深度优先搜索访问任何强连通分量时，该分量外的任何边必须指向搜索已经访问过的分量。因此，每棵深度优先树对应于一个强连通分量。以下定理将这一论点形式化。
+- en: '***Theorem 20.16***'
+  id: totrans-331
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 20.16***'
+- en: The STRONGLY-CONNECTED-COMPONENTS procedure correctly computes the strongly
+    connected components of the directed graph *G* provided as its input.
+  id: totrans-332
+  prefs: []
+  type: TYPE_NORMAL
+  zh: STRONGLY-CONNECTED-COMPONENTS 程序正确计算提供给它作为输入的有向图 *G* 的强连通分量。
+- en: '***Proof***   We argue by induction on the number of depth-first trees found
+    in the depth-first search of *G*^T in line 3 that the vertices of each tree form
+    a strongly connected component. The inductive hypothesis is that the first *k*
+    trees produced in line 3 are strongly connected components. The basis for the
+    induction, when *k* = 0, is trivial.'
+  id: totrans-333
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 我们通过对在第 3 行中深度优先搜索 *G*^T 找到的深度优先树数量进行归纳，证明每棵树的顶点形成一个强连通分量。归纳假设是第 *k*
+    棵树在第 3 行产生时是强连通分量。归纳的基础是当 *k* = 0 时，是显而易见的。'
+- en: In the inductive step, we assume that each of the first *k* depth-first trees
+    produced in line 3 is a strongly connected component, and we consider the (*k*
+    + 1)st tree produced. Let the root of this tree be vertex *u*, and let *u* be
+    in strongly connected component *C*. Because of how the depth-first search chooses
+    roots in line 3, *u.f* = *f*(*C*) > *f*(*C*′) for any strongly connected component
+    *C*′ other than *C* that has yet to be visited. By the inductive hypothesis, at
+    the time that the search visits *u*, all other vertices of *C* are white. By the
+    white-path theorem, therefore, all other vertices of *C* are descendants of *u*
+    in its depth-first tree. Moreover, by the inductive hypothesis and by Corollary
+    20.15, any edges in *G*^T that leave *C* must be to strongly connected components
+    that have already been visited. Thus, no vertex in any strongly connected component
+    other than *C* is a descendant of *u* during the depth-first search of *G*^T.
+    The vertices of the depth-first tree in *G*^T that is rooted at *u* form exactly
+    one strongly connected component, which completes the inductive step and the proof.
+  id: totrans-334
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在归纳步骤中，我们假设在第 3 行中产生的前 *k* 棵深度优先树是强连通分量，并考虑产生的第 (*k* + 1) 棵树。让这棵树的根为顶点 *u*，并且
+    *u* 属于强连通分量 *C*。由于深度优先搜索在第 3 行中如何选择根，*u.f* = *f*(*C*) > *f*(*C*′) 对于任何尚未访问的强连通分量
+    *C*′ 而言。根据归纳假设，在搜索访问 *u* 时，*C* 的所有其他顶点都是白色���。因此，根据白色路径定理，*C* 的所有其他顶点都是其深度优先树中
+    *u* 的后代。此外，根据归纳假设和推论 20.15，*G*^T 中离开 *C* 的任何边必须指向已经访问过的强连通分量。因此，在 *G*^T 的深度优先搜索中，除了
+    *C* 外的任何强连通分量中的顶点都不是 *u* 的后代。在 *G*^T 中以 *u* 为根的深度优先树的顶点恰好形成一个强连通分量，这完成了归纳步骤和证明。
+- en: ▪
+  id: totrans-335
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Here is another way to look at how the second depth-first search operates. Consider
+    the component graph (*G*^T)^(SCC) of *G*^T. If you map each strongly connected
+    component visited in the second depth-first search to a vertex of (*G*^T)^(SCC),
+    the second depth-first search visits vertices of (*G*^T)^(SCC) in the reverse
+    of a topologically sorted order. If you reverse the edges of (*G*^T)^(SCC), you
+    get the graph ((*G*^T)^(SCC))^T. Because ((*G*^T)^(SCC))^T = *G*^(SCC) (see Exercise
+    20.5-4), the second depth-first search visits the vertices of *G*^(SCC) in topologically
+    sorted order.
+  id: totrans-336
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这里是另一种看待第二次深度优先搜索操作的方式。考虑 *G*^T 的分量图 (*G*^T)^(SCC)。如果你将第二次深度优先搜索中访问的每个强连通分量映射到
+    (*G*^T)^(SCC) 的一个顶点，那么第二次深度优先搜索以拓扑排序的相反顺序访问 (*G*^T)^(SCC) 的顶点。如果你反转 (*G*^T)^(SCC)
+    的边，你会得到图 ((*G*^T)^(SCC))^T。因为 ((*G*^T)^(SCC))^T = *G*^(SCC)（见练习 20.5-4），第二次深度优先搜索以拓扑排序的顺序访问
+    *G*^(SCC) 的顶点。
+- en: '**Exercises**'
+  id: totrans-337
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***20.5-1***'
+  id: totrans-338
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-1***'
+- en: How can the number of strongly connected components of a graph change if a new
+    edge is added?
+  id: totrans-339
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果添加一条新边，图的强连通分量数量会发生什么变化？
+- en: '***20.5-2***'
+  id: totrans-340
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-2***'
+- en: Show how the procedure STRONGLY-CONNECTED-COMPONENTS works on the graph of [Figure
+    20.6](chapter020.xhtml#Fig_20-6). Specifically, show the finish times computed
+    in line 1 and the forest produced in line 3\. Assume that the loop of lines 5–7
+    of DFS considers vertices in alphabetical order and that the adjacency lists are
+    in alphabetical order.
+  id: totrans-341
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示过程 STRONGLY-CONNECTED-COMPONENTS 在 [图 20.6](chapter020.xhtml#Fig_20-6) 的图上是如何工作的。具体地，展示第
+    1 行计算的完成时间和第 3 行生成的森林。假设 DFS 的第 5-7 行循环按字母顺序考虑顶点，邻接表按字母顺序排列。
+- en: '***20.5-3***'
+  id: totrans-342
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-3***'
+- en: Professor Bacon rewrites the algorithm for strongly connected components to
+    use the original (instead of the transpose) graph in the second depth-first search
+    and scan the vertices in order of *increasing* finish times. Does this modified
+    algorithm always produce correct results?
+  id: totrans-343
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 布莱肯教授将强连通分量的算法改写为在第二次深度优先搜索中使用原始图（而不是转置图），并按照 *递增* 完成时间的顺序扫描顶点。这种修改后的算法是否总是产生正确的结果？
+- en: '***20.5-4***'
+  id: totrans-344
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-4***'
+- en: Prove that for any directed graph *G*, the transpose of the component graph
+    of *G*^T is the same as the component graph of *G*. That is, ((*G*^T)^(SCC))^T
+    = *G*^(SCC).
+  id: totrans-345
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对于任何有向图 *G*，*G* 的连通分量图的转置与 *G* 的连通分量图相同。也就是说，((*G*^T)^(SCC))^T = *G*^(SCC)。
+- en: '***20.5-5***'
+  id: totrans-346
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-5***'
+- en: Give an *O*(*V* + *E*)-time algorithm to compute the component graph of a directed
+    graph *G* = (*V*, *E*). Make sure that there is at most one edge between two vertices
+    in the component graph your algorithm produces.
+  id: totrans-347
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个 *O*(*V* + *E*) 时间复杂度的算法，计算有向图 *G* = (*V*, *E*) 的连通分量图。确保你的算法产生的连通分量图中两个顶点之间最多只有一条边。
+- en: '***20.5-6***'
+  id: totrans-348
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-6***'
+- en: Give an *O*(*V* + *E*)-time algorithm that, given a directed graph *G* = (*V*,
+    *E*), constructs another graph *G*′ = (*V*, *E*′) such that *G* and *G*′ have
+    the same strongly connected components, *G*′ has the same component graph as *G*,
+    and |*E*′| is as small as possible.
+  id: totrans-349
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个 *O*(*V* + *E*) 时间复杂度的算法，给定一个有向图 *G* = (*V*, *E*)，构造另一个图 *G*′ = (*V*, *E*′)，使得
+    *G* 和 *G*′ 有相同的强连通分量，*G*′ 与 *G* 有相同的连通分量图，并且 |*E*′| 尽可能小。
+- en: '***20.5-7***'
+  id: totrans-350
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-7***'
+- en: A directed graph *G* = (*V*, *E*) is ***semiconnected*** if, for all pairs of
+    vertices *u*, *v* ∈ *V*, we have *u* ⇝ *v* or *v* ⇝ *u*. Give an efficient algorithm
+    to determine whether *G* is semiconnected. Prove that your algorithm is correct,
+    and analyze its running time.
+  id: totrans-351
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果对于所有顶点对 *u*, *v* ∈ *V*，都有 *u* ⇝ *v* 或 *v* ⇝ *u*，则有向图 *G* = (*V*, *E*) 是 ***半连通***
+    的。给出一个有效的算法来确定 *G* 是否是半连通的。证明你的算法是正确的，并分析其运行时间。
+- en: '***20.5-8***'
+  id: totrans-352
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20.5-8***'
+- en: 'Let *G* = (*V*, *E*) be a directed graph, and let *l* : *V* → ℝ be a function
+    that assigns a real-valued label *l* to each vertex. For vertices *s*, *t* ∈ *V*,
+    define'
+  id: totrans-353
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '设 *G* = (*V*, *E*) 是一个���向图，*l* : *V* → ℝ 是一个将每个顶点赋予实数标签 *l* 的函数。对于顶点 *s*,
+    *t* ∈ *V*，定义'
+- en: '![art](images/Art_P615.jpg)'
+  id: totrans-354
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P615.jpg)'
+- en: Give an *O*(*V* + *E*)-time algorithm to find vertices *s* and *t* such that
+    Δ*l*(*s*, *t*) is maximum over all pairs of vertices. (*Hint:* Use Exercise 20.5-5.)
+  id: totrans-355
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个 *O*(*V* + *E*) 时间复杂度的算法，找到顶点 *s* 和 *t*，使得所有顶点对的 Δ*l*(*s*, *t*) 最大。(*提示:*
+    使用练习 20.5-5。)
+- en: '**Problems**'
+  id: totrans-356
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***20-1     Classifying edges by breadth-first search***'
+  id: totrans-357
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20-1     通过广度优先搜索对边进行分类***'
+- en: A depth-first forest classifies the edges of a graph into tree, back, forward,
+    and cross edges. A breadth-first tree can also be used to classify the edges reachable
+    from the source of the search into the same four categories.
+  id: totrans-358
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 深度优先森林将图的边分类为树边、回边、前向边和横跨边。广度优先树也可以用来将从搜索源可达的边分类为相同的四类。
+- en: '![art](images/Art_P616.jpg)'
+  id: totrans-359
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P616.jpg)'
+- en: '**Figure 20.10** The articulation points, bridges, and biconnected components
+    of a connected, undirected graph for use in Problem 20-2\. The articulation points
+    are the orange vertices, the bridges are the dark blue edges, and the biconnected
+    components are the edges in the light blue regions, with a *bcc* numbering shown.'
+  id: totrans-360
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 20.10** 连通无向图的关节点、桥和双连通分量，用于问题 20-2。关节点为橙色顶点，桥为深蓝色边，双连通分量为浅蓝色区域中的边，显示了
+    *bcc* 编号。'
+- en: '***a.*** Prove that in a breadth-first search of an undirected graph, the following
+    properties hold:'
+  id: totrans-361
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 证明在无向图的广度优先搜索中，以下属性成立：'
+- en: 1\. There are no back edges and no forward edges.
+  id: totrans-362
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 1\. 没有回边和前向边。
+- en: 2\. If (*u*, *v*) is a tree edge, then *v.d* = *u.d* + 1.
+  id: totrans-363
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 2\. 如果 (*u*, *v*) 是树边，则 *v.d* = *u.d* + 1。
+- en: 3\. If (*u*, *v*) is a cross edge, then *v.d* = *u.d* or *v.d* = *u.d* + 1.
+  id: totrans-364
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 3\. 如果 (*u*, *v*) 是横跨边，则 *v.d* = *u.d* 或 *v.d* = *u.d* + 1。
+- en: '***b.*** Prove that in a breadth-first search of a directed graph, the following
+    properties hold:'
+  id: totrans-365
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 证明在有向图的广度优先搜索中，以下属性成立：'
+- en: 1\. There are no forward edges.
+  id: totrans-366
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 1\. 没有前向边。
+- en: 2\. If (*u*, *v*) is a tree edge, then *v.d* = *u.d* + 1.
+  id: totrans-367
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 2\. 如果 (*u*, *v*) 是树边，则 *v.d* = *u.d* + 1。
+- en: 3\. If (*u*, *v*) is a cross edge, then *v.d* ≤ *u.d* + 1.
+  id: totrans-368
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 3\. 如果 (*u*, *v*) 是横跨边，则 *v.d* ≤ *u.d* + 1。
+- en: 4\. If (*u*, *v*) is a back edge, then 0 ≤ *v.d* ≤ *u.d*.
+  id: totrans-369
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 4\. 如果 (*u*, *v*) 是回边，则 0 ≤ *v.d* ≤ *u.d*。
+- en: '***20-2     Articulation points, bridges, and biconnected components***'
+  id: totrans-370
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20-2     关节点、桥和双连通分量***'
+- en: Let *G* = (*V*, *E*) be a connected, undirected graph. An ***articulation point***
+    of *G* is a vertex whose removal disconnects *G*. A ***bridge*** of *G* is an
+    edge whose removal disconnects *G*. A ***biconnected component*** of *G* is a
+    maximal set of edges such that any two edges in the set lie on a common simple
+    cycle. [Figure 20.10](chapter020.xhtml#Fig_20-10) illustrates these definitions.
+    You can determine articulation points, bridges, and biconnected components using
+    depth-first search. Let *G*[*π*] = (*V*, *E*[*π*]) be a depth-first tree of *G*.
+  id: totrans-371
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设 *G* = (*V*, *E*) 是一个连通的无向图。*G* 的一个 ***关节点*** 是一个移除它会使 *G* 断开的顶点。*G* 的一个 ***桥***
+    是一个移除它会使 *G* 断开的边。*G* 的一个 ***双连通分量*** 是一个最大的边集合，使得集合中的任意两条边都在一个简单环上。[图 20.10](chapter020.xhtml#Fig_20-10)
+    说明了这些定义。你可以使用深度优先搜索来确定关节点、桥和双连通分量。设 *G*[*π*] = (*V*, *E*[*π*]) 是 *G* 的深度优先树。
+- en: '***a.*** Prove that the root of *G*[*π*] is an articulation point of *G* if
+    and only if it has at least two children in *G*[*π*].'
+  id: totrans-372
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 证明如果 *G*[*π*] 的根是 *G* 的关节点，当且仅当它在 *G*[*π*] 中至少有两个子节点时。'
+- en: '***b.*** Let *v* be a nonroot vertex of *G*[*π*]. Prove that *v* is an articulation
+    point of *G* if and only if *v* has a child *s* such that there is no back edge
+    from *s* or any descendant of *s* to a proper ancestor of *v*.'
+  id: totrans-373
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 设*v*是*G*[*π*]的非根顶点。证明如果*v*有一个子节点*s*，使得*s*或*s*的任何后代到*v*的任何祖先都没有反向边，则*v*是*G*的关节点。'
+- en: '***c.*** Let'
+  id: totrans-374
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 让'
+- en: '![art](images/Art_P617.jpg)'
+  id: totrans-375
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P617.jpg)'
+- en: Show how to compute *v.low* for all vertices *v* ∈ *V* in *O*(*E*) time.
+  id: totrans-376
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何在*O*(*E*)时间内计算所有顶点*v* ∈ *V*的*v.low*。
+- en: '***d.*** Show how to compute all articulation points in *O*(*E*) time.'
+  id: totrans-377
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 展示如何在*O*(*E*)时间内计算所有关节点。'
+- en: '***e.*** Prove that an edge of *G* is a bridge if and only if it does not lie
+    on any simple cycle of *G*.'
+  id: totrans-378
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 证明*G*的一条��是桥当且仅当它不位于*G*的任何简单循环上。'
+- en: '***f.*** Show how to compute all the bridges of *G* in *O*(*E*) time.'
+  id: totrans-379
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 展示如何在*O*(*E*)时间内计算*G*的所有桥。'
+- en: '***g.*** Prove that the biconnected components of *G* partition the nonbridge
+    edges of *G*.'
+  id: totrans-380
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***g.*** 证明*G*的双连通分量将*G*的非桥边划分。'
+- en: '***h.*** Give an *O*(*E*)-time algorithm to label each edge *e* of *G* with
+    a positive integer *e.bcc* such that *e*.*bcc* = *e*′.*bcc* if and only if *e*
+    and *e*′ belong to the same biconnected component.'
+  id: totrans-381
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***h.*** 给出一个*O*(*E*)时间复杂度的算法，用正整数*e.bcc*标记*G*的每条边*e*，使得当且仅当*e*和*e*′属于同一个双连通分量时*e.bcc*
+    = *e*′.*bcc*。'
+- en: '***20-3     Euler tour***'
+  id: totrans-382
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20-3     欧拉回路***'
+- en: An ***Euler tour*** of a strongly connected, directed graph *G* = (*V*, *E*)
+    is a cycle that traverses each edge of *G* exactly once, although it may visit
+    a vertex more than once.
+  id: totrans-383
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 强连通有向图*G* = (*V*, *E*)的一个***欧拉回路***是一个遍历*G*的每条边恰好一次的循环，尽管它可能多次访问一个顶点。
+- en: '***a.*** Show that *G* has an Euler tour if and only if in-degree(*v*) = out-degree(*v*)
+    for each vertex *v* ∈ *V*.'
+  id: totrans-384
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 证明当且仅当对于每个顶点*v* ∈ *V*，入度(*v*) = 出度(*v*)时，*G*具有欧拉回路。'
+- en: '***b.*** Describe an *O*(*E*)-time algorithm to find an Euler tour of *G* if
+    one exists. (*Hint:* Merge edge-disjoint cycles.)'
+  id: totrans-385
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 描述一个*O*(*E*)时间复杂度的算法，如果存在欧拉回路，则找到*G*的一个欧拉回路。（*提示：*合并边不相交的循环。）'
+- en: '***20-4     Reachability***'
+  id: totrans-386
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20-4     可达性***'
+- en: 'Let *G* = (*V*, *E*) be a directed graph in which each vertex *u* ∈ *V* is
+    labeled with a unique integer *L*(*u*) from the set {1, 2, … , |*V*|}. For each
+    vertex *u* ∈ *V*, let *R*(*u*) = {*v* ∈ *V* : *u* ⇝ *v*} be the set of vertices
+    that are reachable from *u*. Define min(*u*) to be the vertex in *R*(*u*) whose
+    label is minimum, that is, min(*u*) is the vertex *v* such that *L*(*v*) = min
+    {*L*(*w*) : *w* ∈ *R*(*u*)}. Give an *O*(*V* + *E*)-time algorithm that computes
+    min(*u*) for all vertices *u* ∈ *V*.'
+  id: totrans-387
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '设*G* = (*V*, *E*)是一个有向图，其中每个顶点*u* ∈ *V*都标有来自集合{1, 2, … , |*V*|}的唯一整数*L*(*u*)。对于每个顶点*u*
+    ∈ *V*，令*R*(*u*) = {*v* ∈ *V* : *u* ⇝ *v*}是从*u*可达的顶点集。定义min(*u*)为*R*(*u*)中标签最小的顶点，即，min(*u*)是标签为min
+    {*L*(*w*) : *w* ∈ *R*(*u*)}的顶点*v*。给出一个*O*(*V* + *E*)时间复杂度的算法，计算所有顶点*u* ∈ *V*的min(*u*)。'
+- en: '***20-5 Inserting and querying vertices in planar graphs***'
+  id: totrans-388
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***20-5 在平面图中插入和查询顶点***'
+- en: A ***planar*** graph is an undirected graph that can be drawn in the plane with
+    no edges crossing. Euler proved that every planar graph has |*E*| < 3 |*V*|.
+  id: totrans-389
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个***平面图***是一个无向图，可以在平面上绘制而不交叉。欧拉证明每个平面图都有|*E*| < 3 |*V*|。
+- en: 'Consider the following two operations on a planar graph *G*:'
+  id: totrans-390
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑平面图*G*上的以下两个操作：
+- en: INSERT(*G*, *v*, *neighbors*) inserts a new vertex *v* into *G*, where *neighbors*
+    is an array (possibly empty) of vertices that have already been inserted into
+    *G* and will become all the neighbors of *v* in *G* when *v* is inserted.
+  id: totrans-391
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: INSERT(*G*, *v*, *neighbors*)将一个新顶点*v*插入*G*，其中*neighbors*是已经插入到*G*中的顶点数组（可能为空），当*v*插入时，它们将成为*v*在*G*中的所有邻居。
+- en: NEWEST-NEIGHBOR(*G*, *v*) returns the neighbor of vertex *v* that was most recently
+    inserted into *G*, or NIL if *v* has no neighbors.
+  id: totrans-392
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: NEWEST-NEIGHBOR(*G*, *v*)返回最近插入到*G*中的顶点*v*的邻居，如果*v*没有邻居则返回NIL。
+- en: Design a data structure that supports these two operations such that NEWEST-NEIGHBOR
+    takes *O*(1) worst-case time and INSERT takes *O*(1) amortized time. Note that
+    the length of the array *neighbors* given to INSERT may vary. (*Hint:* Use a potential
+    function for the amortized analysis.)
+  id: totrans-393
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设计一个数据结构，支持这两个操作，使得NEWEST-NEIGHBOR的最坏情况时间复杂度为*O*(1)，INSERT的摊还时间复杂度为*O*(1)。注意，给INSERT的数组*neighbors*的长度可能会变化。（*提示：*使用摊还分析的潜在函数。）
+- en: '**Chapter notes**'
+  id: totrans-394
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: Even [[137](bibliography001.xhtml#endnote_137)] and Tarjan [[429](bibliography001.xhtml#endnote_429)]
+    are excellent references for graph algorithms.
+  id: totrans-395
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Even [[137](bibliography001.xhtml#endnote_137)] 和 Tarjan [[429](bibliography001.xhtml#endnote_429)]
+    是图算法的优秀参考资料。
+- en: Breadth-first search was discovered by Moore [[334](bibliography001.xhtml#endnote_334)]
+    in the context of finding paths through mazes. Lee [[280](bibliography001.xhtml#endnote_280)]
+    independently discovered the same algorithm in the context of routing wires on
+    circuit boards.
+  id: totrans-396
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 广度优先搜索是由 Moore [[334](bibliography001.xhtml#endnote_334)] 在寻找迷宫路径的背景下发现的。Lee
+    [[280](bibliography001.xhtml#endnote_280)] 在电路板上布线的背景下独立发现了相同的算法。
+- en: Hopcroft and Tarjan [[226](bibliography001.xhtml#endnote_226)] advocated the
+    use of the adjacency-list representation over the adjacency-matrix representation
+    for sparse graphs and were the first to recognize the algorithmic importance of
+    depth-first search. Depth-first search has been widely used since the late 1950s,
+    especially in artificial intelligence programs.
+  id: totrans-397
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Hopcroft 和 Tarjan [[226](bibliography001.xhtml#endnote_226)] 倡导在稀疏图中使用邻接表表示而不是邻接矩阵表示，并且是第一个认识到深度优先搜索的算法重要性的人。自20世纪50年代末以来，深度优先搜索已被广泛应用，特别是在人工智能程序中。
+- en: Tarjan [[426](bibliography001.xhtml#endnote_426)] gave a linear-time algorithm
+    for finding strongly connected components. The algorithm for strongly connected
+    components in [Section 20.5](chapter020.xhtml#Sec_20.5) is adapted from Aho, Hopcroft,
+    and Ullman [[6](bibliography001.xhtml#endnote_6)], who credit it to S. R. Kosaraju
+    (unpublished) and Sharir [[408](bibliography001.xhtml#endnote_408)]. Dijkstra
+    [[117](bibliography001.xhtml#endnote_117), [Chapter 25](chapter025.xhtml)] also
+    developed an algorithm for strongly connected components that is based on contracting
+    cycles. Subsequently, Gabow [[163](bibliography001.xhtml#endnote_163)] rediscovered
+    this algorithm. Knuth [[259](bibliography001.xhtml#endnote_259)] was the first
+    to give a linear-time algorithm for topological sorting.
+  id: totrans-398
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Tarjan [[426](bibliography001.xhtml#endnote_426)] 提出了一种线性时间算法来寻找强连通分量。在[第20.5节](chapter020.xhtml#Sec_20.5)中关于强连通分量的算法是从Aho，Hopcroft和Ullman
+    [[6](bibliography001.xhtml#endnote_6)]那里改编而来，他们将其归功于S. R. Kosaraju（未发表）和Sharir
+    [[408](bibliography001.xhtml#endnote_408)]。Dijkstra [[117](bibliography001.xhtml#endnote_117),
+    [第25章](chapter025.xhtml)] 也开发了一种基于收缩循环的强连通分量算法。随后，Gabow [[163](bibliography001.xhtml#endnote_163)]
+    重新发现了这个算法。Knuth [[259](bibliography001.xhtml#endnote_259)] 是第一个提出强连通分量线性时间算法的人。
+- en: '[¹](#footnote_ref_1) We distinguish between gray and black vertices to help
+    us understand how breadth-first search operates. In fact, as Exercise 20.2-3 shows,
+    we get the same result even if we do not distinguish between gray and black vertices.'
+  id: totrans-399
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 我们区分灰色和黑色顶点以帮助我们理解广度优先搜索的运行方式。事实上，正如练习20.2-3所示，即使我们不区分灰色和黑色顶点，我们也会得到相同的结果。'
+- en: '[²](#footnote_ref_2) [Chapters 22](chapter022.xhtml) and [23](chapter023.xhtml)
+    generalize shortest paths to weighted graphs, in which every edge has a real-valued
+    weight and the weight of a path is the sum of the weights of its constituent edges.
+    The graphs considered in the present chapter are unweighted or, equivalently,
+    all edges have unit weight.'
+  id: totrans-400
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) [第22章](chapter022.xhtml) 和 [第23章](chapter023.xhtml) 将最短路径推广到加权图，其中每条边都有一个实数权重，路径的权重是其组成边的权重之和。本章考虑的图是无权重的，或者说所有边的权重都是单位权重。'
+- en: '[³](#footnote_ref_3) It may seem arbitrary that breadth-first search is limited
+    to only one source whereas depth-first search may search from multiple sources.
+    Although conceptually, breadth-first search could proceed from multiple sources
+    and depth-first search could be limited to one source, our approach reflects how
+    the results of these searches are typically used. Breadth-first search usually
+    serves to find shortest-path distances and the associated predecessor subgraph
+    from a given source. Depth-first search is often a subroutine in another algorithm,
+    as we’ll see later in this chapter.'
+  id: totrans-401
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[³](#footnote_ref_3) 广度优先搜索仅限于一个源可能看起来是任意的，而深度优先搜索可以从多个源搜索。尽管在概念上，广度优先搜索可以从多个源进行，深度优先搜索可以限制为一个源，但我们的方法反映了这些搜索结果通常如何使用。广度优先搜索通常用于找到从给定源到达的最短路径距离和相关的前驱子图。深度优先搜索通常是另一个算法中的一个子程序，正如我们将在本章后面看到的。'

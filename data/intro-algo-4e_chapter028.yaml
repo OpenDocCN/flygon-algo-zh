@@ -1,0 +1,2706 @@
+- en: '[**28        Matrix Operations**](toc.xhtml#chap-28)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**28        矩阵运算**](toc.xhtml#chap-28)'
+- en: Because operations on matrices lie at the heart of scientific computing, efficient
+    algorithms for working with matrices have many practical applications. This chapter
+    focuses on how to multiply matrices and solve sets of simultaneous linear equations.
+    [Appendix D](appendix004.xhtml) reviews the basics of matrices.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为矩阵操作是科学计算的核心，对于处理矩阵的高效算法有许多实际应用。本章重点讨论如何乘法矩阵和解决一组同时线性方程。[附录 D](appendix004.xhtml)
+    回顾了矩阵的基础知识。
+- en: '[Section 28.1](chapter028.xhtml#Sec_28.1) shows how to solve a set of linear
+    equations using LUP decompositions. Then, [Section 28.2](chapter028.xhtml#Sec_28.2)
+    explores the close relationship between multiplying and inverting matrices. Finally,
+    [Section 28.3](chapter028.xhtml#Sec_28.3) discusses the important class of symmetric
+    positive-definite matrices and shows how to use them to find a least-squares solution
+    to an overdetermined set of linear equations.'
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第 28.1 节](chapter028.xhtml#Sec_28.1) 展示了如何使用 LUP 分解解决一组线性方程。然后，[第 28.2 节](chapter028.xhtml#Sec_28.2)
+    探讨了矩阵乘法和求逆之间的密切关系。最后，[第 28.3 节](chapter028.xhtml#Sec_28.3) 讨论了对称正定矩阵的重要类，并展示了如何使用它们找到过定线性方程组的最小二乘解。'
+- en: One important issue that arises in practice is ***numerical stability***. Because
+    actual computers have limits to how precisely they can represent floating-point
+    numbers, round-off errors in numerical computations may become amplified over
+    the course of a computation, leading to incorrect results. Such computations are
+    called ***numerically unstable***. Although we’ll briefly consider numerical stability
+    on occasion, we won’t focus on it in this chapter. We refer you to the excellent
+    book by Higham [[216](bibliography001.xhtml#endnote_216)] for a thorough discussion
+    of stability issues.
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在实践中出现的一个重要问题是***数值稳定性***。因为实际计算机对浮点数的表示精度有限，数值计算中的舍入误差可能在计算过程中被放大，导致错误的结果。这样的计算被称为***数值不稳定***。虽然我们偶尔会简要讨论数值稳定性，但本章不会重点讨论它。我们建议您参考
+    Higham 的优秀著作[[216](bibliography001.xhtml#endnote_216)]，对稳定性问题进行深入讨论。
+- en: '[**28.1    Solving systems of linear equations**](toc.xhtml#Rh1-162)'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**28.1    解线性方程组**](toc.xhtml#Rh1-162)'
+- en: Numerous applications need to solve sets of simultaneous linear equations. A
+    linear system can be cast as a matrix equation in which each matrix or vector
+    element belongs to a field, typically the real numbers ℝ. This section discusses
+    how to solve a system of linear equations using a method called LUP decomposition.
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 许多应用需要解决一组同时线性方程。线性系统可以被转化为一个矩阵方程，其中每个矩阵或向量元素属于一个域，通常是实数 ℝ。本节讨论如何使用一种称为 LUP
+    分解的方法解决线性方程组。
+- en: 'The process starts with a set of linear equations in *n* unknowns *x*[1], *x*[2],
+    … , *x[n]*:'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个过程从一个包含 *n* 个未知数 *x*[1]、*x*[2]、…，*x[n]* 的线性方程组开始：
+- en: '![art](images/Art_P897.jpg)'
+  id: totrans-7
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P897.jpg)'
+- en: A ***solution*** to the equations (28.1) is a set of values for *x*[1], *x*[2],
+    … , *x[n]* that satisfy all of the equations simultaneously. In this section,
+    we treat only the case in which there are exactly *n* equations in *n* unknowns.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 方程（28.1）的一个***解***是一组值 *x*[1]、*x*[2]、…，*x[n]*，满足所有方程。在本节中，我们只处理恰好有 *n* 个方程和
+    *n* 个未知数的情况。
+- en: Next, rewrite equations (28.1) as the matrix-vector equation
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 接下来，将方程（28.1）重写为矩阵-向量方程
+- en: '![art](images/Art_P898.jpg)'
+  id: totrans-10
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P898.jpg)'
+- en: or, equivalently, letting *A* = (*a[ij]*), *x* = (*x[i]*), and *b* = (*b[i]*),
+    as
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 或者，等价地，让 *A* = (*a[ij]*)，*x* = (*x[i]*)，*b* = (*b[i]*)，如下所示
+- en: '![art](images/Art_P899.jpg)'
+  id: totrans-12
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P899.jpg)'
+- en: If *A* is nonsingular, it possesses an inverse *A*^(−1), and
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果 *A* 是非奇异的，它具有逆 *A*^(−1)，并且
+- en: '![art](images/Art_P900.jpg)'
+  id: totrans-14
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P900.jpg)'
+- en: is the solution vector. We can prove that *x* is the unique solution to equation
+    (28.2) as follows. If there are two solutions, *x* and *x*′, then *Ax* = *Ax*′
+    = *b* and, letting *I* denote an identity matrix,
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 是解向量。我们可以证明 *x* 是方程（28.2）的唯一解如下。如果有两个解，*x* 和 *x*′，那么 *Ax* = *Ax*′ = *b*，并且，让
+    *I* 表示单位矩阵，
+- en: '| *x* | = | *Ix* |'
+  id: totrans-16
+  prefs: []
+  type: TYPE_TB
+  zh: '| *x* | = | *Ix* |'
+- en: '|  | = | (*A*^(−1)*A*)*x* |'
+  id: totrans-17
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | (*A*^(−1)*A*)*x* |'
+- en: '|  | = | *A*^(−1)(*Ax*) |'
+  id: totrans-18
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *A*^(−1)(*Ax*) |'
+- en: '|  | = | *A*^(−1)(*Ax*′) |'
+  id: totrans-19
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *A*^(−1)(*Ax*′) |'
+- en: '|  | = | (*A*^(−1)*A*)*x*′ |'
+  id: totrans-20
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | (*A*^(−1)*A*)*x*′ |'
+- en: '|  | = | *Ix*′ |'
+  id: totrans-21
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *Ix*′ |'
+- en: '|  | = | *x*′. |'
+  id: totrans-22
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *x*′. |'
+- en: This section focuses on the case in which *A* is nonsingular or, equivalently
+    (by Theorem D.1 on page 1220), the rank of *A* equals the number *n* of unknowns.
+    There are other possibilities, however, which merit a brief discussion. If the
+    number of equations is less than the number *n* of unknowns—or, more generally,
+    if the rank of *A* is less than *n*—then the system is ***underdetermined***.
+    An underdetermined system typically has infinitely many solutions, although it
+    may have no solutions at all if the equations are inconsistent. If the number
+    of equations exceeds the number *n* of unknowns, the system is ***overdetermined***,
+    and there may not exist any solutions. [Section 28.3](chapter028.xhtml#Sec_28.3)
+    addresses the important problem of finding good approximate solutions to overdetermined
+    systems of linear equations.
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当 *A* 是非奇异的时候，或者等价地（根据第 1220 页的定理 D.1），*A* 的秩等于未知数的个数 *n* 时，本节重点讨论这种情况。然而，还有其他可能性，值得简要讨论。如果方程的数量少于未知数的个数
+    *n*，或者更一般地说，如果 *A* 的秩小于 *n*，那么这个系统是***欠定***的。一个欠定系统通常有无穷多个解，尽管如果方程不一致的话可能根本没有解。如果方程的数量超过未知数的个数
+    *n*，那么这个系统是***过定***的，可能根本没有解。[第 28.3 节](chapter028.xhtml#Sec_28.3) 解决了如何找到过定线性方程组的良好近似解的重要问题。
+- en: Let’s return to the problem of solving the system *Ax* = *b* of *n* equations
+    in *n* unknowns. One option is to compute *A*^(−1) and then, using equation (28.3),
+    multiply *b* by *A*^(−1), yielding *x* = *A*^(−1)*b*. This approach suffers in
+    practice from numerical instability. Fortunately, another approach—LUP decomposition—is
+    numerically stable and has the further advantage of being faster in practice.
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们回到解决*n*个未知数的*n*个方程组*Ax* = *b*的问题。一种选择是计算*A*^(−1)，然后使用方程（28.3），将*b*乘以*A*^(−1)，得到*x*
+    = *A*^(−1)*b*。这种方法在实践中存在数值不稳定性。幸运的是，另一种方法——LUP分解——在实践中是数值稳定的，并且在实践中更快。
+- en: '**Overview of LUP decomposition**'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**LUP分解概述**'
+- en: The idea behind LUP decomposition is to find three *n* × *n* matrices *L*, *U*,
+    and *P* such that
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LUP分解的思想是找到三个*n* × *n*矩阵*L*、*U*和*P*，使得
+- en: '![art](images/Art_P901.jpg)'
+  id: totrans-27
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P901.jpg)'
+- en: where
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中
+- en: '*L* is a unit lower-triangular matrix,'
+  id: totrans-29
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*L*是一个单位下三角矩阵，'
+- en: '*U* is an upper-triangular matrix, and'
+  id: totrans-30
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*U*是一个上三角矩阵，而'
+- en: '*P* is a permutation matrix.'
+  id: totrans-31
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: '*P*是一个置换矩阵。'
+- en: We call matrices *L*, *U*, and *P* satisfying equation (28.4) an ***LUP decomposition***
+    of the matrix *A*. We’ll show that every nonsingular matrix *A* possesses such
+    a decomposition.
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们称满足方程（28.4）的矩阵*L*、*U*和*P*为矩阵*A*的***LUP分解***。我们将展示每个非奇异矩阵*A*都具有这样的分解。
+- en: Computing an LUP decomposition for the matrix *A* has the advantage that linear
+    systems can be efficiently solved when they are triangular, as is the case for
+    both matrices *L* and *U*. If you have an LUP decomposition for *A*, you can solve
+    equation (28.2), *Ax* = *b*, by solving only triangular linear systems, as follows.
+    Multiply both sides of *Ax* = *b* by *P*, yielding the equivalent equation *PAx*
+    = *Pb*. By Exercise D.1-4 on page 1219, multiplying both sides by a permutation
+    matrix amounts to permuting the equations (28.1). By the decomposition (28.4),
+    substituting *LU* for *PA* gives
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为矩阵*A*计算LUP分解的优势在于，当矩阵*L*和*U*都是三角形时，线性系统可以高效地解决��如果你有矩阵*A*的LUP分解，你可以通过仅解决三角形线性系统来解决方程（28.2），*Ax*
+    = *b*。将*Ax* = *b*两边乘以*P*，得到等价方程*PAx* = *Pb*。根据第1219页的练习D.1-4，将方程乘以置换矩阵相当于重新排列方程（28.1）。通过分解（28.4），用*LU*代替*PA*得到
+- en: '*LUx* = *Pb*.'
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*LUx* = *Pb*。'
+- en: You can now solve this equation by solving two triangular linear systems. Define
+    *y* = *Ux*, where *x* is the desired solution vector. First, solve the lower-triangular
+    system
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在你可以通过解两个三角线性系统来解决这个方程。定义*y* = *Ux*，其中*x*是所需的解向量。首先解决下三角系统
+- en: '![art](images/Art_P902.jpg)'
+  id: totrans-36
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P902.jpg)'
+- en: for the unknown vector *y* by a method called “forward substitution.” Having
+    solved for *y*, solve the upper-triangular system
+  id: totrans-37
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过一种称为“向前替换”的方法解出未知向量*y*。解出*y*后，解上三角系统
+- en: '![art](images/Art_P903.jpg)'
+  id: totrans-38
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P903.jpg)'
+- en: for the unknown *x* by a method called “back substitution.” Why does this process
+    solve *Ax* = *b*? Because the permutation matrix *P* is invertible (see Exercise
+    D.2-3 on page 1223), multiplying both sides of equation (28.4) by *P* ^(−1) gives
+    *P*^(−1)*PA* = *P*^(−1)*LU*, so that
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过一种称为“向后替换”的方法解出未知的*x*。为什么这个过程能解决*Ax* = *b*？因为置换矩阵*P*是可逆的（参见第1223页的练习D.2-3），将方程（28.4）两边乘以*P*^(−1)得到*P*^(−1)*PA*
+    = *P*^(−1)*LU*，因此
+- en: '![art](images/Art_P905.jpg)'
+  id: totrans-40
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P905.jpg)'
+- en: 'Hence, the vector *x* that satisfies *Ux* = *y* is the solution to *Ax* = *b*:'
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，满足*Ux* = *y*的向量*x*就是满足*Ax* = *b*的解：
+- en: '| *Ax* | = | *P*^(−1)*LUx* | (by equation (28.7)) |'
+  id: totrans-42
+  prefs: []
+  type: TYPE_TB
+  zh: '| *Ax* | = | *P*^(−1)*LUx* |（根据方程（28.7））|'
+- en: '|  | = | *P*^(−1)*Ly* | (by equation (28.6)) |'
+  id: totrans-43
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *P*^(−1)*Ly* |（根据方程（28.6））|'
+- en: '|  | = | *P*^(−1)*Pb* | (by equation (28.5)) |'
+  id: totrans-44
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *P*^(−1)*Pb* |（根据方程（28.5））|'
+- en: '|  | = | *b*. |'
+  id: totrans-45
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *b*。|'
+- en: The next step is to show how forward and back substitution work and then attack
+    the problem of computing the LUP decomposition itself.
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一步是展示向前替换和向后替换的工作原理，然后解决计算LUP分解本身的问题。
+- en: '**Forward and back substitution**'
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**向前替换和向后替换**'
+- en: '***Forward substitution*** can solve the lower-triangular system (28.5) in
+    Θ(*n*²) time, given *L*, *P*, and *b*. An array *π*[1 : *n*] provides a more compact
+    format to represent the permutation *P* than an *n* × *n* matrix that is mostly
+    0s. For *i* = 1, 2, … , *n*, the entry *π*[*i*] indicates that *P*[*i,π*[*i*]]
+    = 1 and *P[ij]* = 0 for *j* ≠ *π*[*i*]. Thus, *PA* has *a*[*π*[*i*],*j*] in row
+    *i* and column *j*, and *Pb* has *b*[*π*[*i*]] as its *i*th element. Since *L*
+    is unit lower-triangular, the matrix equation *Ly* = *Pb* is equivalent to the
+    *n* equations'
+  id: totrans-48
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***向前替换***可以在Θ(*n*²)的时间内解决下三角系统（28.5），给定*L*、*P*和*b*。数组*π*[1 : *n*]提供了一种更紧凑的格式来表示置换*P*，而不是一个大部分为0的*n*
+    × *n*矩阵。对于*i* = 1, 2, …, *n*，条目*π*[*i*]表示*P*[*i,π*[*i*]] = 1和*P[ij]* = 0（*j* ≠
+    *π*[*i*]）。因此，*PA*在第*i*行第*j*列有*a*[*π*[*i*],*j*]，*Pb*的第*i*个元素为*b*[*π*[*i*]]。由于*L*是单位下三角矩阵，矩阵方程*Ly*
+    = *Pb*等价于*n*个方程'
+- en: '|    *y*[1] | = | *b*[*π*[1]], |'
+  id: totrans-49
+  prefs: []
+  type: TYPE_TB
+  zh: '|    *y*[1] | = | *b*[*π*[1]]，|'
+- en: '| *l*[21]*y*[1] + *y*[2] | = | *b*[*π*[2]], |'
+  id: totrans-50
+  prefs: []
+  type: TYPE_TB
+  zh: '| *l*[21]*y*[1] + *y*[2] | = | *b*[*π*[2]]，|'
+- en: '| *l*[31]*y*[1] + *l*[32]*y*[2] + *y*[3] | = | *b*[*π*[3]], |'
+  id: totrans-51
+  prefs: []
+  type: TYPE_TB
+  zh: '| *l*[31]*y*[1] + *l*[32]*y*[2] + *y*[3] | = | *b*[*π*[3]]，|'
+- en: '|  | ⋮ |  |'
+  id: totrans-52
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ⋮ |  |'
+- en: '| *l*[*n*1]*y*[1] + *l*[*n*2]*y*[2] + *l*[*n*3]*y*[3] + ⋯ + *y[n]* | = | *b*[*π*[*n*]].
+    |'
+  id: totrans-53
+  prefs: []
+  type: TYPE_TB
+  zh: '| *l*[*n*1]*y*[1] + *l*[*n*2]*y*[2] + *l*[*n*3]*y*[3] + ⋯ + *y[n]* | = | *b*[*π*[*n*]]。|'
+- en: The first equation gives *y*[1] = *b*[*π*[1]] directly. Knowing the value of
+    *y*[1], you can substitute it into the second equation, yielding
+  id: totrans-54
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第一个方程直接给出*y*[1] = *b*[*π*[1]]。知道*y*[1]的值后，你可以将其代入第二个方程，得到
+- en: '*y*[2] = *b*[*π*[2]] − *l*[21]*y*[1].'
+  id: totrans-55
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*y*[2] = *b*[*π*[2]] − *l*[21]*y*[1]。'
+- en: Next, you can substitute both *y*[1] and *y*[2] into the third equation, obtaining
+  id: totrans-56
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 接下来，你可以将*y*[1]和*y*[2]都代入第三个方程，得到
+- en: '*y*[3] = *b*[*π*[3]] − (*l*[31]*y*[1] + *l*[32]*y*[2]).'
+  id: totrans-57
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*y*[3] = *b*[*π*[3]] − (*l*[31]*y*[1] + *l*[32]*y*[2])。'
+- en: 'In general, you substitute *y*[1], *y*[2], … , *y*[*i*−1] “forward” into the
+    *i*th equation to solve for *y[i]*:'
+  id: totrans-58
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一般来说，你将*y*[1]、*y*[2]、…、*y*[*i*−1]“向前”代入第*i*个方程中，解出*y[i]*：
+- en: '![art](images/Art_P906.jpg)'
+  id: totrans-59
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P906.jpg)'
+- en: Once you’ve solved for *y*, you can solve for *x* in equation (28.6) using ***back
+    substitution***, which is similar to forward substitution. This time, you solve
+    the *n*th equation first and work backward to the first equation. Like forward
+    substitution, this process runs in Θ(*n*²) time. Since *U* is upper-triangular,
+    the matrix equation *Ux* = *y* is equivalent to the *n* equations
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一旦你解出了*y*，你可以使用***回代法***在方程（28.6）中解出*x*，这类似于前代法。这一次，你首先解出第*n*个方程，然后向前解决第一个方程。与前代法类似，这个过程的时间复杂度为Θ(*n*²)。由于*U*是上三角矩阵，矩阵方程*Ux*
+    = *y*等价于*n*个方程
+- en: '| *u*[11]*x*[1] + *u*[12]*x*[2] + ⋯ + | *u*[1,*n*−2]*x*[*n*−2] + | *u*[1,*n*−1]*x*[*n*−1]
+    + | *u*[1*n*]*x*[*n*] | = | *y*[1], |'
+  id: totrans-61
+  prefs: []
+  type: TYPE_TB
+  zh: '| *u*[11]*x*[1] + *u*[12]*x*[2] + ⋯ + | *u*[1,*n*−2]*x*[*n*−2] + | *u*[1,*n*−1]*x*[*n*−1]
+    + | *u*[1*n*]*x*[*n*] | = | *y*[1], |'
+- en: '| *u*[22]*x*[2] + ⋯ + | *u*[2,*n*−2]*x*[*n*−2] + | *u*[2,*n*−1]*x*[*n*−1] +
+    | *u*[2*n*]*x*[*n*] | = | *y*[2], |'
+  id: totrans-62
+  prefs: []
+  type: TYPE_TB
+  zh: '| *u*[22]*x*[2] + ⋯ + | *u*[2,*n*−2]*x*[*n*−2] + | *u*[2,*n*−1]*x*[*n*−1] +
+    | *u*[2*n*]*x*[*n*] | = | *y*[2], |'
+- en: '|  |  |  |  | ⋮ |  |'
+  id: totrans-63
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  |  |  | ⋮ |  |'
+- en: '|  | *u*[*n*−2,*n*−2]*x*[*n*−2] + | *u*[*n*−2,*n*−1]*x*[*n*−1] + | *u*[*n*−2,*n*]*x*[*n*]
+    | = | *y*[*n*−2], |'
+  id: totrans-64
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | *u*[*n*−2,*n*−2]*x*[*n*−2] + | *u*[*n*−2,*n*−1]*x*[*n*−1] + | *u*[*n*−2,*n*]*x*[*n*]
+    | = | *y*[*n*−2], |'
+- en: '|  |  | *u*[*n*−1,*n*−1]*x*[*n*−1] + | *u*[*n*−1,*n*]*x[n]* | = | *y*[*n*−1],
+    |'
+  id: totrans-65
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  | *u*[*n*−1,*n*−1]*x*[*n*−1] + | *u*[*n*−1,*n*]*x[n]* | = | *y*[*n*−1],
+    |'
+- en: '|  |  |  | *u*[*n,n*]*x[n]* | = | *y[n]*. |'
+  id: totrans-66
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  |  | *u*[*n,n*]*x[n]* | = | *y[n]*. |'
+- en: 'Thus, you can solve for *x[n]*, *x*[*n*−1], … , *x*[1] successively as follows:'
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，你可以依次解出*x[n]*，*x*[*n*−1]，…，*x*[1]如下：
+- en: '| *x[n]* | = | *y[n]*/*u*[*n,n*], |'
+  id: totrans-68
+  prefs: []
+  type: TYPE_TB
+  zh: '| *x[n]* | = | *y[n]*/*u*[*n,n*], |'
+- en: '| *x*[*n*−1] | = | (*y*[*n*−1] − *u*[*n*−1,*n*]*x[n]*)/*u*[*n*−1,*n*−1], |'
+  id: totrans-69
+  prefs: []
+  type: TYPE_TB
+  zh: '| *x*[*n*−1] | = | (*y*[*n*−1] − *u*[*n*−1,*n*]*x[n]*)/*u*[*n*−1,*n*−1], |'
+- en: '| *x*[*n*−2] | = | (*y*[*n*−2] − (*u*[*n*−2,*n*−1]*x*[*n*−1] + *u*[*n*−2,*n*]*x[n]*))/*u*[*n*−2,*n*−2,]
+    |'
+  id: totrans-70
+  prefs: []
+  type: TYPE_TB
+  zh: '| *x*[*n*−2] | = | (*y*[*n*−2] − (*u*[*n*−2,*n*−1]*x*[*n*−1] + *u*[*n*−2,*n*]*x[n]*))/*u*[*n*−2,*n*−2,]
+    |'
+- en: '|  | ⋮ |  |'
+  id: totrans-71
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ⋮ |  |'
+- en: or, in general,
+  id: totrans-72
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 或者，一般地说，
+- en: '![art](images/Art_P907.jpg)'
+  id: totrans-73
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P907.jpg)'
+- en: Given *P*, *L*, *U*, and *b*, the procedure LUP-SOLVE on the next page solves
+    for *x* by combining forward and back substitution. The permutation matrix *P*
+    is represented by the array *π*. The procedure first solves for *y* using forward
+    substitution in lines 2–3, and then it solves for *x* using backward substitution
+    in lines 4–5\. Since the summation within each of the **for** loops includes an
+    implicit loop, the running time is Θ(*n*²).
+  id: totrans-74
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定*P*，*L*，*U*和*b*，下一页的LUP-SOLVE过程通过结合前代和回代来解出*x*。置换矩阵*P*由数组*π*表示。该过程首先在第2-3行使用前代解出*y*，然后在第4-5行使用回代解出*x*。由于**for**循环内的求和包含一个隐式循环，运行时间为Θ(*n*²)。
+- en: As an example of these methods, consider the system of linear equations defined
+    by *Ax* = *b*, where
+  id: totrans-75
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为这些方法的一个示例，考虑由*Ax* = *b*定义的线性方程组，其中
+- en: '![art](images/Art_P908.jpg)'
+  id: totrans-76
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P908.jpg)'
+- en: LUP-SOLVE(*L*, *U*, *π*, *b*, *n*)
+  id: totrans-77
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LUP-SOLVE(*L*, *U*, *π*, *b*, *n*)
+- en: '| 1 | let *x* and *y* be new vectors of length *n* |'
+  id: totrans-78
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 让*x*和*y*成为长度为*n*的新向量 |'
+- en: '| 2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-79
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** *i* = 1 **到** *n* |'
+- en: '| 3 | ![art](images/Art_P909.jpg) |'
+  id: totrans-80
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | ![艺术](images/Art_P909.jpg) |'
+- en: '| 4 | **for** *i* = *n* **downto** 1 |'
+  id: totrans-81
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **对于** *i* = *n* **向下**到 1 |'
+- en: '| 5 | ![art](images/Art_P910.jpg) |'
+  id: totrans-82
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | ![艺术](images/Art_P910.jpg) |'
+- en: '| 6 | **return** *x* |'
+  id: totrans-83
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | **返回** *x* |'
+- en: and we want to solve for the unknown *x*. The LUP decomposition is
+  id: totrans-84
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们想要解出未知的*x*。LUP分解为
+- en: '![art](images/Art_P911.jpg)'
+  id: totrans-85
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P911.jpg)'
+- en: '(You might want to verify that *PA* = *LU*.) Using forward substitution, solve
+    *Ly* = *Pb* for *y*:'
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: （你可能想要验证*PA* = *LU*。）使用前代法，解出*Ly* = *Pb*的*y*：
+- en: '![art](images/Art_P912.jpg)'
+  id: totrans-87
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P912.jpg)'
+- en: obtaining
+  id: totrans-88
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 获得
+- en: '![art](images/Art_P913.jpg)'
+  id: totrans-89
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P913.jpg)'
+- en: 'by computing first *y*[1], then *y*[2], and finally *y*[3]. Then, using back
+    substitution, solve *Ux* = *y* for *x*:'
+  id: totrans-90
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 首先计算*y*[1]，然后计算*y*[2]，最后计算*y*[3]。然后，使用回代法解出*Ux* = *y*的*x*：
+- en: '![art](images/Art_P914.jpg)'
+  id: totrans-91
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P914.jpg)'
+- en: thereby obtaining the desired answer
+  id: totrans-92
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 从而获得所需的答案
+- en: '![art](images/Art_P915.jpg)'
+  id: totrans-93
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P915.jpg)'
+- en: by computing first *x*[3], then *x*[2], and finally *x*[1].
+  id: totrans-94
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 首先计算*x*[3]，然后计算*x*[2]，最后计算*x*[1]。
+- en: '**Computing an LU decomposition**'
+  id: totrans-95
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**计算LU分解**'
+- en: Given an LUP decomposition for a nonsingular matrix *A*, you can use forward
+    and back substitution to solve the system *Ax* = *b* of linear equations. Now
+    let’s see how to efficiently compute an LUP decomposition for *A*. We start with
+    the simpler case in which *A* is an *n* × *n* nonsingular matrix and *P* is absent
+    (or, equivalently, *P* = *I[n]*, the *n* × *n* identity matrix), so that *A* =
+    *LU*. We call the two matrices *L* and *U* an ***LU decomposition*** of *A*.
+  id: totrans-96
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个非奇异矩阵*A*的LUP分解，你可以使用前代和回代来解决线性方程组*Ax* = *b*。现在让我们看看如何高效地计算矩阵*A*的LUP分解。我们从更简单的情况开始，即*A*是一个*n*
+    × *n*的非奇异矩阵，*P*不存在（或者等价地，*P* = *I[n]*，*n* × *n*单位矩阵），这样*A* = *LU*。我们称这两个矩阵*L*和*U*为矩阵*A*的***LU分解***。
+- en: To create an LU decomposition, we’ll use a process known as ***Gaussian elimination***.
+    Start by subtracting multiples of the first equation from the other equations
+    in order to remove the first variable from those equations. Then subtract multiples
+    of the second equation from the third and subsequent equations so that now the
+    first and second variables are removed from them. Continue this process until
+    the system that remains has an upper-triangular form—this is the matrix *U*. The
+    matrix *L* comprises the row multipliers that cause variables to be eliminated.
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要创建LU分解，我们将使用一种称为***高斯消元法***的过程。首先，从其他方程中减去第一个方程的倍数，以消除这些方程中的第一个变量。然后，从第二个方程中减去第三个及后续方程的倍数，以便现在从中删除第一个和第二个变量。继续这个过程，直到剩下的系统具有上三角形式—这就是矩阵*U*。矩阵*L*包括导致变量被消除的行乘数。
+- en: 'To implement this strategy, let’s start with a recursive formulation. The input
+    is an *n* × *n* nonsingular matrix *A*. If *n* = 1, then nothing needs to be done:
+    just choose *L* = *I*[1] and *U* = *A*. For *n* > 1, break *A* into four parts:'
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要实现这一策略，让我们从一个递归公式开始。输入是一个*n* × *n*的非奇异矩阵*A*。如果*n* = 1，则无需做任何操作：只需选择*L* = *I*[1]和*U*
+    = *A*。对于*n* > 1，将*A*分成四部分：
+- en: '![art](images/Art_P916.jpg)'
+  id: totrans-99
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P916.jpg)'
+- en: where *v* = (*a*[21], *a*[31], … , *a*[*n*1]) is a column (*n*−1)-vector, *w*^T
+    = (*a*[12], *a*[13], … , *a*[1*n*])^T is a row (*n* − 1)-vector, and *A*′ is an
+    (*n* − 1) × (*n* − 1) matrix. Then, using matrix algebra (verify the equations
+    by simply multiplying through), factor *A* as
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中*v* = (*a*[21], *a*[31], … , *a*[*n*1])是一个列(*n*−1)向量，*w*^T = (*a*[12], *a*[13],
+    … , *a*[1*n*])^T是一个行(*n* − 1)向量，*A*′是一个(*n* − 1) × (*n* − 1)矩阵。然后，使用矩阵代数（通过简单相乘验证方程），将*A*因子化为
+- en: '![art](images/Art_P917.jpg)'
+  id: totrans-101
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P917.jpg)'
+- en: The 0s in the first and second matrices of equation (28.9) are row and column
+    (*n* − 1)-vectors, respectively. The term *vw*^T/*a*[11] is an (*n* − 1) × (*n*
+    − 1) matrix formed by taking the outer product of *v* and *w* and dividing each
+    element of the result by *a*[11]. Thus it conforms in size to the matrix *A*′
+    from which it is subtracted. The resulting (*n* − 1) × (*n* − 1) matrix
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 方程(28.9)中的第一个和第二个矩阵中的0是行和列(*n* − 1)向量，*vw*^T/*a*[11]是一个(*n* − 1) × (*n* − 1)矩阵，通过取*v*和*w*的外积并将结果的每个元素除以*a*[11]形成。因此，它的大小与从中减去的矩阵*A*′相符。得到的(*n*
+    − 1) × (*n* − 1)矩阵
+- en: '![art](images/Art_P918.jpg)'
+  id: totrans-103
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P918.jpg)'
+- en: is called the ***Schur complement*** of *A* with respect to *a*[11].
+  id: totrans-104
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 称为***舒尔补***，相对于*a*[11]的*A*。
+- en: We claim that if *A* is nonsingular, then the Schur complement is nonsingular,
+    too. Why? Suppose that the Schur complement, which is (*n* − 1) × (*n* − 1), is
+    singular. Then by Theorem D.1, it has row rank strictly less than *n* − 1\. Because
+    the bottom *n* − 1 entries in the first column of the matrix
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们声称，如果*A*是非奇异的，则舒尔补也是非奇异的。为什么？假设舒尔补（(*n* − 1) × (*n* − 1)）是奇异的。然后根据定理D.1，它的行秩严格小于*n*
+    − 1。因为矩阵的第一列中的底部*n* − 1个条目
+- en: '![art](images/Art_P919.jpg)'
+  id: totrans-106
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P919.jpg)'
+- en: are all 0, the bottom *n* − 1 rows of this matrix must have row rank strictly
+    less than *n* − 1\. The row rank of the entire matrix, therefore, is strictly
+    less than *n*. Applying Exercise D.2-8 on page 1223 to equation (28.9), *A* has
+    rank strictly less than *n*, and from Theorem D.1, we derive the contradiction
+    that *A* is singular.
+  id: totrans-107
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果矩阵的所有行都是0，则该矩阵的底部*n* − 1行的行秩必须严格小于*n* − 1。因此，整个矩阵的行秩严格小于*n*。将第1223页上方程(28.9)应用于练习D.2-8，*A*的秩严格小于*n*，根据定理D.1，我们得出结论，*A*是奇异的。
+- en: Because the Schur complement is nonsingular, it, too, has an LU decomposition,
+    which we can find recursively. Let’s say that
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为舒尔补是非奇异的，它也有一个LU分解，我们可以递归地找到。假设
+- en: '*A*′ − *vw*^T/*a*[11] = *L*′*U*′,'
+  id: totrans-109
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*A*′ − *vw*^T/*a*[11] = *L*′*U*′，'
+- en: where *L*′ is unit lower-triangular and *U*′ is upper-triangular. The LU decomposition
+    of *A* is then *A* = *LU*, with
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中*L*′是单位下三角矩阵，*U*′是上三角矩阵。然后*A*的LU分解为*A* = *LU*，其中
+- en: '![art](images/Art_P920.jpg)'
+  id: totrans-111
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P920.jpg)'
+- en: as shown by
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如下所示
+- en: '![art](images/Art_P921.jpg)'
+  id: totrans-113
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P921.jpg)'
+- en: Because *L*′ is unit lower-triangular, so is *L*, and because *U*′ is upper-triangular,
+    so is *U*.
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为*L*′是单位下三角矩阵，所以*L*也是，因为*U*′是上三角矩阵，所���*U*也是。
+- en: Of course, if *a*[11] = 0, this method doesn’t work, because it divides by 0\.
+    It also doesn’t work if the upper leftmost entry of the Schur complement *A*′
+    − *vw*^T/*a*[11] is 0, since the next step of the recursion will divide by it.
+    The denominators in each step of LU decomposition are called ***pivots***, and
+    they occupy the diagonal elements of the matrix *U*. The permutation matrix *P*
+    included in LUP decomposition provides a way to avoid dividing by 0, as we’ll
+    see below. Using permutations to avoid division by 0 (or by small numbers, which
+    can contribute to numerical instability), is called ***pivoting***.
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当然，如果*a*[11] = 0，则此方法不起作用，因为它会除以0。如果舒尔补*A*′ − *vw*^T/*a*[11]的左上角条目为0，那么递归的下一步将除以它。LU分解每一步中的分母称为***枢轴***，它们占据矩阵*U*的对角线元素。包含在LUP分解中的排列矩阵*P*提供了一种避免除以0的方法，我们将在下面看到。使用排列来避免除以0（或由于小数值而导致数值不稳定）称为***枢轴调整***。
+- en: An important class of matrices for which LU decomposition always works correctly
+    is the class of symmetric positive-definite matrices. Such matrices require no
+    pivoting to avoid dividing by 0 in the recursive strategy outlined above. We will
+    prove this result, as well as several others, in [Section 28.3](chapter028.xhtml#Sec_28.3).
+  id: totrans-116
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于LU分解始终正确的重要矩阵类是对称正定矩阵类。这些矩阵在上述递归策略中不需要进行任何枢轴调整以避免除以0。我们将在[第28.3节](chapter028.xhtml#Sec_28.3)中证明这一结果，以及其他几个结果。
+- en: The pseudocode in the procedure LU-DECOMPOSITION follows the recursive strategy,
+    except that an iteration loop replaces the recursion. (This transformation is
+    a standard optimization for a “tail-recursive” procedure—one whose last operation
+    is a recursive call to itself. See Problem 7-5 on page 202.) The procedure initializes
+    the matrix *U* with 0s below the diagonal and matrix *L* with 1s on its diagonal
+    and 0s above the diagonal. Each iteration works on a square submatrix, using its
+    upper leftmost element as the pivot to compute the *v* and *w* vectors and the
+    Schur complement, which becomes the square submatrix worked on by the next iteration.
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 程序LU-DECOMPOSITION中的伪代码遵循递归策略，只是用迭代循环替代了递归。（这种转换是对“尾递归”程序的标准优化，即其最后一个操作是对自身的递归调用。参见第202页的问题7-5。）该程序将矩阵*U*初始化为对角线以下的0，将矩阵*L*初始化为对角线上的1和对角线以上的0。每次迭代都处理一个方阵子矩阵，使用其左上角元素作为枢轴来计算*v*和*w*向量以及舒尔补，舒尔补成为下一次迭代处理的方阵子矩阵。
+- en: LU-DECOMPOSITION(*A*, *n*)
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LU-DECOMPOSITION(*A*, *n*)
+- en: '|   1 | let *L* and *U* be new *n* × *n* matrices |'
+  id: totrans-119
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | 让*L*和*U*成为新的*n* × *n*矩阵 |'
+- en: '|   2 | initialize *U* with 0s below the diagonal |'
+  id: totrans-120
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | 用0初始化*U*的对角线以下 |'
+- en: '|   3 | initialize *L* with 1s on the diagonal and 0s above the diagonal |'
+  id: totrans-121
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | 用1初始化*L*的对角线和0初始化对角线以上 |'
+- en: '|   4 | **for** *k* = 1 **to** *n* |'
+  id: totrans-122
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **对于** *k* = 1 **到** *n* |'
+- en: '|   5 | *u[kk]* = *a[kk]* |'
+  id: totrans-123
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | *u[kk]* = *a[kk]* |'
+- en: '|   6 | **for** *i* = *k* + 1 **to** *n* |'
+  id: totrans-124
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **对于** *i* = *k* + 1 **到** *n* |'
+- en: '|   7 | *l[ik]* = *a[ik]*/*a[kk]* | **//** *a[ik]* holds *v[i]* |'
+  id: totrans-125
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | *l[ik]* = *a[ik]*/*a[kk]* | **//** *a[ik]*保存*v[i]* |'
+- en: '|   8 | *u[ki]* = *a[ki]* | **//** *a[ki]* holds *w[i]* |'
+  id: totrans-126
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *u[ki]* = *a[ki]* | **//** *a[ki]*保存*w[i]* |'
+- en: '|   9 | **for** *i* = *k* + 1 **to** *n* | **//** compute the Schur complement
+    … |'
+  id: totrans-127
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | **对于** *i* = *k* + 1 **到** *n* | **//** 计算舒尔补 … |'
+- en: '| 10 | **for** *j* = *k* + 1 **to** *n* |'
+  id: totrans-128
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **对于** *j* = *k* + 1 **到** *n* |'
+- en: '| 11 | *a[ij]* = *a[ij]* − *l[ik]u[kj]* | **//** … and store it back into *A*
+    |'
+  id: totrans-129
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | *a[ij]* = *a[ij]* − *l[ik]u[kj]* | **//** … 并将其存回*A*中 |'
+- en: '| 12 | **return** *L* and *U* |'
+  id: totrans-130
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | **返回** *L* 和 *U* |'
+- en: Each recursive step in the description above takes place in one iteration of
+    the outer **for** loop of lines 4–11\. Within this loop, line 5 determines the
+    pivot to be *u[kk]* = *a[kk]*. The **for** loop in lines 6–8 (which does not execute
+    when *k* = *n*) uses the *v* and *w* vectors to update *L* and *U*. Line 7 determines
+    the below-diagonal elements of *L*, storing *v[i]*/*a[kk]* in *l[ik]*, and line
+    8 computes the above-diagonal elements of *U*, storing *w[i]* in *u[ki]*. Finally,
+    lines 9–11 compute the elements of the Schur complement and store them back into
+    the matrix *A*. (There is no need to divide by *a[kk]* in line 11 because that
+    already happened when line 7 computed *l[ik]*.) Because line 11 is triply nested,
+    LU-DECOMPOSITION runs in Θ(*n*³) time.
+  id: totrans-131
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 上述描述中的每个递归步骤都在行4-11的外部**for**循环的一次迭代中发生。在这个循环中，行5确定主元为*u[kk]* = *a[kk]*。行6-8中的**for**循环（当*k*
+    = *n*时不执行）使用*v*和*w*向量更新*L*和*U*。行7确定*L*的下对角线元素，将*v[i]*/*a[kk]*存储在*l[ik]*中，行8计算*U*的上对角线元素，将*w[i]*存储在*u[ki]*中。最后，行9-11计算舒尔补的元素，并将它们存回矩阵*A*中。（在行11中不需要除以*a[kk]*，因为当行7计算*l[ik]*时已经发生过。）由于行11是三重嵌套的，LU-分解的运行时间为Θ(*n*³)。
+- en: '[Figure 28.1](chapter028.xhtml#Fig_28-1) illustrates the operation of LU-DECOMPOSITION.
+    It shows a standard optimization of the procedure that stores the significant
+    elements of *L* and *U* in place in the matrix *A*. Each element *a[ij]* corresponds
+    to either *l[ij]* (if *i* > *j*) or *u[ij]* (if *i* ≤ *j*), so that the matrix
+    *A* holds both *L* and *U* when the procedure terminates. To obtain the pseudocode
+    for this optimization from the pseudocode for the LU-DECOMPOSITION procedure,
+    just replace each reference to *l* or *u* by *a*. You can verify that this transformation
+    preserves correctness.'
+  id: totrans-132
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图28.1](chapter028.xhtml#Fig_28-1)说明了LU-分解的操作。它展示了该过程的标准优化，将*L*和*U*的重要元素就地存储在矩阵*A*中。每个元素*a[ij]*对应于*l[ij]*（如果*i*
+    > *j*）或*u[ij]*（如果*i* ≤ *j*），因此当过程终止时，矩阵*A*同时保存*L*和*U*。要从LU-分解过程的伪代码中获得此优化的伪代码，只需将对*l*或*u*的每个引用替换为*a*。您可以验证此转换保持正确性。'
+- en: '![art](images/Art_P922.jpg)'
+  id: totrans-133
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P922.jpg)'
+- en: '**Figure 28.1** The operation of LU-DECOMPOSITION. **(a)** The matrix *A*.
+    **(b)** The result of the first iteration of the outer **for** loop of lines 4–11\.
+    The element *a*[11] = 2 highlighted in blue is the pivot, the tan column is *v*/*a*[11],
+    and the tan row is *w*^T. The elements of *U* computed thus far are above the
+    horizontal line, and the elements of *L* are to the left of the vertical line.
+    The Schur complement matrix *A*′ − *vw*^T/*a*[11] occupies the lower right. **(c)**
+    The result of the next iteration of the outer **for** loop, on the Schur complement
+    matrix from part (b). The element *a*[22] = 4 highlighted in blue is the pivot,
+    and the tan column and row are *v*/*a*[22] and *w*^T (in the partitioning of the
+    Schur complement), respectively. Lines divide the matrix into the elements of
+    *U* computed so far (above), the elements of *L* computed so far (left), and the
+    new Schur complement (lower right). **(d)** After the next iteration, the matrix
+    *A* is factored. The element 3 in the new Schur complement becomes part of *U*
+    when the recursion terminates.) **(e)** The factorization *A* = *LU*.'
+  id: totrans-134
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图28.1** LU-分解的操作。**(a)** 矩阵*A*。**(b)** 第一次外部**for**循环的结果，行4-11。蓝色突出显示的元素*a*[11]
+    = 2是主元，棕色列是*v*/*a*[11]，棕色行是*w*^T。到目前为止计算出的*U*元素在水平线上方，*L*元素在垂直线左侧。舒尔补矩阵*A*′ −
+    *vw*^T/*a*[11]占据右下角。**(c)** 对来自(b)部分的舒尔补矩阵的下一次外部**for**循环的结果。蓝色突出显示的元素*a*[22]
+    = 4是主元，棕色列和行分别是*v*/*a*[22]和*w*^T（在舒尔补分区中）。线将矩阵分为到目前为止计算出的*U*元素（上方），到目前为止计算出的*L*元素（左侧）和新的舒尔补（右下角）。**(d)**
+    经过下一次迭代后，矩阵*A*被分解。当递归终止时，新舒尔补中的元素3成为*U*的一部分。**(e)** 分解*A* = *LU*。'
+- en: '**Computing an LUP decomposition**'
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**计算LUP分解**'
+- en: If the diagonal of the matrix given to LU-DECOMPOSITION contains any 0s, then
+    the procedure will attempt to divide by 0, which would cause disaster. Even if
+    the diagonal contains no 0s, but does have numbers with small absolute values,
+    dividing by such numbers can cause numerical instabilities. Therefore, LUP decomposition
+    pivots on entries with the largest absolute values that it can find.
+  id: totrans-136
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果提供给LU-分解的矩阵的对角线包含任何0，那么该过程将尝试除以0，这将导致灾难。即使对角线不包含0，但包含绝对值较小的数字，除以这样的数字可能导致数值不稳定。因此，LUP分解会在能找到的具有最大绝对值的条目上进行主元选取。
+- en: In LUP decomposition, the input is an *n* × *n* nonsingular matrix *A*, with
+    a goal of finding a permutation matrix *P*, a unit lower-triangular matrix *L*,
+    and an upper-triangular matrix *U* such that *PA* = *LU*. Before partitioning
+    the matrix *A*, as LU decomposition does, LUP decomposition moves a nonzero element,
+    say *a*[*k*1], from somewhere in the first column to the (1, 1) position of the
+    matrix. For the greatest numerical stability, LUP decomposition chooses the element
+    in the first column with the greatest absolute value as *a*[*k*1]. (The first
+    column cannot contain only 0s, for then *A* would be singular, because its determinant
+    would be 0, by Theorems D.4 and D.5 on page 1221.) In order to preserve the set
+    of equations, LUP decomposition exchanges row 1 with row *k*, which is equivalent
+    to multiplying *A* by a permutation matrix *Q* on the left (Exercise D.1-4 on
+    page 1219). Thus, the analog to equation (28.8) expresses *QA* as
+  id: totrans-137
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在LUP分解中，输入是一个*n* × *n*非奇异矩阵*A*，目标是找到一个置换矩阵*P*，一个单位下三角矩阵*L*，和一个上三角矩阵*U*，使得*PA*
+    = *LU*。在将矩阵*A*分割之前，与LU分解不同，LUP分解将一个非零元素，比如*a*[*k*1]，从第一列的某处移动到矩阵的(1, 1)位置。为了获得最大的数值稳定性，LUP分解选择第一列中绝对值最大的元素作为*a*[*k*1]。（第一列不能只包含0，否则*A*将是奇异的，因为根据第1221页的定理D.4和D.5，它的行列式为0。）为了保持方程组，LUP分解交换第1行和第*k*行，这等效于在左边将*A*乘以置换矩阵*Q*（第1219页的练习D.1-4）。因此，类似于方程(28.8)，*QA*表示为
+- en: '![art](images/Art_P923.jpg)'
+  id: totrans-138
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P923.jpg)'
+- en: 'where *v* = (*a*[21], *a*[31], … , *a*[*n*1]), except that *a*[11] replaces
+    *a*[*k*1]; *w*^T = (*a*[*k*2], *a*[*k*3], … , *a[kn]*)^T; and *A*′ is an (*n*
+    − 1) × (*n* − 1) matrix. Since *a*[*k*1] ≠ 0, the analog to equation (28.9) guarantees
+    no division by 0:'
+  id: totrans-139
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中*v* = (*a*[21], *a*[31], … , *a*[*n*1])，除了*a*[11]替换为*a*[*k*1]；*w*^T = (*a*[*k*2],
+    *a*[*k*3], … , *a[kn]*)^T；*A*′是一个(*n* − 1) × (*n* − 1)矩阵。由于*a*[*k*1] ≠ 0，类似于方程(28.9)，不会出现除以0的情况：
+- en: '![art](images/Art_P924.jpg)'
+  id: totrans-140
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P924.jpg)'
+- en: Just as in LU decomposition, if *A* is nonsingular, then the Schur complement
+    *A*′ − *vw*^T/*a*[*k*1] is nonsingular, too. Therefore, you can recursively find
+    an LUP decomposition for it, with unit lower-triangular matrix *L*′, upper-triangular
+    matrix *U*′, and permutation matrix *P*′, such that
+  id: totrans-141
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 就像LU分解一样，如果*A*是非奇异的，那么舒尔补*A*′ − *vw*^T/*a*[*k*1]也是非奇异的。因此，你可以递归地为其找到一个LUP分解，其中包括单位下三角矩阵*L*′，上三角矩阵*U*′，和置换矩阵*P*′，使得
+- en: '*P*′(*A*′ − *vw*^T/*a*[*k*1]) = *L*′*U*′.'
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*P*′(*A*′ − *vw*^T/*a*[*k*1]) = *L*′*U*′。'
+- en: Define
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 定义
+- en: '![art](images/Art_P925.jpg)'
+  id: totrans-144
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P925.jpg)'
+- en: which is a permutation matrix, since it is the product of two permutation matrices
+    (Exercise D.1-4 on page 1219). This definition of *P* gives
+  id: totrans-145
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这是一个置换矩阵，因为它是两个置换矩阵的乘积（第1219页的练习D.1-4）。这个*P*的定义为
+- en: '![art](images/Art_P926.jpg)'
+  id: totrans-146
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P926.jpg)'
+- en: which yields the LUP decomposition. Because *L*′ is unit lower-triangular, so
+    is *L*, and because *U*′ is upper-triangular, so is *U*.
+  id: totrans-147
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这导致了LUP分解。因为*L*′是单位下三角形的，所以*L*也是；因为*U*′是上三角形的，所以*U*也是。
+- en: Notice that in this derivation, unlike the one for LU decomposition, both the
+    column vector *v*/*a*[*k*1] and the Schur complement *A*′ − *vw*^T/*a*[*k*1] are
+    multiplied by the permutation matrix *P*′. The procedure LUP-DECOMPOSITION gives
+    the pseudocode for LUP decomposition.
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 注意，在这个推导中，与LU分解不同，列向量*v*/*a*[*k*1]和舒尔补*A*′ − *vw*^T/*a*[*k*1]都乘以置换矩阵*P*′。LUP-DECOMPOSITION过程给出了LUP分解的伪代码。
+- en: LUP-DECOMPOSITION(*A*, *n*)
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LUP-DECOMPOSITION(*A*, *n*)
+- en: '|   1 | let *π*[1 : *n*] be a new array |'
+  id: totrans-150
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | 让 *π*[1 : *n*] 成为一个新数组 |'
+- en: '|   2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-151
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | **对于** *i* = 1 **到** *n* |'
+- en: '|   3 | *π*[*i*] = *i* | **//** initialize *π* to the identity permutation
+    |'
+  id: totrans-152
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | *π*[*i*] = *i* | **//** 将*π*初始化为单位置换 |'
+- en: '|   4 | **for** *k* = 1 **to** *n* |'
+  id: totrans-153
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **对于** *k* = 1 **到** *n* |'
+- en: '|   5 | *p* = 0 |'
+  id: totrans-154
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | *p* = 0 |'
+- en: '|   6 | **for** *i* = *k* **to** *n* | **//** find largest absolute value in
+    column *k* |'
+  id: totrans-155
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **对于** *i* = *k* **到** *n* | **//** 找到第*k*列中绝对值最大的值 |'
+- en: '|   7 | **if** &#124;*a[ik]*&#124; > *p* |'
+  id: totrans-156
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | **如果** &#124;*a[ik]*&#124; > *p* |'
+- en: '|   8 | *p* = &#124;*a[ik]*&#124; |'
+  id: totrans-157
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *p* = &#124;*a[ik]*&#124; |'
+- en: '|   9 | *k*′ = *i* | **//** row number of the largest found so far |'
+  id: totrans-158
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | *k*′ = *i* | **//** 到目前为止找到的最大值所在的行号 |'
+- en: '| 10 | **if** *p* == 0 |'
+  id: totrans-159
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **如果** *p* == 0 |'
+- en: '| 11 | **error** “singular matrix” |'
+  id: totrans-160
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | **错误** “奇异矩阵” |'
+- en: '| 12 | exchange *π*[*k*] with *π*[*k*′] |'
+  id: totrans-161
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | 用*π*[*k*]交换*π*[*k*′] |'
+- en: '| 13 | **for** *i* = 1 **to** *n* |'
+  id: totrans-162
+  prefs: []
+  type: TYPE_TB
+  zh: '| 13 | **对于** *i* = 1 **到** *n* |'
+- en: '| 14 | exchange *a[ki]* with *a[k′i]* | **//** exchange rows *k* and *k*′ |'
+  id: totrans-163
+  prefs: []
+  type: TYPE_TB
+  zh: '| 14 | 用*a[ki]*交换*a[k′i]* | **//** 交换行*k*和*k*′ |'
+- en: '| 15 | **for** *i* = *k* + 1 **to** *n* |'
+  id: totrans-164
+  prefs: []
+  type: TYPE_TB
+  zh: '| 15 | **对于** *i* = *k* + 1 **到** *n* |'
+- en: '| 16 | *a[ik]* = *a[ik]*/*a[kk]* |'
+  id: totrans-165
+  prefs: []
+  type: TYPE_TB
+  zh: '| 16 | *a[ik]* = *a[ik]*/*a[kk]* |'
+- en: '| 17 | **for** *j* = *k* + 1 **to** *n* |'
+  id: totrans-166
+  prefs: []
+  type: TYPE_TB
+  zh: '| 17 | **对于** *j* = *k* + 1 **到** *n* |'
+- en: '| 18 | *a[ij]* = *a[ij]* − *a[ik]a[kj]* | **//** compute *L* and *U* in place
+    in *A* |'
+  id: totrans-167
+  prefs: []
+  type: TYPE_TB
+  zh: '| 18 | *a[ij]* = *a[ij]* − *a[ik]a[kj]* | **//** 在*A*中就地计算*L*和*U* |'
+- en: Like LU-DECOMPOSITION, the LUP-DECOMPOSITION procedure replaces the recursion
+    with an iteration loop. As an improvement over a direct implementation of the
+    recursion, the procedure dynamically maintains the permutation matrix *P* as an
+    array *π*, where *π*[*i*] = *j* means that the *i*th row of *P* contains a 1 in
+    column *j*. The LUP-DECOMPOSITION procedure also implements the improvement mentioned
+    earlier, computing *L* and *U* in place in the matrix *A*. Thus, when the procedure
+    terminates,
+  id: totrans-168
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 类似于LU-DECOMPOSITION，LUP-DECOMPOSITION过程用迭代循环替换了递归。作为对递归的直接实现的改进，该过程动态地将置换矩阵*P*维护为一个数组*π*��其中*π*[*i*]
+    = *j*表示*P*的第*i*行在第*j*列包含一个1。LUP-DECOMPOSITION过程还实现了前面提到的改进，就地在矩阵*A*中计算*L*和*U*。因此，当过程终止时，
+- en: '![art](images/Art_P927.jpg)'
+  id: totrans-169
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P927.jpg)'
+- en: '[Figure 28.2](chapter028.xhtml#Fig_28-2) illustrates how LUP-DECOMPOSITION
+    factors a matrix. Lines 2–3 initialize the array *π* to represent the identity
+    permutation. The outer **for** loop of lines 4–18 implements the recursion, finding
+    an LUP decomposition of the (*n* − *k* + 1) × (*n* − *k* + 1) submatrix whose
+    upper left is in row *k* and column *k*. Each time through the outer loop, lines
+    5–9 determine the element *a*[*k′k*] with the largest absolute value of those
+    in the current first column (column *k*) of the (*n* − *k* + 1) × (*n* − *k* +
+    1) submatrix that the procedure is currently working on. If all elements in the
+    current first column are 0, lines 10–11 report that the matrix is singular. To
+    pivot, line 12 exchanges *π*[*k*′] with *π*[*k*], and lines 13–14 exchange the
+    *k*th and *k*′th rows of *A*, thereby making the pivot element *a[kk]*. (The entire
+    rows are swapped because in the derivation of the method above, not only is *A*′
+    − *vw*^T/*a*[*k*1] multiplied by *P*′, but so is *v*/*a*[*k*1].) Finally, the
+    Schur complement is computed by lines 15–18 in much the same way as it is computed
+    by lines 6–11 of LU-DECOMPOSITION, except that here the operation is written to
+    work in place.'
+  id: totrans-170
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图28.2](chapter028.xhtml#Fig_28-2)说明了LUP-分解如何分解矩阵。第2–3行初始化数组*π*以表示身份置换。第4–18行的外部**for**循环实现了递归，找到一个(*n*
+    − *k* + 1) × (*n* − *k* + 1)子矩阵的LUP分解，其左上角在第*k*行和第*k*列。每次通过外部循环时，第5–9行确定当前第一列（第*k*列）中绝对值最大的元素*a*[*k′k*]，该元素位于当前工作的(*n*
+    − *k* + 1) × (*n* − *k* + 1)子矩阵中���如果当前第一列中的所有元素都为0，则第10–11行报告矩阵是奇异的。为了进行枢轴，第12行交换*π*[*k*′]和*π*[*k*]，第13–14行交换*A*的第*k*行和第*k*′行，从而使枢轴元素为*a[kk]*。（整行交换是因为在上面的方法推导中，不仅*A*′
+    − *vw*^T/*a*[*k*1]被*P*′乘以，*v*/*a*[*k*1]也是如此。）最后，通过第15–18行计算舒尔补，方式与LU-分解的第6–11行计算方式基本相同，只是这里的操作被写成就地工作。'
+- en: '![art](images/Art_P928.jpg)'
+  id: totrans-171
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P928.jpg)'
+- en: '**Figure 28.2** The operation of LUP-DECOMPOSITION. **(a)** The input matrix
+    *A* with the identity permutation of the rows in yellow on the left. The first
+    step of the algorithm determines that the element 5 highlighted in blue in the
+    third row is the pivot for the first column. **(b)** Rows 1 and 3 are swapped
+    and the permutation is updated. The tan column and row represent *v* and *w*^T.
+    **(c)** The vector *v* is replaced by *v*/5, and the lower right of the matrix
+    is updated with the Schur complement. Lines divide the matrix into three regions:
+    elements of *U* (above), elements of *L* (left), and elements of the Schur complement
+    (lower right). **(d)–(f)** The second step. **(g)–(i)** The third step. No further
+    changes occur on the fourth (final) step. **(j)** The LUP decomposition *PA* =
+    *LU*.'
+  id: totrans-172
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图28.2** LUP-分解的操作。**(a)** 输入矩阵*A*，左侧为黄色的行的身份置换。算法的第一步确定了第一列的主元为第三行中突出显示的蓝色元素5。**(b)**
+    交换第1行和第3行，并更新置换。棕色的列和行代表*v*和*w*^T。**(c)** 向量*v*被*v*/5替换，并且右下角的矩阵使用舒尔补更新。线将矩阵分为三个区域：*U*的元素（上方）、*L*的元素（左侧）和舒尔补的元素（右下角）。**(d)–(f)**
+    第二步。**(g)–(i)** 第三步。在第四（最后）步中不会发生进一步的更改。**(j)** LUP分解*PA* = *LU*。'
+- en: Because of its triply nested loop structure, LUP-DECOMPOSITION has a running
+    time of Θ(*n*³), which is the same as that of LU-DECOMPOSITION. Thus, pivoting
+    costs at most a constant factor in time.
+  id: totrans-173
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于其三重嵌套循环结构，LUP-分解的运行时间为Θ(*n*³)，与LU-分解相同。因此，枢轴成本最多只是一个常数因子的时间。
+- en: '**Exercises**'
+  id: totrans-174
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***28.1-1***'
+  id: totrans-175
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-1***'
+- en: Solve the equation
+  id: totrans-176
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解方程
+- en: '![art](images/Art_P929.jpg)'
+  id: totrans-177
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P929.jpg)'
+- en: by using forward substitution.
+  id: totrans-178
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过使用前向替换。
+- en: '***28.1-2***'
+  id: totrans-179
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-2***'
+- en: Find an LU decomposition of the matrix
+  id: totrans-180
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 找到矩阵的LU分解。
+- en: '![art](images/Art_P930.jpg)'
+  id: totrans-181
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P930.jpg)'
+- en: '***28.1-3***'
+  id: totrans-182
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-3***'
+- en: Solve the equation
+  id: totrans-183
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解方程
+- en: '![art](images/Art_P931.jpg)'
+  id: totrans-184
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P931.jpg)'
+- en: by using an LUP decomposition.
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过使用LUP分解。
+- en: '***28.1-4***'
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-4***'
+- en: Describe the LUP decomposition of a diagonal matrix.
+  id: totrans-187
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 描述对角矩阵的LUP分解。
+- en: '***28.1-5***'
+  id: totrans-188
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-5***'
+- en: Describe the LUP decomposition of a permutation matrix, and prove that it is
+    unique.
+  id: totrans-189
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 描述置换矩阵的LUP分解，并证明其唯一性。
+- en: '***28.1-6***'
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-6***'
+- en: Show that for all *n* ≥ 1, there exists a singular *n* × *n* matrix that has
+    an LU decomposition.
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对于所有*n* ≥ 1，存在一个奇异的*n* × *n*矩阵，它有一个LU分解。
+- en: '***28.1-7***'
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.1-7***'
+- en: In LU-DECOMPOSITION, is it necessary to perform the outermost **for** loop iteration
+    when *k* = *n*? How about in LUP-DECOMPOSITION?
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在LU-分解中，当*k* = *n*时，是否需要执行最外层的**for**循环迭代？LUP-分解呢？
+- en: '[**28.2    Inverting matrices**](toc.xhtml#Rh1-163)'
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**28.2    求逆矩阵**](toc.xhtml#Rh1-163)'
+- en: Although you can use equation (28.3) to solve a system of linear equations by
+    computing a matrix inverse, in practice you are better off using more numerically
+    stable techniques, such as LUP decomposition. Sometimes, however, you really do
+    need to compute a matrix inverse. This section shows how to use LUP decomposition
+    to compute a matrix inverse. It also proves that matrix multiplication and computing
+    the inverse of a matrix are equivalently hard problems, in that (subject to technical
+    conditions) an algorithm for one can solve the other in the same asymptotic running
+    time. Thus, you can use Strassen’s algorithm (see [Section 4.2](chapter004.xhtml#Sec_4.2))
+    for matrix multiplication to invert a matrix. Indeed, Strassen’s original paper
+    was motivated by the idea that a set of a linear equations could be solved more
+    quickly than by the usual method.
+  id: totrans-195
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管你可以使用方程（28.3）通过计算矩阵的逆矩阵来解线性方程组，在实践中，最好使用更稳定的技术，如LUP分解。然而，有时你确实需要计算矩阵的逆。本节展示了如何使用LUP分解来计算矩阵的逆。它还证明了矩阵乘法和计算矩阵的逆是等价困难的问题，即（在技术条件下）一个算法可以在相同的渐近运行时间内解决另一个问题。因此，你可以使用Strassen算法（参见[第4.2节](chapter004.xhtml#Sec_4.2)）来求逆矩阵。事实上，Strassen的原始论文是受到这样一个想法的启发，即一组线性方程可以比通常的方法更快地解决。
+- en: '**Computing a matrix inverse from an LUP decomposition**'
+  id: totrans-196
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**从LUP分解计算矩阵的逆矩阵**。'
+- en: Suppose that you have an LUP decomposition of a matrix *A* in the form of three
+    matrices *L*, *U*, and *P* such that *PA* = *LU*. Using LUP-SOLVE, you can solve
+    an equation of the form *Ax* = *b* in Θ(*n*²) time. Since the LUP decomposition
+    depends on *A* but not *b*, you can run LUP-SOLVE on a second set of equations
+    of the form *Ax* = *b*′ in Θ(*n*²) additional time. In general, once you have
+    the LUP decomposition of *A*, you can solve, in Θ(*kn*²) time, *k* versions of
+    the equation *Ax* = *b* that differ only in the vector *b*.
+  id: totrans-197
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设你有一个矩阵*A*的LUP分解，形式为三个矩阵*L*、*U*和*P*，使得*PA* = *LU*。使用LUP-SOLVE，你可以在Θ(*n*²)的时间内解决形式为*Ax*
+    = *b*的方程。由于LUP分解取决于*A*而不是*b*，你可以在额外的Θ(*n*²)时间内对形式为*Ax* = *b*′的第二组方程运行LUP-SOLVE。一般来说，一旦你有了矩阵*A*的LUP分解，你可以在Θ(*kn*²)的时间内解决*k*个仅在向量*b*中有所不同的方程*Ax*
+    = *b*。
+- en: Let’s think of the equation
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们考虑方程
+- en: '![art](images/Art_P932.jpg)'
+  id: totrans-199
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P932.jpg)'
+- en: which defines the matrix *X*, the inverse of *A*, as a set of *n* distinct equations
+    of the form *Ax* = *b*. To be precise, let *X[i]* denote the *i*th column of *X*,
+    and recall that the unit vector *e[i]* is the *i*th column of *I[n]*. You can
+    then solve equation (28.11) for *X* by using the LUP decomposition for *A* to
+    solve each equation
+  id: totrans-200
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 定义矩阵*X*，即*A*的逆，为一组形式为*Ax* = *b*的*n*个不同方程。具体来说，让*X[i]*表示*X*的第*i*列，并回忆单位向量*e[i]*是*I[n]*的第*i*列。然后，通过使用*A*的LUP分解来解决每个方程，可以解决*X*的方程(28.11)
+- en: '*AX[i]* = *e[i]*'
+  id: totrans-201
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*AX[i]* = *e[i]*'
+- en: separately for *X[i]*. Once you have the LUP decomposition, you can compute
+    each of the *n* columns *X[i]* in Θ(*n*²) time, and so you can compute *X* from
+    the LUP decomposition of *A* in Θ(*n*³) time. Since you find the LUP decomposition
+    of *A* in Θ(*n*³) time, you can compute the inverse *A*^(−1) of a matrix *A* in
+    Θ(*n*³) time.
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 分别对*X[i]*进行计算。一旦你有了LUP分解，你可以在Θ(*n*²)的时间内计算每个*X[i]*的*n*列，因此你可以在Θ(*n*³)的时间内从*A*的LUP分解计算*X*。由于你在Θ(*n*³)的时间内找到了*A*的LUP分解，你可以在Θ(*n*³)的时间内计算矩阵*A*的逆*A*^(−1)。
+- en: '**Matrix multiplication and matrix inversion**'
+  id: totrans-203
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**矩阵乘法和矩阵求逆**'
+- en: 'Now let’s see how the theoretical speedups obtained for matrix multiplication
+    translate to speedups for matrix inversion. In fact, we’ll prove something stronger:
+    matrix inversion is equivalent to matrix multiplication, in the following sense.
+    If *M*(*n*) denotes the time to multiply two *n* × *n* matrices, then a nonsingular
+    *n* × *n* matrix can be inverted in *O*(*M*(*n*)) time. Moreover, if *I*(*n*)
+    denotes the time to invert a nonsingular *n* × *n* matrix, then two *n* × *n*
+    matrices can be multiplied in *O*(*I*(*n*)) time. We prove these results as two
+    separate theorems.'
+  id: totrans-204
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们看看为矩阵乘法获得的理论加速如何转化为矩阵求逆的加速。事实上，我们将证明更强的结论：矩阵求逆等价于矩阵乘法。如果*M*(*n*)表示两个*n*
+    × *n*矩阵相乘的时间，则非奇异的*n* × *n*矩阵可以在*O*(*M*(*n*))的时间内求逆。此外，如果*I*(*n*)表示求逆一个非奇异的*n*
+    × *n*矩阵的时间，��两个*n* × *n*矩阵可以在*O*(*I*(*n*))的时间内相乘。我们将这些结果作为两个单独的定理证明。
+- en: '***Theorem 28.1 (Multiplication is no harder than inversion)***'
+  id: totrans-205
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理28.1（乘法不比求逆更难）***'
+- en: If an *n* × *n* matrix can be inverted in *I*(*n*) time, where *I*(*n*) = Ω(*n*²)
+    and *I*(*n*) satisfies the regularity condition *I*(3*n*) = *O*(*I*(*n*)), then
+    two *n* × *n* matrices can be multiplied in *O*(*I*(*n*)) time.
+  id: totrans-206
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果一个*n* × *n*矩阵可以在*I*(*n*)的时间内求逆，其中*I*(*n*) = Ω(*n*²)，且*I*(*n*)满足*I*(3*n*) =
+    *O*(*I*(*n*))的正则条件，则两个*n* × *n*矩阵可以在*O*(*I*(*n*))的时间内相乘。
+- en: '***Proof***   Let *A* and *B* be *n* × *n* matrices. To compute their product
+    *C* = *AB*, define the 3*n* × 3*n* matrix *D* by'
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 让*A*和*B*为*n* × *n*矩阵。为了计算它们的乘积*C* = *AB*，定义3*n* × 3*n*矩阵*D*为'
+- en: '![art](images/Art_P933.jpg)'
+  id: totrans-208
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P933.jpg)'
+- en: The inverse of *D* is
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*D*的逆是'
+- en: '![art](images/Art_P934.jpg)'
+  id: totrans-210
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P934.jpg)'
+- en: and thus to compute the product *AB*, just take the upper right *n* × *n* submatrix
+    of *D*^(−1).
+  id: totrans-211
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，要计算乘积*AB*，只需取*D*^(−1)的右上*n* × *n*子矩阵。
+- en: Constructing matrix *D* takes Θ(*n*²) time, which is *O*(*I*(*n*)) from the
+    assumption that *I*(*n*) = Ω(*n*²), and inverting *D* takes *O*(*I*(3*n*)) = *O*(*I*(*n*))
+    time, by the regularity condition on *I*(*n*). We thus have *M*(*n*) = *O*(*I*(*n*)).
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 构造矩阵*D*需要Θ(*n*²)的时间，根据假设*I*(*n*) = Ω(*n*²)，求逆*D*需要*O*(*I*(3*n*)) = *O*(*I*(*n*))的时间，根据*I*(*n*)的正则条件。因此，我们有*M*(*n*)
+    = *O*(*I*(*n*))。
+- en: ▪
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Note that *I*(*n*) satisfies the regularity condition whenever *I*(*n*) = Θ(*n^c*
+    lg^(*d*)*n*) for any constants *c* > 0 and *d* ≥ 0.
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 注意当*I*(*n*) = Θ(*n^c* lg^(*d*)*n*)时，*I*(*n*)满足正则条件，其中*任意常数c > 0*，*d ≥ 0*。
+- en: The proof that matrix inversion is no harder than matrix multiplication relies
+    on some properties of symmetric positive-definite matrices proved in [Section
+    28.3](chapter028.xhtml#Sec_28.3).
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 矩阵求逆不比矩阵乘法更难的证明依赖于对对称正定矩阵的一些性质的证明，详见[第28.3节](chapter028.xhtml#Sec_28.3)。
+- en: '***Theorem 28.2 (Inversion is no harder than multiplication)***'
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理28.2（求逆不比乘法更难）***'
+- en: 'Suppose that two *n* × *n* real matrices can be multiplied in *M*(*n*) time,
+    where *M*(*n*) = Ω(*n*²) and *M*(*n*) satisfies the following two regularity conditions:'
+  id: totrans-217
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设两个*n* × *n*实矩阵可以在*M*(*n*)的时间内相乘，其中*M*(*n*) = Ω(*n*²)，且*M*(*n*)满足以下两个正则条件：
+- en: '*M*(*n* + *k*) = *O*(*M*(*n*)) for any *k* in the range 0 ≤ *k* < *n*, and'
+  id: totrans-218
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '*M*(*n* + *k*) = *O*(*M*(*n*))，其中*0 ≤ k < n*，'
+- en: '*M*(*n*/2) ≤ *cM*(*n*) for some constant *c* < 1/2.'
+  id: totrans-219
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '*M*(*n*/2) ≤ *cM*(*n*)，其中*某个常数c < 1/2*。'
+- en: Then the inverse of any real nonsingular *n*×*n* matrix can be computed in *O*(*M*(*n*))
+    time.
+  id: totrans-220
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 那么任何实非奇异*n*×*n*矩阵的逆都可以在*O*(*M*(*n*))的时间内计算。
+- en: '***Proof***   Let *A* be an *n* × *n* matrix with real-valued entries that
+    is nonsingular. Assume that *n* is an exact power of 2 (i.e., *n* = 2*^l* for
+    some integer *l*); we’ll see at the end of the proof what to do if *n* is not
+    an exact power of 2.'
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 让*A*为具有实值条目的非奇异*n* × *n*矩阵。假设*n*是2的整数幂（即*n* = 2*^l*，其中*l*是整数）；我们将在证明的最后看到如果*n*不是2的整数幂该怎么办。'
+- en: 'For the moment, assume that the *n* × *n* matrix *A* is symmetric and positive-definite.
+    Partition each of *A* and its inverse *A*^(−1) into four *n*/2 × *n*/2 submatrices:'
+  id: totrans-222
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 暂时假设*n* × *n*矩阵*A*是对称的且正定的。将*A*及其逆*A*^(−1)分成四个*n*/2 × *n*/2子矩阵：
+- en: '![art](images/Art_P935.jpg)'
+  id: totrans-223
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P935.jpg)'
+- en: Then, if we let
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然后，如果我们让
+- en: '![art](images/Art_P936.jpg)'
+  id: totrans-225
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P936.jpg)'
+- en: be the Schur complement of *A* with respect to *B* (we’ll see more about this
+    form of Schur complement in [Section 28.3](chapter028.xhtml#Sec_28.3)), we have
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 是 *A* 相对于 *B* 的舒尔补（我们将在 [第 28.3 节](chapter028.xhtml#Sec_28.3) 中更多地了解这种形式的舒尔补），我们有
+- en: '![art](images/Art_P937.jpg)'
+  id: totrans-227
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P937.jpg)'
+- en: since *AA*^(−1) = *I[n]*, as you can verify by performing the matrix multiplication.
+    Because *A* is symmetric and positive-definite, Lemmas 28.4 and 28.5 in [Section
+    28.3](chapter028.xhtml#Sec_28.3) imply that *B* and *S* are both symmetric and
+    positive-definite. By Lemma 28.3 in [Section 28.3](chapter028.xhtml#Sec_28.3),
+    therefore, the inverses *B*^(−1) and *S*^(−1) exist, and by Exercise D.2-6 on
+    page 1223, *B*^(−1) and *S*^(−1) are symmetric, so that (*B*^(−1))^T = *B*^(−1)
+    and (*S*^(−1))^T = *S*^(−1). Therefore, to compute the submatrices
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于 *AA*^(−1) = *I[n]*，您可以通过执行矩阵乘法来验证。因为 *A* 是对称且正定的，所以 [第 28.3 节](chapter028.xhtml#Sec_28.3)
+    中的引理 28.4 和 28.5 意味着 *B* 和 *S* 都是对称且正定的。因此，根据 [第 28.3 节](chapter028.xhtml#Sec_28.3)
+    中的引理 28.3，逆 *B*^(−1) 和 *S*^(−1) 存在，并且根据第 1223 页的练习 D.2-6，*B*^(−1) 和 *S*^(−1) 都是对称的，因此
+    (*B*^(−1))^T = *B*^(−1) 和 (*S*^(−1))^T = *S*^(−1)。因此，要计算子矩阵
+- en: '| *R* | = | *B*^(−1) + *B*^(−1)*C*^T*S*^(−1)*CB*^(−1), |'
+  id: totrans-229
+  prefs: []
+  type: TYPE_TB
+  zh: '| *R* | = | *B*^(−1) + *B*^(−1)*C*^T*S*^(−1)*CB*^(−1), |'
+- en: '| *T* | = | −*B*^(−1)*C*^T*S*^(−1), |'
+  id: totrans-230
+  prefs: []
+  type: TYPE_TB
+  zh: '| *T* | = | −*B*^(−1)*C*^T*S*^(−1), |'
+- en: '| *U* | = | −*S*^(−1)*CB*^(−1), and |'
+  id: totrans-231
+  prefs: []
+  type: TYPE_TB
+  zh: '| *U* | = | −*S*^(−1)*CB*^(−1), and |'
+- en: '| *V* | = | *S*^(−1) |'
+  id: totrans-232
+  prefs: []
+  type: TYPE_TB
+  zh: '| *V* | = | *S*^(−1) |'
+- en: 'of *A*^(−1), do the following, where all matrices mentioned are *n*/2 × *n*/2:'
+  id: totrans-233
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *A*^(−1)，执行以下操作，其中提到的所有矩阵都是 *n*/2 × *n*/2：
+- en: Form the submatrices *B*, *C*, *C*^T, and *D* of *A*.
+  id: totrans-234
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 构造矩阵 *A* 的子矩阵 *B*、*C*、*C*^T 和 *D*。
+- en: Recursively compute the inverse *B*^(−1) of *B*.
+  id: totrans-235
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 递归计算 *B*^(−1) 的逆 *B*。
+- en: Compute the matrix product *W* = *CB*^(−1), and then compute its transpose *W*^T,
+    which equals *B*^(−1)*C*^T (by Exercise D.1-2 on page 1219 and (*B*^(−1))^T =
+    *B*^(−1)).
+  id: totrans-236
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 计算矩阵乘积 *W* = *CB*^(−1)，然后计算其转置 *W*^T，等于 *B*^(−1)*C*^T（根据第 1219 页的练习 D.1-2 和
+    (*B*^(−1))^T = *B*^(−1)）。
+- en: Compute the matrix product *X* = *WC*^T, which equals *CB*^(−1)*C*^T, and then
+    compute the matrix *S* = *D* − *X* = *D* − *CB*^(−1)*C*^T.
+  id: totrans-237
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 计算矩阵乘积 *X* = *WC*^T，等于 *CB*^(−1)*C*^T，然后计算矩阵 *S* = *D* − *X* = *D* − *CB*^(−1)*C*^T。
+- en: Recursively compute the inverse *S*^(−1) of *S*.
+  id: totrans-238
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 递归计算 *S*^(−1) 的逆 *S*。
+- en: Compute the matrix product *Y* = *S*^(−1)*W*, which equals *S*^(−1)*CB*^(−1),
+    and then compute its transpose *Y*^T, which equals *B*^(−1)*C*^T*S*^(−1) (by Exercise
+    D.1-2, (*B*^(−1))^T = *B*^(−1), and (*S*^(−1))^T = *S*^(−1)).
+  id: totrans-239
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 计算矩阵乘积 *Y* = *S*^(−1)*W*，等于 *S*^(−1)*CB*^(−1)，然后计算其转置 *Y*^T，等于 *B*^(−1)*C*^T*S*^(−1)（根据练习
+    D.1-2，(*B*^(−1))^T = *B*^(−1)，以及 (*S*^(−1))^T = *S*^(−1)）。
+- en: Compute the matrix product *Z* = *W*^T*Y*, which equals *B*^(−1)*C*^T*S*^(−1)*CB*^(−1).
+  id: totrans-240
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 计算矩阵乘积 *Z* = *W*^T*Y*，等于 *B*^(−1)*C*^T*S*^(−1)*CB*^(−1)。
+- en: Set *R* = *B*^(−1) + *Z*.
+  id: totrans-241
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 设 *R* = *B*^(−1) + *Z*。
+- en: Set *T* = −*Y*^T.
+  id: totrans-242
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 设 *T* = −*Y*^T。
+- en: Set *U* = −*Y*.
+  id: totrans-243
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 设 *U* = −*Y*。
+- en: Set *V* = *S*^(−1).
+  id: totrans-244
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 设 *V* = *S*^(−1)。
+- en: Thus, to invert an *n*×*n* symmetric positive-definite matrix, invert two *n*/2×*n*/2
+    matrices in steps 2 and 5; perform four multiplications of *n*/2 × *n*/2 matrices
+    in steps 3, 4, 6, and 7; plus incur an additional cost of *O*(*n*²) for extracting
+    submatrices from *A*, inserting submatrices into *A*^(−1), and performing a constant
+    number of additions, subtractions, and transposes on *n*/2 × *n*/2 matrices. The
+    running time is given by the recurrence
+  id: totrans-245
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，要求一个 *n*×*n* 对称正定矩阵的逆，需要在步骤 2 和 5 中求解两个 *n*/2×*n*/2 矩阵的逆；在步骤 3、4、6 和 7 中进行四次
+    *n*/2 × *n*/2 矩阵的乘法；并额外花费 *O*(*n*²) 的成本从 *A* 中提取子矩阵，将子矩阵插入 *A*^(−1)，以及在 *n*/2×*n*/2
+    矩阵上执行常数次加法、减法和转置。运行时间由递归式给出
+- en: '![art](images/Art_P938.jpg)'
+  id: totrans-246
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P938.jpg)'
+- en: The second line follows from the assumption that *M*(*n*) = Ω(*n*²) and from
+    the second regularity condition in the statement of the theorem, which implies
+    that 4*M*(*n*/2) < 2*M*(*n*). Because *M*(*n*) = Ω(*n*²), case 3 of the master
+    theorem (Theorem 4.1) applies to the recurrence (28.15), giving the *O*(*M*(*n*))
+    result.
+  id: totrans-247
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第二行是基于 *M*(*n*) = Ω(*n*²) 和定理陈述中的第二个正则条件，这意味着 4*M*(*n*/2) < 2*M*(*n*)。由于 *M*(*n*)
+    = Ω(*n*²)，所以主定理（定理 4.1）的第三种情况适用于递归式（28.15），得到 *O*(*M*(*n*)) 的结果。
+- en: It remains to prove how to obtain the same asymptotic running time for matrix
+    multiplication as for matrix inversion when *A* is invertible but not symmetric
+    and positive-definite. The basic idea is that for any nonsingular matrix *A*,
+    the matrix *A*^T*A* is symmetric (by Exercise D.1-2) and positive-definite (by
+    Theorem D.6 on page 1222). The trick, then, is to reduce the problem of inverting
+    *A* to the problem of inverting *A*^T*A*.
+  id: totrans-248
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 仍需证明当 *A* 可逆但不对称且正定时，如何获得与矩阵求逆相同的渐近运行时间。基本思想是对于任何非奇异矩阵 *A*，矩阵 *A*^T*A* 是对称的（根据练习
+    D.1-2）且正定的（根据第 1222 页的定理 D.6）。因此，关键在于将求逆 *A* 的问题简化为求逆 *A*^T*A* 的问题。
+- en: The reduction is based on the observation that when *A* is an *n* × *n* nonsingular
+    matrix, we have
+  id: totrans-249
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这种简化基于以下观察：当 *A* 是一个 *n* × *n* 非奇异矩阵时，我们有
+- en: '*A*^(−1) = (*A*^T*A*)^(−1)*A*^T,'
+  id: totrans-250
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*A*^(−1) = (*A*^T*A*)^(−1)*A*^T，'
+- en: since ((*A*^T*A*)^(−1)*A*^T)*A* = (*A*^T*A*)^(−1)(*A*^T*A*) = *I[n]* and a matrix
+    inverse is unique. Therefore, to compute *A*^(−1), first multiply *A*^T by *A*
+    to obtain *A*^T*A*, then invert the symmetric positive-definite matrix *A*^T*A*
+    using the above divide-and-conquer algorithm, and finally multiply the result
+    by *A*^T. Each of these three steps takes *O*(*M*(*n*)) time, and thus any nonsingular
+    matrix with real entries can be inverted in *O*(*M*(*n*)) time.
+  id: totrans-251
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为 ((*A*^T*A*)^(−1)*A*^T)*A* = (*A*^T*A*)^(−1)(*A*^T*A*) = *I[n]*，且矩阵求逆是唯一的。因此，要计算
+    *A*^(−1)，首先将 *A*^T 乘以 *A* 得到 *A*^T*A*，然后使用上述分治算法求逆对称正定矩阵 *A*^T*A*，最后将结果乘以 *A*^T。这三个步骤每个都需要
+    *O*(*M*(*n*)) 的时间，因此任何具有实数元素的非奇异矩阵都可以在 *O*(*M*(*n*)) 的时间内求逆。
+- en: The above proof assumed that *A* is an *n* × *n* matrix, where *n* is an exact
+    power of 2\. If *n* is not an exact power of 2, then let *k* < *n* be such that
+    *n* + *k* is an exact power of 2, and define the (*n* + *k*) × (*n* + *k*) matrix
+    *A*′ as
+  id: totrans-252
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 上述证明假设 *A* 是一个 *n* × *n* 矩阵，其中 *n* 是 2 的幂。如果 *n* 不是 2 的幂，则令 *k* < *n* 使得 *n*
+    + *k* 是 2 的幂，并定义 (*n* + *k*) × (*n* + *k*) 矩阵 *A*′ 为
+- en: '![art](images/Art_P939.jpg)'
+  id: totrans-253
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P939.jpg)'
+- en: Then the inverse of *A*′ is
+  id: totrans-254
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 那么*A*′的逆矩阵是
+- en: '![art](images/Art_P940.jpg)'
+  id: totrans-255
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P940.jpg)'
+- en: Apply the method of the proof to *A*′ to compute the inverse of *A*′, and take
+    the first *n* rows and *n* columns of the result as the desired answer *A*^(−1).
+    The first regularity condition on *M*(*n*) ensures that enlarging the matrix in
+    this way increases the running time by at most a constant factor.
+  id: totrans-256
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将证明的方法应用于*A*′来计算*A*′的逆，并将结果的前*n*行和前*n*列作为所需答案*A*^(−1)。关于*M*(*n*)的第一个规则条件确保以这种方式扩大矩阵最多只会增加一个常数因子的运行时间。
+- en: ▪
+  id: totrans-257
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The proof of Theorem 28.2 suggests how to solve the equation *Ax* = *b* by using
+    LU decomposition without pivoting, so long as *A* is nonsingular. Let *y* = *A*^T*b*.
+    Multiply both sides of the equation *Ax* = *b* by *A*^T, yielding (*A*^T*A*)*x*
+    = *A*^T*b* = *y*. This transformation doesn’t affect the solution *x*, since *A*^T
+    is invertible. Because *A*^T*A* is symmetric positive-definite, it can be factored
+    by computing an LU decomposition. Then, use forward and back substitution to solve
+    for *x* in the equation (*A*^T*A*)*x* = *y*. Although this method is theoretically
+    correct, in practice the procedure LUP-DECOMPOSITION works much better. LUP decomposition
+    requires fewer arithmetic operations by a constant factor, and it has somewhat
+    better numerical properties.
+  id: totrans-258
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 定理28.2的证明建议如何使用不进行主元置换的LU分解来解方程*A*x* = *b*，只要*A*是非奇异的。令*y* = *A*^T*b*。将方程*A*x*
+    = *b*的两边都乘以*A*^T，得到(*A*^T*A*)*x* = *A*^T*b* = *y*。这种转换不会影响解*x*，因为*A*^T是可逆的。因为*A*^T*A*是对称正定的，可以通过计算LU分解来因式分解。然后，使用前向和后向替换来解方程(*A*^T*A*)*x*
+    = *y*中的*x*。尽管这种方法在理论上是正确的，但在实践中，LUP-DECOMPOSITION过程效果要好得多。LUP分解需要的算术运算次数少了一个常数因子，并且具有更好的数值特性。
+- en: '**Exercises**'
+  id: totrans-259
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**习题**'
+- en: '***28.2-1***'
+  id: totrans-260
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.2-1***'
+- en: 'Let *M*(*n*) be the time to multiply two *n* × *n* matrices, and let *S*(*n*)
+    denote the time required to square an *n* × *n* matrix. Show that multiplying
+    and squaring matrices have essentially the same difficulty: an *M*(*n*)-time matrix-multiplication
+    algorithm implies an *O*(*M*(*n*))-time squaring algorithm, and an *S*(*n*)-time
+    squaring algorithm implies an *O*(*S*(*n*))-time matrix-multiplication algorithm.'
+  id: totrans-261
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*M*(*n*)表示两个*n* × *n*矩阵相乘的时间，让*S*(*n*)表示求解一个*n* × *n*矩阵的平方所需的时间。证明矩阵相乘和矩阵平方具有基本相同的难度：一个*M*(*n*)时间的矩阵乘法算法意味着一个*O*(*M*(*n*))时间的矩阵平方算法，一个*S*(*n*)时间的矩阵平方算法意味着一个*O*(*S*(*n*))时间的矩阵乘法算法。
+- en: '***28.2-2***'
+  id: totrans-262
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.2-2***'
+- en: Let *M*(*n*) be the time to multiply two *n* × *n* matrices. Show that an *M*(*n*)-time
+    matrix-multiplication algorithm implies an *O*(*M*(*n*))-time LUP-decomposition
+    algorithm. (The LUP decomposition your method produces need not be the same as
+    the result produced by the LUP-DECOMPOSITION procedure.)
+  id: totrans-263
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*M*(*n*)表示两个*n* × *n*矩阵相乘的时间。证明一个*M*(*n*)时间的矩阵乘法算法意味着一个*O*(*M*(*n*))时间的LUP分解算法。（你的方法产生的LUP分解不一定与LUP-DECOMPOSITION过程产生的结果相同。）
+- en: '***28.2-3***'
+  id: totrans-264
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.2-3***'
+- en: Let *M*(*n*) be the time to multiply two *n* × *n* boolean matrices, and let
+    *T*(*n*) be the time to find the transitive closure of an *n* × *n* boolean matrix.
+    (See [Section 23.2](chapter023.xhtml#Sec_23.2).) Show that an *M*(*n*)-time boolean
+    matrix-multiplication algorithm implies an *O*(*M*(*n*) lg *n*)-time transitive-closure
+    algorithm, and a *T*(*n*)-time transitive-closure algorithm implies an *O*(*T*
+    (*n*))-time boolean matrix-multiplication algorithm.
+  id: totrans-265
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*M*(*n*)表示两个*n* × *n*布尔矩阵相乘的时间，让*T*(*n*)表示找到一个*n* × *n*布尔矩阵的传递闭包所需的时间。（参见[第23.2节](chapter023.xhtml#Sec_23.2)。）证明一个*M*(*n*)时间的布尔矩阵乘法算法意味着一个*O*(*M*(*n*)
+    lg *n*)时间的传递闭包算法，一个*T*(*n*)时间的传递闭包算法意味着一个*O*(*T* (*n*))时间的布尔矩阵乘法算法。
+- en: '***28.2-4***'
+  id: totrans-266
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.2-4***'
+- en: Does the matrix-inversion algorithm based on Theorem 28.2 work when matrix elements
+    are drawn from the field of integers modulo 2? Explain.
+  id: totrans-267
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 基于定理28.2的矩阵求逆算法在矩阵元素来自模2整数域时是否有效？解释。
+- en: ★ ***28.2-5***
+  id: totrans-268
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***28.2-5***
+- en: Generalize the matrix-inversion algorithm of Theorem 28.2 to handle matrices
+    of complex numbers, and prove that your generalization works correctly. (*Hint:*
+    Instead of the transpose of *A*, use the ***conjugate transpose*** *A**, which
+    you obtain from the transpose of *A* by replacing every entry with its complex
+    conjugate. Instead of symmetric matrices, consider ***Hermitian*** matrices, which
+    are matrices *A* such that *A* = *A**.)
+  id: totrans-269
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将定理28.2的矩阵求逆算法推广到处理复数矩阵，并证明你的推广是正确的。（*提示：*不要使用*A*的转置，而是使用***共��转置*** *A**，通过用每个条目的复共轭替换*A*的转置来获得。不要考虑对称矩阵，考虑***Hermite***矩阵，即满足*A*
+    = *A**的矩阵。）
+- en: '[**28.3    Symmetric positive-definite matrices and least-squares approximation**](toc.xhtml#Rh1-164)'
+  id: totrans-270
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**28.3    对称正定矩阵和最小二乘逼近**](toc.xhtml#Rh1-164)'
+- en: Symmetric positive-definite matrices have many interesting and desirable properties.
+    An *n* × *n* matrix *A* is ***symmetric positive-definite*** if *A* = *A*^T(*A*
+    is symmetric) and *x*^T*Ax* > 0 for all *n*-vectors *x* ≠ 0 (*A* is positive-definite).
+    Symmetric positive-definite matrices are nonsingular, and an LU decomposition
+    on them will not divide by 0\. This section proves these and several other important
+    properties of symmetric positive-definite matrices. We’ll also see an interesting
+    application to curve fitting by a least-squares approximation.
+  id: totrans-271
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对称正定矩阵具有许多有趣和理想的性质。一个*n* × *n*矩阵*A*是***对称正定***的，如果*A* = *A*^T（*A*是对称的），且对于所有*n*维向量*x*
+    ≠ 0，有*x*^T*Ax* > 0（*A*是正定的）。对称正定矩阵是非奇异的，对它们进行LU分解不会除以0。本节证明了对称正定矩阵的这些以及其他几个重要性质。我们还将看到一个有趣的应用，即通过最小二乘逼近进行曲线拟合。
+- en: The first property we prove is perhaps the most basic.
+  id: totrans-272
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们证明的第一个性质可能是最基本的。
+- en: '***Lemma 28.3***'
+  id: totrans-273
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理28.3***'
+- en: Any positive-definite matrix is nonsingular.
+  id: totrans-274
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 任何正定矩阵都是非奇异的。
+- en: '***Proof***   Suppose that a matrix *A* is singular. Then by Corollary D.3
+    on page 1221, there exists a nonzero vector *x* such that *Ax* = 0\. Hence, *x*^T*Ax*
+    = 0, and *A* cannot be positive-definite.'
+  id: totrans-275
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 假设矩阵*A*是奇异的。那么根据第1221页的推论D.3，存在一个非零向量*x*使得*A*x* = 0。因此，*x*^T*Ax* =
+    0，*A*不可能是正定的。'
+- en: ▪
+  id: totrans-276
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: The proof that an LU decomposition on a symmetric positive-definite matrix *A*
+    won’t divide by 0 is more involved. We begin by proving properties about certain
+    submatrices of *A*. Define the *k*th ***leading submatrix*** of *A* to be the
+    matrix *A[k]* consisting of the intersection of the first *k* rows and first *k*
+    columns of *A*.
+  id: totrans-277
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对称正定矩阵*A*的LU分解不会除以0更加复杂。我们首先证明关于*A*的某些子矩阵的性质。定义*A*的第*k*个***主子矩阵***为由*A*的前*k*行和前*k*列的交集组成的矩阵*A[k]*。
+- en: '***Lemma 28.4***'
+  id: totrans-278
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理28.4***'
+- en: If *A* is a symmetric positive-definite matrix, then every leading submatrix
+    of *A* is symmetric and positive-definite.
+  id: totrans-279
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果*A*是对称正定矩阵，则*A*的每个主子矩阵都是对称的且正定的。
+- en: '***Proof***   Since *A* is symmetric, each leading submatrix *A[k]* is also
+    symmetric. We’ll prove that *A[k]* is positive-definite by contradiction. If *A[k]*
+    is not positive-definite, then there exists a *k*-vector *x[k]* ≠ 0 such that
+    ![art](images/Art_P941.jpg). Let *A* be *n* × *n*, and'
+  id: totrans-280
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   由于*A*是对称的，每个主子矩阵*A[k]*也是对称的。我们将通过反证法证明*A[k]*是正定的。如果*A[k]*不是正定的，那么存在一个*k*向量*x[k]*
+    ≠ 0，使得![art](images/Art_P941.jpg)。令*A*为*n* × *n*，并且'
+- en: '![art](images/Art_P942.jpg)'
+  id: totrans-281
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P942.jpg)'
+- en: for submatrices *B* (which is (*n*−*k*)×*k*) and *C* (which is (*n*−*k*)×(*n*−*k*)).
+    Define the *n*-vector ![art](images/Art_P943.jpg), where *n* − *k* 0s follow *x[k]*.
+    Then we have
+  id: totrans-282
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于子矩阵*B*（大小为(*n*−*k*)×*k*）和*C*（大小为(*n*−*k*)×(*n*−*k*)）。定义*n*向量![art](images/Art_P943.jpg)，其中有*n*−*k*个0跟在*x[k]*后面。然后我们有
+- en: '![art](images/Art_P944.jpg)'
+  id: totrans-283
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P944.jpg)'
+- en: which contradicts *A* being positive-definite.
+  id: totrans-284
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这与*A*是正定的相矛盾。
+- en: ▪
+  id: totrans-285
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: We now turn to some essential properties of the Schur complement. Let *A* be
+    a symmetric positive-definite matrix, and let *A[k]* be a leading *k* × *k* submatrix
+    of *A*. Partition *A* once again according to equation (28.16). Equation (28.10)
+    generalizes to define the ***Schur complement*** *S* of *A* with respect to *A[k]*
+    as
+  id: totrans-286
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们转向Schur补的一些基本性质。让*A*是一个对称正定矩阵，让*A[k]*是*A*的一个主要的*k* × *k*子矩阵。根据方程（28.16）再次对*A*进行分区。方程（28.10）推广定义了相对于*A[k]*的***Schur补*** *S*为
+- en: '![art](images/Art_P945.jpg)'
+  id: totrans-287
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P945.jpg)'
+- en: (By Lemma 28.4, *A[k]* is symmetric and positive-definite, and therefore, ![art](images/Art_P946.jpg)
+    exists by Lemma 28.3, and *S* is well defined.) The earlier definition (28.10)
+    of the Schur complement is consistent with equation (28.17) by letting *k* = 1.
+  id: totrans-288
+  prefs: []
+  type: TYPE_NORMAL
+  zh: （根据引理28.4，*A[k]*是对称的且正定的，因此，根据引理28.3，存在![art](images/Art_P946.jpg)，*S*是良定义的。）通过让*k*=1，方程（28.17）与Schur补的早期定义（28.10）是一致的。
+- en: The next lemma shows that the Schur-complement matrices of symmetric positive-definite
+    matrices are themselves symmetric and positive-definite. We used this result in
+    Theorem 28.2, and its corollary will help prove that LU decomposition works for
+    symmetric positive-definite matrices.
+  id: totrans-289
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一个引理表明对称正定矩阵的Schur补矩阵本身也是对称的且正定的。我们在定理28.2中使用了这个结果，其推论将有助于证明LU分解适用于对称正定矩阵。
+- en: '***Lemma 28.5 (Schur complement lemma)***'
+  id: totrans-290
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理28.5（Schur补引理）***'
+- en: If *A* is a symmetric positive-definite matrix and *A[k]* is a leading *k* ×
+    *k* submatrix of *A*, then the Schur complement *S* of *A* with respect to *A[k]*
+    is symmetric and positive-definite.
+  id: totrans-291
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果*A*是对称正定矩阵，而*A[k]*是*A*的一个主要的*k* × *k*子矩阵，则相对于*A[k]*的Schur补*S*是对称的且正定的。
+- en: '***Proof***   Because *A* is symmetric, so is the submatrix *C*. By Exercise
+    D.2-6 on page 1223, the product ![art](images/BA.jpg) is symmetric. Since *C*
+    and ![art](images/BA.jpg) are symmetric, then by Exercise D.1-1 on page 1219,
+    so is *S*.'
+  id: totrans-292
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   因为*A*是对称的，所以子矩阵*C*也是对称的。根据第1223页的练习D.2-6，乘积![art](images/BA.jpg)是对称的。由于*C*和![art](images/BA.jpg)是对称的，根据第1219页的练习D.1-1，*S*也是对称的。'
+- en: It remains to show that *S* is positive-definite. Consider the partition of
+    *A* given in equation (28.16). For any nonzero vector *x*, we have *x*^T*Ax* >
+    0 by the assumption that *A* is positive-definite. Let the subvectors *y* and
+    *z* consist of the first *k* and last *n* − *k* elements in *x*, respectively,
+    and thus they are compatible with *A[k]* and *C*, respectively. Because ![art](images/Art_P947.jpg)
+    exists, we have
+  id: totrans-293
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 仍需证明*S*是正定的。考虑方程（28.16）中给出的*A*的分区。对于任何非零向量*x*，根据*A*是正定的假设，我们有*x*^T*Ax* > 0。让子向量*y*和*z*包含*x*中的前*k*个元素和后*n*−*k*个元素，因此它们与*A[k]*和*C*兼容。因为![art](images/Art_P947.jpg)存在，我们有
+- en: '![art](images/Art_P948.jpg)'
+  id: totrans-294
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P948.jpg)'
+- en: This last equation, which you can verify by multiplying through, amounts to
+    “completing the square” of the quadratic form. (See Exercise 28.3-2.)
+  id: totrans-295
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这最后一个等式，你可以通过乘法验证，相当于对二次形式进行“完全平方”（见练习28.3-2）。
+- en: Since *x*^T*Ax* > 0 holds for any nonzero *x*, pick any nonzero *z* and then
+    choose ![art](images/Art_P949.jpg), which causes the first term in equation (28.18)
+    to vanish, leaving
+  id: totrans-296
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于对于任何非零向量*x*，*x*^T*Ax* > 0成立，选择任意非零*z*，然后选择![art](images/Art_P949.jpg)，这导致方程（28.18）中的第一项消失，留下
+- en: '![art](images/Art_P950.jpg)'
+  id: totrans-297
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P950.jpg)'
+- en: as the value of the expression. For any *z* ≠ 0, we therefore have *z*^T*Sz*
+    = *x*^T*Ax* > 0, and thus *S* is positive-definite.
+  id: totrans-298
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为表达式的值。对于任意*z* ≠ 0，我们因此有*z*^T*Sz* = *x*^T*Ax* > 0，因此*S*是正定的。
+- en: ▪
+  id: totrans-299
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '***Corollary 28.6***'
+  id: totrans-300
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论28.6***'
+- en: LU decomposition of a symmetric positive-definite matrix never causes a division
+    by 0.
+  id: totrans-301
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对称正定矩阵的LU分解永远不会导致除以0。
+- en: '***Proof***   Let *A* be an *n* × *n* symmetric positive-definite matrix. In
+    fact, we’ll prove a stronger result than the statement of the corollary: every
+    pivot is strictly positive. The first pivot is *a*[11]. Let *e*[1] be the length-*n*
+    unit vector ( 1 0 0 ⋯ 0 )^T, so that ![art](images/Art_P951.jpg), which is positive
+    because *e*[1] is nonzero and *A* is positive definite. Since the first step of
+    LU decomposition produces the Schur complement of *A* with respect to *A*[1] =
+    (*a*[11]), Lemma 28.5 implies by induction that all pivots are positive.'
+  id: totrans-302
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 让*A*是一个*n* × *n*对称正定矩阵。实际上，我们将证明一个比推论陈述更强的结果：每个主元都是严格正的。第一个主元是*a*[11]。让*e*[1]是长度为*n*的单位向量(
+    1 0 0 ⋯ 0 )^T，所以 ![art](images/Art_P951.jpg)，这是正的，因为*e*[1]是非零的，*A*是正定的。由于LU分解的第一步产生了关于*A*[1]
+    = (*a*[11])的舒尔补引理28.5暗示通过归纳所有主元都是正的。'
+- en: ▪
+  id: totrans-303
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Least-squares approximation**'
+  id: totrans-304
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最小二乘逼近**'
+- en: One important application of symmetric positive-definite matrices arises in
+    fitting curves to given sets of data points. You are given a set of *m* data points
+  id: totrans-305
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对称正定矩阵的一个重要应用是将曲线拟合给定的数据点集。给定一组*m*个数据点
+- en: (*x*[1], *y*[1]), (*x*[2], *y*[2]), … , (*x[m]*, *y[m]*),
+  id: totrans-306
+  prefs: []
+  type: TYPE_NORMAL
+  zh: (*x*[1], *y*[1]), (*x*[2], *y*[2]), … , (*x[m]*, *y[m]*),
+- en: where you know that the *y[i]* are subject to measurement errors. You wish to
+    determine a function *F*(*x*) such that the approximation errors
+  id: totrans-307
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你知道*y[i]*受测量误差影响。你希望确定一个函数*F*(*x*)，使得逼近误差
+- en: '![art](images/Art_P952.jpg)'
+  id: totrans-308
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P952.jpg)'
+- en: are small for *i* = 1, 2, … , *m*. The form of the function *F* depends on the
+    problem at hand. Let’s assume that it has the form of a linearly weighted sum
+  id: totrans-309
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于*i* = 1, 2, … , *m*。函数*F*的形式取决于手头的问题。让我们假设它具有线性加权和的形式
+- en: '![art](images/Art_P953.jpg)'
+  id: totrans-310
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P953.jpg)'
+- en: where the number *n* of summands and the specific ***basis functions*** *f[j]*
+    are chosen based on knowledge of the problem at hand. A common choice is *f[j]*(*x*)
+    = *x*^(*j*−1), which means that
+  id: totrans-311
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中求和的数量*n*和特定的***基函数*** *f[j]*是基于问题的知识选择的。一个常见的选择是*f[j]*(*x*) = *x*^(*j*−1)，这意味着
+- en: '*F*(*x*) = *c*[1] + *c*[2]*x* + *c*[3]*x*² + ⋯ + *c*[*n*]*x*^(*n*−1)'
+  id: totrans-312
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*F*(*x*) = *c*[1] + *c*[2]*x* + *c*[3]*x*² + ⋯ + *c*[*n*]*x*^(*n*−1)'
+- en: is a polynomial of degree *n* − 1 in *x*. Thus, if you are given *m* data points
+    (*x*[1], *y*[1]), (*x*[2], *y*[2]), … , (*x[m]*, *y[m]*), you need to calculate
+    *n* coefficients *c*[1], *c*[2], … , *c[n]* that minimize the approximation errors
+    *η*[1], *η*[2], … , *η[m]*.
+  id: totrans-313
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 是*x*的*n* − 1次多项式。因此，如果给定*m*个数据点(*x*[1], *y*[1]), (*x*[2], *y*[2]), … , (*x[m]*,
+    *y[m]*)，你需要计算*n*个系数*c*[1], *c*[2], … , *c[n]*，使逼近误差*η*[1], *η*[2], … , *η[m]*最小化。
+- en: By choosing *n* = *m*, you can calculate each *y[i]* *exactly* in equation (28.19).
+    Such a high-degree polynomial *F* “fits the noise” as well as the data, however,
+    and generally gives poor results when used to predict *y* for previously unseen
+    values of *x*. It is usually better to choose *n* significantly smaller than *m*
+    and hope that by choosing the coefficients *c[j]* well, you can obtain a function
+    *F* that finds the significant patterns in the data points without paying undue
+    attention to the noise. Some theoretical principles exist for choosing *n*, but
+    they are beyond the scope of this text. In any case, once you choose a value of
+    *n* that is less than *m*, you end up with an overdetermined set of equations
+    whose solution you wish to approximate. Let’s see how to do so.
+  id: totrans-314
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通过选择*n* = *m*，你可以在方程(28.19)中*精确*计算每个*y[i]*。这样一个高次多项式*F*“适应噪音”以及数据，但通常在用于预测先前未见的*x*值的*y*时效果不佳。通常最好选择明显小于*m*的*n*，希望通过选择系数*c[j]*得当，你可以获得一个函数*F*，它在不过分关注噪音的情况下找到数据点中的显著模式。有一些选择*n*的理论原则，但它们超出了本文的范围。无论如何，一旦选择了小于*m*的*n*值，你就会得到一个过度确定的方程组，你希望近似其解。让我们看看如何做到这一点。
+- en: Let
+  id: totrans-315
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让
+- en: '![art](images/Art_P954.jpg)'
+  id: totrans-316
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P954.jpg)'
+- en: denote the matrix of values of the basis functions at the given points, that
+    is, *a[ij]* = *f[j]*(*x[i]*). Let *c* = (*c[k]*) denote the desired *n*-vector
+    of coefficients. Then,
+  id: totrans-317
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 表示给定点处基函数值的矩阵，即*a[ij]* = *f[j]*(*x[i]*)。让*c* = (*c[k]*)表示所需的*n*个系数向量。然后，
+- en: '![art](images/Art_P955.jpg)'
+  id: totrans-318
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P955.jpg)'
+- en: is the *m*-vector of “predicted values” for *y*. Thus,
+  id: totrans-319
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 是*y*的“预测值”的*m*向量。因此，
+- en: '*η* = *Ac* − *y*'
+  id: totrans-320
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*η* = *Ac* − *y*'
+- en: is the *m*-vector of ***approximation errors***.
+  id: totrans-321
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 是***逼近误差***的*m*向量。
+- en: To minimize approximation errors, let’s minimize the norm of the error vector
+    *η*, which gives a ***least-squares solution***, since
+  id: totrans-322
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了最小化逼近误差，让我们最小化误差向量*η*的范数，这给出了一个***最小二乘解***，因为
+- en: '![art](images/Art_P956.jpg)'
+  id: totrans-323
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P956.jpg)'
+- en: Because
+  id: totrans-324
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为
+- en: '![art](images/Art_P957.jpg)'
+  id: totrans-325
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P957.jpg)'
+- en: 'to minimize ∥*η*∥, differentiate ∥*η*∥² with respect to each *c[k]* and then
+    set the result to 0:'
+  id: totrans-326
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了最小化∥*η*∥，对∥*η*∥²关于每个*c[k]*求导，然后将结果设为0：
+- en: '![art](images/Art_P958.jpg)'
+  id: totrans-327
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P958.jpg)'
+- en: The *n* equations (28.20) for *k* = 1, 2, … , *n* are equivalent to the single
+    matrix equation
+  id: totrans-328
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于*k* = 1, 2, … , *n*的*n*个方程(28.20)等价于单个矩阵方程
+- en: (*Ac* − *y*)^T *A* = 0
+  id: totrans-329
+  prefs: []
+  type: TYPE_NORMAL
+  zh: (*Ac* − *y*)^T *A* = 0
+- en: or, equivalently (using Exercise D.1-2 on page 1219), to
+  id: totrans-330
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 或者等价地(使用第1219页的练习D.1-2)，为了
+- en: '*A*^T(*Ac* − *y*) = 0,'
+  id: totrans-331
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*A*^T(*Ac* − *y*) = 0,'
+- en: which implies
+  id: totrans-332
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这意味着
+- en: '![art](images/Art_P959.jpg)'
+  id: totrans-333
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P959.jpg)'
+- en: In statistics, equation (28.21) is called the ***normal equation***. The matrix
+    *A*^T*A* is symmetric by Exercise D.1-2, and if *A* has full column rank, then
+    by Theorem D.6 on page 1222, *A*^T*A* is positive-definite as well. Hence, (*A*^T*A*)^(−1)
+    exists, and the solution to equation (28.21) is
+  id: totrans-334
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在统计学中，方程(28.21)被称为***正规方程***。矩阵*A*^T*A*通过练习D.1-2是对称的，如果*A*具有完整的列秩，那么根据第1222页的定理D.6，*A*^T*A*也是正定的。因此，(*A*^T*A*)^(−1)存在，方程(28.21)的解是
+- en: '![art](images/Art_P960.jpg)'
+  id: totrans-335
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P960.jpg)'
+- en: where the matrix *A*^+ = ((*A*^T*A*)^(−1)*A*^T) is the ***pseudoinverse*** of
+    the matrix *A*. The pseudoinverse naturally generalizes the notion of a matrix
+    inverse to the case in which *A* is not square. (Compare equation (28.22) as the
+    approximate solution to *Ac* = *y* with the solution *A*^(−1)*b* as the exact
+    solution to *Ax* = *b*.)
+  id: totrans-336
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中矩阵*A*^+ = ((*A*^T*A*)^(−1)*A*^T)是矩阵*A*的***伪逆***。伪逆自然地将矩阵逆的概念推广到*A*不是方阵的情况。(将方程(28.22)作为*Ac*
+    = *y*的近似解与将解*A*^(−1)*b*作为*Ax* = *b*的精确解进行比较。)
+- en: As an example of producing a least-squares fit, suppose that you have five data
+    points
+  id: totrans-337
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为产生最小二乘拟合的一个例子，假设您有五个数据点
+- en: '| (*x*[1], *y*[1]) | = | (−1, 2), |'
+  id: totrans-338
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*x*[1], *y*[1]) | = | (−1, 2), |'
+- en: '| (*x*[2], *y*[2]) | = | (1, 1), |'
+  id: totrans-339
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*x*[2], *y*[2]) | = | (1, 1), |'
+- en: '| (*x*[3], *y*[3]) | = | (2, 1), |'
+  id: totrans-340
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*x*[3], *y*[3]) | = | (2, 1), |'
+- en: '| (*x*[4], *y*[4]) | = | (3, 0), |'
+  id: totrans-341
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*x*[4], *y*[4]) | = | (3, 0), |'
+- en: '| (*x*[5], *y*[5]) | = | (5, 3), |'
+  id: totrans-342
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*x*[5], *y*[5]) | = | (5, 3), |'
+- en: shown as orange dots in [Figure 28.3](chapter028.xhtml#Fig_28-3), and you want
+    to fit these points with a quadratic polynomial
+  id: totrans-343
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[图28.3](chapter028.xhtml#Fig_28-3)中显示为橙色点，您希望用二次多项式拟合这些点
+- en: '*F*(*x*) = *c*[1] + *c*[2]*x* + *c*[3]*x*².'
+  id: totrans-344
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*F*(*x*) = *c*[1] + *c*[2]*x* + *c*[3]*x*²。'
+- en: Start with the matrix of basis-function values
+  id: totrans-345
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 从基函数值矩阵开始
+- en: '![art](images/Art_P961.jpg)'
+  id: totrans-346
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P961.jpg)'
+- en: whose pseudoinverse is
+  id: totrans-347
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其伪逆是
+- en: '![art](images/Art_P962.jpg)'
+  id: totrans-348
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P962.jpg)'
+- en: '**Figure 28.3** The least-squares fit of a quadratic polynomial to the set
+    of five data points {(−1, 2), (1, 1), (2, 1), (3, 0), (5, 3)}. The orange dots
+    are the data points, and the blue dots are their estimated values predicted by
+    the polynomial *F*(*x*) = 1.2 − 0.757*x* + 0.214*x*², the quadratic polynomial
+    that minimizes the sum of the squared errors, plotted in blue. Each orange line
+    shows the error for one data point.'
+  id: totrans-349
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图28.3** 二次多项式对五个数据点集合{(−1, 2), (1, 1), (2, 1), (3, 0), (5, 3)}的最小二乘拟合。橙色点是数据点，蓝色点是由多项式*F*(*x*)
+    = 1.2 − 0.757*x* + 0.214*x*²预测的它们的估计值，最小化平方误差的二次多项式，用蓝色绘制。每个橙色线显示了一个数据点的误差。'
+- en: '![art](images/Art_P963.jpg)'
+  id: totrans-350
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P963.jpg)'
+- en: Multiplying *y* by *A*^+ gives the coefficient vector
+  id: totrans-351
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将*y*乘以*A*^+得到系数向量
+- en: '![art](images/Art_P964.jpg)'
+  id: totrans-352
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P964.jpg)'
+- en: which corresponds to the quadratic polynomial
+  id: totrans-353
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对应于二次多项式
+- en: '*F*(*x*) = 1.200 − 0.757*x* + 0.214*x*²'
+  id: totrans-354
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*F*(*x*) = 1.200 − 0.757*x* + 0.214*x*²'
+- en: as the closest-fitting quadratic to the given data, in a least-squares sense.
+  id: totrans-355
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为对给定数据的最接近的二次拟合，从最小二乘意义上讲。
+- en: As a practical matter, you would typically solve the normal equation (28.21)
+    by multiplying *y* by *A*^T and then finding an LU decomposition of *A*^T*A*.
+    If *A* has full rank, the matrix *A*^T*A* is guaranteed to be nonsingular, because
+    it is symmetric and positive-definite. (See Exercise D.1-2 and Theorem D.6.)
+  id: totrans-356
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为一个实际问题，您通常会通过将*y*乘以*A*^T来解决正规方程(28.21)，然后找到*A*^T*A*的LU分解。如果*A*具有满秩，那么矩阵*A*^T*A*是非奇异的，因为它是对称的且正定的。(参见练习D.1-2和定理D.6。)
+- en: '![art](images/Art_P965.jpg)'
+  id: totrans-357
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P965.jpg)'
+- en: '**Figure 28.4** A least-squares fit of a curve of the form'
+  id: totrans-358
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图28.4** 一个形式为的最小二乘拟合'
+- en: '*c*[1] + *c*[2]*x* + *c*[3]*x*² + *c*[4] sin(2*πx*) + *c*[5] cos(2*πx*)'
+  id: totrans-359
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*c*[1] + *c*[2]*x* + *c*[3]*x*² + *c*[4] sin(2*πx*) + *c*[5] cos(2*πx*)'
+- en: for the carbon-dioxide concentrations measured in Mauna Loa, Hawaii from 1990^([1](#footnote_1))
+    to 2019, where *x* is the number of years elapsed since 1990\. This curve is the
+    famous “Keeling curve,” illustrating curve-fitting to nonpolynomial formulas.
+    The sine and cosine terms allow modeling of seasonal variations in CO[2] concentrations.
+    The red curve shows the measured CO[2] concentrations. The best fit, shown in
+    black, has the form
+  id: totrans-360
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于从1990^([1](#footnote_1))到2019年在夏威夷马瓦诺亚测得的二氧化碳浓度，其中*x*是自1990年以来经过的年数。这条曲线是著名的“基林曲线”，展示了对非多项式公式的曲线拟合。正弦和余弦项允许对CO[2]浓度的季节性变化进行建模。红色曲线显示了测得的CO[2]浓度。最佳拟合曲线，显示为黑色，具有形式
+- en: 352.83 + 1.39*x* + 0.02*x*² + 2.83 sin(2*πx*) − 0.94 cos(2*πx*).
+  id: totrans-361
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 352.83 + 1.39*x* + 0.02*x*² + 2.83 sin(2*πx*) − 0.94 cos(2*πx*)。
+- en: 'We close this section with an example in [Figure 28.4](chapter028.xhtml#Fig_28-4),
+    illustrating that a curve can also fit a nonpolynomial function. The curve confirms
+    one aspect of climate change: that carbon dioxide (CO[2]) concentrations have
+    steadily increased over a period of 29 years. Linear and quadratic terms model
+    the annual increase, and sine and cosine terms model seasonal variations.'
+  id: totrans-362
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们在[图28.4](chapter028.xhtml#Fig_28-4)中以一个示例结束本节，说明曲线也可以拟合非多项式函数。该曲线证实了气候变化的一个方面：二氧化碳（CO[2]）浓度在29年的时间内稳步增加。线性和二次项模拟了年度增长，正弦和余弦项模拟了季节性变化。
+- en: '**Exercises**'
+  id: totrans-363
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***28.3-1***'
+  id: totrans-364
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-1***'
+- en: Prove that every diagonal element of a symmetric positive-definite matrix is
+    positive.
+  id: totrans-365
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对称正定矩阵的每个对角元素都是正的。
+- en: '***28.3-2***'
+  id: totrans-366
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-2***'
+- en: Let ![art](images/Art_P966.jpg) be a 2 × 2 symmetric positive-definite matrix.
+    Prove that its determinant *ac* − *b*² is positive by “completing the square”
+    in a manner similar to that used in the proof of Lemma 28.5.
+  id: totrans-367
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让![art](images/Art_P966.jpg)是一个2×2对称正定矩阵。通过“完成平方”证明其行列式*ac* − *b*²是正的，类似于引理28.5的证明中使用的方法。
+- en: '***28.3-3***'
+  id: totrans-368
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-3***'
+- en: Prove that the maximum element in a symmetric positive-definite matrix lies
+    on the diagonal.
+  id: totrans-369
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对称正定矩阵中的最大元素位于对角线上。
+- en: '***28.3-4***'
+  id: totrans-370
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-4***'
+- en: Prove that the determinant of each leading submatrix of a symmetric positive-definite
+    matrix is positive.
+  id: totrans-371
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明对称正定矩阵的每个主导子矩阵的行列式都是正的。
+- en: '***28.3-5***'
+  id: totrans-372
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-5***'
+- en: Let *A[k]* denote the *k*th leading submatrix of a symmetric positive-definite
+    matrix *A*. Prove that det(*A[k]*)/det(*A*[*k*−1]) is the *k*th pivot during LU
+    decomposition, where, by convention, det(*A*[0]) = 1.
+  id: totrans-373
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*A[k]*表示对称正定矩阵*A*的第*k*个主导子矩阵。证明det(*A[k]*)/det(*A*[*k*−1])是LU分解过程中的第*k*个主元，按照惯例，det(*A*[0])
+    = 1。
+- en: '***28.3-6***'
+  id: totrans-374
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-6***'
+- en: Find the function of the form
+  id: totrans-375
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 找到形式为
+- en: '*F*(*x*) = *c*[1] + *c*[2]*x* lg *x* + *c*[3]*e^x*'
+  id: totrans-376
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*F*(*x*) = *c*[1] + *c*[2]*x* lg *x* + *c*[3]*e^x*'
+- en: that is the best least-squares fit to the data points
+  id: totrans-377
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这是对数据点的最佳最小二乘拟合
+- en: (1, 1), (2, 1), (3, 3), (4, 8).
+  id: totrans-378
+  prefs: []
+  type: TYPE_NORMAL
+  zh: (1, 1), (2, 1), (3, 3), (4, 8)。
+- en: '***28.3-7***'
+  id: totrans-379
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28.3-7***'
+- en: 'Show that the pseudoinverse *A*^+ satisfies the following four equations:'
+  id: totrans-380
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示伪逆 *A*^+ 满足以下四个方���：
+- en: '| *AA*^+*A* | = | *A*, |'
+  id: totrans-381
+  prefs: []
+  type: TYPE_TB
+  zh: '| *AA*^+*A* | = | *A*, |'
+- en: '| *A*^+*AA*^+ | = | *A*^+, |'
+  id: totrans-382
+  prefs: []
+  type: TYPE_TB
+  zh: '| *A*^+*AA*^+ | = | *A*^+, |'
+- en: '| (*AA*^+)^T | = | *AA*^+, |'
+  id: totrans-383
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*AA*^+)^T | = | *AA*^+, |'
+- en: '| (*A*^+*A*)^T | = | *A*^+*A*. |'
+  id: totrans-384
+  prefs: []
+  type: TYPE_TB
+  zh: '| (*A*^+*A*)^T | = | *A*^+*A*. |'
+- en: '**Problems**'
+  id: totrans-385
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***28-1     Tridiagonal systems of linear equations***'
+  id: totrans-386
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28-1     三对角线性方程组***'
+- en: Consider the tridiagonal matrix
+  id: totrans-387
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑三对角矩阵
+- en: '![art](images/Art_P967.jpg)'
+  id: totrans-388
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P967.jpg)'
+- en: '***a.*** Find an LU decomposition of *A*.'
+  id: totrans-389
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 找到 *A* 的LU分解。'
+- en: '***b.*** Solve the equation *Ax* = ( 1 1 1 1 1 )^T by using forward and back
+    substitution.'
+  id: totrans-390
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 通过使用前向和后向替换解方程 *Ax* = ( 1 1 1 1 1 )^T。'
+- en: '***c.*** Find the inverse of *A*.'
+  id: totrans-391
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 找到 *A* 的逆。'
+- en: '***d.*** Show how to solve the equation *Ax* = *b* for any *n* × *n* symmetric
+    positive-definite, tridiagonal matrix *A* and any *n*-vector *b* in *O*(*n*) time
+    by performing an LU decomposition. Argue that any method based on forming *A*^(−1)
+    is asymptotically more expensive in the worst case.'
+  id: totrans-392
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 展示如何通过进行LU分解在 *O*(*n*) 时间内解方程 *Ax* = *b*，其中 *A* 是任意 *n* × *n* 对称正定的三对角矩阵，*b*
+    是任意 *n* 维向量。论证基于形成 *A*^(−1) 的任何方法在最坏情况下都更昂贵。'
+- en: '***e.*** Show how to solve the equation *Ax* = *b* for any *n* × *n* nonsingular,
+    tridiagonal matrix *A* and any *n*-vector *b* in *O*(*n*) time by performing an
+    LUP decomposition.'
+  id: totrans-393
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 展示如何通过进行LUP分解在 *O*(*n*) 时间内解方程 *Ax* = *b*，其中 *A* 是任意 *n* × *n* 非奇异的三对角矩阵，*b*
+    是任意 *n* 维向量。'
+- en: '***28-2     Splines***'
+  id: totrans-394
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***28-2     样条***'
+- en: 'A practical method for interpolating a set of points with a curve is to use
+    ***cubic splines***. You are given a set {(*x[i]*, *y[i]*) : *i* = 0, 1, … , *n*}
+    of *n* + 1 point-value pairs, where *x*[0] < *x*[1] < ⋯ < *x[n]*. Your goal is
+    to fit a piecewise-cubic curve (spline) *f*(*x*) to the points. That is, the curve
+    *f*(*x*) is made up of *n* cubic polynomials *f[i]*(*x*) = *a[i]* + *b[i]x* +
+    *c*[*i*]*x*² + *d*[*i*]*x*³ for *i* = 0, 1, … , *n* − 1, where if *x* falls in
+    the range *x[i]* ≤ *x* ≤ *x*[*i*+1], then the value of the curve is given by *f*(*x*)
+    = *f[i]*(*x* − *x[i]*). The points *x[i]* at which the cubic polynomials are “pasted”
+    together are called ***knots***. For simplicity, assume that *x[i]* = *i* for
+    *i* = 0, 1, … , *n*.'
+  id: totrans-395
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '用***三次样条***插值一组点的实用方法是使用。给定一组点值对 {(*x[i]*, *y[i]*) : *i* = 0, 1, … , *n*}，其中
+    *x*[0] < *x*[1] < ⋯ < *x[n]*。你的目标是拟合一条分段三次曲线（样条）*f*(*x*)到这些点。也就是说，曲线 *f*(*x*)
+    由 *n* 个三次多项式 *f[i]*(*x*) = *a[i]* + *b[i]x* + *c*[*i*]*x*² + *d*[*i*]*x*³ 组成，其中如果
+    *x* 落在 *x[i]* ≤ *x* ≤ *x*[*i*+1] 的范围内，则曲线的值由 *f*(*x*) = *f[i]*(*x* − *x[i]*) 给出。将三次多项式“粘合”在一起的点
+    *x[i]* 称为***结点***。为简单起见，假设 *x[i]* = *i* 对于 *i* = 0, 1, … , *n*。'
+- en: To ensure continuity of *f*(*x*), require that
+  id: totrans-396
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了确保 *f*(*x*) 的连续性，要求
+- en: '| *f*(*x[i]*) | = | *f[i]*(0) | = | *y[i]*, |'
+  id: totrans-397
+  prefs: []
+  type: TYPE_TB
+  zh: '| *f*(*x[i]*) | = | *f[i]*(0) | = | *y[i]*, |'
+- en: '| *f*(*x*[*i*+1]) | = | *f[i]*(1) | = | *y*[*i*+1] |'
+  id: totrans-398
+  prefs: []
+  type: TYPE_TB
+  zh: '| *f*(*x*[*i*+1]) | = | *f[i]*(1) | = | *y*[*i*+1] |'
+- en: 'for *i* = 0, 1, … , *n* − 1\. To ensure that *f*(*x*) is sufficiently smooth,
+    also require the first derivative to be continuous at each knot:'
+  id: totrans-399
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *i* = 0, 1, … , *n* − 1\. 为了确保 *f*(*x*) 充分平滑，还要求一阶导数在每个结点处连续：
+- en: '![art](images/Art_P968.jpg)'
+  id: totrans-400
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P968.jpg)'
+- en: for *i* = 0, 1, … , *n* − 2.
+  id: totrans-401
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *i* = 0, 1, … , *n* − 2。
+- en: '***a.*** Suppose that for *i* = 0, 1, … , *n*, in addition to the point-value
+    pairs {(*x[i]*, *y[i]*)}, you are also given the first derivative *D[i]* = *f*′(*x[i]*)
+    at each knot. Express each coefficient *a[i]*, *b[i]*, *c[i]*, and *d[i]* in terms
+    of the values *y[i]*, *y*[*i*+1], *D[i]*, and *D*[*i*+1]. (Remember that *x[i]*
+    = *i*.) How quickly can you compute the 4*n* coefficients from the point-value
+    pairs and first derivatives?'
+  id: totrans-402
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 假设对于 *i* = 0, 1, … , *n*，除了点值对 {(*x[i]*, *y[i]*)} 外，还给出了每个结点处的一阶导数
+    *D[i]* = *f*′(*x[i]*)。用 *y[i]*、*y*[*i*+1]、*D[i]* 和 *D*[*i*+1] 的值表示每个系数 *a[i]*、*b[i]*、*c[i]*
+    和 *d[i]*。你能多快地从点值对和一阶导数计算出 4*n* 个系数？'
+- en: 'The question remains of how to choose the first derivatives of *f*(*x*) at
+    the knots. One method is to require the second derivatives to be continuous at
+    the knots:'
+  id: totrans-403
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 问题在于如何选择结点处 *f*(*x*) 的一阶导数。一种方法是要求结点处的二阶导数连续：
+- en: '![art](images/Art_P969.jpg)'
+  id: totrans-404
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P969.jpg)'
+- en: for *i* = 0, 1, … , *n*−2\. At the first and last knots, assume that ![art](images/Art_P970.jpg)
+    and ![art](images/Art_P971.jpg). These assumptions make *f*(*x*) a ***natural***
+    cubic spline.
+  id: totrans-405
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *i* = 0, 1, … , *n*−2\. 在第一个和最后一个结点处，假设 ![艺术](images/Art_P970.jpg) 和 ![艺术](images/Art_P971.jpg)。这些假设使得
+    *f*(*x*) 成为一个***自然***三次样条。
+- en: '***b.*** Use the continuity constraints on the second derivative to show that
+    for *i* = 1, 2, … , *n* − 1,'
+  id: totrans-406
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 利用二阶导数的连续性约束，证明对于 *i* = 1, 2, … , *n* − 1，'
+- en: '![art](images/Art_P972.jpg)'
+  id: totrans-407
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P972.jpg)'
+- en: '***c.*** Show that'
+  id: totrans-408
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 展示'
+- en: '![art](images/Art_P973.jpg)'
+  id: totrans-409
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P973.jpg)'
+- en: '***d.*** Rewrite equations (28.23)–(28.25) as a matrix equation involving the
+    vector *D* = (*D*[0] *D*[1] *D*[2] ⋯ *D[n]*)^T of unknowns. What attributes does
+    the matrix in your equation have?'
+  id: totrans-410
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 将方程（28.23）–（28.25）重写为涉及未知向量 *D* = (*D*[0] *D*[1] *D*[2] ⋯ *D[n]*)^T
+    的矩阵方程。你的方程中的矩阵具有什么属性？'
+- en: '***e.*** Argue that a natural cubic spline can interpolate a set of *n* + 1
+    point-value pairs in *O*(*n*) time (see Problem 28-1).'
+  id: totrans-411
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 论证自然三次样条可以在 *O*(*n*) 时间内插值一组 *n* + 1 点值对（参见问题28-1）。'
+- en: '***f.*** Show how to determine a natural cubic spline that interpolates a set
+    of *n* + 1 points (*x[i]*, *y[i]*) satisfying *x*[0] < *x*[1] < ⋯ < *x[n]*, even
+    when *x[i]* is not necessarily equal to *i*. What matrix equation must your method
+    solve, and how quickly does your algorithm run?'
+  id: totrans-412
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 展示如何确定一个自然三次样条，插值一组满足 *x*[0] < *x*[1] < ⋯ < *x[n]* 的 *n* + 1 点 (*x[i]*,
+    *y[i]*)，即使 *x[i]* 不一定等于 *i*。你的方法必须解决什么矩阵方程，你的算法运行多快？'
+- en: '**Chapter notes**'
+  id: totrans-413
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: 'Many excellent texts describe numerical and scientific computation in much
+    greater detail than we have room for here. The following are especially readable:
+    George and Liu [[180](bibliography001.xhtml#endnote_180)], Golub and Van Loan
+    [[192](bibliography001.xhtml#endnote_192)], Press, Teukolsky, Vetterling, and
+    Flannery [[365](bibliography001.xhtml#endnote_365), [366](bibliography001.xhtml#endnote_366)],
+    and Strang [[422](bibliography001.xhtml#endnote_422), [423](bibliography001.xhtml#endnote_423)].'
+  id: totrans-414
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 许多优秀的文本详细描述了数值和科学计算，比我们在这里有空间描述的要多得多。特别易读的有：George 和 Liu [[180](bibliography001.xhtml#endnote_180)],
+    Golub 和 Van Loan [[192](bibliography001.xhtml#endnote_192)], Press, Teukolsky,
+    Vetterling, 和 Flannery [[365](bibliography001.xhtml#endnote_365), [366](bibliography001.xhtml#endnote_366)],
+    以及 Strang [[422](bibliography001.xhtml#endnote_422), [423](bibliography001.xhtml#endnote_423)]。
+- en: Golub and Van Loan [[192](bibliography001.xhtml#endnote_192)] discuss numerical
+    stability. They show why det(*A*) is not necessarily a good indicator of the stability
+    of a matrix *A*, proposing instead to use ∥*A*∥[∞] ∥*A*^(−1)∥[∞], where ![art](images/Art_P974.jpg).
+    They also address the question of how to compute this value without actually computing
+    *A*^(−1).
+  id: totrans-415
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Golub 和 Van Loan [[192](bibliography001.xhtml#endnote_192)] 讨论了数值稳定性。他们解释了为什么
+    det(*A*) 不一定是矩阵 *A* 稳定性的好指标，而建议使用 ∥*A*∥[∞] ∥*A*^(−1)∥[∞]，其中 ![art](images/Art_P974.jpg)。他们还讨论了如何计算这个值而不实际计算
+    *A*^(−1)。
+- en: Gaussian elimination, upon which the LU and LUP decompositions are based, was
+    the first systematic method for solving linear systems of equations. It was also
+    one of the earliest numerical algorithms. Although it was known earlier, its discovery
+    is commonly attributed to C. F. Gauss (1777–1855). In his famous paper [[424](bibliography001.xhtml#endnote_424)],
+    Strassen showed that an *n*×*n* matrix can be inverted in *O*(*n*^(lg 7)) time.
+    Winograd [[460](bibliography001.xhtml#endnote_460)] originally proved that matrix
+    multiplication is no harder than matrix inversion, and the converse is due to
+    Aho, Hopcroft, and Ullman [[5](bibliography001.xhtml#endnote_5)].
+  id: totrans-416
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 高斯消元法是 LU 和 LUP 分解的基础，是解线性方程组的第一个系统方法。它也是最早的数值算法之一。尽管它早在此前就已知晓，但其发现通常归功于 C.
+    F. Gauss (1777–1855)。在他著名的论文 [[424](bibliography001.xhtml#endnote_424)] 中，Strassen
+    表明一个 *n*×*n* 矩阵可以在 *O*(*n*^(lg 7)) 的时间内求逆。Winograd [[460](bibliography001.xhtml#endnote_460)]
+    最初证明矩阵乘法不比矩阵求逆更困难，而 Aho, Hopcroft, 和 Ullman [[5](bibliography001.xhtml#endnote_5)]
+    则证明了反之。
+- en: Another important matrix decomposition is the ***singular value decomposition***,
+    or ***SVD***. The SVD factors an *m* × *n* matrix *A* into ![art](images/Art_P975.jpg),
+    where Σ is an *m*×*n* matrix with nonzero values only on the diagonal, *Q*[1]
+    is *m*×*m* with mutually orthonormal columns, and *Q*[2] is *n* × *n*, also with
+    mutually orthonormal columns. Two vectors are ***orthonormal*** if their inner
+    product is 0 and each vector has a norm of 1\. The books by Strang [[422](bibliography001.xhtml#endnote_422),
+    [423](bibliography001.xhtml#endnote_423)] and Golub and Van Loan [[192](bibliography001.xhtml#endnote_192)]
+    contain good treatments of the SVD.
+  id: totrans-417
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 另一个重要的矩阵分解是***奇异值分解***，或***SVD***。SVD 将一个 *m* × *n* 矩阵 *A* 分解为 ![art](images/Art_P975.jpg)，其中
+    Σ 是一个只在对角线上有非零值的 *m*×*n* 矩阵，*Q*[1] 是 *m*×*m*，具有相互正交列的矩阵，*Q*[2] 是 *n* × *n*，同样具有相互正交列。如果两个向量的内积为
+    0，且每个向量的范数为 1，则这两个向量是***正交归一***的。Strang [[422](bibliography001.xhtml#endnote_422),
+    [423](bibliography001.xhtml#endnote_423)] 和 Golub 和 Van Loan [[192](bibliography001.xhtml#endnote_192)]
+    的书中都有关于 SVD 的良好讨论。
+- en: Strang [[423](bibliography001.xhtml#endnote_423)] has an excellent presentation
+    of symmetric positive-definite matrices and of linear algebra in general.
+  id: totrans-418
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Strang [[423](bibliography001.xhtml#endnote_423)] 对对称正定矩阵和线性代数有出色的介绍。
+- en: '[¹](#footnote_ref_1) The year in which *Introduction to Algorithms* was first
+    published.'
+  id: totrans-419
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) *算法导论* 首次出版的年份。'

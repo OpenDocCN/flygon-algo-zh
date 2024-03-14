@@ -1,0 +1,104 @@
+- en: '[***Part I    Foundations***](toc.xhtml#part-1)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[***第一部分    基础***](toc.xhtml#part-1)'
+- en: '[**Introduction**](toc.xhtml#Rh1-1)'
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**介绍**](toc.xhtml#Rh1-1)'
+- en: When you design and analyze algorithms, you need to be able to describe how
+    they operate and how to design them. You also need some mathematical tools to
+    show that your algorithms do the right thing and do it efficiently. This part
+    will get you started. Later parts of this book will build upon this base.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当你设计和分析算法时，你需要能够描述它们的运行方式和如何设计它们。你还需要一些数学工具来证明你的算法是正确的并且高效的。这部分将帮助你入门。本书的后续部分将在此基础上展开。
+- en: '[Chapter 1](chapter001.xhtml) provides an overview of algorithms and their
+    place in modern computing systems. This chapter defines what an algorithm is and
+    lists some examples. It also makes a case for considering algorithms as a technology,
+    alongside technologies such as fast hardware, graphical user interfaces, object-oriented
+    systems, and networks.'
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第一章](chapter001.xhtml) 概述了算法及其在现代计算系统中的地位。本章定义了算法是什么，并列举了一些例子。它还提出了将算法视为一种技术的理由，与快速硬件、图形用户界面、面向对象系统和网络等技术并列。'
+- en: In [Chapter 2](chapter002.xhtml), we see our first algorithms, which solve the
+    problem of sorting a sequence of *n* numbers. They are written in a pseudocode
+    which, although not directly translatable to any conventional programming language,
+    conveys the structure of the algorithm clearly enough that you should be able
+    to implement it in the language of your choice. The sorting algorithms we examine
+    are insertion sort, which uses an incremental approach, and merge sort, which
+    uses a recursive technique known as “divide-and-conquer.” Although the time each
+    requires increases with the value of *n*, the rate of increase differs between
+    the two algorithms. We determine these running times in [Chapter 2](chapter002.xhtml),
+    and we develop a useful “asymptotic” notation to express them.
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[第二章](chapter002.xhtml) 中，我们看到了我们的第一个算法，解决了对*n*个数字进行排序的问题。它们以伪代码编写，虽然不能直接转换为任何传统的编程语言，但清晰地传达了算法的结构，以至于你应该能够在你选择的语言中实现它。我们研究的排序算法是插入排序，它使用递增方法，以及归并排序，它使用“分治”递归技术。尽管它们所需的时间随着*n*的值增加而增加，但两种算法的增长速率不同。我们在[第二章](chapter002.xhtml)
+    中确定了这些运行时间，并开发了一个有用的“渐近”符号来表达它们。
+- en: '[Chapter 3](chapter003.xhtml) precisely defines asymptotic notation. We’ll
+    use asymptotic notation to bound the growth of functions—most often, functions
+    that describe the running time of algorithms—from above and below. The chapter
+    starts by informally defining the most commonly used asymptotic notations and
+    giving an example of how to apply them. It then formally defines five asymptotic
+    notations and presents conventions for how to put them together. The rest of [Chapter
+    3](chapter003.xhtml) is primarily a presentation of mathematical notation, more
+    to ensure that your use of notation matches that in this book than to teach you
+    new mathematical concepts.'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第三章](chapter003.xhtml) 精确定义了渐近符号。我们将使用渐近符号来限定函数的增长——通常是描述算法运行时间的函数——从上方和下方。本章首先非正式地定义了最常用的渐近符号，并举例说明如何应用它们。然后正式定义了五种渐近符号，并介绍了如何将它们组合在一起的惯例。[第三章](chapter003.xhtml)
+    的其余部分主要是数学符号的介绍，更多是为了确保你使用的符号与本书中的符号相匹配，而不是教授新的数学概念。'
+- en: '[Chapter 4](chapter004.xhtml) delves further into the divide-and-conquer method
+    introduced in [Chapter 2](chapter002.xhtml). It provides two additional examples
+    of divide-and-conquer algorithms for multiplying square matrices, including Strassen’s
+    surprising method. [Chapter 4](chapter004.xhtml) contains methods for solving
+    recurrences, which are useful for describing the running times of recursive algorithms.
+    In the substitution method, you guess an answer and prove it correct. Recursion
+    trees provide one way to generate a guess. [Chapter 4](chapter004.xhtml) also
+    presents the powerful technique of the “master method,” which you can often use
+    to solve recurrences that arise from divide-and-conquer algorithms. Although the
+    chapter provides a proof of a foundational theorem on which the master theorem
+    depends, you should feel free to employ the master method without delving into
+    the proof. [Chapter 4](chapter004.xhtml) concludes with some advanced topics.'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第四章](chapter004.xhtml) 进一步探讨了在[第二章](chapter002.xhtml)中介绍的分治法。它提供了两个额外的例子，用于相乘方阵的分治算法，包括斯特拉森的令人惊讶的方法。[第四章](chapter004.xhtml)
+    包含了解决递归方程的方法，这对描述递归算法的运行时间很有用。在替换法中，你猜测一个答案并证明它是正确的。递归树提供了一种生成猜测的方法。[第四章](chapter004.xhtml)
+    还介绍了“主方法”的强大技术，你经常可以用它来解决由分治算法产生的递归方程。尽管本章提供了主定理依赖的基础定理的证明，但你可以自由地使用主方法而不深入研究证明。[第四章](chapter004.xhtml)
+    最后介绍了一些高级主题。'
+- en: '[Chapter 5](chapter005.xhtml) introduces probabilistic analysis and randomized
+    algorithms. You typically use probabilistic analysis to determine the running
+    time of an algorithm in cases in which, due to the presence of an inherent probability
+    distribution, the running time may differ on different inputs of the same size.
+    In some cases, you might assume that the inputs conform to a known probability
+    distribution, so that you are averaging the running time over all possible inputs.
+    In other cases, the probability distribution comes not from the inputs but from
+    random choices made during the course of the algorithm. An algorithm whose behavior
+    is determined not only by its input but by the values produced by a random-number
+    generator is a randomized algorithm. You can use randomized algorithms to enforce
+    a probability distribution on the inputs—thereby ensuring that no particular input
+    always causes poor performance—or even to bound the error rate of algorithms that
+    are allowed to produce incorrect results on a limited basis.'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第 5 章](chapter005.xhtml) 介绍了概率分析和随机算法。通常，您使用概率分析来确定算法的运行时间，这是因为由于固有的概率分布的存在，算法的运行时间可能在相同大小的不同输入上有所不同。在某些情况下，您可能会假设输入符合已知的概率分布，以便对所有可能的输入平均运行时间。在其他情况下，概率分布不是来自输入，而是来自算法执行过程中做出的随机选择。一个算法的行为不仅由其输入决定，还由随机数生成器产生的值决定，这样的算法称为随机算法。您可以使用随机算法来对输入强制执行概率分布，从而确保没有特定的输入总是导致性能不佳，甚至可以限制允许在有限基础上产生错误结果的算法的错误率。'
+- en: '[Appendices A](appendix001.xhtml)–[D](appendix004.xhtml) contain other mathematical
+    material that you will find helpful as you read this book. You might have seen
+    much of the material in the appendix chapters before having read this book (although
+    the specific definitions and notational conventions we use may differ in some
+    cases from what you have seen in the past), and so you should think of the appendices
+    as reference material. On the other hand, you probably have not already seen most
+    of the material in Part I. All the chapters in Part I and the appendices are written
+    with a tutorial flavor.'
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[附录 A](appendix001.xhtml)–[D](appendix004.xhtml) 包含其他数学材料，这些材料在您阅读本书时会很有帮助。在阅读本书之前，您可能已经在附录章节中看到了许多材料（尽管我们使用的具体定义和符号约定在某些情况下可能与您过去看到的有所不同），因此您应该将附录视为参考资料。另一方面，您可能还没有看到第一部分中的大部分材料。第一部分和附录中的所有章节都具有教程风格。'

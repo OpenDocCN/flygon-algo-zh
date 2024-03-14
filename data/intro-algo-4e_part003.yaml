@@ -1,0 +1,228 @@
+- en: '[***Part III    Data Structures***](toc.xhtml#part-3)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[***第三部分    数据结构***](toc.xhtml#part-3)'
+- en: '[**Introduction**](toc.xhtml#Rh1-56)'
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**介绍**](toc.xhtml#Rh1-56)'
+- en: Sets are as fundamental to computer science as they are to mathematics. Whereas
+    mathematical sets are unchanging, the sets manipulated by algorithms can grow,
+    shrink, or otherwise change over time. We call such sets ***dynamic***. The next
+    four chapters present some basic techniques for representing finite dynamic sets
+    and manipulating them on a computer.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 集合对于计算机科学和数学同样重要。而数学集合是不变的，算法操作的集合可以随时间增长、缩小或以其他方式改变。我们称这样的集合为***动态集合***。接下来的四章介绍了一些表示有限动态集合和在计算机上操作它们的基本技术。
+- en: Algorithms may require several types of operations to be performed on sets.
+    For example, many algorithms need only the ability to insert elements into, delete
+    elements from, and test membership in a set. We call a dynamic set that supports
+    these operations a ***dictionary***. Other algorithms require more complicated
+    operations. For example, min-priority queues, which [Chapter 6](chapter006.xhtml)
+    introduced in the context of the heap data structure, support the operations of
+    inserting an element into and extracting the smallest element from a set. The
+    best way to implement a dynamic set depends upon the operations that you need
+    to support.
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 算法可能需要在集合上执行多种类型的操作。例如，许多算法只需要能够将元素插入、从集合中删除元素和测试成员资格。我们将支持这些操作的动态集合称为***字典***。其他算法需要更复杂的操作。例如，最小优先队列，[第6章](chapter006.xhtml)在堆数据结构的背景下介绍了它们，支持将元素插入和从集合中提取最小元素的操作。实现动态集合的最佳方法取决于您需要支持的操作。
+- en: '**Elements of a dynamic set**'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**动态集合的元素**'
+- en: In a typical implementation of a dynamic set, each element is represented by
+    an object whose attributes can be examined and manipulated given a pointer to
+    the object. Some kinds of dynamic sets assume that one of the object’s attributes
+    is an identifying ***key***. If the keys are all different, we can think of the
+    dynamic set as being a set of key values. The object may contain ***satellite
+    data***, which are carried around in other object attributes but are otherwise
+    unused by the set implementation. It may also have attributes that are manipulated
+    by the set operations. These attributes may contain data or pointers to other
+    objects in the set.
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在动态集合的典型实现中，每个元素由一个对象表示，给定对象的指针可以检查和操作其属性。某些类型的动态集合假设对象的属性之一是一个标识性的***键***。如果键都不同，我们可以将动态集合看作是一组键值。对象可能包含***附加数据***，这些数据包含在其他对象属性中，但在集合实现中未被使用。它还可能具有被集合操作操作的属性。这些属性可能包含数据或指向集合中其他对象的指针。
+- en: Some dynamic sets presuppose that the keys are drawn from a totally ordered
+    set, such as the real numbers, or the set of all words under the usual alphabetic
+    ordering. A total ordering allows us to define the minimum element of the set,
+    for example, or to speak of the next element larger than a given element in a
+    set.
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一些动态集合假设键来自一个全序集合，比如实数或按照字母顺序排列的所有单词集合。全序允许我们定义集合的最小元素，例如，或者谈论集合中大于给定元素的下一个元素。
+- en: '**Operations on dynamic sets**'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**动态集合上的操作**'
+- en: 'Operations on a dynamic set can be grouped into two categories: ***queries***,
+    which simply return information about the set, and ***modifying operations***,
+    which change the set. Here is a list of typical operations. Any specific application
+    will usually require only a few of these to be implemented.'
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 动态集合上的操作可以分为两类：***查询***，简单返回关于集合的信息，和***修改操作***，改变集合。以下是一些典型操作的列表。任何具体的应用通常只需要实现其中的几个。
+- en: SEARCH(*S*, *k*)
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: SEARCH(*S*, *k*)
+- en: A query that, given a set *S* and a key value *k*, returns a pointer *x* to
+    an element in *S* such that *x.key* = *k*, or NIL if no such element belongs to
+    *S*.
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个查询，给定一个集合*S*和一个键值*k*，返回一个指针*x*，指向*S*中的一个元素，使得*x.key* = *k*，如果没有这样的元素属于*S*，则返回NIL。
+- en: INSERT(*S*, *x*)
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: INSERT(*S*, *x*)
+- en: A modifying operation that adds the element pointed to by *x* to the set *S*.
+    We usually assume that any attributes in element *x* needed by the set implementation
+    have already been initialized.
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个修改操作，将由*x*指向的元素添加到集合*S*中。我们通常假设元素*x*中集合实现所需的任何属性已经被初始化。
+- en: DELETE(*S*, *x*)
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: DELETE(*S*, *x*)
+- en: A modifying operation that, given a pointer *x* to an element in the set *S*,
+    removes *x* from *S*. (Note that this operation takes a pointer to an element
+    *x*, not a key value.)
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个修改操作，给定一个指向集合*S*中元素的指针*x*，从*S*中移除*x*。（注意，此操作接受一个指向元素*x*的指针，而不是一个键值。）
+- en: MINIMUM(*S*) and MAXIMUM(*S*)
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MINIMUM(*S*) 和 MAXIMUM(*S*)
+- en: Queries on a totally ordered set *S* that return a pointer to the element of
+    *S* with the smallest (for MINIMUM) or largest (for MAXIMUM) key.
+  id: totrans-16
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在一个全序集合*S*上的查询，返回具有最小键（对于MINIMUM）或最大键（对于MAXIMUM）的*S*中元素的指针。
+- en: SUCCESSOR(*S*, *x*)
+  id: totrans-17
+  prefs: []
+  type: TYPE_NORMAL
+  zh: SUCCESSOR(*S*, *x*)
+- en: A query that, given an element *x* whose key is from a totally ordered set *S*,
+    returns a pointer to the next larger element in *S*, or NIL if *x* is the maximum
+    element.
+  id: totrans-18
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个查询，给定一个元素*x*，其键来自一个全序集合*S*，返回*S*中比*x*大的下一个元素的指针，如果*x*是最大元素，则返回NIL。
+- en: PREDECESSOR(*S*, *x*)
+  id: totrans-19
+  prefs: []
+  type: TYPE_NORMAL
+  zh: PREDECESSOR(*S*, *x*)
+- en: A query that, given an element *x* whose key is from a totally ordered set *S*,
+    returns a pointer to the next smaller element in *S*, or NIL if *x* is the minimum
+    element.
+  id: totrans-20
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个查询，给定一个元素*x*，其键来自一个全序集合*S*，返回*S*中比*x*小的下一个元素的指针，如果*x*是最小元素，则返回NIL。
+- en: In some situations, we can extend the queries SUCCESSOR and PREDECESSOR so that
+    they apply to sets with nondistinct keys. For a set on *n* keys, the normal presumption
+    is that a call to MINIMUM followed by *n* – 1 calls to SUCCESSOR enumerates the
+    elements in the set in sorted order.
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在某些情况下，我们可以扩展SUCCESSOR和PREDECESSOR查询，使其适用于具有非不同键的集合。对于*n*个键的集合，通常假设调用MINIMUM，然后调用*n*
+    - 1次SUCCESSOR会按排序顺序枚举集合中的元素。
+- en: We usually measure the time taken to execute a set operation in terms of the
+    size of the set. For example, [Chapter 13](chapter013.xhtml) describes a data
+    structure that can support any of the operations listed above on a set of size
+    *n* in *O*(lg *n*) time.
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们通常根据集合的大小来衡量执行集合操作所需的时间。例如，[第13章](chapter013.xhtml)描述了一种数据结构，可以在大小为*n*的集合上以*O*(lg
+    *n*)的时间支持上述任何操作。
+- en: Of course, you can always choose to implement a dynamic set with an array. The
+    advantage of doing so is that the algorithms for the dynamic-set operations are
+    simple. The downside, however, is that many of these operations have a worst-case
+    running time of Θ(*n*). If the array is not sorted, INSERT and DELETE can take
+    Θ(1) time, but the remaining operations take Θ(*n*) time. If instead the array
+    is maintained in sorted order, then MINIMUM, MAXIMUM, SUCCESSOR, and PREDECESSOR
+    take Θ(1) time; SEARCH takes *O*(lg *n*) time if implemented with binary search;
+    but INSERT and DELETE take Θ(*n*) time in the worst case. The data structures
+    studied in this part improve on the array implementation for many of the dynamic-set
+    operations.
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当然，您始终可以选择用数组实现动态集合。这样做的优点是动态集合操作的算法很简单。然而，缺点是许多这些操作在最坏情况下的运行时间为Θ(*n*)。如果数组未排序，INSERT和DELETE可以在Θ(1)时间内完成，但其余操作需要Θ(*n*)时间。如果相反，数组保持排序顺序，那么MINIMUM、MAXIMUM、SUCCESSOR和PREDECESSOR需要Θ(1)时间；如果用二分查找实现SEARCH，则需要*O*(lg
+    *n*)时间；但在最坏情况下，INSERT和DELETE需要Θ(*n*)时间。本部分研究的数据结构改进了许多动态集合操作的数组实现。
+- en: '**Overview of Part III**'
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**第三部分概述**'
+- en: '[Chapters 10](chapter010.xhtml)–[13](chapter013.xhtml) describe several data
+    structures that we can use to implement dynamic sets. We’ll use many of these
+    data structures later to construct efficient algorithms for a variety of problems.
+    We already saw another important data structure—the heap—in [Chapter 6](chapter006.xhtml).'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第10章](chapter010.xhtml)–[第13章](chapter013.xhtml)描述了几种我们可以用来实现动态集合的数据结构。我们稍后将使用许多这些数据结构来构建各种问题的高效算法。我们在[第6章](chapter006.xhtml)中已经看到另一个重要的数据结构——堆。'
+- en: '[Chapter 10](chapter010.xhtml) presents the essentials of working with simple
+    data structures such as arrays, matrices, stacks, queues, linked lists, and rooted
+    trees. If you have taken an introductory programming course, then much of this
+    material should be familiar to you.'
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第10章](chapter010.xhtml)介绍了使用简单数据结构（如数组、矩阵、栈、队列、链表和根树）的基本要点。如果您已经学过入门级编程课程，那么这些内容应该对您来说很熟悉。'
+- en: '[Chapter 11](chapter011.xhtml) introduces hash tables, a widely used data structure
+    supporting the dictionary operations INSERT, DELETE, and SEARCH. In the worst
+    case, hash tables require Θ(*n*) time to perform a SEARCH operation, but the expected
+    time for hash-table operations is *O*(1). We rely on probability to analyze hash-table
+    operations, but you can understand how the operations work even without probability.'
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第11章](chapter011.xhtml)介绍了哈希表，这是一种广泛使用的数据结构，支持字典操作INSERT、DELETE和SEARCH。在最坏情况下，哈希表执行SEARCH操作需要Θ(*n*)的时间，但哈希表操作的期望时间为*O*(1)。我们依靠概率来分析哈希表操作，但即使没有概率，您也可以理解这些操作是如何工作的。'
+- en: Binary search trees, which are covered in [Chapter 12](chapter012.xhtml), support
+    all the dynamic-set operations listed above. In the worst case, each operation
+    takes Θ(*n*) time on a tree with *n* elements. Binary search trees serve as the
+    basis for many other data structures.
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 二叉搜索树，被涵盖在[第12章](chapter012.xhtml)中，支持上述所有动态集合操作。在拥有*n*个元素的树上，每个操作在最坏情况下需要Θ(*n*)的时间。二叉搜索树是许多其他数据结构的基础。
+- en: '[Chapter 13](chapter013.xhtml) introduces red-black trees, which are a variant
+    of binary search trees. Unlike ordinary binary search trees, red-black trees are
+    guaranteed to perform well: operations take *O*(lg *n*) time in the worst case.
+    A red-black tree is a balanced search tree. [Chapter 18](chapter018.xhtml) in
+    [Part V](part005.xhtml) presents another kind of balanced search tree, called
+    a B-tree. Although the mechanics of red-black trees are somewhat intricate, you
+    can glean most of their properties from the chapter without studying the mechanics
+    in detail. Nevertheless, you probably will find walking through the code to be
+    instructive.'
+  id: totrans-29
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第13章](chapter013.xhtml)介绍了红黑树，这是二叉搜索树的一种变体。与普通二叉搜索树不同，红黑树保证性能良好：在最坏情况下，操作需要*O*(lg
+    *n*)的时间。红黑树是一种平衡搜索树。[第五部分](part005.xhtml)的[第18章](chapter018.xhtml)介绍了另一种平衡搜索树，称为B树。虽然红黑树的机制有些复杂，但您可以从本章中大部分属性中了解到它们，而无需详细研究机制。然而，您可能会发现逐步阅读代码是有益的。'

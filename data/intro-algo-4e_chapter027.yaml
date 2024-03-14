@@ -1,0 +1,2050 @@
+- en: '[**27        Online Algorithms**](toc.xhtml#chap-27)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**27        在线算法**](toc.xhtml#chap-27)'
+- en: Most problems described in this book have assumed that the entire input was
+    available before the algorithm executes. In many situations, however, the input
+    becomes available not in advance, but only as the algorithm executes. This idea
+    was implicit in much of the discussion of data structures in [Part III](part003.xhtml).
+    The reason that you want to design, for example, a data structure that can handle
+    *n* INSERT, DELETE, and SEARCH operations in *O*(lg *n*) time per operation is
+    most likely because you are going to receive *n* such operation requests without
+    knowing in advance what operations will be coming. This idea was also implicit
+    in amortized analysis in [Chapter 16](chapter016.xhtml), where we saw how to maintain
+    a table that can grow or shrink in response to a sequence of insertion and deletion
+    operations, yet with a constant amortized cost per operation.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本书中描述的大多数问题都假设算法执行之前整个输入都是可用的。然而，在许多情况下，输入并不是提前可用的，而是随着算法的执行而逐步可用。这个想法在[第三部分](part003.xhtml)关于数据结构的讨论中是隐含的。例如，你想设计一个数据结构，可以在每次操作中处理*n*个INSERT、DELETE和SEARCH操作，每次操作的时间复杂度为*O*(lg
+    *n*)，很可能是因为你将会接收*n*个这样的操作请求，而事先不知道会出现什么操作。这个想法也在摊销分析中是隐含的，在[第16章](chapter016.xhtml)中，我们看到如何维护一个表，可以根据插入和删除操作序列而增长或缩小，但每次操作的摊销成本是恒定的。
+- en: An ***online algorithm*** receives its input progressively over time, rather
+    than having the entire input available at the start, as in an ***offline algorithm***.
+    Online algorithms pertain to many situations in which information arrives gradually.
+    A stock trader must make decisions today, without knowing what the prices will
+    be tomorrow, yet wants to achieve good returns. A computer system must schedule
+    arriving jobs without knowing what work will need to be done in the future. A
+    store must decide when to order more inventory without knowing what the future
+    demand will be. A driver for a ride-hailing service must decide whether to pick
+    up a fare without knowing who will request rides in the future. In each of these
+    situations, and many more, algorithmic decisions must be made without knowledge
+    of the future.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个***在线算法***随着时间的推移逐渐接收其输入，而不是像***离线算法***那样在开始时就有整个输入可用。在线算法适用于许多情况，其中信息逐渐到达。股票交易员必须在不知道明天价格将如何的情况下做出决策，但希望获得良好的回报。计算机系统必须安排到达的作业，而不知道未来需要做什么工作。商店必须决定何时订购更多的库存，而不知道未来的需求会是什么。一家网约车服务的司机必须决定是否接客，而不知道未来会有谁请求乘车。在这些情况下，以及许多其他情况下，必须在不了解未来的情况下做出算法决策。
+- en: There are several approaches for dealing with unknown future inputs. One approach
+    is to form a probabilistic model of future inputs and design an algorithm that
+    assumes future inputs conform to the model. This technique is common, for example,
+    in the field of queuing theory, and it is also related to machine learning. Of
+    course, you might not be able to develop a workable probabilistic model, or even
+    if you can, some inputs might not conform to it. This chapter takes a different
+    approach. Instead of assuming anything about the future input, we employ a conservative
+    strategy of limiting how poor a solution any input can entail.
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 处理未知未来输入的方法有几种。一种方法是建立未来输入的概率模型，并设计一个算法，假设未来输入符合该模型。例如，在排队论领域，这种技术很常见，它也与机器学习相关。当然，你可能无法开发出可行的概率模型，或者即使你能够，有些输入可能不符合它。本章采取了一种不同的方法。我们不假设未来输入的任何情况，而是采用一种保守的策略，限制任何输入可能导致的解决方案有多糟糕。
+- en: This chapter, therefore, adopts a worst-case approach, designing online algorithms
+    that guarantee the quality of the solution for all possible future inputs. We’ll
+    analyze online algorithms by comparing the solution produced by the online algorithm
+    with a solution produced by an optimal algorithm that knows the future inputs,
+    and taking a worst-case ratio over all possible instances. We call this methodology
+    ***competitive analysis***. We’ll use a similar approach when we study approximation
+    algorithms in [Chapter 35](chapter035.xhtml), where we’ll compare the solution
+    returned by an algorithm that might be suboptimal with the value of the optimal
+    solution, and determine a worst-case ratio over all possible instances.
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，本章采用最坏情况方法，设计在线算法，保证解决方案的质量适用于所有可能的未来输入。我们将通过比较在线算法产生的解决方案与知道未来输入的最优算法产生的解决方案，并在所有可能的实例上取最坏情况比率来分析在线算法。我们称这种方法为***竞争分析***。当我们研究近似算法时，我们将采用类似的方法，在[第35章](chapter035.xhtml)中，我们将比较由可能是次优的算法返回的解决方案与最优解的价值，并确定在所有可能的实例上的最坏情况比率。
+- en: 'We start with a “toy” problem: deciding between whether to take the elevator
+    or the stairs. This problem will introduce the basic methodology of thinking about
+    online algorithms and how to analyze them via competitive analysis. We will then
+    look at two problems that use competitive analysis. The first is how to maintain
+    a search list so that the access time is not too large, and the second is about
+    strategies for deciding which cache blocks to evict from a cache or other kind
+    of fast computer memory.'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们从一个“玩具���问题开始：决定是乘坐电梯还是楼梯。这个问题将介绍关于在线算法的基本方法论以及如何通过竞争分析来分析它们。然后我们将看两个使用竞争分析的问题。第一个是如何维护一个搜索列表，使得访问时间不会太长，第二个是关于决定从缓存或其他类型的快速计算机内存中驱逐哪些缓存块的策略。
+- en: '[**27.1    Waiting for an elevator**](toc.xhtml#Rh1-157)'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**27.1    等待电梯**](toc.xhtml#Rh1-157)'
+- en: 'Our first example of an online algorithm models a problem that you likely have
+    encountered yourself: whether you should wait for an elevator to arrive or just
+    take the stairs. Suppose that you enter a building and wish to visit an office
+    that is *k* floors up. You have two choices: walk up the stairs or take the elevator.
+    Let’s assume, for convenience, that you can climb the stairs at the rate of one
+    floor per minute. The elevator travels much faster than you can climb the stairs:
+    it can ascend all *k* floors in just one minute. Your dilemma is that you do not
+    know how long it will take for the elevator to arrive at the ground floor and
+    pick you up. Should you take the elevator or the stairs? How do you decide?'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们的第一个在线算法示例模拟了一个你可能自己遇到的问题：是否等待电梯到达或只是走楼梯。假设你进入一栋建筑物，想要去一个离地面*k*层的办公室。你有两个选择：走楼��或乘电梯。为了方便起见，假设你可以以每分钟一层的速度爬楼梯。电梯的速度比你爬楼梯快得多：它只需一分钟就能上升所有*k*层。你的困境在于你不知道电梯要多久才能到达底层并接你。你应该乘电梯还是走楼梯？你如何决定？
+- en: Let’s analyze the problem. Taking the stairs takes *k* minutes, no matter what.
+    Suppose you know that the elevator takes at most *B* − 1 minutes to arrive for
+    some value of *B* that is considerably higher than *k*. (The elevator could be
+    going up when you call for it and then stop at several floors on its way down.)
+    To keep things simple, let’s also assume that the number of minutes for the elevator
+    to arrive is an integer. Therefore, waiting for the elevator and taking it *k*
+    floors up takes anywhere from one minute (if the elevator is already at the ground
+    floor) to (*B* − 1) + 1 = *B* minutes (the worst case). Although you know *B*
+    and *k*, you don’t know how long the elevator will take to arrive this time. You
+    can use competitive analysis to inform your decision regarding whether to take
+    the stairs or elevator. In the spirit of competitive analysis, you want to be
+    sure that, no matter what the future brings (i.e., how long the elevator takes
+    to arrive), you will not wait much longer than a seer who knows when the elevator
+    will arrive.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们分析这个问题。无论如何，走楼梯都需要*k*分钟。假设你知道电梯最多需要*B* − 1分钟到达某个值为*k*的地方。 （当你叫电梯时，电梯可能正在上升，然后在下降途中停在几层楼。）为了简单起见，让我们还假设电梯到达所需的分钟数是整数。因此，等待电梯并乘坐它上*k*层需要的时间从一分钟（如果电梯已经在底层）到(*B*
+    − 1) + 1 = *B*分钟（最坏情况）。虽然你知道*B*和*k*，但你不知道这次电梯要多久才能到达。你可以使用竞争分析来决定是走楼梯还是乘电梯。在竞争分析的精神中，你希望确保无论未来带来什么（即电梯需要多长时间到达），你都不会比知道电梯何时到达的先知等待时间长。
+- en: Let us first consider what the seer would do. If the seer knows that the elevator
+    is going to arrive in at most *k* − 1 minutes, the seer waits for the elevator,
+    and otherwise, the seer takes the stairs. Letting *m* denote the number of minutes
+    it takes for the elevator to arrive at the ground floor, we can express the time
+    that the seer spends as the function
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们首先考虑先知会做什么。如果先知知道电梯最多在*k* − 1分钟内到达，那么先知会等待电梯，否则会走楼梯。让*m*表示电梯到达底层需要的分钟数，我们可以将先知花费的时间表示为函数
+- en: '![art](images/Art_P842.jpg)'
+  id: totrans-10
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P842.jpg)'
+- en: We typically evaluate online algorithms by their ***competitive ratio***. Let
+    *U* denote the set (universe) of all possible inputs, and consider some input
+    *I* ∈ *U*. For a minimization problem, such as the stairs-versus-elevator problem,
+    if an online algorithm *A* produces a solution with value *A*(*I*) on input *I*
+    and the solution from an algorithm *F* that knows the future has value *F*(*I*)
+    on the same input, then the competitive ratio of algorithm *A* is
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们通常通过他们的***竞争比率***来评估在线算法。让*U*表示所有可能输入的集合（宇宙），考虑某个输入*I* ∈ *U*。对于一个最小化问题，比如楼梯与电梯问题，如果在线算法*A*在输入*I*上产生值为*A*(*I*)的解，而知道未来的算法*F*在相同输入上的解为*F*(*I*)，那么算法*A*的竞争比率为
+- en: 'max {*A*(*I*)/*F*(*I*) : *I* ∈ *U*}.'
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 'max {*A*(*I*)/*F*(*I*) : *I* ∈ *U*}.'
+- en: If an online algorithm has a competitive ratio of *c*, we say that it is ***c-competitive***.
+    The competitive ratio is always at least 1, so that we want an online algorithm
+    with a competitive ratio as close to 1 as possible.
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果一个在线算法的竞争比率为*c*，我们说它是***c-competitive***。竞争比率始终至少为1，因此我们希望在线算法的竞争比率尽可能接近1。
+- en: In the stairs-versus-elevator problem, the only input is the time for the elevator
+    to arrive. Algorithm *F* knows this information, but an online algorithm has to
+    make a decision without knowing when the elevator will arrive. Consider the algorithm
+    “always take the stairs,” which always takes exactly *k* minutes. Using equation
+    (27.1), the competitive ratio is
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在楼梯与电梯问题中，唯一的输入是电梯到达的时间。算法*F*知道这个信息，但在线算法必须在不知道电梯何时到达的情况下做出决定。考虑算法“总是走楼梯”，它总是需要*k*分钟。使用方程（27.1），竞争比率为
+- en: '![art](images/Art_P843.jpg)'
+  id: totrans-15
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P843.jpg)'
+- en: Enumerating the terms in equation (27.2) gives the competitive ratio as
+  id: totrans-16
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 枚举方程（27.2）中的项得到竞争比率为
+- en: '![art](images/Art_P844.jpg)'
+  id: totrans-17
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P844.jpg)'
+- en: so that the competitive ratio is *k*. The maximum is achieved when the elevator
+    arrives immediately. In this case, taking the stairs requires *k* minutes, but
+    the optimal solution takes just 1 minute.
+  id: totrans-18
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 竞争比率为*k*。当电梯立即到达时，最大值被实现。在这种情况下，走楼梯需要*k*分钟，但最优解只需1分钟。
+- en: 'Now let’s consider the opposite approach: “always take the elevator.” If it
+    takes *m* minutes for the elevator to arrive at the ground floor, then this algorithm
+    will always take *m* + 1 minutes. Thus the competitive ratio becomes'
+  id: totrans-19
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们考虑相反的方法：“总是乘电梯”。如果电梯到达底层需要*m*分钟，那么这个算法总是需要*m* + 1分钟。因此，竞争比率变为
+- en: 'max {(*m* + 1)/*t*(*m*) : 0 ≤ *m* ≤ *B* − 1},'
+  id: totrans-20
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 'max {(*m* + 1)/*t*(*m*) : 0 ≤ *m* ≤ *B* − 1},'
+- en: which we can again enumerate as
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们可以再次枚举为
+- en: '![art](images/Art_P845.jpg)'
+  id: totrans-22
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P845.jpg)'
+- en: Now the maximum is achieved when the elevator takes *B* − 1 minutes to arrive,
+    compared with the optimal approach of taking the stairs, which requires *k* minutes.
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在最大值是当电梯需要*B* − 1分钟到达时，与需要*k*分钟的最佳方法——走楼梯相比。
+- en: Hence, the algorithm “always take the stairs” has competitive ratio *k*, and
+    the algorithm “always take the elevator” has competitive ratio *B*/*k*. Because
+    we prefer the algorithm with smaller competitive ratio, if *k* = 10 and *B* =
+    300, we prefer “always take the stairs,” with competitive ratio 10, over “always
+    take the elevator,” with competitive ratio 30\. Taking the stairs is not always
+    better, or necessarily more often better. It’s just that taking the stairs guards
+    better against the worst-case future.
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，“总是走楼梯”的算法具有竞争比*k*，而“总是乘电梯”的算法具有竞争比*B*/*k*。因为我们更喜欢竞争比较小的算法，如果*k* = 10且*B*
+    = 300，我们更喜欢“总是走楼梯”，竞争比为10，而不是“总是乘电梯”，竞争比为30。走楼梯并不总是更好，也不一定更常更好。只是走楼梯更好地防范了最坏情况。
+- en: These two approaches of always taking the stairs and always taking the elevator
+    are extreme solutions, however. Instead, you can “hedge your bets” and guard even
+    better against a worst-case future. In particular, you can wait for the elevator
+    for a while, and then if it doesn’t arrive, take the stairs. How long is “a while”?
+    Let’s say that “a while” is *k* minutes. Then the time *h*(*m*) required by this
+    hedging strategy, as a function of the number *m* of minutes before the elevator
+    arrives, is
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然而，总是走楼梯和总是乘电梯这两种方法都是极端的解决方案。相反，你可以“押注”并更好地防范最坏情况。特别是，你可以等待电梯一段时间，然后如果电梯没有到达，就走楼梯。多久是“一段时间”？假设“一段时间”是*k*分钟。那么这种押注策略所需的时间*h*(*m*)，作为电梯到达前分钟数*m*的函数，是
+- en: '![art](images/Art_P846.jpg)'
+  id: totrans-26
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P846.jpg)'
+- en: In the second case, *h*(*m*) = 2*k* because you wait for *k* minutes and then
+    climb the stairs for *k* minutes. The competitive ratio is now
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在第二种情况下，*h*(*m*) = 2*k*，因为你等待*k*分钟，然后爬楼梯*k*分钟。竞争比现在是
+- en: 'max {*h*(*m*)/*t*(*m*) : 0 ≤ *m* ≤ *B* − 1}.'
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 'max {*h*(*m*)/*t*(*m*) : 0 ≤ *m* ≤ *B* − 1}。'
+- en: Enumerating this ratio yields
+  id: totrans-29
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 枚举这个比率得到
+- en: '![art](images/Art_P847.jpg)'
+  id: totrans-30
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P847.jpg)'
+- en: The competitive ratio is now *independent* of *k* and *B*.
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 竞争比现在与*k*和*B*无关。
+- en: 'This example illustrates a common philosophy in online algorithms: we want
+    an algorithm that guards against any possible worst case. Initially, waiting for
+    the elevator guards against the case when the elevator arrives quickly, but eventually
+    switching to the stairs guards against the case when the elevator takes a long
+    time to arrive.'
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个例子展示了在线算法中的一种常见哲学：我们希望有一种算法来防范任何可能的最坏情况。最初，等待电梯是为了防范电梯很快到达的情况，但最终切换到楼梯是为了防范电梯到达时间很长的情况。
+- en: '**Exercises**'
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***27.1-1***'
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.1-1***'
+- en: Suppose that when hedging your bets, you wait for *p* minutes, instead of for
+    *k* minutes, before taking the stairs. What is the competitive ratio as a function
+    of *p* and *k*? How should you choose *p* to minimize the competitive ratio?
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设在押注时，你等待*p*分钟，而不是*k*分钟，然后再走楼梯。竞争比作为*p*和*k*的函数是多少？你应该如何选择*p*以最小化竞争比？
+- en: '***27.1-2***'
+  id: totrans-36
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.1-2***'
+- en: Imagine that you decide to take up downhill skiing. Suppose that a pair of skis
+    costs *r* dollars to rent for a day and *b* dollars to buy, where *b* > *r*. If
+    you knew in advance how many days you would ever ski, your decision whether to
+    rent or buy would be easy. If you’ll ski for at least ⌈*b*/*r*⌉ days, then you
+    should buy skis, and otherwise you should rent. This strategy minimizes the total
+    that you ever spend. In reality, you don’t know in advance how many days you’ll
+    eventually ski. Even after you have skied several times, you still don’t know
+    how many more times you’ll ever ski. Yet you don’t want to waste your money. Give
+    and analyze an algorithm that has a competitive ratio of 2, that is, an algorithm
+    guaranteeing that, no matter how many times you ski, you never spend more than
+    twice what you would have spent if you knew from the outset how many times you’ll
+    ski.
+  id: totrans-37
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 想象一下你决定开始滑雪。假设一双滑雪板租用一天需要*r*美元，购买需要*b*美元，其中*b* > *r*。如果你事先知道你会滑雪多少天，那么你是租还是买的决定就很容易了。如果你至少会滑雪⌈*b*/*r*⌉天，那么你应该买滑雪板，否则你应该租。这种策略最小化了你总共花费的金额。实际上，你事先不知道你最终会滑雪多少天。即使你已经滑雪了几次，你仍然不知道你还会滑雪多少次。但你不想浪费钱。给出并分析一个竞争比为2的算法，即保证无论你滑雪多少次，你花费的金额永远不会超过如果你从一开始就知道你会滑雪多少次时的两倍。
+- en: '***27.1-3***'
+  id: totrans-38
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.1-3***'
+- en: In “concentration solitaire,” a game for one person, you have *n* pairs of matching
+    cards. The backs of the cards are all the same, but the fronts contain pictures
+    of animals. One pair has pictures of aardvarks, one pair has pictures of bears,
+    one pair has pictures of camels, and so on. At the start of the game, the cards
+    are all placed face down. In each round, you can turn two cards face up to reveal
+    their pictures. If the pictures match, then you remove that pair from the game.
+    If they don’t match, then you turn both of them over, hiding their pictures once
+    again. The game ends when you have removed all *n* pairs, and your score is how
+    many rounds you needed to do so. Suppose that you can remember the picture on
+    every card that you have seen. Give an algorithm to play concentration solitaire
+    that has a competitive ratio of 2.
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在“集中纸牌”中，一个人玩的游戏中，你有*n*对相同的卡片。卡片的背面都一样，但正面有动物的图片。一对有土豚的图片，一对有熊的图片，一对有骆驼的图片，依此类推。游戏开始时，所有卡片都是面朝下放置的。在每一轮中，你可以翻开两张卡片，揭示它们的图片。如果图片匹配，那么你将这对卡片从游戏中移除。如果它们不匹配，那么你再次翻转它们，再次隐藏它们的图片。游戏在你移除所有*n*对卡片时结束，你的得分是你需要做到这一点的轮数。假设你能记���你看过的每张卡片上的图片。给出一个竞争比为2的玩“集中纸牌”的算法。
+- en: '[**27.2    Maintaining a search list**](toc.xhtml#Rh1-158)'
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**27.2    维护搜索列表**](toc.xhtml#Rh1-158)'
+- en: The next example of an online algorithm pertains to maintaining the order of
+    elements in a linked list, as in [Section 10.2](chapter010.xhtml#Sec_10.2). This
+    problem often arises in practice for hash tables when collisions are resolved
+    by chaining (see [Section 11.2](chapter011.xhtml#Sec_11.2)), since each slot contains
+    a linked list. Reordering the linked list of elements in each slot of the hash
+    table can boost the performance of searches measurably.
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一个在线算法示例涉及维护链表中元素的顺序，就像[第10.2节](chapter010.xhtml#Sec_10.2)中所述。在实践中，当哈希表中的冲突通过链接解决时（参见[第11.2节](chapter011.xhtml#Sec_11.2)），这个问题经常出现，因为每个槽包含一个链表。重新排列哈希表中每个槽中元素的链表可以显著提高搜索性能。
+- en: The list-maintenance problem can be set up as follows. You are given a list
+    *L* of *n* elements {*x*[1], *x*[2], … , *x[n]*}. We’ll assume that the list is
+    doubly linked, although the algorithms and analysis work just as well for singly
+    linked lists. Denote the position of element *x[i]* in the list *L* by *r[L]*(*x[i]*),
+    where 1 ≤ *r[L]*(*x[i]*) ≤ *n*. Calling LIST-SEARCH(*L*, *x[i]*) on page 260 thus
+    takes Θ(*r[L]*(*x[i]*)) time.
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 列维护问题可以如下设置。给定*n*个元素{*x*[1], *x*[2], … , *x[n]*}的列表*L*。我们将假设列表是双向链接的，尽管算法和分析同样适用于单向链接列表。将列表*L*中元素*x[i]*的位置表示为*r[L]*(*x[i]*)，其中1
+    ≤ *r[L]*(*x[i]*) ≤ *n*。在第260页上调用LIST-SEARCH(*L*, *x[i]*)因此需要Θ(*r[L]*(*x[i]*)的时间。
+- en: If you know in advance something about the distribution of search requests,
+    then it makes sense to arrange the list ahead of time to put the more frequently
+    searched elements closer to the front, which minimizes the total cost (see Exercise
+    27.2-1). If instead you don’t know anything about the search sequence, then no
+    matter how you arrange the list, it is possible that every search is for whatever
+    element appears at the tail of the list. The total searching time would then be
+    Θ(*nm*), where *m* is the number of searches.
+  id: totrans-43
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果您事先了解搜索请求的分布情况，那么提前安排列表，将更频繁搜索的元素靠近前面是有意义的，这样可以最小化总成本（参见练习 27.2-1）。如果您不知道搜索顺序，那么无论如何安排列表，都有可能每次搜索都是为列表末尾的元素。那么总搜索时间将为Θ(*nm*)，其中*m*是搜索次数。
+- en: If you notice patterns in the access sequence or you observe differences in
+    the frequencies in which elements are accessed, then you might want to rearrange
+    the list as you perform searches. For example, if you discover that every search
+    is for a particular element, you could move that element to the front of the list.
+    In general, you could rearrange the list after each call to LIST-SEARCH. But how
+    would you do so without knowing the future? After all, no matter how you move
+    elements around, every search could be for the last element.
+  id: totrans-44
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果您注意到访问序列中的模式，或者观察到元素访问频率的差异，那么您可能希望在执行搜索时重新排列列表。例如，如果您发现每次搜索都是为特定元素，您可以将该元素移动到列表的前面。一般来说，您可以在每次LIST-SEARCH调用后重新排列列表。但是，如果不知道未来会怎样，您该如何做呢？毕竟，无论您如何移动元素，每次搜索都可能是为最后一个元素。
+- en: But it turns out that some search sequences are “easier” than others. Rather
+    than just evaluate performance on the worst-case sequence, let’s compare a reorganization
+    scheme with whatever an optimal offline algorithm would do if it knew the search
+    sequence in advance. That way, if the sequence is fundamentally hard, the optimal
+    offline algorithm will also find it hard, but if the sequence is easy, we can
+    hope to do reasonably well.
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 但事实证明，有些搜索序列比其他序列“更容易”。与其仅仅评估最坏情况下的性能，不如将重新组织方案与如果提前知道搜索序列的最佳离线算法所做的进行比较。这样，如果序列基本上很难，最佳离线算法也会发现它很难，但如果序列很容易，我们可以希望表现得相当不错。
+- en: To ease analysis, we’ll drop the asymptotic notation and say that the cost is
+    just *i* to search for the *i*th element in the list. Let’s also assume that the
+    only way to reorder the elements in the list is by swapping two adjacent elements
+    in the list. Because the list is doubly linked, each swap incurs a cost of 1\.
+    Thus, for example, a search for the sixth element followed by moving it forward
+    two places (entailing two swaps) incurs a total cost 8\. The goal is to minimize
+    the total cost of calls to LIST-SEARCH plus the total number of swaps performed.
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了简化分析，我们将放弃渐近符号，并说成本仅为*i*，用于搜索列表中第*i*个元素。让我们还假设重新排列列表元素的唯一方法是通过交换列表中的两个相邻元素。由于列表是双向链接的，每次交换的成本为1。因此，例如，搜索第六个元素，然后将其向前移动两个位置（涉及两次交换）的总成本为8。目标是最小化LIST-SEARCH调用的总成本以及执行的交换总数。
+- en: 'The online algorithm that we’ll explore is MOVE-TO-FRONT(*L*, *x*). This procedure
+    first searches for *x* in the doubly linked list *L*, and then it moves *x* to
+    the front of the list.^([1](#footnote_1)) If *x* is located at position *r* =
+    *r[L]*(*x*) before the call, MOVE-TO-FRONT swaps *x* with the element in position
+    *r* − 1, then with the element in position *r* − 2, and so on, until it finally
+    swaps *x* with the element in position 1\. Thus if the call MOVE-TO-FRONT(*L*,
+    8) executes on the list *L* = 〈5, 3, 12, 4, 8, 9, 22〉, the list becomes 〈8, 5,
+    3, 12, 4, 9, 22〉. The call MOVE-TO-FRONT(*L*, *k*) costs 2*r[L]*(*k*) − 1: it
+    costs *r[L]*(*k*) to search for *k*, and it costs 1 for each of the *r[L]*(*k*)
+    − 1 swaps that move *k* to the front of the list.'
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将探讨的在线算法是MOVE-TO-FRONT(*L*, *x*)。该过程首先在双向链表*L*中搜索*x*，然后将*x*移动到列表的前面。^([1](#footnote_1))
+    如果在调用之前*x*位于位置*r* = *r[L]*(*x*)，MOVE-TO-FRONT将*x*与位置*r* − 1的元素交换，然后与位置*r* − 2的元素交换，依此类推，直到最终将*x*与位置1的元素交换。因此，如果在列表*L*
+    = 〈5, 3, 12, 4, 8, 9, 22〉上执行调用MOVE-TO-FRONT(*L*, 8)，列表将变为〈8, 5, 3, 12, 4, 9, 22〉。调用MOVE-TO-FRONT(*L*,
+    *k*)的成本为2*r[L]*(*k*) − 1：搜索*k*的成本为*r[L]*(*k*)，每次将*k*移动到列表前面的*r[L]*(*k*) − 1次交换成本为1。
+- en: '![art](images/Art_P848.jpg)'
+  id: totrans-48
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P848.jpg)'
+- en: '**Figure 27.1** The costs incurred by the procedures FORESEE and MOVE-TO-FRONT
+    when searching for the elements 5, 3, 4, and 4, starting with the list *L* = 〈1,
+    2, 3, 4, 5〉. If FORESEE instead moved 3 to the front after the search for 5, the
+    cumulative cost would not change, nor would the cumulative cost change if 4 moved
+    to the second position after the search for 5.'
+  id: totrans-49
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图27.1** 当搜索元素5, 3, 4和4时，FORESEE和MOVE-TO-FRONT过程产生的成本，从列表*L* = 〈1, 2, 3, 4,
+    5〉开始。如果FORESEE在搜索5后将3移至前端，累积成本不会改变，如果在搜索5后将4移至第二位置，累积成本也不会改变。'
+- en: We’ll see that MOVE-TO-FRONT has a competitive ratio of 4\. Let’s think about
+    what this means. MOVE-TO-FRONT performs a series of operations on a doubly linked
+    list, accumulating cost. For comparison, suppose that there is an algorithm FORESEE
+    that knows the future. Like MOVE-TO-FRONT, it also searches the list and moves
+    elements around, but after each call it optimally rearranges the list for the
+    future. (There may be more than one optimal order.) Thus FORESEE and MOVE-TO-FRONT
+    maintain different lists of the same elements.
+  id: totrans-50
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将看到MOVE-TO-FRONT的竞争比为4。让我们思考一下这意味着什么。MOVE-TO-FRONT在双向链表上执行一系列操作，累积成本。为了比较，假设有一个名为FORESEE的算法可以预知未来。像MOVE-TO-FRONT一样，它也搜索列表并移动元素，但在每次调用之后，它会为未来最佳地重新排列列表。（可能有多个最佳顺序。）因此，FORESEE和MOVE-TO-FRONT维护相同元素的不同列表。
+- en: Consider the example shown in [Figure 27.1](chapter027.xhtml#Fig_27-1). Starting
+    with the list 〈1, 2, 3, 4, 5〉, four searches occur, for the elements 5, 3, 4,
+    and 4\. The hypothetical procedure FORESEE, after searching for 3, moves 4 to
+    the front of the list, knowing that a search for 4 is imminent. It thus incurs
+    a swap cost of 3 upon its second call, after which no further swap costs accrue.
+    MOVE-TO-FRONT incurs swap costs in each step, moving the found element to the
+    front. In this example, MOVE-TO-FRONT has a higher cost in each step, but that
+    is not necessarily always the case.
+  id: totrans-51
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑[图27.1](chapter027.xhtml#Fig_27-1)中显示的示例。从列表〈1, 2, 3, 4, 5〉开始，进行四次搜索，分别搜索元素5,
+    3, 4和4。假设的FORESEE过程，在搜索3后，将4移至列表前端，因为知道即将搜索4。因此，在第二次调用时，它会产生3的交换成本，之后不会再产生进一步的交换成本。MOVE-TO-FRONT在每一步中都会产生交换成本，将找到的元素移至前端。在这个示例中，MOVE-TO-FRONT在每一步中的成本更高，但这并不一定总是如此。
+- en: The key to proving the competitive bound is to show that at any point, the total
+    cost of MOVE-TO-FRONT is not much higher than that of FORESEE. Surprisingly, we
+    can determine a bound on the costs incurred by MOVE-TO-FRONT relative to FORESEE
+    even though MOVE-TO-FRONT cannot see the future.
+  id: totrans-52
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明竞争界限的关键是表明在任何时刻，MOVE-TO-FRONT的总成本并不比FORESEE的总成本高得多。令人惊讶的是，我们可以确定MOVE-TO-FRONT相对于FORESEE所产生的成本的界限，即使MOVE-TO-FRONT无法看到未来。
+- en: 'If we compare any particular step, MOVE-TO-FRONT and FORESEE may be operating
+    on very different lists and do very different things. If we focus on the search
+    for 4 above, we observe that FORESEE actually moves it to the front of the list
+    early, paying to move the element to the front before it is accessed. To capture
+    this concept, we use the idea of an ***inversion***: a pair of elements, say *a*
+    and *b*, in which *a* appears before *b* in one list, but *b* appears before *a*
+    in another list. For two lists *L* and *L*′, let *I*(*L*, *L*′), called the ***inversion
+    count***, denote the number of inversions between the two lists, that is, the
+    number of pairs of elements whose order differs in the two lists. For example,
+    with lists *L* = 〈5,3,1,4,2〉 and *L*′ = 〈3,1,2,4,5〉, then out of the ![art](images/Art_P849.jpg)
+    pairs, exactly five of them—(1, 5), (2, 4), (2, 5), (3, 5), (4, 5)—are inversions,
+    since these pairs, and only these pairs, appear in different orders in the two
+    lists. Thus the inversion count is *I*(*L*, *L*′) = 5.'
+  id: totrans-53
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果我们比较任何特定步骤，MOVE-TO-FRONT和FORESEE可能在非常不同的列表上操作并执行非常不同的操作。如果我们关注上面的搜索4，我们会发现FORESEE实际上会在列表的早期将其移至列表的前端，支付将元素移至前端的成本，然后再访问。为了捕捉这个概念，我们使用***倒置***的概念：一对元素，比如*a*和*b*，其中*a*在一个列表中出现在*b*之前，但在另一个列表中*b*出现在*a*之前。对于两个列表*L*和*L*′，称为***倒置计数***的*I*(*L*,
+    *L*′)，表示两个列表之间的倒置数量，即两个列表中顺序不同的元素对的数量。例如，对于列表*L* = 〈5,3,1,4,2〉和*L*′ = 〈3,1,2,4,5〉，则在![art](images/Art_P849.jpg)对中，恰好有五对元素—(1,
+    5), (2, 4), (2, 5), (3, 5), (4, 5)—是倒置，因为这些对在两个列表中以不同的顺序出现，而且只有这些对在两个列表中以不同的顺序出现。因此，倒置计数为*I*(*L*,
+    *L*′) = 5。
+- en: In order to analyze the algorithm, we define the following notation. Let ![art](images/Art_P850.jpg)
+    be the list maintained by MOVE-TO-FRONT immediately after the *i*th search, and
+    similarly, let ![art](images/Art_P851.jpg) be FORESEE’s list immediately after
+    the *i*th search. Let ![art](images/Art_P852.jpg) and ![art](images/Art_P853.jpg)
+    be the costs incurred by MOVE-TO-FRONT and FORESEE on their *i*th calls, respectively.
+    We don’t know how many swaps FORESEE performs in its *i*th call, but we’ll denote
+    that number by *t[i]*. Therefore, if the *i*th operation is a search for element
+    *x*, then
+  id: totrans-54
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了分析算法，我们定义以下符号。让![art](images/Art_P850.jpg)是MOVE-TO-FRONT在第*i*次搜索后立即维护的列表，类似地，让![art](images/Art_P851.jpg)是FORESEE在第*i*次搜索后的列表。让![art](images/Art_P852.jpg)和![art](images/Art_P853.jpg)分别是MOVE-TO-FRONT和FORESEE在第*i*次调用时产生的成本。我们不知道FORESEE在其第*i*次调用中执行了多少次交换，但我们将该数字表示为*t[i]*。因此，如果第*i*次操作是搜索元素*x*，那么
+- en: '![art](images/Art_P854.jpg)'
+  id: totrans-55
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P854.jpg)'
+- en: 'In order to compare these costs more carefully, let’s break down the elements
+    into subsets, depending on their positions in the two lists before the *i*th search,
+    relative to the element *x* being searched for in the *i*th search. We define
+    three sets:'
+  id: totrans-56
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了更仔细地比较这些成本，让我们将元素分解成子集，具体取决于在第*i*次搜索中，相对于正在搜索的元素*x*在两个列表中的位置。我们定义三个集合：
+- en: '*BB* = {elements before *x* in both ![art](images/LM.jpg) and ![art](images/LF.jpg)},'
+  id: totrans-57
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*BB* = {*x*在![art](images/LM.jpg)和![art](images/LF.jpg)中都在*x*之前的元素}，'
+- en: '*BA* = {elements before *x* in ![art](images/LM.jpg) but after *x* in ![art](images/LF.jpg)},'
+  id: totrans-58
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*BA* = {*x*之前在![art](images/LM.jpg)中但在![art](images/LF.jpg)中*x*之后的元素}，'
+- en: '*AB* = {elements after *x* in ![art](images/LM.jpg) but before *x* in ![art](images/LF.jpg)}.'
+  id: totrans-59
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*AB* = {*x*之后在![art](images/LM.jpg)中但在![art](images/LF.jpg)中*x*之前的元素}。'
+- en: 'We can now relate the position of element *x* in ![art](images/LF.jpg) and
+    ![art](images/LM.jpg) to the sizes of these sets:'
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们可以将元素*x*在![艺术](images/LF.jpg)和![艺术](images/LM.jpg)中的位置与这些集合的大小联系起来：
+- en: '![art](images/Art_P855.jpg)'
+  id: totrans-61
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P855.jpg)'
+- en: When a swap occurs in one of the lists, it changes the relative positions of
+    the two elements involved, which in turn changes the inversion count. Suppose
+    that elements *x* and *y* are swapped in some list. Then the only possible difference
+    in the inversion count between this list and *any* other list depends on whether
+    (*x*, *y*) is an inversion. In fact, the inversion count of (*x*, *y*) with respect
+    to any other list *must* change. If (*x*, *y*) is an inversion before the swap,
+    it no longer is afterward, and vice versa. Therefore, if two consecutive elements
+    *x* and *y* swap positions in a list *L*, then for any other list *L*′, the value
+    of the inversion count *I*(*L*, *L*′) either increases by 1 or decreases by 1.
+  id: totrans-62
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当列表中发生交换时，它会改变涉及的两个元素的相对位置，从而改变倒置计数。假设在某个列表中交换了元素*x*和*y*。那么这个列表与*任何*其他列表之间倒置计数的唯一可能差异取决于(*x*,
+    *y*)是否是倒置。实际上，(*x*, *y*)相对于任何其他列表的倒置计数 *必须* 改变。如果在交换之前(*x*, *y*)是倒置的，那么交换后就不再是，反之亦然。因此，如果列表*L*中的两个连续元素*x*和*y*交换位置，则对于任何其他列表*L*′，倒置计数*I*(*L*,
+    *L*′)的值要么增加1，要么减少1。
+- en: As we compare MOVE-TO-FRONT and FORESEE searching and modifying their lists,
+    we’ll think about MOVE-TO-FRONT executing on its list for the *i*th time and then
+    FORESEE executing on its list for the *i*th time. After MOVE-TO-FRONT has executed
+    for the *i*th time and before FORESEE has executed for the *i*th time, we’ll compare
+    ![art](images/Art_P856.jpg) (the inversion count immediately before the *i*th
+    call of MOVE-TO-FRONT) with ![art](images/Art_P857.jpg) (the inversion count after
+    the *i*th call of MOVE-TO-FRONT but before the *i*th call of FORESEE). We’ll concern
+    ourselves later with what FORESEE does.
+  id: totrans-63
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当我们比较MOVE-TO-FRONT和FORESEE搜索和修改它们的列表时，我们将考虑MOVE-TO-FRONT第*i*次在其列表上执行，��后FORESEE第*i*次在其列表上执行。在MOVE-TO-FRONT第*i*次执行后，但在FORESEE第*i*次执行前，我们将比较![艺术](images/Art_P856.jpg)（MOVE-TO-FRONT第*i*次调用之前的倒置计数）和![艺术](images/Art_P857.jpg)（MOVE-TO-FRONT第*i*次调用后但FORESEE第*i*次调用前的倒置计数）。我们稍后会关注FORESEE的操作。
+- en: Let us analyze what happens to the inversion count after executing the *i*th
+    call of MOVE-TO-FRONT, and suppose that it searches for element *x*. More precisely,
+    we’ll compute ![art](images/Art_P858.jpg), the change in the inversion count,
+    which gives a rough idea of how much MOVE-TO-FRONT’s list becomes more or less
+    like FORESEE’s list. After searching, MOVE-TO-FRONT performs a series of swaps
+    with each of the elements on the list ![art](images/LM.jpg) that precedes *x*.
+    Using the notation above, the number of such swaps is |*BB*| + |*BA*|. Bearing
+    in mind that the list ![art](images/LF.jpg) has yet to be changed by the *i*th
+    call of FORESEE, let’s see how the inversion count changes.
+  id: totrans-64
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们分析在执行MOVE-TO-FRONT的第*i*次调用后，倒置计数会发生什么变化，并假设它搜索元素*x*。更确切地说，我们将计算![艺术](images/Art_P858.jpg)，即倒置计数的变化，这给出了MOVE-TO-FRONT的列表变得更像FORESEE的列表的大致想法。在搜索之后，MOVE-TO-FRONT对位于*x*之前的列表![艺术](images/LM.jpg)中的每个元素执行一系列交换。使用上面的符号，这种交换的次数是|*BB*|
+    + |*BA*|。请记住，列表![艺术](images/LF.jpg)在MOVE-TO-FRONT的第*i*次调用之前尚未被FORESEE更改，让我们看看倒置计数如何变化。
+- en: Consider a swap with an element *y* ∈ *BB*. Before the swap, *y* precedes *x*
+    in both ![art](images/LM.jpg) and ![art](images/LF.jpg). After the swap, *x* precedes
+    *y* in ![art](images/Art_P859.jpg), and ![art](images/LF.jpg) does not change.
+    Therefore, the inversion count increases by 1 for each element in *BB*. Now consider
+    a swap with an element *z* ∈ *BA*. Before the swap, *z* precedes *x* in ![art](images/LM.jpg)
+    but *x* precedes *z* in ![art](images/LF.jpg). After the swap, *x* precedes *z*
+    in both lists. Therefore, the inversion count decreases by 1 for each element
+    in *BA*. Thus altogether, the inversion count increases by
+  id: totrans-65
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑与*BB*中的元素*y*进行交换。在交换之前，*y*在![艺术](images/LM.jpg)和![艺术](images/LF.jpg)中都在*x*之前。交换后，*x*在![艺术](images/Art_P859.jpg)中在*y*之前，而![艺术](images/LF.jpg)不会改变。因此，对于*BB*中的每个元素，倒置计数增加1。现在考虑与*BA*中的元素*z*进行交换。在交换之前，*z*在![艺术](images/LM.jpg)中在*x*之前，但在![艺术](images/LF.jpg)中*x*在*z*之前。交换后，*x*在两个列表中都在*z*之前。因此，对于*BA*中的每个元素，倒置计数减少1。因此，总体而言，倒置计数增加了
+- en: '![art](images/Art_P860.jpg)'
+  id: totrans-66
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P860.jpg)'
+- en: We have laid the groundwork needed to analyze MOVE-TO-FRONT.
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们已经奠定了分析MOVE-TO-FRONT所需的基础。
+- en: '***Theorem 27.1***'
+  id: totrans-68
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理27.1***'
+- en: Algorithm MOVE-TO-FRONT has a competitive ratio of 4.
+  id: totrans-69
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MOVE-TO-FRONT算法的竞争比为4。
+- en: '***Proof***   The proof uses a potential function, as described in [Chapter
+    16](chapter016.xhtml) on amortized analysis. The value Φ*[i]* of the potential
+    function after the *i*th calls of MOVE-TO-FRONT and FORESEE depends on the inversion
+    count:'
+  id: totrans-70
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 该证明使用了一个潜在函数，如[第16章](chapter016.xhtml)中对摊销分析的描述。潜在函数Φ*[i]*在MOVE-TO-FRONT和FORESEE的第*i*次调用之后取决于倒置计数：'
+- en: '![art](images/Art_P861.jpg)'
+  id: totrans-71
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P861.jpg)'
+- en: '(Intuitively, the factor of 2 embodies the notion that each inversion represents
+    a cost of 2 for MOVE-TO-FRONT relative to FORESEE: 1 for searching and 1 for swapping.)
+    By equation (27.7), after the *i*th call of MOVE-TO-FRONT, but before the *i*th
+    call of FORESEE, the potential increases by 2(|*BB*| − |*BA*|). Since the inversion
+    count of the two lists is nonnegative, we have Φ*[i]* ≥ 0 for all *i* ≥ 0\. Assuming
+    that MOVE-TO-FRONT and FORESEE start with the same list, the initial potential
+    Φ[0] is 0, so that Φ*[i]* ≥ Φ[0] for all *i*.'
+  id: totrans-72
+  prefs: []
+  type: TYPE_NORMAL
+  zh: （直观地，因子2体现了每个倒置代表MOVE-TO-FRONT相对于FORESEE的成本为2的概念：1用于搜索，1用于交换。）根据方程(27.7)，在MOVE-TO-FRONT的第*i*次调用之后，但在FORESEE的第*i*次调用之前，潜在函数增加了2(|*BB*|
+    − |*BA*|)。由于两个列表的倒置计数是非负的，对于所有*i* ≥ 0，我们有Φ*[i]* ≥ 0。假设MOVE-TO-FRONT和FORESEE从相同的列表开始，初始潜在函数Φ[0]为0，因此对于所有*i*，Φ*[i]*
+    ≥ Φ[0]。
+- en: Drawing from equation (16.2) on page 456, the amortized cost ![art](images/Art_P862.jpg)
+    of the *i*th MOVE-TO-FRONT operation is
+  id: totrans-73
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 借鉴第456页上方程(16.2)，第*i*次MOVE-TO-FRONT操作的摊销成本![艺术](images/Art_P862.jpg)为
+- en: '![art](images/Art_P863.jpg)'
+  id: totrans-74
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P863.jpg)'
+- en: 'where ![art](images/Art_P864.jpg), the actual cost of the *i*th MOVE-TO-FRONT
+    operation, is given by equation (27.3):'
+  id: totrans-75
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中![艺术](images/Art_P864.jpg)，第*i*次MOVE-TO-FRONT操作的实际成本由方程式(27.3)给出：
+- en: '![art](images/Art_P865.jpg)'
+  id: totrans-76
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P865.jpg)'
+- en: 'Now, let’s consider the potential change Φ*[i]* − Φ[*i*−1]. Since both *L^M*
+    and *L^F* change, let’s consider the changes to one list at a time. Recall that
+    when MOVE-TO-FRONT moves element *x* to the front, it increases the potential
+    by exactly 2(|*BB*| − |*BA*|). We now consider how the optimal algorithm FORESEE
+    changes its list *L^F*: it performs *t[i]* swaps. Each swap performed by FORESEE
+    either increases or decreases the potential by 2, and thus the increase in potential
+    by FORESEE in the *i*th call can be at most 2*t[i]*. We therefore have'
+  id: totrans-77
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在，让我们考虑潜在变化Φ*[i]* − Φ[*i*−1]。由于*L^M*和*L^F*都会发生变化，让我们一次考虑一个列表的变化。回想一下，当MOVE-TO-FRONT将元素*x*移动到最前面时，它会将潜在函数增加2(|*BB*|
+    − |*BA*|)。我们现在考虑最优算法FORESEE如何改变其列表*L^F*：它执行*t[i]*次交换。FORESEE执行的每次交换都会使潜在函数增加或减少2，因此FORESEE在第*i*次调用中的潜在函数增加最多为2*t[i]*。因此我们有
+- en: '![art](images/Art_P866.jpg)'
+  id: totrans-78
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P866.jpg)'
+- en: We now finish the proof as in [Chapter 16](chapter016.xhtml) by showing that
+    the total amortized cost provides an upper bound on the total actual cost, because
+    the initial potential function is 0 and the potential function is always nonnegative.
+    By equation (16.3) on page 456, for any sequence of *m* MOVE-TO-FRONT operations,
+    we have
+  id: totrans-79
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们像[第16章](chapter016.xhtml)中那样完成证明，通过展示总摊销成本提供了总实际成本的上界，因为初始潜在函数为0且潜在函数始终为非负。根据第456页的方程式(16.3)，对于任何*m*次MOVE-TO-FRONT操作的序列，我们有
+- en: '![art](images/Art_P867.jpg)'
+  id: totrans-80
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P867.jpg)'
+- en: Therefore, we have
+  id: totrans-81
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，我们有
+- en: '![art](images/Art_P868.jpg)'
+  id: totrans-82
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P868.jpg)'
+- en: Thus the total cost of the *m* MOVE-TO-FRONT operations is at most 4 times the
+    total cost of the *m* FORESEE operations, so MOVE-TO-FRONT is 4-competitive.
+  id: totrans-83
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，*m*次MOVE-TO-FRONT操作的总成本最多是*m*次FORESEE操作的总成本的4倍，因此MOVE-TO-FRONT是4-竞争的。
+- en: ▪
+  id: totrans-84
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Isn’t it amazing that we can compare MOVE-TO-FRONT with the optimal algorithm
+    FORESEE when we have no idea of the swaps that FORESEE makes? We were able to
+    relate the performance of MOVE-TO-FRONT to the optimal algorithm by capturing
+    how particular properties (swaps in this case) must evolve relative to the optimal
+    algorithm, without actually knowing the optimal algorithm.
+  id: totrans-85
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当我们对FORESEE进行交换时没有任何关于FORESEE进行的交换的想法时，我们能够比较MOVE-TO-FRONT和最优算法FORESEE，这不是很神奇吗？我们能够通过捕捉特定属性（在这种情况下是交换）相对于最优算法的演变方式来将MOVE-TO-FRONT的性能与最优算法联系起来，而不需要实际知道最优算法。
+- en: 'The online algorithm MOVE-TO-FRONT has a competitive ratio of 4: on any input
+    sequence, it incurs a cost at most 4 times that of any other algorithm. On a particular
+    input sequence, it could cost much less than 4 times the optimal algorithm, perhaps
+    even matching the optimal algorithm.'
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在任何输入序列上，在线算法MOVE-TO-FRONT的竞争比为4：它产生的成本最多是任何其他算法的4倍。在特定输入序列上，它的成本可能远低于最优算法的4倍，甚至可能与最优算法相匹配。
+- en: '**Exercises**'
+  id: totrans-87
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***27.2-1***'
+  id: totrans-88
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.2-1***'
+- en: You are given a set *S* = {*x*[1], *x*[2], … , *x[n]*} of *n* elements, and
+    you wish to make a static list *L* (no rearranging once the list is created) containing
+    the elements of *S* that is good for searching. Suppose that you have a probability
+    distribution, where *p*(*x[i]*) is the probability that a given search searches
+    for element *x[i]*. Argue that the expected cost for *m* searches is
+  id: totrans-89
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个集合*S* = {*x*[1], *x*[2], … , *x[n]*}，您希望创建一个静态列表*L*（一旦列表创建后就不再重新排列），其中包含*S*的元���，以便进行搜索。假设您有一个概率分布，其中*p*(*x[i]*)是搜索给定元素*x[i]*的概率。论证*m*次搜索的预期成本是
+- en: '![art](images/Art_P869.jpg)'
+  id: totrans-90
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P869.jpg)'
+- en: Prove that this sum is minimized when the elements of *L* are sorted in decreasing
+    order with respect to *p*(*x[i]*).
+  id: totrans-91
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明当*L*的元素按照*p*(*x[i]*)的递减顺序排序时，这个和是最小化的。
+- en: '***27.2-2***'
+  id: totrans-92
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.2-2***'
+- en: Professor Carnac claims that since FORESEE is an optimal algorithm that knows
+    the future, then at each step it must incur no more cost than MOVE-TO-FRONT. Either
+    prove that Professor Carnac is correct or provide a counterexample.
+  id: totrans-93
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 卡纳克教授声称，由于FORESEE是一个知道未来的最优算法，所以在每一步中它必须承担的成本不会比MOVE-TO-FRONT多。要么证明卡纳克教授是正确的，要么提供一个反例。
+- en: '***27.2-3***'
+  id: totrans-94
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.2-3***'
+- en: 'Another way to maintain a linked list for efficient searching is for each element
+    to maintain a ***frequency count***: the number of times that the element has
+    been searched for. The idea is to rearrange list elements after searches so that
+    the list is always sorted by decreasing frequency count, from largest to smallest.
+    Either show that this algorithm is *O*(1)-competitive, or prove that it is not.'
+  id: totrans-95
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了维护一个用于高效搜索的链表的另一种方法是让每个元素维护一个***频率计数***：即该元素被搜索的次数。这个想法是在搜索后重新排列列表元素，使得列表始终按照频率计数递减的顺序排序，从最大到最小。要么证明这个算法是*O*(1)-竞争的，要么证明它不是。
+- en: '***27.2-4***'
+  id: totrans-96
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.2-4***'
+- en: The model in this section charged a cost of 1 for each swap. We can consider
+    an alternative cost model in which, after accessing *x*, you can move *x* anywhere
+    earlier in the list, and there is no cost for doing so. The only cost is the cost
+    of the actual accesses. Show that MOVE-TO-FRONT is 2-competitive in this cost
+    model, assuming that the number requests is sufficiently large. (*Hint:* Use the
+    potential function ![art](images/Art_P870.jpg).)
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节中的模型为每次交换收取1的成本。我们可以考虑另一种成本模型，在这种模型中，访问*x*后，您可以将*x*移动到列表中的任何位置，这样做不会产生成本。唯一的成本是实际访问的成本。展示在这种成本模型中，MOVE-TO-FRONT是2-竞争的，假设请求的数量足够大。（*提示：*使用潜在函数![艺术](images/Art_P870.jpg)。）
+- en: '[**27.3    Online caching**](toc.xhtml#Rh1-159)'
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**27.3    在线缓存**](toc.xhtml#Rh1-159)'
+- en: 'In [Section 15.4](chapter015.xhtml#Sec_15.4), we studied the caching problem,
+    in which ***blocks*** of data from the main memory of a computer are stored in
+    the ***cache***: a small but faster memory. In that section, we studied the offline
+    version of the problem, in which we assumed that we knew the sequence of memory
+    requests in advance, and we designed an algorithm to minimize the number of cache
+    misses. In almost all computer systems, caching is, in fact, an online problem.
+    We do not generally know the series of cache requests in advance; they are presented
+    to the algorithm only as the requests for blocks are actually made. To gain a
+    better understanding of this more realistic scenario, we analyze online algorithms
+    for caching. We will first see that all deterministic online algorithms for caching
+    have a lower bound of Ω(*k*) for the competitive ratio, where *k* is the size
+    of the cache. We will then present an algorithm with a competitive ratio of Θ(*n*),
+    where the input size is *n*, and one with a competitive ratio of *O*(*k*), which
+    matches the lower bound. We will end by showing how to use randomization to design
+    an algorithm with a much better competitive ratio of Θ(lg *k*). We will also discuss
+    the assumptions that underlie randomized online algorithms, via the notion of
+    an adversary, such as we saw in [Chapter 11](chapter011.xhtml) and will see in
+    [Chapter 31](chapter031.xhtml).'
+  id: totrans-99
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[第15.4节](chapter015.xhtml#Sec_15.4)中，我们研究了缓存问题，其中计算机主存中的数据块被存储在缓存中：一个小但更快的内存。在那一节中，我们研究了问题的离线版本，在这个版本中，我们假设事先知道了内存请求的顺序，并设计了一个算法来最小化缓存未命中的次数。在几乎所有的计算机系统中，缓存实际上是一个在线问题。我们通常不会事先知道缓存请求的序列；它们只会在实际请求块时作为算法的输入。为了更好地理解这种更现实的情况，我们分析了用于缓存的在线算法。我们首先会看到，所有确定性的在线缓存算法都有一个竞争比率的Ω(*k*)的下界，其中*k*是缓存的大小。然后我们将介绍一个具有Θ(*n*)竞争比率的算法，其中输入大小为*n*，以及一个具有*O*(*k*)竞争比率的算法，与下界相匹配。最后，我们将展示如何使用随机化设计一个竞争比率为Θ(lg
+    *k*)的算法。我们还将讨论随机化在线算法的假设，通过对手的概念，就像我们在[第11章](chapter011.xhtml)和将在[第31章](chapter031.xhtml)中看到的那样。
+- en: You can find the terminology used to describe the caching problem in [Section
+    15.4](chapter015.xhtml#Sec_15.4), which you might wish to review before proceeding.
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您可以在[第15.4节](chapter015.xhtml#Sec_15.4)中找到描述缓存问题的术语，您可能希望在继续之前进行复习。
+- en: '**27.3.1    Deterministic caching algorithms**'
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**27.3.1    确定性缓存算法**'
+- en: 'In the caching problem, the input comprises a sequence of *n* memory requests,
+    for data in blocks *b*[1], *b*[2], … , *b[n]*, in that order. The blocks requested
+    are not necessarily distinct: each block may appear multiple times within the
+    request sequence. After block *b[i]* is requested, it resides in a cache that
+    can hold up to *k* blocks, where *k* is a fixed cache size. We assume that *n*
+    > *k*, since otherwise we are assured that the cache can hold all the requested
+    blocks at once. When a block *b[i]* is requested, if it is already in the cache,
+    then a ***cache hit*** occurs and the cache remains unchanged. If *b[i]* is not
+    in the cache, then a ***cache miss*** occurs. If the cache contains fewer than
+    *k* blocks upon a cache miss, block *b[i]* is placed into the cache, which now
+    contains one block more than before. If a cache miss occurs with an already full
+    cache, however, some block must be evicted from the cache before *b[i]* can enter.
+    Thus, a caching algorithm must decide which block to evict from the cache upon
+    a cache miss when the cache is full. The goal is to minimize the number of cache
+    misses over the entire request sequence. The caching algorithms considered in
+    this chapter differ only in which block they decide to evict upon a cache miss.
+    We do not consider abilities such as prefetching, in which a block is brought
+    into the cache before an upcoming request in order to avert a future cache miss.'
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在缓存问题中，输入包括一个*n*个内存请求的序列，对应着块*b*[1]、*b*[2]、…、*b[n]*，按照这个顺序。请求的块不一定是不同的：每个块可能在请求序列中出现多次。在请求块*b[i]*之后，它会存储在一个可以容纳最多*k*个块的缓存中，其中*k*是固定的缓存大小。我们假设*n*
+    > *k*，否则我们可以确保缓存可以一次性容纳所有请求的块。当请求块*b[i]*时，如果它已经在缓存中，则会发生***缓存命中***，缓存保持不变。如果*b[i]*不在缓存中，则会发生***缓存未命中***。如果在缓存未命中时缓存中的块少于*k*个，则块*b[i]*会被放入缓存中，这时缓存中的块比之前多一个。然而，如果在缓存已满时发生缓存未命中，必须在*b[i]*进入之前从缓存中淘汰一些块。因此，缓存算法必须在缓存已满时决定在缓存未命中时淘汰哪个块。目标是在整个请求序列中最小化缓存未命中的次数。本章中考虑的缓存算法只在决定在缓存未命中时淘汰哪个块上有所不同。我们不考虑预取能力，即在未来的请求之前将一个块带入缓存以避免未来的缓存未命中。
+- en: 'There are many online caching policies to determine which block to evict, including
+    the following:'
+  id: totrans-103
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 有许多在线缓存策略来确定要淘汰哪个块，包括以下：
+- en: 'First-in, first-out (FIFO): evict the block that has been in the cache the
+    longest time.'
+  id: totrans-104
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 先进先出（FIFO）：淘汰在缓存中停留时间最长的块。
+- en: 'Last-in, first-out (LIFO): evict the block that has been in the cache the shortest
+    time.'
+  id: totrans-105
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 先进先出（LIFO）：淘汰在缓存中停留时间最短的块。
+- en: 'Least Recently Used (LRU): evict the block whose last use is furthest in the
+    past.'
+  id: totrans-106
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 最近最少使用（LRU）：淘汰最久未被使用的块。
+- en: 'Least Frequently Used (LFU): evict the block that has been accessed the fewest
+    times, breaking ties by choosing the block that has been in the cache the longest.'
+  id: totrans-107
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 最不经常使用（LFU）：淘汰被访问次数最少的块，通过选择在缓存中停留时间最长的块来打破平局。
+- en: To analyze these algorithms, we assume that the cache starts out empty, so that
+    no evictions occur during the first *k* requests. We wish to compare the performance
+    of an online algorithm to an optimal offline algorithm that knows the future requests.
+    As we will soon see, all these deterministic online algorithms have a lower bound
+    of Ω(*k*) for their competitive ratio. Some deterministic algorithms also have
+    a competitive ratio with an *O*(*k*) upper bound, but some other deterministic
+    algorithms are considerably worse, having a competitive ratio of Θ(*n*/*k*).
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要分析这些算法，我们假设缓存开始为空，因此在前*k*个请求期间不会发生任何驱逐。我们希望比较在线算法与知道未来请求的最佳离线算法的性能。正如我们很快会看到的，所有这些确定性在线算法的竞争比都有Ω(*k*)的下界。一些确定性算法的竞争比也具有*O*(*k*)的上界，但其他一些确定性算法要糟糕得多，竞争比为Θ(*n*/*k*)。
+- en: We now proceed to analyze the LIFO and LRU policies. In addition to assuming
+    that *n* > *k*, we will assume that at least *k* distinct blocks are requested.
+    Otherwise, the cache never fills up and no blocks are evicted, so that all algorithms
+    exhibit the same behavior. We begin by showing that LIFO has a large competitive
+    ratio.
+  id: totrans-109
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们现在继续分析LIFO和LRU策略。除了假设*n* > *k*，我们还假设至少请求了*k*个不同的块。否则，缓存永远不会填满，也不会驱逐任何块，因此所有算法表现相同。我们首先展示LIFO具有较大的竞争比。
+- en: '***Theorem 27.2***'
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理27.2***'
+- en: LIFO has a competitive ratio of Θ(*n*/*k*) for the online caching problem with
+    *n* requests and a cache of size *k*.
+  id: totrans-111
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LIFO对于具有*k*大小缓存和*n*个请求的在线缓存问题具有Θ(*n*/*k*)的竞争比。
+- en: '***Proof***   We first show a lower bound of Ω(*n*/*k*). Suppose that the input
+    consists of *k* + 1 blocks, numbered 1, 2, … , *k* + 1, and the request sequence
+    is'
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们首先展示Ω(*n*/*k*)的下界。假设输入由*k* + 1个块组成，编号为1, 2, … , *k* + 1，请求序列为'
+- en: 1, 2, 3, 4, … , *k*, *k* + 1, *k*, *k* + 1, *k*, *k* + 1, … ,
+  id: totrans-113
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 1, 2, 3, 4, … , *k*, *k* + 1, *k*, *k* + 1, *k*, *k* + 1, … ,
+- en: where after the initial 1, 2, … , *k*, *k* + 1, the remainder of the sequence
+    alternates between *k* and *k* + 1, with a total of *n* requests. The sequence
+    ends on block *k* if *n* and *k* are either both even or both odd, and otherwise,
+    the sequence ends on block *k*+1\. That is, *b[i]* = *i* for *i* = 1, 2, … *k*−1,
+    *b[i]* = *k*+1 for *i* = *k*+1, *k*+3, … and *b[i]* = *k* for *i* = *k*, *k* +
+    2, …. How many blocks does LIFO evict? After the first *k* requests (which are
+    considered to be cache misses), the cache is filled with blocks 1, 2, … , *k*.
+    The (*k* + 1)st request, which is for block *k* + 1, causes block *k* to be evicted.
+    The (*k* + 2)nd request, which is for block *k*, forces block *k* + 1 to be evicted,
+    since that block was just placed into the cache. This behavior continues, alternately
+    evicting blocks *k* and *k*+1 for the remaining requests. LIFO, therefore, suffers
+    a cache miss on every one of the *n* requests.
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在初始的1, 2, … , *k*, *k* + 1之后，序列的其余部分在*k*和*k* + 1之间交替，共有*n*个请求。如果*n*和*k*都是偶数或都是奇数，序列以块*k*结束，否则以块*k*+1结束。也就是说，对于*i*
+    = 1, 2, … *k*−1，*b[i]* = *i*，对于*i* = *k*+1, *k*+3, …，*b[i]* = *k*+1，对于*i* = *k*,
+    *k* + 2, …，*b[i]* = *k*。LIFO会驱逐多少块？在前*k*个请求之后（被视为缓存未命中），缓存中填充了块1, 2, … , *k*。第(*k*
+    + 1)个请求是为了块*k* + 1，导致块*k*被驱逐。第(*k* + 2)个请求是为了块*k*，强制驱逐块*k* + 1，因为该块刚刚放入缓存。这种行为继续，交替驱逐块*k*和*k*+1直到剩余请求结束。因此，LIFO在每一个*n*个请求中都会发生缓存未命中。
+- en: The optimal offline algorithm knows the entire sequence of requests in advance.
+    Upon the first request of block *k* + 1, it just evicts any block except block
+    *k*, and then it never evicts another block. Thus, the optimal offline algorithm
+    evicts only once. Since the first *k* requests are considered cache misses, the
+    total number of cache misses is *k* + 1\. The competitive ratio, therefore, is
+    *n*/(*k* + 1), or Ω(*n*/*k*).
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最佳离线算法事先知道整个请求序列。在第一个块*k* + 1的请求时，它只是驱逐除块*k*之外的任何块，然后就再也不会驱逐其他块了。因此，最佳离线算法只会驱逐一次。由于前*k*个请求被视为缓存未命中，因此总的缓存未命中次数为*k*
+    + 1。因此，竞争比为*n*/(*k* + 1)，或Ω(*n*/*k*)。
+- en: For the upper bound, observe that on any input of size *n*, any caching algorithm
+    incurs at most *n* cache misses. Because the input contains at least *k* distinct
+    blocks, any caching algorithm, including the optimal offline algorithm, must incur
+    at least *k* cache misses. Therefore, LIFO has a competitive ratio of *O*(*n*/*k*).
+  id: totrans-116
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于上界，观察到在任何大小为*n*的输入上，���何缓存算法最多产生*n*次缓存未命中。因为输入至少包含*k*个不同的块，任何缓存算法，包括最佳离线算法，必须至少产生*k*次缓存未命中。因此，LIFO具有*O*(*n*/*k*)的竞争比。
+- en: ▪
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: We call such a competitive ratio ***unbounded***, because it grows with the
+    input size. Exercise 27.3-2 asks you to show that LFU also has an unbounded competitive
+    ratio.
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们称这种竞争比为***无界***，因为它随着输入大小增长。练习27.3-2要求您展示LFU也具有无界的竞争比。
+- en: FIFO and LRU have a much better competitive ratio of Θ(*k*). There is a big
+    difference between competitive ratios of Θ(*n*/*k*) and Θ(*k*). The cache size
+    *k* is independent of the input sequence and does not grow as more requests arrive
+    over time. A competitive ratio that depends on *n*, on the other hand, does grow
+    with the size of the input sequence and thus can get quite large. It is preferable
+    to use an algorithm with a competitive ratio that does not grow with the input
+    sequence’s size, when possible.
+  id: totrans-119
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 先进先出（FIFO）和最近最少使用（LRU）的竞争比要好得多，为Θ(*k*)。Θ(*n*/*k*)和Θ(*k*)的竞争比之间存在很大差异。缓存大小*k*与输入序列无关，并且随着时间推移到达更多请求时不会增长。另一方面，依赖于*n*的竞争比会随着输入序列的大小增长而增加，因此可能会变得非常大。因此，尽可能使用不随输入序列大小增长的竞争比的算法是更可取的。
+- en: We now show that LRU has a competitive ratio of Θ(*k*), first showing the upper
+    bound.
+  id: totrans-120
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们现在展示LRU的竞争比为Θ(*k*)，首先展示上界。
+- en: '***Theorem 27.3***'
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理27.3***'
+- en: LRU has a competitive ratio of *O*(*k*) for the online caching problem with
+    *n* requests and a cache of size *k*.
+  id: totrans-122
+  prefs: []
+  type: TYPE_NORMAL
+  zh: LRU对于具有*k*大小缓存和*n*个请求的在线缓存问题具有*O*(*k*)的竞争比。
+- en: '***Proof***   To analyze LRU, we will divide the sequence of requests into
+    ***epochs***. Epoch 1 begins with the first request. Epoch *i*, for *i* > 1, begins
+    upon encountering the (*k* + 1)st distinct request since the beginning of epoch
+    *i* − 1\. Consider the following example of requests with *k* = 3:'
+  id: totrans-123
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 分析LRU，我们将请求序列分成***时期***。时期1从第一个请求开始。对于*i* > 1的*i*时期，从*i* − 1时期开始，遇到第(*k*
+    + 1)个不同的请求时开始。考虑以下带有*k* = 3的请求示例：'
+- en: '![art](images/Art_P871.jpg)'
+  id: totrans-124
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P871.jpg)'
+- en: 'The first *k* = 3 distinct requests are for blocks 1, 2 and 5, so epoch 2 begins
+    with the first request for block 4\. In epoch 2, the first 3 distinct requests
+    are for blocks 4, 1, and 2\. Requests for these blocks recur until the request
+    for block 3, and with this request epoch 3 begins. Thus, this example has four
+    epochs:'
+  id: totrans-125
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 前*k* = 3个不同的请求是为了块1, 2和5，因此第2个时期从第一个请求块4开始。在第2个时期，前3个不同的请求是为了块4, 1和2。对这些块的请求会重复，直到请求块3，随着这个请求，第3个时期开始。因此，这个示例有四个时期：
+- en: '![art](images/Art_P872.jpg)'
+  id: totrans-126
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P872.jpg)'
+- en: Now we consider the behavior of LRU. In each epoch, the first time a request
+    for a particular block appears, it may cause a cache miss, but subsequent requests
+    for that block within the epoch cannot cause a cache miss, since the block is
+    now one of the *k* most recently used. For example, in epoch 2, the first request
+    for block 4 causes a cache miss, but the subsequent requests for block 4 do not.
+    (Exercise 27.3-1 asks you to show the contents of the cache after each request.)
+    In epoch 3, requests for blocks 3 and 5 cause cache misses, but the request for
+    block 4 does not, because it was recently accessed in epoch 2\. Since only the
+    first request for a block within an epoch can cause a cache miss and the cache
+    holds *k* blocks, each epoch incurs at most *k* cache misses.
+  id: totrans-127
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们考虑LRU的行为。在每个时期中，第一次请求特定块可能导致缓存未命中，但时期内对该块的后续请求不会导致缓存未命中，因为该块现在是最近使用的*k*个块之一。例如，在第2个时期，对块4的第一个请求导致缓存未命中，但对块4的后续请求不会。
+    （练习27.3-1要求您展示每个请求后缓存的内容。）在第3个时期，块3和5的请求导致缓存未命中，但对块4的请求不会，因为它在第2个时期中最近访问过。由于时期内只有对块的第一个请求可能导致缓存未命中，并且缓存容纳*k*个块，每个时期最多产生*k*个缓存未命中。
+- en: Now consider the behavior of the optimal algorithm. The first request in each
+    epoch must cause a cache miss, even for an optimal algorithm. The miss occurs
+    because, by the definition of an epoch, there *must* have been *k* other blocks
+    accessed since the last access to this block.
+  id: totrans-128
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在考虑最佳算法的行为。每个时期的第一个请求即使对于最佳算法也必须导致缓存��命中。未命中是因为根据时期的定义，*必须*有其他*k*个块在上次访问该块之后被访问。
+- en: Since, for each epoch, the optimal algorithm incurs at least one miss and LRU
+    incurs at most *k*, the competitive ratio is at most *k*/1 = *O*(*k*).
+  id: totrans-129
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于对于每个时期，最佳算法至少产生一个未命中，而LRU至多产生*k*个未命中，因此竞争比至多为*k*/1 = *O*(*k*)。
+- en: ▪
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Exercise 27.3-3 asks you to show that FIFO also has a competitive ratio of *O*(*k*).
+  id: totrans-131
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 练习27.3-3要求您展示FIFO也具有*O*(*k*)的竞争比。
+- en: 'We could show lower bounds of Ω(*k*) on LRU and FIFO, but in fact, we can make
+    a much stronger statement: *any* deterministic online caching algorithm must have
+    a competitive ratio of Ω(*k*). The proof relies on an adversary who knows the
+    online algorithm being used and can tailor the future requests to cause the online
+    algorithm to incur more cache misses than the optimal offline algorithm.'
+  id: totrans-132
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们可以展示LRU和FIFO的Ω(*k*)下界，但实际上，我们可以做出一个更强有力的陈述：*任何*确定性在线缓存算法的竞争比必须为Ω(*k*)。证明依赖于一个知道正在使用的在线算法的对手，并且可以调整未来的请求，使得在线算法比最佳离线算法产生更多的缓存未命中。
+- en: Consider a scenario in which the cache has size *k* and the set of possible
+    blocks to request is {1, 2, … , *k* + 1}. The first *k* requests are for blocks
+    1, 2, … , *k*, so that both the adversary and the deterministic online algorithm
+    place these blocks into the cache. The next request is for block *k* + 1\. In
+    order to make room in the cache for block *k* + 1, the online algorithm evicts
+    some block *b*[1] from the cache. The adversary, knowing that the online algorithm
+    has just evicted block *b*[1], makes the next request be for *b*[1], so that the
+    online algorithm must evict some other block *b*[2] to clear room in the cache
+    for *b*[1]. As you might have guessed, the adversary makes the next request be
+    for block *b*[2], so that the online algorithm evicts some other block *b*[3]
+    to make room for *b*[2]. The online algorithm and the adversary continue in this
+    manner. The online algorithm incurs a cache miss on every request and therefore
+    incurs *n* cache misses over the *n* requests.
+  id: totrans-133
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑这样一个场景，缓存大小为*k*，可能请求的块集合为{1, 2, … , *k* + 1}。前*k*个请求是为了块1, 2, … , *k*，这样对手和确定性在线算法都将这些块放入缓存。下一个请求是块*k*
+    + 1。为了为块*k* + 1腾出缓存空间，在线算法将某个块*b*[1]从缓存中驱逐。对手知道在线算法刚刚驱逐了块*b*[1]，于是下一个请求是为了*b*[1]，这样在线算法必须驱逐其他块*b*[2]以为*b*[1]腾出缓存空间。你可能已经猜到，对手让下一个请求是为了块*b*[2]，这样在线算法将驱逐其他块*b*[3]以为*b*[2]腾出缓存空间。在线算法和对手继续这样进行。在线算法每次请求都会导致缓存未命中，因此在*n*个请求中会导致*n*次缓存未命中。
+- en: Now let’s consider an optimal offline algorithm, which knows the future. As
+    discussed in [Section 15.4](chapter015.xhtml#Sec_15.4), this algorithm is known
+    as furthest-in-future, and it always evicts the block whose next request is furthest
+    in the future. Since there are only *k* + 1 unique blocks, when furthest-in-future
+    evicts a block, we know that it will not be accessed during at least the next
+    *k* requests. Thus, after the first *k* cache misses, the optimal algorithm incurs
+    a cache miss at most once every *k* requests. Therefore, the number of cache misses
+    over *n* requests is at most *k* + *n*/*k*.
+  id: totrans-134
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们考虑一个知道未来的最佳离线算法。正如[第15.4节](chapter015.xhtml#Sec_15.4)中讨论的那样，这个算法被称为最远未来，它总是驱逐下一个请求未来最远的块。由于只有*k*
+    + 1个唯一的块，当最远未来驱逐一个块时，我们知道在接下来的至少*k*个请求中不会访问该块。因此，在前*k*次缓存未命中之后，最佳算法每*k*个请求最多产生一次缓存未命中。因此，在*n*个请求中的缓存未命中次数最多为*k*
+    + *n*/*k*。
+- en: Since the deterministic online algorithm incurs *n* cache misses and the optimal
+    offline algorithm incurs at most *k* + *n*/*k* cache misses, the competitive ratio
+    is at least
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于确定性在线算法产生*n*次缓存未命中，而最佳离线算法最多产生*k* + *n*/*k*次缓存未命中，因此竞争比率至少为
+- en: '![art](images/Art_P873.jpg)'
+  id: totrans-136
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P873.jpg)'
+- en: For *n* ≥ *k*², the above expression is at least
+  id: totrans-137
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于*n* ≥ *k*²，上述表达式至少为
+- en: '![art](images/Art_P874.jpg)'
+  id: totrans-138
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P874.jpg)'
+- en: 'Thus, for sufficiently long request sequences, we have shown the following:'
+  id: totrans-139
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，对于足够长的请求序列，我们已经证明了以下内容：
+- en: '***Theorem 27.4***'
+  id: totrans-140
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理27.4***'
+- en: Any deterministic online algorithm for caching with a cache size of *k* has
+    competitive ratio Ω(*k*).
+  id: totrans-141
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 任何具有缓存大小*k*的确定性在线算法的竞争比率为Ω(*k*)。
+- en: ▪
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Although we can analyze the common caching strategies from the point of view
+    of competitive analysis, the results are somewhat unsatisfying. Yes, we can distinguish
+    between algorithms with a competitive ratio of Θ(*k*) and those with unbounded
+    competitive ratios. In the end, however, all of these competitive ratios are rather
+    high. The online algorithms we have seen so far are deterministic, and it is this
+    property that the adversary is able to exploit.
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管我们可以从竞争分析的角度分析常见的缓存策略，但结果有些令人不满意。是的，我们可以区分竞争比率为Θ(*k*)和竞争比率无界的算法。然而，最终，所有这些竞争比率都相当高。到目前为止，我们看到的在线算法是确定性的，而正是这一特性使得对手能够利用。
+- en: '**27.3.2    Randomized caching algorithms**'
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**27.3.2    随机化缓存算法**'
+- en: If we don’t limit ourselves to deterministic online algorithms, we can use randomization
+    to develop an online caching algorithm with a significantly smaller competitive
+    ratio. Before describing the algorithm, let’s discuss randomization in online
+    algorithms in general. Recall that we analyze online algorithms with respect to
+    an adversary who knows the online algorithm and can design requests knowing the
+    decisions made by the online algorithm. With randomization, we must ask whether
+    the adversary also knows the random choices made by the online algorithm. An adversary
+    who does not know the random choices is ***oblivious***, and an adversary who
+    knows the random choices is ***nonoblivious***. Ideally, we prefer to design algorithms
+    against a nonoblivious adversary, as this adversary is stronger than an oblivious
+    one. Unfortunately, a nonoblivious adversary mitigates much of the power of randomness,
+    as an adversary who knows the outcome of random choices typically can act as if
+    the online algorithm is deterministic. The oblivious adversary, on the other hand,
+    does not know the random choices of the online algorithm, and that is the adversary
+    we typically use.
+  id: totrans-145
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果我们不局限于确定性在线算法，我们可以利用随机化开发一个具有显著较小竞争比率的在线缓存算法。在描述算法之前，让我们先讨论一般在线算法中的随机化。回想一下，我们分析在线算法是针对一个对手的，这个对手知道在线算法并可以设计请求，了解在线算法的决策。对于随机化，我们必须问对手是否也知道在线算法所做的随机选择。不知道随机选择的对手是***遗忘的***，而知道随机选择的对手是***非遗忘的***。理想情况下，我们更倾向于设计针对非遗忘对手的算法，因为这种对手比遗忘对手更强大。不幸的是，一个非遗忘对手会削弱很多随机性的力量，因为通常知道随机选择结果的对手可以表现得好像在线算法是确定性的。另一方面，遗忘对手不知道在线算法的随机选择，这通常是我们使用的对手。
+- en: As a simple illustration of the difference between an oblivious and nonoblivious
+    adversary, imagine that you are flipping a fair coin *n* times, and the adversary
+    wants to know how many heads you flipped. A nonoblivious adversary knows, after
+    each flip, whether the coin came up heads or tails, and hence knows how many heads
+    you flipped. An oblivious adversary, on the other hand, knows only that you are
+    flipping a fair coin *n* times. The oblivious adversary, therefore, can reason
+    that the number of heads follows a binomial distribution, so that the expected
+    number of heads is *n*/2 (by equation (C.41) on page 1199) and the variance is
+    *n*/4 (by equation (C.44) on page 1200). But the oblivious adversary has no way
+    of knowing exactly how many heads you actually flipped.
+  id: totrans-146
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 作为遗忘对手和非遗忘对手之间差异的简单说明，想象一下你抛一枚公平硬币*n*次，对手想知道你抛了多少次正面。一个非遗忘对手在每次抛硬币后都知道硬币是正面还是反面，因此知道你抛了多少次正面。另一方面，遗忘对手只知道你抛了一枚公平硬币*n*次。因此，遗忘对手可以推断出正面次数遵循二项分布，因此正面次数的期望值为*n*/2（通过第1199页的方程（C.41））而方差为*n*/4（通过第1200页的方程（C.44））。但遗忘对手无法准确知道你实际抛了多少次正面。
+- en: Let’s return to caching. We’ll start with a deterministic algorithm and then
+    randomize it. The algorithm we’ll use is an approximation of LRU called MARKING.
+    Rather than “least recently used,” think of MARKING as simply “recently used.”
+    MARKING maintains a 1-bit attribute *mark* for each block in the cache. Initially,
+    all blocks in the cache are unmarked. When a block is requested, if it is already
+    in the cache, it is marked. If the request is a cache miss, MARKING checks to
+    see whether there are any unmarked blocks in the cache. If all blocks are marked,
+    then they are all changed to unmarked. Now, regardless of whether all blocks in
+    the cache were marked when the request occurred, there is at least one unmarked
+    block in the cache, and so an arbitrary unmarked block is evicted, and the requested
+    block is placed into the cache and marked.
+  id: totrans-147
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们回到缓存问题。我们将从确定性算法开始，然后将其随机化。我们将使用的算法是一个近似LRU的算法，称为MARKING。不要将MARKING视为“最近未使用”，而是简单地将其视为“最近使用”。MARKING为缓存中的每个块维护一个1位属性*mark*。最初，缓存中的所有块都未标记。当请求一个块时，如果它已经在缓存中，则将其标记。如果请求是缓存未命中，则MARKING会检查缓存中是否有任何未标记的块。如果所有块都已标记，则它们都会被更改为未标记状态。现在，无论请求发生时缓存中的所有块是否都已标记，缓存中至少有一个未标记的块，因此将会驱逐一个任意未标记的块，并将请求的块放入缓存并标记。
+- en: How should the block to evict from among the unmarked blocks in the cache be
+    chosen? The procedure RANDOMIZED-MARKING on the next page shows the process when
+    the block is chosen randomly. The procedure takes as input a block *b* being requested.
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在从未标记的块中选择要驱逐的块应该如何选择？下一页的 RANDOMIZED-MARKING 过程展示了当随机选择块时的过程。该过程以请求的块 *b* 作为输入。
+- en: RANDOMIZED-MARKING(*b*)
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: RANDOMIZED-MARKING(*b*)
+- en: '| 1 | **if** block *b* resides in the cache, |'
+  id: totrans-150
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | **如果** 块 *b* 存在于缓存中， |'
+- en: '| 2 | *b.mark* = 1 |'
+  id: totrans-151
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | *b.mark* = 1 |'
+- en: '| 3 | **else** |'
+  id: totrans-152
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **否则** |'
+- en: '| 4 | **if** all blocks *b*′ in the cache have *b*′.*mark* = 1 |'
+  id: totrans-153
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **如果** 缓存中所有块 *b*′ 都有 *b*′.*mark* = 1 |'
+- en: '| 5 | unmark all blocks *b*′ in the cache, setting *b*′.*mark* = 0 |'
+  id: totrans-154
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | 取消缓存中所有未标记的块 *b*′，设置 *b*′.*mark* = 0 |'
+- en: '| 6 | select an unmarked block *u* with *u*.*mark* = 0 uniformly at random
+    |'
+  id: totrans-155
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | 以均匀随机方式选择一个未标记的块 *u*，使 *u*.*mark* = 0 |'
+- en: '| 7 | evict block *u* |'
+  id: totrans-156
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | 驱逐块 *u* |'
+- en: '| 8 | place block *b* into the cache |'
+  id: totrans-157
+  prefs: []
+  type: TYPE_TB
+  zh: '| 8 | 将块 *b* 放入缓存 |'
+- en: '| 9 | *b*.*mark* = 1 |'
+  id: totrans-158
+  prefs: []
+  type: TYPE_TB
+  zh: '| 9 | *b*.*mark* = 1 |'
+- en: 'For the purpose of analysis, we say that a new epoch begins immediately after
+    each time line 5 executes. An epoch starts with no marked blocks in the cache.
+    The first time a block is requested during an epoch, the number of marked blocks
+    increases by 1, and any subsequent requests to that block do not change the number
+    of marked blocks. Therefore, the number of marked blocks monotonically increases
+    within an epoch. Under this view, epochs are the same as in the proof of Theorem
+    27.3: with a cache that holds *k* blocks, an epoch comprises requests for *k*
+    distinct blocks (possibly fewer for the final epoch), and the next epoch begins
+    upon a request for a block not in those *k*.'
+  id: totrans-159
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了分析的目的，我们说每次执行时间线 5 后立即开始一个新的时代。一个时代从缓存中没有标记的块开始。在一个时代中，第一次请求一个块时，标记块的数量增加
+    1，对该块的任何后续请求都不会改变标记块的数量。因此，在一个时代内，标记块的数量单调增加。根据这个观点，时代与定理 27.3 的证明中的时代相同：对于一个容纳
+    *k* 个块的缓存，一个时代包括对 *k* 个不同块的请求（最后一个时代可能少于 *k* 个），下一个时代从请求一个不在这 *k* 个块中的块开始。
+- en: Because we are going to analyze a randomized algorithm, we will compute the
+    expected competitive ratio. Recall that for an input *I*, we denote the solution
+    value of an online algorithm *A* by *A*(*I*) and the solution value of an optimal
+    algorithm *F* by *F*(*I*). Online algorithm *A* has an ***expected competitive
+    ratio*** *c* if for all inputs *I*, we have
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为我们将要分析一个随机算法，我们将计算期望的竞争比率。回想一下，对于一个输入 *I*，我们用 *A*(*I*) 表示在线算法 *A* 的解值，用 *F*(*I*)
+    表示最优算法 *F* 的解值。在线算法 *A* 有一个***期望的竞争比率*** *c*，如果对于所有输入 *I*，我们有
+- en: '![art](images/Art_P875.jpg)'
+  id: totrans-161
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P875.jpg)'
+- en: where the expectation is taken over the random choices made by *A*.
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 期望是针对 *A* 的随机选择所做的。
+- en: Although the deterministic MARKING algorithm has a competitive ratio of Θ(*k*)
+    (Theorem 27.4 provides the lower bound and see Exercise 27.3-4 for the upper bound),
+    RANDOMIZED-MARKING has a much smaller expected competitive ratio, namely *O*(lg
+    *k*). The key to the improved competitive ratio is that the adversary cannot always
+    make a request for a block that is not in the cache, since an oblivious adversary
+    does not know which blocks are in the cache.
+  id: totrans-163
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管确定性的 MARKING 算法具有 Θ(*k*) 的竞争比率（定理 27.4 提供了下界，参见练习 27.3-4 提供的上界），但 RANDOMIZED-MARKING
+    有一个更小的期望竞争比率，即 *O*(lg *k*)。改进竞争比率的关键在于对手不能总是请求不在缓存中的块，因为无意识的对手不知道哪些块在缓存中。
+- en: '***Theorem 27.5***'
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 27.5***'
+- en: RANDOMIZED-MARKING has an expected competitive ratio of *O*(lg *k*) for the
+    online caching problem with *n* requests and a cache of size *k*, against an oblivious
+    adversary.
+  id: totrans-165
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于具有 *n* 个请求和大小为 *k* 的缓存的在线缓存问题，RANDOMIZED-MARKING 有一个期望的竞争比率为 *O*(lg *k*)，对抗一个无意识的对手。
+- en: Before proving Theorem 27.5, we prove a basic probabilistic fact.
+  id: totrans-166
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在证明定理 27.5 之前，我们先证明一个基本的概率事实。
+- en: '***Lemma 27.6***'
+  id: totrans-167
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 27.6***'
+- en: 'Suppose that a bag contains *x* + *y* balls: *x* − 1 blue balls, *y* white
+    balls, and 1 red ball. You repeatedly choose a ball at random and remove it from
+    the bag until you have chosen a total of *m* balls that are either blue or red,
+    where *m* ≤ *x*. You set aside each white ball you choose. Then, one of the balls
+    chosen is the red ball with probability *m*/*x*.'
+  id: totrans-168
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设一个袋子里有 *x* + *y* 个球：*x* − 1 个蓝球，*y* 个白球和 1 个红球。你反复随机选择一个球并将其从袋子中取出，直到你总共选择了
+    *m* 个蓝色或红色的球，其中 *m* ≤ *x*。你会将每个选择的白球放在一边。然后，选择的球中有一个是红球的概率为 *m*/*x*。
+- en: '***Proof***   Choosing a white ball does not affect how many blue or red balls
+    are chosen in any way. Therefore, we can continue the analysis as if there were
+    no white balls and the bag contains just *x* − 1 blue balls and 1 red ball.'
+  id: totrans-169
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 选择白球不会以任何方式影响选择多少个蓝球或红球。因此，我们可以继续分析，就好像没有白球，袋子只包含 *x* − 1 个蓝球和 1 个红球。'
+- en: Let *A* be the event that the red ball is not chosen, and let *A[i]* be the
+    event that the *i*th draw does not choose the red ball. By equation (C.22) on
+    page 1190, we have
+  id: totrans-170
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让 *A* 表示红球未被选择的事件，让 *A[i]* 表示第 *i* 次抽取不选择红球的事件。根据第 1190 页的方程式 (C.22)，我们有
+- en: '![art](images/Art_P876.jpg)'
+  id: totrans-171
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P876.jpg)'
+- en: The probability Pr{*A*[1]} that the first ball is blue equals (*x* − 1)/*x*,
+    since initially there are *x* − 1 blue balls and 1 red ball. More generally, we
+    have
+  id: totrans-172
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第一个球是蓝色的概率 Pr{*A*[1]} 等于 (*x* − 1)/*x*，因为最初有 *x* − 1 个蓝球和 1 个红球。更一般地，我们有
+- en: '![art](images/Art_P877.jpg)'
+  id: totrans-173
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P877.jpg)'
+- en: since the *i*th draw is from *x* − *i* blue balls and 1 red ball. Equations
+    (27.13) and (27.14) give
+  id: totrans-174
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为第 *i* 次抽取是从 *x* − *i* 个蓝球和 1 个红球中进行的。方程��� (27.13) 和 (27.14) 给出
+- en: '![art](images/Art_P878.jpg)'
+  id: totrans-175
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P878.jpg)'
+- en: The right-hand side of equation (27.15) is a telescoping product, similar to
+    the telescoping series in equation (A.12) on page 1143\. The numerator of one
+    term equals the denominator of the next, so that everything except the first denominator
+    and last numerator cancel, and we obtain Pr{*A*} = (*x* − *m*)/*x*. Since we actually
+    want to compute Pr{*Ā*} = 1 − Pr{*A*}, that is, the probability that the red ball
+    *is* chosen, we get Pr{*Ā*} = 1 − (*x* − *m*)/*x* = *m*/*x*.
+  id: totrans-176
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 方程（27.15）的右侧是一个类似于第1143页上方程（A.12）中的展开乘积。一个项的分子等于下一个项的分母，因此除了第一个分母和最后一个分子外，其他所有内容都会被取消，我们得到Pr{*A*}
+    = (*x* − *m*)/*x*。由于我们实际上想计算Pr{*Ā*} = 1 − Pr{*A*}，也就是说，红球被选择的概率，我们得到Pr{*Ā*} =
+    1 − (*x* − *m*)/*x* = *m*/*x*。
+- en: ▪
+  id: totrans-177
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Now we can prove Theorem 27.5.
+  id: totrans-178
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们可以证明定理27.5。
+- en: '***Proof***   We’ll analyze RANDOMIZED-MARKING one epoch at a time. Within
+    epoch *i*, any request for a block *b* that is not the first request for block
+    *b* in epoch *i* must result in a cache hit, since after the first request in
+    epoch *i*, block *b* resides in the cache and is marked, so that it cannot be
+    evicted during the epoch. Therefore, since we are counting cache misses, we’ll
+    consider only the first request for each block within each epoch, disregarding
+    all other requests.'
+  id: totrans-179
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们将逐个分析随机标记的每个时期。在第*i*个时期内，对于不是第*i*个时期内块*b*的第一个请求的任何请求，必须导致缓存命中，因为在第*i*个时期的第一个请求之后，块*b*驻留在缓存中并被标记，因此在该时期内无法被驱逐。因此，由于我们正在计算缓存未命中，我们将仅考虑每个时期内每个块的第一个请求，忽略所有其他请求。'
+- en: 'We can classify the requests in an epoch as either old or new. If block *b*
+    resides in the cache at the start of epoch *i*, each request for block *b* during
+    epoch *i* is an ***old request***. Old requests in epoch *i* are for blocks requested
+    in epoch *i* − 1\. If a request in epoch *i* is not old, it is a ***new request***,
+    and it is for a block not requested in epoch *i* − 1\. All requests in epoch 1
+    are new. For example, let’s look again at the request sequence in example (27.11):'
+  id: totrans-180
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们可以将一个时期内的请求分类为旧请求或新请求。如果块*b*在第*i*个时期开始时驻留在缓存中，则第*i*个时期内对块*b*的每个请求都是***旧请求***。第*i*个时期内的旧请求是在第*i*个时期−1中请求的块。如果第*i*个时期中的请求不是旧请求，则是***新请求***，并且是在第*i*个时期−1中未请求的块。第1个时期内的所有请求都是新请求。例如，让我们再次看一下例子（27.11）中的请求序列：
+- en: '| 1, 2, 1, 5 | 4, 4, 1, 2, 4, 2 | 3, 4, 5 | 2, 2, 1, 2, 2. |'
+  id: totrans-181
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1, 2, 1, 5 | 4, 4, 1, 2, 4, 2 | 3, 4, 5 | 2, 2, 1, 2, 2. |'
+- en: Since we can disregard all requests for a block within an epoch other than the
+    first request, to analyze the cache behavior, we can view this request sequence
+    as just
+  id: totrans-182
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于我们可以忽略除每个时期内第一个请求以外的所有块的所有请求，为了分析缓存行为，我们可以将这个请求序列视为只是
+- en: '| 1, 2, 5 | 4, 1, 2 | 3, 4, 5 | 2, 1. |'
+  id: totrans-183
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1, 2, 5 | 4, 1, 2 | 3, 4, 5 | 2, 1. |'
+- en: All three requests in epoch 1 are new. In epoch 2, the requests for blocks 1
+    and 2 are old, but the request for block 4 is new. In epoch 3, the request for
+    block 4 is old, and the requests for blocks 3 and 5 are new. Both requests in
+    epoch 4 are new.
+  id: totrans-184
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第1个时期内的所有三个请求都是新请求。在第2个时期，对块1和块2的请求是旧请求，但对块4的请求是新请求。在第3个时期，对块4的请求是旧请求，对块3和块5的请求是新请求。第4个时期内的两个请求都是新请求。
+- en: Within an epoch, each new request must cause a cache miss since, by definition,
+    the block is not already in the cache. An old request, on the other hand, may
+    or may not cause a cache miss. The old block is in the cache at the beginning
+    of the epoch, but other requests might cause it to be evicted. Returning to our
+    example, in epoch 2, the request for block 4 must cause a cache miss, as this
+    request is new. The request for block 1, which is old, may or may not cause a
+    cache miss. If block 1 was evicted when block 4 was requested, then a cache miss
+    occurs and block 1 must be brought back into the cache. If instead block 1 was
+    not evicted when block 4 was requested, then the request for block 1 results in
+    a cache hit. The request for block 2 could incur a cache miss under two scenarios.
+    One is if block 2 was evicted when block 4 was requested. The other is if block
+    1 was evicted when block 4 was requested, and then block 2 was evicted when block
+    1 was requested. We see that, within an epoch, each ensuing old request has an
+    increasing chance of causing a cache miss.
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在一个时期内，每个新请求必须导致缓存未命中，因为根据定义，该块尚未在缓存中。另一方面，旧请求可能会导致缓存未命中，也可能不会。旧块在时期开始时在缓存中，但其他请求可能会导致其被驱逐。回到我们的例子，在第2个时期，对块4的请求必须导致缓存未命中，因为这个请求是新的。对于块1的请求，这是旧的，可能会导致缓存未命中，也可能不会。如果在请求块4时块1被驱逐，那么会发生缓存未命中，块1必须重新放入缓存中。如果在请求块4时块1没有被驱逐，那么对块1的请求会导致缓存命中。对块2的请求可能会在两种情况下导致缓存未命中。一种情况是在请求块4时块2被驱逐。另一种情况是在请求块1时块1被驱逐，然后在请求块1时块2被驱逐。我们看到，在一个时期内，每个后续的旧请求都有越来越大的可能性导致缓存未命中。
+- en: Because we consider only the first request for each block within an epoch, we
+    assume that each epoch contains exactly *k* requests, and each request within
+    an epoch is for a unique block. (The last epoch might contain fewer than *k* requests.
+    If it does, just add dummy requests to fill it out to *k* requests.) In epoch
+    *i*, denote the number of new requests by *r[i]* ≥ 1 (an epoch must contain at
+    least one new request), so that the number of old requests is *k* − *r[i]*. As
+    mentioned above, a new request always incurs a cache miss.
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为我们只考虑每个时期内每个块的第一个请求，我们假设每个时期包含恰好*k*个请求，并且每个时期内的每个请求都是针对唯一块的。（最后一个时期可能包含少于*k*个请求。如果是这样，只需添加虚拟请求以使其达到*k*个请求。）在第*i*个时期，将新请求的数量表示为*r[i]*
+    ≥ 1（一个时期必须至少包含一个新请求），因此旧请求的数量为*k* − *r[i]*。如上所述，新请求总是导致缓存未命中。
+- en: Let us now focus on an arbitrary epoch *i* to obtain a bound on the expected
+    number of cache misses within that epoch. In particular, let’s think about the
+    *j*th old request within the epoch, where 1 ≤ *j* < *k*. Denote by *b[ij]* the
+    block requested in the *j*th old request of epoch *i*, and denote by *n[ij]* and
+    *o[ij]* the number of new and old requests, respectively, that occur within epoch
+    *i* but before the *j*th old request. Because *j* − 1 old requests occur before
+    the *j*th old request, we have *o[ij]* = *j* − 1\. We will show that the probability
+    of a cache miss upon the *j* th old request is *n[ij]*/(*k* − *o[ij]*), or *n[ij]*/(*k*
+    − *j* + 1).
+  id: totrans-187
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们专注于任意时期*i*，以获得该时期内预期的缓存未命中次数的上限。特别是，让我们考虑时期*i*内的第*j*个旧请求，其中1 ≤ *j* < *k*。用*b[ij]*表示时期*i*中第*j*个旧请求所请求的块，用*n[ij]*和*o[ij]*表示在第*j*个旧请求之前但在时期*i*内发生的新请求和旧请求的数量。因为第*j*个旧请求之前发生了*j*
+    − 1个旧请求，我们有*o[ij]* = *j* − 1。我们将展示在第*j*个旧请求时发生缓存未命中的概率为*n[ij]*/(*k* − *o[ij]*)，或者*n[ij]*/(*k*
+    − *j* + 1)。
+- en: 'Start by considering the first old request, for block *b*[*i*,1]. What is the
+    probability that this request causes a cache miss? It causes a cache miss precisely
+    when one of the *n*[*i*,1] previous requests resulted in *b*[*i*,1] being evicted.
+    We can determine the probability that *b*[*i*,1] was chosen for eviction by using
+    Lemma 27.6: consider the *k* blocks in the cache to be *k* balls, with block *b*[*i*,1]
+    as the red ball, the other *k* − 1 blocks as the *k* − 1 blue balls, and no white
+    balls. Each of the *n*[*i*,1] requests chooses a block to evict with equal probability,
+    corresponding to drawing balls *n*[*i*,1] times. Thus, we can apply Lemma 27.6
+    with *x* = *k*, *y* = 0, and *m* = *n*[*i*,1], deriving the probability of a cache
+    miss upon the first old request as *n*[*i*,1]/*k*, which equals *n[ij]*/(*k* −
+    *j* + 1) since *j* = 1.'
+  id: totrans-188
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 首先考虑第一个旧请求，对于块*b*[*i*,1]。这个请求导致缓存未命中的概率是多少？只有当之前的*n*[*i*,1]个请求中的一个导致*b*[*i*,1]被驱逐时才会导致缓存未命中。我们可以通过引用引理27.6来确定*b*[*i*,1]被选择驱逐的概率：将缓存中的*k*个块视为*k*个球，其中块*b*[*i*,1]是红球，其他*k*
+    − 1个块是*k* − 1个蓝球，没有白球。每个*n*[*i*,1]个请求以相等概率选择一个块进行驱逐，对应于抽取球*n*[*i*,1]次。因此，我们可以将引理27.6应用于*x*
+    = *k*，*y* = 0，*m* = *n*[*i*,1]，推导出第一个旧请求导致缓存未命中的概率为*n*[*i*,1]/*k*，这等于*n[ij]*/(*k*
+    − *j* + 1)，因为*j* = 1。
+- en: In order to determine the probability of a cache miss for subsequent old requests,
+    we’ll need an additional observation. Let’s consider the second old request, which
+    is for block *b*[*i*,2]. This request causes a cache miss precisely when one of
+    the previous requests evicts *b*[*i*,2]. Let’s consider two cases, based on the
+    request for *b*[*i*,1]. In the first case, suppose that the request for *b*[*i*,1]
+    did not cause an eviction, because *b*[*i*,1] was already in the cache. Then,
+    the only way that *b*[*i*,2] could have been evicted is by one of the *n*[*i*,2]
+    new requests that precedes it. What is the probability that this eviction happens?
+    There are *n*[*i*,2] chances for *b*[*i*,2] to be evicted, but we also know that
+    there is one block in the cache, namely *b*[*i*,1], that is not evicted. Thus,
+    we can again apply Lemma 27.6, but with *b*[*i*,1] as the white ball, *b*[*i*,2]
+    as the red ball, the remaining blocks as the blue balls, and drawing balls *n*[*i*,2]
+    times. Applying Lemma 27.6, with *x* = *k* − 1, *y* = 1, and *m* = *n*[*i*,2],
+    we find that the probability of a cache miss is *n*[*i*,2]/(*k* − 1). In the second
+    case, the request for *b*[*i*,1] does cause an eviction, which can happen only
+    if one of the new requests preceding the request for *b*[*i*,1] evicts *b*[*i*,1].
+    Then, the request for *b*[*i*,1] brings *b*[*i*,1] back into the cache and evicts
+    some other block. In this case, we know that of the new requests, one of them
+    did not result in *b*[*i*,2] being evicted, since *b*[*i*,1] was evicted. Therefore,
+    *n*[*i*,2] − 1 new requests could evict *b*[*i*,2], as could the request for *b*[*i*,1],
+    so that the number of requests that could evict *b*[*i*,2] is *n*[*i*,2]. Each
+    such request evicts a block chosen from among *k* − 1 blocks, since the request
+    that resulted in evicting *b*[*i*,1] did not also cause *b*[*i*,2] to be evicted.
+    Therefore, we can apply Lemma 27.6, with *x* = *k* − 1, *y* = 1, and *m* = *n*[*i*,2],
+    and get that the probability of a miss is *n*[*i*,2]/(*k* − 1). In both cases
+    the probability is the same, and it equals *n[ij]*/(*k* − *j* + 1) since *j* =
+    2.
+  id: totrans-189
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了确定后续旧请求导致缓存未命中的概率，我们需要额外的观察。让我们考虑第二个旧请求，即块*b*[*i*,2]。这个请求导致缓存未命中的概率是多少？只有当之前的请求中有一个导致*b*[*i*,2]被驱逐时才会导致缓存未命中。让我们根据对*b*[*i*,1]的请求来考虑两种情况。在第一种情况下，假设对*b*[*i*,1]的请求没有导致驱逐，因为*b*[*i*,1]已经在缓存中。那么*b*[*i*,2]被驱逐的唯一方式是之前的*n*[*i*,2]个新请求之一。这种驱逐发生的概率是多少？*b*[*i*,2]有*n*[*i*,2]次被驱逐的机会，但我们也知道缓存中有一个块，即*b*[*i*,1*，没有被驱逐。因此，我们可以再次应用引理27.6，但是将*b*[*i*,1]作为白球，*b*[*i*,2]作为红球，其余块作为蓝球，并抽取球*n*[*i*,2]次。应用引理27.6，其中*x*
+    = *k* − 1，*y* = 1，*m* = *n*[*i*,2]，我们发现缓存未命中的概率为*n*[*i*,2]/(*k* − 1)。在第二种情况下，对*b*[*i*,1]的请求确实导致了驱逐，只有在之前的请求中有一个新请求导致*b*[*i*,1]被驱逐时才会发生。然后，对*b*[*i*,1]的请求将*b*[*i*,1]重新带入缓存并驱逐其他块。在这种情况下，我们知道新请求中有一个请求没有导致*b*[*i*,2]被驱逐，因为*b*[*i*,1*被驱逐。因此，*n*[*i*,2]
+    − 1个新请求可能会驱逐*b*[*i*,2]，对*b*[*i*,1]的请求也可能会驱逐*b*[*i*,2]，因此可能会驱逐*b*[*i*,2*的请求数量为*n*[*i*,2]。每个这样的请求从*k*
+    − 1个块中选择一个块进行驱逐，因为导致*b*[*i*,1*被驱逐的请求并没有导致*b*[*i*,2]被驱逐。因此，我们可以应用引理27.6，其中*x* =
+    *k* − 1，*y* = 1，*m* = *n*[*i*,2]，得出未命中的概率为*n*[*i*,2]/(*k* − 1)。在两种情况下，概率是相同的，并且它等于*n[ij]*/(*k*
+    − *j* + 1)，因为*j* = 2。
+- en: More generally, *o[ij]* old requests occur before the *j*th old request. Each
+    of these prior old requests either caused an eviction or did not. For those that
+    caused an eviction, it is because they were evicted by a previous request, and
+    for those that did not cause an eviction, it is because they were not evicted
+    by any previous request. In either case, we can decrease the number of blocks
+    that the random process is choosing from by 1 for each old request, and thus *o[ij]*
+    requests cannot cause *b[ij]* to be evicted. Therefore, we can use Lemma 27.6
+    to determine the probability that *b[ij]* was evicted by a previous request, with
+    *x* = *k* − *o[ij]*, *y* = *o[ij]* and *m* = *n[ij]*. Thus, we have proven our
+    claim that the probability of a cache miss on the *j*th request for an old block
+    is *n[ij]*/(*k* − *o[ij]*), or *n[ij]*/(*k* − *j* + 1). Since *n[ij]* ≤ *r[i]*
+    (recall that *r[i]* is the number of new requests during epoch *i*), we have an
+    upper bound of *r[i]*/(*k* − *j* + 1) on the probability that the *j*th old request
+    incurs a cache miss.
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 更一般地，*o[ij]* 个旧请求在第 *j* 个旧请求之前发生。这些先前的旧请求要么导致了驱逐，要么没有。对于那些导致了驱逐的先前旧请求，是因为它们被先前的请求驱逐了，而对于那些没有导致驱逐的旧请求，是因为它们没有被任何先前的请求驱逐。无论哪种情况，我们可以减少随机过程选择的块数，每个旧请求减少
+    1 个块，因此 *o[ij]* 个请求不会导致 *b[ij]* 被驱逐。因此，我们可以使用引理 27.6 来确定 *b[ij]* 被先前请求驱逐的概率，其中
+    *x* = *k* − *o[ij]*，*y* = *o[ij]* 和 *m* = *n[ij]*。因此，我们已经证明了我们的断言，即旧块的第 *j* 个请求发生缓存未命中的概率为
+    *n[ij]*/(*k* − *o[ij]*)，或者 *n[ij]*/(*k* − *j* + 1)。由于 *n[ij]* ≤ *r[i]*（回想一下 *r[i]*
+    是第 *i* 个时期中新请求的数量），我们对第 *j* 个旧请求发生缓存未命中的概率有一个上界为 *r[i]*/(*k* − *j* + 1)。
+- en: We can now compute the expected number of misses during epoch *i* using indicator
+    random variables, as introduced in [Section 5.2](chapter005.xhtml#Sec_5.2). We
+    define indicator random variables
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在我们可以使用指示随机变量来计算第 *i* 个时期的预期未命中次数，如 [Section 5.2](chapter005.xhtml#Sec_5.2)
+    中介绍的。我们定义指示随机变量
+- en: '*Y*[*ij*] = I{the *j*th old request in epoch *i* incurs a cache miss},'
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*Y*[*ij*] = I{第 *i* 个时期中第 *j* 个旧请求导致缓存未命中}，'
+- en: '*Z*[*ij*] = I{the *j* th new request in epoch *i* incurs a cache miss}.'
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*Z*[*ij*] = I{第 *i* 个时期中第 *j* 个新请求导致缓存未命中}。'
+- en: We have *Z[ij]* = 1 for *j* = 1, 2, … , *r[i]*, since every new request results
+    in a cache miss. Let *X[i]* be the random variable denoting the number of cache
+    misses during epoch *i*, so that
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *j* = 1, 2, … , *r[i]*，我们有 *Z[ij]* = 1，因为每个新请求都导致缓存未命中。令 *X[i]* 表示随机变量，表示第
+    *i* 个时期中缓存未命中的次数，因此
+- en: '![art](images/Art_P879.jpg)'
+  id: totrans-195
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P879.jpg)'
+- en: and so
+  id: totrans-196
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此
+- en: '![art](images/Art_P880.jpg)'
+  id: totrans-197
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P880.jpg)'
+- en: where *H[k]* is the *k*th harmonic number.
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 其中 *H[k]* 是第 *k* 个调和数。
+- en: To compute the expected total number of cache misses, we sum over all epochs.
+    Let *p* denote the number of epochs and *X* be the random variable denoting the
+    number of cache misses. Then, we have ![art](images/Art_P881.jpg), so that
+  id: totrans-199
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要计算预期的总缓存未命中次数，我们对所有时期求和。令 *p* 表示时期的数量，*X* 是表示缓存未命中次数的随机变量。然后，我们有 ![艺术](images/Art_P881.jpg)，因此
+- en: '![art](images/Art_P882.jpg)'
+  id: totrans-200
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P882.jpg)'
+- en: To complete the analysis, we need to understand the behavior of the optimal
+    offline algorithm. It could make a completely different set of decisions from
+    those made by RANDOMIZED-MARKING, and at any point its cache may look nothing
+    like the cache of the randomized algorithm. Yet, we want to relate the number
+    of cache misses of the optimal offline algorithm to the value in inequality (27.17),
+    in order to have a competitive ratio that does not depend on ![art](images/Art_P883.jpg).
+    Focusing on individual epochs won’t suffice. At the beginning of any epoch, the
+    offline algorithm might have loaded the cache with exactly the blocks that will
+    be requested in that epoch. Therefore, we cannot take any one epoch in isolation
+    and claim that an offline algorithm must suffer any cache misses during that epoch.
+  id: totrans-201
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要完成分析，我们需要了解最佳离线算法的行为。它可能做出与 RANDOMIZED-MARKING 不同的决策，并且在任何时刻，其缓存可能看起来与随机算法的缓存完全不同。然而，我们希望将最佳离线算法的缓存未命中次数与不依赖于
+    ![艺术](images/Art_P883.jpg) 的不等式（27.17）中的值联系起来，以获得一个竞争比率。仅关注单个时期是不够的。在任何时期的开始，离线算法可能已经将缓存加载了在该时期将被请求的块。因此，我们不能孤立地考虑任何一个时期，并声称离线算法在该时期必须遭受任何缓存未命中。
+- en: If we consider two consecutive epochs, however, we can better analyze the optimal
+    offline algorithm. Consider two consecutive epochs, *i* −1 and *i*. Each contains
+    *k* requests for *k* different blocks. (Recall our assumption that all requests
+    are first requests in an epoch.) Epoch *i* contains *r[i]* requests for new blocks,
+    that is, blocks that were not requested during epoch *i* − 1\. Therefore, the
+    number of distinct requests during epochs *i*−1 and *i* is exactly *k*+*r[i]*.
+    No matter what the cache contents were at the beginning of epoch *i* − 1, after
+    *k* + *r[i]* distinct requests, there must be at least *r[i]* cache misses. There
+    could be more, but there is no way to have fewer. Letting *m*[*i*] denote the
+    number of cache misses of the offline algorithm during epoch *i*, we have just
+    argued that
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然而，如果考虑两个连续的时期，我们可以更好地分析最佳离线算法。考虑两个连续的时���，*i* −1 和 *i*。每个时期包含 *k* 个请求，请求的是
+    *k* 个不同的块。（回想我们的假设，所有请求都是时期中的第一个请求。）时期 *i* 包含 *r[i]* 个新块的请求，即在时期 *i* − 1 中没有请求的块。因此，时期
+    *i*−1 和 *i* 中不同请求的数量正好是 *k*+*r[i]*。无论时期 *i* − 1 开始时缓存内容是什么，在 *k*+*r[i]* 个不同请求之后，至少会有
+    *r[i]* 次缓存未命中。可能会有更多，但不可能更少。令 *m*[*i*] 表示离线算法在第 *i* 个时期中的缓存未命中次数，我们刚刚证明了
+- en: '![art](images/Art_P884.jpg)'
+  id: totrans-203
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P884.jpg)'
+- en: The total number of cache misses of the offline algorithm is
+  id: totrans-204
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 离线算法的总缓存未命中次数为
+- en: '![art](images/Art_P885.jpg)'
+  id: totrans-205
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P885.jpg)'
+- en: The justification *m*[1] = *r*[1] for the last equality follows because, by
+    our assumptions, the cache starts out empty and every request incurs a cache miss
+    in the first epoch, even for the optimal offline adversary.
+  id: totrans-206
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最后一个等式的理由 *m*[1] = *r*[1] 是因为，根据我们的假设，缓存开始为空，每个请求在第一个时期都会导致缓存未命中，即使对于最佳离线对手也是如此。
+- en: To conclude the analysis, because we have an upper bound of ![art](images/Art_P886.jpg)
+    on the expected number of cache misses for RANDOMIZED-MARKING and a lower bound
+    of ![art](images/Art_P887.jpg) on the number of cache misses for the optimal offline
+    algorithm, the expected competitive ratio is at most
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 总结分析，因为我们对于随机标记算法的预期缓存未命中次数有一个上界![art](images/Art_P886.jpg)，以及对于最优离线算法的缓存未命中次数有一个下界![art](images/Art_P887.jpg)，所以期望的竞争比率最多为
+- en: '![art](images/Art_P888.jpg)'
+  id: totrans-208
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P888.jpg)'
+- en: ▪
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Exercises**'
+  id: totrans-210
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***27.3-1***'
+  id: totrans-211
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.3-1***'
+- en: For the cache sequence (27.10), show the contents of the cache after each request
+    and count the number of cache misses. How many misses does each epoch incur?
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于缓存序列（27.10），展示每个请求后缓存的内容并计算缓存未命中次数。每个时期产生多少次未命中？
+- en: '***27.3-2***'
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.3-2***'
+- en: Show that LFU has a competitive ratio of Θ(*n*/*k*) for the online caching problem
+    with *n* requests and a cache of size *k*.
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明LFU对于具有*n*个请求和大小为*k*的缓存的在线缓存问题具有Θ(*n*/*k*)的竞争比率。
+- en: '***27.3-3***'
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.3-3***'
+- en: Show that FIFO has a competitive ratio of *O*(*k*) for the online caching problem
+    with *n* requests and a cache of size *k*.
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明FIFO对于具有*n*个请求和大小为*k*的缓存的在线缓存问题具有*O*(*k*)的竞争比率。
+- en: '***27.3-4***'
+  id: totrans-217
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.3-4***'
+- en: Show that the deterministic MARKING algorithm has a competitive ratio of *O*(*k*)
+    for the online caching problem with *n* requests and a cache of size *k*.
+  id: totrans-218
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明确定性MARKING算法对于具有*n*个请求和大小为*k*的缓存的在线缓存问题具有*O*(*k*)的竞争比率。
+- en: '***27.3-5***'
+  id: totrans-219
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27.3-5***'
+- en: Theorem 27.4 shows that any deterministic online algorithm for caching has a
+    competitive ratio of Ω(*k*), where *k* is the cache size. One way in which an
+    algorithm might be able to perform better is to have some ability to know what
+    the next few requests will be. We say that an algorithm is ***l-lookahead*** if
+    it has the ability to look ahead at the next *l* requests. Prove that for every
+    constant *l* ≥ 0 and every cache size *k* ≥1, every deterministic *l*-lookahead
+    algorithm has competitive ratio Ω(*k*).
+  id: totrans-220
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 定理27.4表明，任何用于缓存的确定性在线算法的竞争比率为Ω(*k*)，其中*k*是缓存大小。算法可能表现更好的一种方式是具有一定能力知道接下来的几个请求是什么。如果一个算法有能力预测接下来的*l*个请求，我们称其为***l-前瞻***算法。证明对于每个常数*l*
+    ≥ 0和每个缓存大小*k* ≥1，每个确定性的*l*-前瞻算法的竞争比率为Ω(*k*)。
+- en: '**Problems**'
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***27-1     Cow-path problem***'
+  id: totrans-222
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27-1     牛路径问题***'
+- en: The Appalachian Trail (AT) is a marked hiking trail in the eastern United States
+    extending between Springer Mountain in Georgia and Mount Katahdin in Maine. The
+    trail is about 2,190 miles long. You decide that you are going to hike the AT
+    from Georgia to Maine and back. You plan to learn more about algorithms while
+    on the trail, and so you bring along your copy of *Introduction to Algorithms*
+    in your backpack.^([2](#footnote_2)) You have already read through this chapter
+    before starting out. Because the beauty of the trail distracts you, you forget
+    about reading this book until you have reached Maine and hiked halfway back to
+    Georgia. At that point, you decide that you have already seen the trail and want
+    to continue reading the rest of the book, starting with [Chapter 28](chapter028.xhtml).
+    Unfortunately, you find that the book is no longer in your pack. You must have
+    left it somewhere along the trail, but you don’t know where. It could be anywhere
+    between Georgia and Maine. You want to find the book, but now that you have learned
+    something about online algorithms, you want your algorithm for finding it to have
+    a good competitive ratio. That is, no matter where the book is, if its distance
+    from you is *x* miles away, you would like to be sure that you do not walk more
+    than *cx* miles to find it, for some constant *c*. You do not know *x*, though
+    you may assume that *x* ≥ 1.^([3](#footnote_3))
+  id: totrans-223
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 阿巴拉契亚小径（AT）是美国东部的一条标志性徒步旅行路线，从乔治亚州的斯普林格山一直延伸到缅因州的卡塔丁山。这条小径长约2,190英里。你决定从乔治亚到缅因再返回徒步走完整条小径。你计划在路上学习更多关于算法的知识，所以你把《算法导论》的副本放在背包里。^([2](#footnote_2))
+    在出发前你已经阅读了这一章节。由于小径的美景让你分心，你忘记了阅读这本书，直到你到达缅因并徒步走了一半回到乔治亚时才想起。在那时，你决定已经看过小径了，想继续阅读这本书的剩余部分，从[第28章](chapter028.xhtml)开始。不幸的是，你发现书不在背包里了。你一定是把它遗落在小径某处了，但你不知道具体在哪。可能是在乔治亚和缅因之间的任何地方。你想找到这本书，但现在你已经学到了一些关于在线算法的知识，你希望找到它的算法具有良好的竞争比率。也就是说，无论书在哪里，如果它距离你*x*英里远，你希望确保你不会走超过*cx*英里来找到它，其中*c*是一个常数。尽管你不知道*x*，但你可以假设*x*
+    ≥ 1。^([3](#footnote_3))
+- en: What algorithm should you use, and what constant *c* can you prove bounds the
+    total distance *cx* that you would have to walk? Your algorithm should work for
+    a trail of any length, not just the 2,190-mile-long AT.
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你应该使用什么算法，以���你能证明的常数*c*限制了你需要走的总距离*cx*？你的算法应适用于任何长度的小径，而不仅仅是长达2,190英里的AT。
+- en: '***27-2     Online scheduling to minimize average completion time***'
+  id: totrans-225
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***27-2     在线调度以最小化平均完成时间***'
+- en: Problem 15-2 discusses scheduling to minimize average completion time on one
+    machine, without release times and preemption and with release times and preemption.
+    Now you will develop an online algorithm for nonpreemptively scheduling a set
+    of tasks with release times. Suppose you are given a set *S* = {*a*[1], *a*[2],
+    … , *a[n]*} of tasks, where task *a[i]* has ***release time*** *r[i]*, before
+    which it cannot start, and requires *p[i]* units of processing time to complete
+    once it has started. You have one computer on which to run the tasks. Tasks cannot
+    be ***preempted***, which is to say that once started, a task must run to completion
+    without interruption. (See Problem 15-2 on page 446 for a more detailed description
+    of this problem.) Given a schedule, let *C[i]* be the ***completion time*** of
+    task *a[i]*, that is, the time at which task *a[i]* completes processing. Your
+    goal is to find a schedule that minimizes the average completion time, that is,
+    to minimize ![art](images/Art_P889.jpg).
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 问题15-2讨论了在一台机器上最小化平均完成时间的调度，不考虑释放时间和抢占，以及考虑释放时间和抢占。现在你将开发一个在线算法来非抢占地调度一组具有释放时间的任务。假设你有一组*S*
+    = {*a*[1], *a*[2], … , *a[n]*}的任务，其中任务*a[i]*具有***释放时间*** *r[i]*，在此之前不能开始，并且需要*p[i]*单位的处理时间才能完成一旦开始。你有一台计算机来运行这些任务。任务不能被***抢占***，也就是说，一旦开始，任务必须连续运行直到完成而不能中断。（有关此问题的更详细描述，请参见第446页的问题15-2。）给定一个调度，让*C[i]*是任务*a[i]*的***完成时间***，即任务*a[i]*完成处理的时间。你的目标是找到一个最小化平均完成时间的调度，也就是最小化![艺术](images/Art_P889.jpg)。
+- en: In the online version of this problem, you learn about task *i* only when it
+    arrives at its release time *r[i]*, and at that point, you know its processing
+    time *p[i]*. The offline version of this problem is NP-hard (see [Chapter 34](chapter034.xhtml)),
+    but you will develop a 2-competitive online algorithm.
+  id: totrans-227
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在这个问题的在线版本中，只有当任务*i*到达其释放时间*r[i]*时，你才了解有关任务*i*的信息，并且在那时，你知道它的处理时间*p[i]*。这个问题的离线版本是NP难的（参见[第34章](chapter034.xhtml)），但你将开发一个2-competitive的在线算法。
+- en: '***a.*** Show that, if there are release times, scheduling by shortest processing
+    time (when the machine becomes idle, start the already released task with the
+    smallest processing time that has not yet run) is not *d*-competitive for any
+    constant *d*.'
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 显示，如果存在释放时间，按照最短处理时间调度（当机器空闲时，开始已释放的具有尚未运行的最小处理时间的任务）对于任何常数*d*都不是*d*-competitive的。'
+- en: In order to develop an online algorithm, consider the preemptive version of
+    this problem, which is discussed in Problem 15-2(b). One way to schedule is to
+    run the tasks according to the shortest remaining processing time (SRPT) order.
+    That is, at any point, the machine is running the available task with the smallest
+    amount of remaining processing time.
+  id: totrans-229
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了开发一个在线算法，考虑这个问题的抢占版本，该版本在问题15-2(b)中讨论。一种调度方式是根据剩余处理时间最短（SRPT）顺序运行任务。也就是说，在任何时刻，机器正在运行剩余处理时间最短的可用任务。
+- en: '***b.*** Explain how to run SRPT as an online algorithm.'
+  id: totrans-230
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 解释如何将SRPT作为在线算法运行。'
+- en: '***c.*** Suppose that you run SRPT and obtain completion times ![art](images/Art_P890.jpg).
+    Show that'
+  id: totrans-231
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 假设你运行SRPT并获得完成时间![艺术](images/Art_P890.jpg)。展示'
+- en: '![art](images/Art_P891.jpg)'
+  id: totrans-232
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P891.jpg)'
+- en: where the ![art](images/Art_P892.jpg) are the completion times in an optimal
+    nonpreemptive schedule.
+  id: totrans-233
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ���中![艺术](images/Art_P892.jpg)是最佳非抢占调度中的完成时间。
+- en: Consider the (offline) algorithm COMPLETION-TIME-SCHEDULE.
+  id: totrans-234
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑（离线）算法COMPLETION-TIME-SCHEDULE。
+- en: COMPLETION-TIME-SCHEDULE(*S*)
+  id: totrans-235
+  prefs: []
+  type: TYPE_NORMAL
+  zh: COMPLETION-TIME-SCHEDULE(*S*)
+- en: '| 1 | compute an optimal schedule for the preemptive version of the problem
+    |'
+  id: totrans-236
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 为问题的抢占版本计算一个最优调度 |'
+- en: '| 2 | renumber the tasks so that the completion times in the optimal preemptive
+    schedule are ordered by their completion times ![art](images/Art_P893.jpg) in
+    SRPT order |'
+  id: totrans-237
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | 重新编号任务，使得最佳抢占调度中的完成时间按照SRPT顺序的完成时间![艺术](images/Art_P893.jpg)排序 |'
+- en: '| 3 | greedily schedule the tasks nonpreemptively in the renumbered order *a*[1],
+    … , *a[n]* |'
+  id: totrans-238
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | 在重新编号的顺序*a*[1], … , *a[n]*中贪婪地调度任务，不抢占地 |'
+- en: '| 4 | let *C*[1], … , *C[n]* be the completion times of renumbered tasks *a*[1],
+    … , *a[n]* in this nonpreemptive schedule |'
+  id: totrans-239
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | 让*C*[1], … , *C[n]*是这个非抢占调度中重新编号的任务*a*[1], … , *a[n]*的完成时间 |'
+- en: '| 5 | **return** *C*[1], … , *C[n]* |'
+  id: totrans-240
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **返回** *C*[1], … , *C[n]* |'
+- en: '***d.*** Prove that ![art](images/Art_P894.jpg) for *i* = 1, … , *n*.'
+  id: totrans-241
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 证明对于*i* = 1, … , *n*，![艺术](images/Art_P894.jpg)成立。'
+- en: '***e.*** Prove that ![art](images/Art_P895.jpg) for *i* = 1, … , *n*.'
+  id: totrans-242
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 证明对于*i* = 1, … , *n*，![艺术](images/Art_P895.jpg)成立。'
+- en: '***f.*** Algorithm COMPLETION-TIME-SCHEDULE is an offline algorithm. Explain
+    how to modify it to produce an online algorithm.'
+  id: totrans-243
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 算法COMPLETION-TIME-SCHEDULE是一个离线算法。解释如何修改它以生成一个在线算法。'
+- en: '***g.*** Combine parts (c)–(f) to show that the online version of COMPLETION-TIME-SCHEDULE
+    is 2-competitive.'
+  id: totrans-244
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***g.*** 结合部分（c）-（f）来展示COMPLETION-TIME-SCHEDULE的在线版本是2-competitive的。'
+- en: '**Chapter notes**'
+  id: totrans-245
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: Online algorithms are widely used in many domains. Some good overviews include
+    the textbook by Borodin and El-Yaniv [[68](bibliography001.xhtml#endnote_68)],
+    the collection of surveys edited by Fiat and Woeginger [[142](bibliography001.xhtml#endnote_142)],
+    and the survey by Albers [[14](bibliography001.xhtml#endnote_14)].
+  id: totrans-246
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在许多领域广泛使用在线算法。一些很好的概述包括Borodin和El-Yaniv的教科书[[68](bibliography001.xhtml#endnote_68)]，Fiat和Woeginger编辑的调查集[[142](bibliography001.xhtml#endnote_142)]，以及Albers的调查[[14](bibliography001.xhtml#endnote_14)]。
+- en: The move-to-front heuristic from [Section 27.2](chapter027.xhtml#Sec_27.2) was
+    analyzed by Sleator and Tarjan [[416](bibliography001.xhtml#endnote_416), [417](bibliography001.xhtml#endnote_417)]
+    as part of their early work on amortized analysis. This rule works quite well
+    in practice.
+  id: totrans-247
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 来自[第27.2节](chapter027.xhtml#Sec_27.2)的move-to-front启发式方法被Sleator和Tarjan[[416](bibliography001.xhtml#endnote_416),
+    [417](bibliography001.xhtml#endnote_417)]分析为他们早期关于摊销分析的工作的一部分。这个规则在实践中表现得相当不错。
+- en: Competitive analysis of online caching also originated with Sleator and Tarjan
+    [[417](bibliography001.xhtml#endnote_417)]. The randomized marking algorithm was
+    proposed and analyzed by Fiat et al. [[141](bibliography001.xhtml#endnote_141)].
+    Young [[464](bibliography001.xhtml#endnote_464)] surveys online caching and paging
+    algorithms, and Buchbinder and Naor [[76](bibliography001.xhtml#endnote_76)] survey
+    primal-dual online algorithms.
+  id: totrans-248
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对在线缓存的竞争性分析也起源于Sleator和Tarjan [[417](bibliography001.xhtml#endnote_417)]。随机标记算法是由Fiat等人提出和分析的
+    [[141](bibliography001.xhtml#endnote_141)]。Young [[464](bibliography001.xhtml#endnote_464)]
+    对在线缓存和分页算法进行了调查，而Buchbinder和Naor [[76](bibliography001.xhtml#endnote_76)] 对原始-对偶在线算法进行了调查。
+- en: Specific types of online algorithms are described using other names. ***Dynamic
+    graph algorithms*** are online algorithms on graphs, where at each step a vertex
+    or edge undergoes modification. Typically a vertex or edge is either inserted
+    or deleted, or some associated property, such as edge weight, changes. Some graph
+    problems need to be solved again after each change to the graph, and a good dynamic
+    graph algorithm will not need to solve from scratch. For example, edges are inserted
+    and deleted, and after each change to the graph, the minimum spanning tree is
+    recomputed. Exercise 21.2-8 asks such a question. Similar questions can be asked
+    for other graph algorithms, such as shortest paths, connectivity, or matching.
+    The first paper in this field is credited to Even and Shiloach [[138](bibliography001.xhtml#endnote_138)],
+    who study how to maintain a shortest-path tree as edges are being deleted from
+    a graph. Since then hundreds of papers have been published. Demetrescu et al.
+    [[110](bibliography001.xhtml#endnote_110)] survey early developments in dynamic
+    graph algorithms.
+  id: totrans-249
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 具体类型的在线算法使用其他名称描述。***动态图算法*** 是图上的在线算法，在每一步中，一个顶点或边都会发生修改。通常情况下，一个顶点或边要么被插入或删除，或者某些相关属性，如边的权重，发生变化。一些图问题需要在每次图的更改后重新解决，一个好的动态图算法不需要从头开始解决。例如，边被插入和删除，每次图的更改后，最小生成树被重新计算。练习21.2-8提出了这样一个问题。类似的问题也可以针对其他图算法提出，比如最短路径、连通性或匹配。这个领域的第一篇论文归功于Even和Shiloach
+    [[138](bibliography001.xhtml#endnote_138)]，他们研究了如何在从图中删除边的过程中维护最短路径树。从那时起，已经发表了数百篇论文。Demetrescu等人
+    [[110](bibliography001.xhtml#endnote_110)] 对动态图算法的早期发展进行了调查。
+- en: For massive data sets, the input data might be too large to store. ***Streaming
+    algorithms*** model this situation by requiring the memory used by an algorithm
+    to be significantly smaller than the input size. For example, you may have a graph
+    with *n* vertices and *m* edges with *m* ≫ *n*, but the memory allowed may be
+    only *O*(*n*). Or you may have *n* numbers, but the memory allowed may only be
+    *O*(lg *n*) or ![art](images/Art_P896.jpg). A streaming algorithm is measured
+    by the number of passes made over the data in addition to the running time of
+    the algorithm. McGregor [[322](bibliography001.xhtml#endnote_322)] surveys streaming
+    algorithms for graphs and Muthukrishnan [[341](bibliography001.xhtml#endnote_341)]
+    surveys general streaming algorithms.
+  id: totrans-250
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于大规模数据集，输入数据可能太大而无法存储。***流算法***通过要求算法使用的内存显著小于输入大小来模拟这种情况。例如，你可能有一个具有*n*个顶点和*m*条边的图，其中*m*
+    ≫ *n*，但允许的内存可能只有*O*(*n*)。或者你可能有*n*个数字，但允许的内存只能是*O*(lg *n*)或![art](images/Art_P896.jpg)。流算法的衡量标准是对数据进行的遍历次数，以及算法的运行时间。McGregor
+    [[322](bibliography001.xhtml#endnote_322)] 对图的流算法进行了调查，而Muthukrishnan [[341](bibliography001.xhtml#endnote_341)]
+    对一般的流算法进行了调查。
+- en: '[¹](#footnote_ref_1) The path-compression heuristic in [Section 19.3](chapter019.xhtml#Sec_19.3)
+    resembles MOVE-TO-FRONT, although it would be more accurately expressed as “move-to-next-to-front.”
+    Unlike MOVE-TO-FRONT in a doubly linked list, path compression can relocate multiple
+    elements to become “next-to-front.”'
+  id: totrans-251
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) [第19.3节](chapter019.xhtml#Sec_19.3)中的路径压缩启发类似于MOVE-TO-FRONT，尽管更准确地表达为“move-to-next-to-front”。与双向链表中的MOVE-TO-FRONT不同，路径压缩可以将多个元素重新定位为“next-to-front”。'
+- en: '[²](#footnote_ref_2) This book is heavy. We do not recommend that you carry
+    it on a long hike.'
+  id: totrans-252
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 这本书很重。我们不建议你在长途徒步旅行时携带它。'
+- en: '[³](#footnote_ref_3) In case you’re wondering what this problem has to do with
+    cows, some papers about it frame the problem as a cow looking for a field in which
+    to graze.'
+  id: totrans-253
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[³](#footnote_ref_3) 如果你想知道这个问题与牛有什么关系，一些论文将这个问题描述为一头牛在寻找一个草地来吃草。'

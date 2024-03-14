@@ -1,0 +1,2404 @@
+- en: '[**15        Greedy Algorithms**](toc.xhtml#chap-15)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**15        贪婪算法**](toc.xhtml#chap-15)'
+- en: Algorithms for optimization problems typically go through a sequence of steps,
+    with a set of choices at each step. For many optimization problems, using dynamic
+    programming to determine the best choices is overkill, and simpler, more efficient
+    algorithms will do. A ***greedy algorithm*** always makes the choice that looks
+    best at the moment. That is, it makes a locally optimal choice in the hope that
+    this choice leads to a globally optimal solution. This chapter explores optimization
+    problems for which greedy algorithms provide optimal solutions. Before reading
+    this chapter, you should read about dynamic programming in [Chapter 14](chapter014.xhtml),
+    particularly [Section 14.3](chapter014.xhtml#Sec_14.3).
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 优化问题的算法通常经历一系列步骤，在每一步都有一组选择。对于许多优化问题，使用动态规划确定最佳选择是不切实际的，更简单、更高效的算法会更好。***贪婪算法***总是在当前看起来最好的选择。也就是说，它在希望这个选择会导致全局最优解的情况下做出局部最优选择。本章探讨了贪婪算法为其提供最优解的优化问题。在阅读本章之前，你应该阅读[第14章](chapter014.xhtml)中关于动态规划的内容，特别是[第14.3节](chapter014.xhtml#Sec_14.3)。
+- en: 'Greedy algorithms do not always yield optimal solutions, but for many problems
+    they do. We first examine, in [Section 15.1](chapter015.xhtml#Sec_15.1), a simple
+    but nontrivial problem, the activity-selection problem, for which a greedy algorithm
+    efficiently computes an optimal solution. We’ll arrive at the greedy algorithm
+    by first considering a dynamic-programming approach and then showing that an optimal
+    solution can result from always making greedy choices. [Section 15.2](chapter015.xhtml#Sec_15.2)
+    reviews the basic elements of the greedy approach, giving a direct approach for
+    proving greedy algorithms correct. [Section 15.3](chapter015.xhtml#Sec_15.3) presents
+    an important application of greedy techniques: designing data-compression (Huffman)
+    codes. Finally, [Section 15.4](chapter015.xhtml#Sec_15.4) shows that in order
+    to decide which blocks to replace when a miss occurs in a cache, the “furthest-in-future”
+    strategy is optimal if the sequence of block accesses is known in advance.'
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 贪婪算法并不总是产生最优解，但对于许多问题来说确实如此。我们首先在[第15.1节](chapter015.xhtml#Sec_15.1)中研究一个简单但非平凡的问题，即活动选择问题，对于这个问题，贪婪算法可以高效地计算出最优解。我们将通过首先考虑动态规划方法，然后展示总是做出贪婪选择可以得到最优解的方式来得到贪婪算法。[第15.2节](chapter015.xhtml#Sec_15.2)回顾了贪婪方法的基本要素，提供了证明贪婪算法正确性的直接方法。[第15.3节](chapter015.xhtml#Sec_15.3)介绍了贪婪技术的一个重要应用：设计数据压缩（哈夫曼）编码。最后，[第15.4节](chapter015.xhtml#Sec_15.4)表明，为了在缓存发生缺失时决定替换哪些块，如果块访问序列事先已知，“未来最远”策略是最优的。
+- en: The greedy method is quite powerful and works well for a wide range of problems.
+    Later chapters will present many algorithms that you can view as applications
+    of the greedy method, including minimum-spanning-tree algorithms ([Chapter 21](chapter021.xhtml)),
+    Dijkstra’s algorithm for shortest paths from a single source ([Section 22.3](chapter022.xhtml#Sec_22.3)),
+    and a greedy set-covering heuristic ([Section 35.3](chapter035.xhtml#Sec_35.3)).
+    Minimum-spanning-tree algorithms furnish a classic example of the greedy method.
+    Although you can read this chapter and [Chapter 21](chapter021.xhtml) independently
+    of each other, you might find it useful to read them together.
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 贪婪方法非常强大，在广泛的问题范围内表现良好。后续章节将介绍许多算法，你可以将其视为贪婪方法的应用，包括最小生成树算法（[第21章](chapter021.xhtml)）、Dijkstra算法用于单源最短路径���[第22.3节](chapter022.xhtml#Sec_22.3)）以及贪婪集覆盖启发式算法（[第35.3节](chapter035.xhtml#Sec_35.3)）。最小生成树算法提供了贪婪方法的一个经典示例。虽然你可以独立阅读本章和[第21章](chapter021.xhtml)，但一起阅读可能更有帮助。
+- en: '[**15.1    An activity-selection problem**](toc.xhtml#Rh1-88)'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**15.1    活动选择问题**](toc.xhtml#Rh1-88)'
+- en: 'Our first example is the problem of scheduling several competing activities
+    that require exclusive use of a common resource, with a goal of selecting a maximum-size
+    set of mutually compatible activities. Imagine that you are in charge of scheduling
+    a conference room. You are presented with a set *S* = {*a*[1], *a*[2], … , *a[n]*}
+    of *n* proposed ***activities*** that wish to reserve the conference room, and
+    the room can serve only one activity at a time. Each activity *a[i]* has a ***start
+    time*** *s[i]* and a ***finish time*** *f[i]*, where 0 ≤ *s[i]* < *f[i]* < ∞.
+    If selected, activity *a[i]* takes place during the half-open time interval [*s[i]*,
+    *f[i]*). Activities *a[i]* and *a[j]* are ***compatible*** if the intervals [*s[i]*,
+    *f[i]*) and [*s[j]*, *f[j]*) do not overlap. That is, *a[i]* and *a[j]* are compatible
+    if *s[i]* ≥ *f[j]* or *s[j]* ≥ *f[i]*. (Assume that if your staff needs time to
+    change over the room from one activity to the next, the changeover time is built
+    into the intervals.) In the ***activity-selection problem***, your goal is to
+    select a maximum-size subset of mutually compatible activities. Assume that the
+    activities are sorted in monotonically increasing order of finish time:'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们的第一个例子是安排几个竞争活动，这些活动需要独占使用一个共同资源，目标是选择一个最大规模的相互兼容活动集合的问题。想象一下，你负责安排一个会议室。你被提供了一个集合*S*
+    = {*a*[1], *a*[2], … , *a[n]*}，这些活动希望预订会议室，而且房间一次只能服务一个活动。每个活动*a[i]*都有一个***开始时间***
+    *s[i]* 和一个***结束时间*** *f[i]*，其中 0 ≤ *s[i]* < *f[i]* < ∞。如果选择，活动*a[i]*发生在半开时间区间[*s[i]*,
+    *f[i]*)内。如果活动*a[i]*和*a[j]*是***兼容的***，则区间[*s[i]*, *f[i]*)和[*s[j]*, *f[j]*)不重叠。也就是说，如果*s[i]*
+    ≥ *f[j]*或*s[j]* ≥ *f[i]*，则*a[i]*和*a[j]*是兼容的。（假设如果你的工作人员需要时间来从一个活动转换到下一个活动，转换时间已经包含在时间区间内。）在***活动选择问题***中，你的目标是选择一个最大规模的相互兼容活动子集。假设活动按照结束时间的单调递增顺序排序：
+- en: '![art](images/Art_P485.jpg)'
+  id: totrans-6
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P485.jpg)'
+- en: (We’ll see later the advantage that this assumption provides.) For example,
+    consider the set of activities in [Figure 15.1](chapter015.xhtml#Fig_15-1). The
+    subset {*a*[3], *a*[9], *a*[11]} consists of mutually compatible activities. It
+    is not a maximum subset, however, since the subset {*a*[1], *a*[4], *a*[8], *a*[11]}
+    is larger. In fact, {*a*[1], *a*[4], *a*[8], *a*[11]} is a largest subset of mutually
+    compatible activities, and another largest subset is {*a*[2], *a*[4], *a*[9],
+    *a*[11]}.
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: （稍后我们将看到这种假设提供的优势。）例如，考虑[图 15.1](chapter015.xhtml#Fig_15-1)中的活动集合。子集{*a*[3]，*a*[9]，*a*[11]}由相互兼容的活动组成。然而，它不是最大的子集，因为子集{*a*[1]，*a*[4]，*a*[8]，*a*[11]}更大。事实上，{*a*[1]，*a*[4]，*a*[8]，*a*[11]}是最大的相互兼容活动子集，另一个最大的子集是{*a*[2]，*a*[4]，*a*[9]，*a*[11]}。
+- en: We’ll see how to solve this problem, proceeding in several steps. First we’ll
+    explore a dynamic-programming solution, in which you consider several choices
+    when determining which subproblems to use in an optimal solution. We’ll then observe
+    that you need to consider only one choice—the greedy choice—and that when you
+    make the greedy choice, only one subproblem remains. Based on these observations,
+    we’ll develop a recursive greedy algorithm to solve the activity-selection problem.
+    Finally, we’ll complete the process of developing a greedy solution by converting
+    the recursive algorithm to an iterative one. Although the steps we go through
+    in this section are slightly more involved than is typical when developing a greedy
+    algorithm, they illustrate the relationship between greedy algorithms and dynamic
+    programming.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将看到如何解决这个问题，分几个步骤进行。首先，我们将探讨动态规划解决方案，在确定最优解中使用哪些子问题时，你需要考虑几种选择。然后我们将观察到，你只需要考虑一个选择——贪心选择——当你做出贪心选择时，只剩下一个子问题。基于这些观察，我们将开发一个递归贪心算法来解决活动选择问题。最后，我们将通过将递归算法转换为迭代算法来完成开发贪心解决方案的过程。尽管我们在这一部分的步骤比典型的贪心算法开发稍微复杂一些，但它们展示了贪心算法和动态规划之间的关系。
+- en: '![art](images/Art_P486.jpg)'
+  id: totrans-9
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P486.jpg)'
+- en: '**Figure 15.1** A set {*a*[1], *a*[2], … , *a*[11]} of activities. Activity
+    *a[i]* has start time *s[i]* and finish time *f[i]*.'
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 15.1** 一组活动{*a*[1]，*a*[2]，…，*a*[11]}。活动*a[i]*具有开始时间*s[i]*和结束时间*f[i]*。'
+- en: '**The optimal substructure of the activity-selection problem**'
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**活动选择问题的最优子结构**'
+- en: 'Let’s verify that the activity-selection problem exhibits optimal substructure.
+    Denote by *S[ij]* the set of activities that start after activity *a[i]* finishes
+    and that finish before activity *a[j]* starts. Suppose that you want to find a
+    maximum set of mutually compatible activities in *S[ij]*, and suppose further
+    that such a maximum set is *A[ij]*, which includes some activity *a[k]*. By including
+    *a[k]* in an optimal solution, you are left with two subproblems: finding mutually
+    compatible activities in the set *S[ik]* (activities that start after activity
+    *a[i]* finishes and that finish before activity *a[k]* starts) and finding mutually
+    compatible activities in the set *S[kj]* (activities that start after activity
+    *a[k]* finishes and that finish before activity *a[j]* starts). Let *A[ik]* =
+    *A[ij]* ∩ *S[ik]* and *A[kj]* = *A[ij]* ∩ *S[kj]*, so that *A[ik]* contains the
+    activities in *A[ij]* that finish before *a[k]* starts and *A[kj]* contains the
+    activities in *A[ij]* that start after *a[k]* finishes. Thus, we have *A[ij]*
+    = *A[ik]* ∪ {*a[k]*} ∪ *A[kj]*, and so the maximum-size set *A[ij]* of mutually
+    compatible activities in *S[ij]* consists of |*A[ij]* | = |*A[ik]*| + |*A[kj]*
+    | + 1 activities.'
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们验证活动选择问题展示出最优子结构。用*S[ij]*表示在活动*a[i]*结束后开始并在活动*a[j]*开始前结束的活动集合。假设你想在*S[ij]*中找到一组最大的相互兼容活动，并进一步假设这样一个最大集合是*A[ij]*，其中包括一些活动*a[k]*。通过在最优解中包含*a[k]*，你留下了两个子问题：在集合*S[ik]*中找到相互兼容的活动（在活动*a[i]*结束后开始并在活动*a[k]*开始前结束的活动）和在集合*S[kj]*中找到相互兼容的活动（在活动*a[k]*结束后开始并在活动*a[j]*开始前结束的活动）。让*A[ik]*
+    = *A[ij]* ∩ *S[ik]* 和 *A[kj]* = *A[ij]* ∩ *S[kj]*，这样*A[ik]*包含在*a[k]*开始前结束的*A[ij]*中的活动，*A[kj]*包含在*a[k]*结束后开始的*A[ij]*中的活动。因此，我们有*A[ij]*
+    = *A[ik]* ∪ {*a[k]*} ∪ *A[kj]*，因此最大大小的相互兼容活动集合*A[ij]*在*S[ij]*中包含|*A[ij]* | = |*A[ik]*|
+    + |*A[kj]* | + 1个活动。
+- en: The usual cut-and-paste argument shows that an optimal solution *A[ij]* must
+    also include optimal solutions to the two subproblems for *S[ik]* and *S[kj]*.
+    If you could find a set ![art](images/Akj.jpg) of mutually compatible activities
+    in *S[kj]* where ![art](images/Akj1.jpg), then you could use ![art](images/Akj.jpg),
+    rather than *A[kj]*, in a solution to the subproblem for *S[ij]*. You would have
+    constructed a set of ![art](images/Akj2.jpg) mutually compatible activities, which
+    contradicts the assumption that *A[ij]* is an optimal solution. A symmetric argument
+    applies to the activities in *S[ik]*.
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通常的剪切和粘贴论证表明，最优解*A[ij]*也必须包括*S[ik]*和*S[kj]*的两个子问题的最优解。如果你能找到*S[kj]*中的一组相互兼容的活动![art](images/Akj.jpg)，其中![art](images/Akj1.jpg)，那么你可以使用![art](images/Akj.jpg)，而不是*A[kj]*，在解决*S[ij]*的子问题时。你将构建一个包含![art](images/Akj2.jpg)相互兼容活动的集合，这与*A[ij]*是最优解的假设相矛盾。对*S[ik]*中的活动也适用对称论证。
+- en: This way of characterizing optimal substructure suggests that you can solve
+    the activity-selection problem by dynamic programming. Let’s denote the size of
+    an optimal solution for the set *S[ij]* by *c*[*i*, *j*]. Then, the dynamic-programming
+    approach gives the recurrence
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这种表征最优子结构的方式表明，你可以通过动态规划来解决活动选择问题。让我们用*c*[*i*, *j*]表示集合*S[ij]*的最优解的大小。然后，动态规划方法给出了递归关系
+- en: '*c*[*i*, *j*] = *c*[*i*, *k*] + *c*[*k*, *j*] + 1.'
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*c*[*i*, *j*] = *c*[*i*, *k*] + *c*[*k*, *j*] + 1。'
+- en: Of course, if you do not know that an optimal solution for the set *S[ij]* includes
+    activity *a[k]*, you must examine all activities in *S[ij]* to find which one
+    to choose, so that
+  id: totrans-16
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当然，如果你不知道集合*S[ij]*的最优解包括活动*a[k]*，你必须检查*S[ij]*中的所有活动，找出要选择哪一个，以便
+- en: '![art](images/Art_P487.jpg)'
+  id: totrans-17
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P487.jpg)'
+- en: You can then develop a recursive algorithm and memoize it, or you can work bottom-up
+    and fill in table entries as you go along. But you would be overlooking another
+    important characteristic of the activity-selection problem that you can use to
+    great advantage.
+  id: totrans-18
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然后你可以开发一个递归算法并进行记忆化，或者你可以自底向上工作，并在进行时填写表格条目。但你可能会忽视活动选择问题的另一个重要特征，你可以利用它获得很大优势。
+- en: '**Making the greedy choice**'
+  id: totrans-19
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**做出贪心选择**'
+- en: 'What if you could choose an activity to add to an optimal solution without
+    having to first solve all the subproblems? That could save you from having to
+    consider all the choices inherent in recurrence (15.2). In fact, for the activity-selection
+    problem, you need to consider only one choice: the greedy choice.'
+  id: totrans-20
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果你可以选择一个活动添加到最优解中，而不必首先解决所有子问题，那么你就可以避免考虑递归中固有的所有选择。实际上，对于活动选择问题，你只需要考虑一个选择：贪心选择。
+- en: What is the greedy choice for the activity-selection problem? Intuition suggests
+    that you should choose an activity that leaves the resource available for as many
+    other activities as possible. Of the activities you end up choosing, one of them
+    must be the first one to finish. Intuition says, therefore, choose the activity
+    in *S* with the earliest finish time, since that leaves the resource available
+    for as many of the activities that follow it as possible. (If more than one activity
+    in *S* has the earliest finish time, then choose any such activity.) In other
+    words, since the activities are sorted in monotonically increasing order by finish
+    time, the greedy choice is activity *a*[1]. Choosing the first activity to finish
+    is not the only way to think of making a greedy choice for this problem. Exercise
+    15.1-3 asks you to explore other possibilities.
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于活动选择问题，贪心选择是什么？直觉告诉我们，你应该选择一项活动，使得资源尽可能多地留给其他活动使用。在你最终选择的活动中，其中一个必须是第一个完成的活动。因此，直觉告诉我们，选择*S*中最早结束时间的活动，因为这样可以为其后的尽可能多的活动留下资源。（如果*S*中有多个活动具有最早的结束时间，则选择其中任何一个。）换句话说，由于活动按照结束时间的单调递增顺序排序，贪心选择是活动*a*[1]。选择第一个完成的活动并不是解决这个问题的唯一贪心选择的方式。练习15.1-3要求你探索其他可能性。
+- en: 'Once you make the greedy choice, you have only one remaining subproblem to
+    solve: finding activities that start after *a*[1] finishes. Why don’t you have
+    to consider activities that finish before *a*[1] starts? Because *s*[1] < *f*[1],
+    and because *f*[1] is the earliest finish time of any activity, no activity can
+    have a finish time less than or equal to *s*[1]. Thus, all activities that are
+    compatible with activity *a*[1] must start after *a*[1] finishes.'
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一旦你做出贪心选择，你只剩下一个子问题要解决：找到在*a*[1]完成后开始的活动。为什么你不必考虑在*a*[1]开始之前结束的活动？因为*s*[1] <
+    *f*[1]，而*f*[1]*是任何活动的最早结束时间，没有活动的结束时间可以小于或等于*s*[1]。因此，所有与活动*a*[1]兼容的活动必须在*a*[1]完成后开始。
+- en: 'Furthermore, we have already established that the activity-selection problem
+    exhibits optimal substructure. Let *S[k]* = {*a[i]* ∈ *S* : *s[i]* ≥ *f[k]*} be
+    the set of activities that start after activity *a[k]* finishes. If you make the
+    greedy choice of activity *a*[1], then *S*[1] remains as the only subproblem to
+    solve.^([1](#footnote_1)) Optimal substructure says that if *a*[1] belongs to
+    an optimal solution, then an optimal solution to the original problem consists
+    of activity *a*[1] and all the activities in an optimal solution to the subproblem
+    *S*[1].'
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '此外，我们已经确定活动选择问题具有最优子结构。让*S[k]* = {*a[i]* ∈ *S* : *s[i]* ≥ *f[k]*}是在活动*a[k]*完成后开始的活动集合。如果你选择活动*a*[1]的贪心选择，那么*S*[1]仍然是唯一要解决的子问题。最优子结构表明，如果*a*[1]属于最优解，那么原问题的最优解由活动*a*[1]和子问题*S*[1]的最优解中的所有活动组成。'
+- en: 'One big question remains: Is this intuition correct? Is the greedy choice—in
+    which you choose the first activity to finish—always part of some optimal solution?
+    The following theorem shows that it is.'
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 还有一个重要问题：这种直觉是否正确？贪心选择——选择第一个完成的活动——总是最优解的一部分吗？下面的定理表明是这样的。
+- en: '***Theorem 15.1***'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理 15.1***'
+- en: Consider any nonempty subproblem *S[k]*, and let *a[m]* be an activity in *S[k]*
+    with the earliest finish time. Then *a[m]* is included in some maximum-size subset
+    of mutually compatible activities of *S[k]*.
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑任何非���子问题*S[k]*，让*a[m]*是*S[k]*中最早结束时间的活动。那么*a[m]*包含在*S[k]*的某个相互兼容活动的最大子集中。
+- en: '***Proof***   Let *A[k]* be a maximum-size subset of mutually compatible activities
+    in *S[k]*, and let *a[j]* be the activity in *A[k]* with the earliest finish time.
+    If *a[j]* = *a[m]*, we are done, since we have shown that *a[m]* belongs to some
+    maximum-size subset of mutually compatible activities of *S[k]*. If *a[j]* ≠ *a[m]*,
+    let the set ![art](images/Art_P488.jpg) be *A[k]* but substituting *a[m]* for
+    *a[j]*. The activities in ![art](images/Art_P490.jpg) are compatible, which follows
+    because the activities in *A[k]* are compatible, *a[j]* is the first activity
+    in *A[k]* to finish, and *f[m]* ≤ *f[j]*. Since ![art](images/Art_P491.jpg), we
+    conclude that ![art](images/Art_P492.jpg) is a maximum-size subset of mutually
+    compatible activities of *S[k]*, and it includes *a[m]*.'
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 让*A[k]*是*S[k]*中相互兼容的活动的最大子集，让*a[j]*是*A[k]*中最早结束时间的活动。如果*a[j]* = *a[m]*，我们就完成了，因为我们已经证明了*a[m]*属于*S[k]*的某个相互兼容活动的最大子集。如果*a[j]*
+    ≠ *a[m]*，让集合![art](images/Art_P488.jpg)为*A[k]*，但用*a[m]*替换*a[j]*。![art](images/Art_P490.jpg)中的活动是相互兼容的，这是因为*A[k]*中的活动是相互兼容的，*a[j]*是*A[k]*中第一个完成的活动，且*f[m]*
+    ≤ *f[j]*。由于![art](images/Art_P491.jpg)，我们得出结论，![art](images/Art_P492.jpg)是*S[k]*中相互兼容活动的最大子集，并且包括*a[m]*。'
+- en: ▪
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Although you might be able to solve the activity-selection problem with dynamic
+    programming, Theorem 15.1 says that you don’t need to. Instead, you can repeatedly
+    choose the activity that finishes first, keep only the activities compatible with
+    this activity, and repeat until no activities remain. Moreover, because you always
+    choose the activity with the earliest finish time, the finish times of the activities
+    that you choose must strictly increase. You can consider each activity just once
+    overall, in monotonically increasing order of finish times.
+  id: totrans-29
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管你可能能够用动态规划解决活动选择问题，定理15.1表明你不需要这样做。相反，你可以重复选择最先结束的活动，仅保留与该活动兼容的活动，并重复直到没有活动剩余。此外，因为你总是选择最早结束时间的活动，所以你选择的活动的结束时间必须严格增加。你可以考虑每个活动仅一次，按照结束时间的单调递增顺序。
+- en: 'An algorithm to solve the activity-selection problem does not need to work
+    bottom-up, like a table-based dynamic-programming algorithm. Instead, it can work
+    top-down, choosing an activity to put into the optimal solution that it constructs
+    and then solving the subproblem of choosing activities from those that are compatible
+    with those already chosen. Greedy algorithms typically have this top-down design:
+    make a choice and then solve a subproblem, rather than the bottom-up technique
+    of solving subproblems before making a choice.'
+  id: totrans-30
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解决活动选择问题的算法不需要像基于表的动态规划算法那样自底向上工作。相反，它可以自顶向下工作，选择一个要放入其构建的最优解中的活动，然后解决选择与已选择的活动兼容的活动的子问题。贪心算法通常具有这种自顶向下的设计：做出选择，然后解决一个子问题，而不是解决子问题然后再做出选择的自底向上技术。
+- en: '**A recursive greedy algorithm**'
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**一个递归贪心算法**'
+- en: Now that you know you can bypass the dynamic-programming approach and instead
+    use a top-down, greedy algorithm, let’s see a straightforward, recursive procedure
+    to solve the activity-selection problem. The procedure RECURSIVE-ACTIVITY-SELECTOR
+    on the following page takes the start and finish times of the activities, represented
+    as arrays *s* and *f*,^([2](#footnote_2)) the index *k* that defines the subproblem
+    *S[k]* it is to solve, and the size *n* of the original problem. It returns a
+    maximum-size set of mutually compatible activities in *S[k]*. The procedure assumes
+    that the *n* input activities are already ordered by monotonically increasing
+    finish time, according to equation (15.1). If not, you can first sort them into
+    this order in *O*(*n* lg *n*) time, breaking ties arbitrarily. In order to start,
+    add the fictitious activity *a*[0] with *f*[0] = 0, so that subproblem *S*[0]
+    is the entire set of activities *S*. The initial call, which solves the entire
+    problem, is RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0, *n*).
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在你知道可以绕过动态规划方法，而是使用自顶向下的贪心算法，让我们看一个简单的递归过程来解决活动选择问题。下一页的过程RECURSIVE-ACTIVITY-SELECTOR接受活动的开始和结束时间，表示为数组*s*和*f*，^([2](#footnote_2))定义要解决的子问题*S[k]*的索引*k*，以及原始问题的大小*n*。它返回*S[k]*中最大尺寸的一组相互兼容的活动。该过程假定*n*个输入活动已按照单调递增的结束时间排序，根据方程（15.1）。如果没有，可以在*O*(*n*
+    lg *n*)时间内首先按此顺序对它们进行排序，任意打破平局。为了开始，添加虚构活动*a*[0]，使得*f*[0] = 0，这样子问题*S*[0]就是整个活动集*S*。初始调用，解决整个问题的是RECURSIVE-ACTIVITY-SELECTOR
+    (*s*, *f*, 0, *n*)。
+- en: RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, *k*, *n*)
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, *k*, *n*)
+- en: '| 1 | *m* = *k* + 1 |'
+  id: totrans-34
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *m* = *k* + 1 |'
+- en: '| 2 | **while** *m* ≤ *n* and *s*[*m*] < *f* [*k*] | **//** find the first
+    activity in *S[k]* to finish |'
+  id: totrans-35
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **当** *m* ≤ *n* 且 *s*[*m*] < *f* [*k*] | **//** 找到*S[k]*中第一个结束的活动 |'
+- en: '| 3 | *m* = *m* + 1 |'
+  id: totrans-36
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | *m* = *m* + 1 |'
+- en: '| 4 | **if** *m* ≤ *n* |'
+  id: totrans-37
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **如果** *m* ≤ *n* |'
+- en: '| 5 | **return** {*a[m]*} ∪ RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, *m*, *n*)
+    |'
+  id: totrans-38
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **返回** {*a[m]*} ∪ RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, *m*, *n*) |'
+- en: '| 6 | **else return** ∅ |'
+  id: totrans-39
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | **否则返回** ∅ |'
+- en: '[Figure 15.2](chapter015.xhtml#Fig_15-2) shows how the algorithm operates on
+    the activities in [Figure 15.1](chapter015.xhtml#Fig_15-1). In a given recursive
+    call RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, *k*, *n*), the **while** loop of lines
+    2–3 looks for the first activity in *S[k]* to finish. The loop examines *a*[*k*+1],
+    *a*[*k*+2], … , *a[n]*, until it finds the first activity *a[m]* that is compatible
+    with *a[k]*, which means that *s[m]* ≥ *f[k]*. If the loop terminates because
+    it finds such an activity, line 5 returns the union of {*a[m]*} and the maximum-size
+    subset of *S[m]* returned by the recursive call RECURSIVE-ACTIVITY-SELECTOR (*s*,
+    *f*, *m*, *n*). Alternatively, the loop may terminate because *m* > *n*, in which
+    case the procedure has examined all activities in *S[k]* without finding one that
+    is compatible with *a[k]*. In this case, *S[k]* = ∅, and so line 6 returns ∅.'
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图15.2](chapter015.xhtml#Fig_15-2)展示了算法在[图15.1](chapter015.xhtml#Fig_15-1)中的活动上的操作。在给定的递归调用RECURSIVE-ACTIVITY-SELECTOR
+    (*s*, *f*, *k*, *n*)中，第2-3行的**当**��环寻找*S[k]*中第一个结束的活动。循环检查*a*[*k*+1]，*a*[*k*+2]，…，*a[n]*，直到找到与*a[k]*兼容的第一个活动*a[m]*。如果循环终止是因为找到这样的活动，第5行返回{*a[m]*}和递归调用RECURSIVE-ACTIVITY-SELECTOR
+    (*s*, *f*, *m*, *n*)返回的*S[m]*的最大尺寸子集的并集。或者，循环可能终止是因为*m* > *n*，在这种情况下，过程已检查了*S[k]*中的所有活动，但没有找到与*a[k]*兼容的活动。在这种情况下，*S[k]*
+    = ∅，因此第6行返回∅。'
+- en: Assuming that the activities have already been sorted by finish times, the running
+    time of the call RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0, *n*) is Θ(*n*). To
+    see why, observe that over all recursive calls, each activity is examined exactly
+    once in the **while** loop test of line 2\. In particular, activity *a[i]* is
+    examined in the last call made in which *k* < *i*.
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设活动已按结束时间排序，调用RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0, *n*)的运行时间为Θ(*n*)。为了看清楚原因，观察到在所有递归调用中，每个活动在第2行的**当**循环测试中仅被检查一次。特别地，活动*a[i]*在最后一次调用中被检查，其中*k*
+    < *i*。
+- en: '**An iterative greedy algorithm**'
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**一个迭代贪心算法**'
+- en: 'The recursive procedure can be converted to an iterative one because the procedure
+    RECURSIVE-ACTIVITY-SELECTOR is almost “tail recursive” (see Problem 7-5): it ends
+    with a recursive call to itself followed by a union operation. It is usually a
+    straightforward task to transform a tail-recursive procedure to an iterative form.
+    In fact, some compilers for certain programming languages perform this task automatically.'
+  id: totrans-43
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 递归过程可以转换为迭代过程，因为过程 RECURSIVE-ACTIVITY-SELECTOR 几乎是“尾递归”的（参见问题 7-5）：它以对自身的递归调用结束，然后是一个联合操作。将尾递归过程转换为迭代形式通常是一项简单的任务。事实上，某些编程语言的某些编译器会自动执行此任务。
+- en: '![art](images/Art_P493.jpg)'
+  id: totrans-44
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P493.jpg)'
+- en: '**Figure 15.2** The operation of RECURSIVE-ACTIVITY-SELECTOR on the 11 activities
+    from [Figure 15.1](chapter015.xhtml#Fig_15-1). Activities considered in each recursive
+    call appear between horizontal lines. The fictitious activity *a*[0] finishes
+    at time 0, and the initial call RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0, 11),
+    selects activity *a*[1]. In each recursive call, the activities that have already
+    been selected are blue, and the activity shown in tan is being considered. If
+    the starting time of an activity occurs before the finish time of the most recently
+    added activity (the arrow between them points left), it is rejected. Otherwise
+    (the arrow points directly up or to the right), it is selected. The last recursive
+    call, RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 11, 11), returns ∅. The resulting
+    set of selected activities is {*a*[1], *a*[4], *a*[8], *a*[11]}.'
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 15.2** RECURSIVE-ACTIVITY-SELECTOR 在来自 [图 15.1](chapter015.xhtml#Fig_15-1)
+    的 11 个活动上的操作。每个递归调用中考虑的活动出现在水平线之间。虚构的活动 *a*[0] 在时间 0 结束，初始调用 RECURSIVE-ACTIVITY-SELECTOR
+    (*s*, *f*, 0, 11)，选择活动 *a*[1]。在每个递归调用中，已选择的活动为蓝色，而棕色的活动正在考虑中。如果一个活动的开始时间早于最近添加的活动的结束时间（它们之间的箭头指向左），则被拒绝。否则（箭头直接指向上或向右），则被选择。最后一个递归调用，RECURSIVE-ACTIVITY-SELECTOR
+    (*s*, *f*, 11, 11)，返回 ∅。所选活动的结果集是 {*a*[1], *a*[4], *a*[8], *a*[11]}。'
+- en: The procedure GREEDY-ACTIVITY-SELECTOR is an iterative version of the procedure
+    RECURSIVE-ACTIVITY-SELECTOR. It, too, assumes that the input activities are ordered
+    by monotonically increasing finish time. It collects selected activities into
+    a set *A* and returns this set when it is done.
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 过程 GREEDY-ACTIVITY-SELECTOR 是过程 RECURSIVE-ACTIVITY-SELECTOR 的迭代版本。它也假设输入活动按照递增结束时间排序。它将选定的活动收集到集合
+    *A* 中，并在完成时返回此集合。
+- en: GREEDY-ACTIVITY-SELECTOR (*s*, *f*, *n*)
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: GREEDY-ACTIVITY-SELECTOR (*s*, *f*, *n*)
+- en: '| 1 | *A* = {*a*[1]} |'
+  id: totrans-48
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *A* = {*a*[1]}'
+- en: '| 2 | *k* = 1 |'
+  id: totrans-49
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | *k* = 1'
+- en: '| 3 | **for** *m* = 2 **to** *n* |'
+  id: totrans-50
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **对于** *m* = 2 **到** *n*'
+- en: '| 4 | **if** *s*[*m*] ≥ *f* [*k*] | **//** is *a[m]* in *S[k]*? |'
+  id: totrans-51
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **如果** *s*[*m*] ≥ *f* [*k*] | **//** *a[m]* 在 *S[k]* 中吗？'
+- en: '| 5 | *A* = *A* ∪ {*a[m]*} | **//** yes, so choose it |'
+  id: totrans-52
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | *A* = *A* ∪ {*a[m]*} | **//** 是的，所以选择它'
+- en: '| 6 | *k* = *m* | **//** and continue from there |'
+  id: totrans-53
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | *k* = *m* | **//** 然后继续'
+- en: '| 7 | **return** *A* |'
+  id: totrans-54
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | **返回** *A*'
+- en: The procedure works as follows. The variable *k* indexes the most recent addition
+    to *A*, corresponding to the activity *a[k]* in the recursive version. Since the
+    procedure considers the activities in order of monotonically increasing finish
+    time, *f[k]* is always the maximum finish time of any activity in *A*. That is,
+  id: totrans-55
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 该过程的工作方式如下。变量 *k* 索引最近添加到 *A* 中的活动，对应于递归版本中的活动 *a[k]*。由于该过程按照递增结束时间的顺序考虑活动，*f[k]*
+    始终是 *A* 中任何活动的最大结束时间。也就是说，
+- en: '![art](images/Art_P494.jpg)'
+  id: totrans-56
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P494.jpg)'
+- en: Lines 1–2 select activity *a*[1], initialize *A* to contain just this activity,
+    and initialize *k* to index this activity. The **for** loop of lines 3–6 finds
+    the earliest activity in *S[k]* to finish. The loop considers each activity *a[m]*
+    in turn and adds *a[m]* to *A* if it is compatible with all previously selected
+    activities. Such an activity is the earliest in *S[k]* to finish. To see whether
+    activity *a[m]* is compatible with every activity currently in *A*, it suffices
+    by equation (15.3) to check (in line 4) that its start time *s[m]* is not earlier
+    than the finish time *f[k]* of the activity most recently added to *A*. If activity
+    *a[m]* is compatible, then lines 5–6 add activity *a[m]* to *A* and set *k* to
+    *m*. The set *A* returned by the call GREEDY-ACTIVITY-SELECTOR (*s*, *f*) is precisely
+    the set returned by the initial call RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0,
+    *n*).
+  id: totrans-57
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第 1-2 行选择活动 *a*[1]，将 *A* 初始化为仅包含此活动，并将 *k* 初始化为索引此活动。第 3-6 行的 **for** 循环找到 *S[k]*
+    中最早结束的活动。循环依次考虑每个活动 *a[m]*，如果它与所有先前选择的活动兼容，则将 *a[m]* 添加到 *A* 中。这样的活动是 *S[k]* 中最早结束的活动。要查看活动
+    *a[m]* 是否与当前 *A* 中的每个活动兼容，根据方程（15.3），只需检查（在第 4 行）其开始时间 *s[m]* 是否不早于最近添加到 *A* 中的活动的结束时间
+    *f[k]*。如果活动 *a[m]* 兼容，则第 5-6 行将活动 *a[m]* 添加到 *A* 中，并将 *k* 设置为 *m*。调用 GREEDY-ACTIVITY-SELECTOR
+    (*s*, *f*) 返回的集合 *A* 正是初始调用 RECURSIVE-ACTIVITY-SELECTOR (*s*, *f*, 0, *n*) 返回的集合。
+- en: Like the recursive version, GREEDY-ACTIVITY-SELECTOR schedules a set of *n*
+    activities in Θ(*n*) time, assuming that the activities were already sorted initially
+    by their finish times.
+  id: totrans-58
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 与递归版本一样，GREEDY-ACTIVITY-SELECTOR 在 Θ(*n*) 时间内安排一组 *n* 个活动，假设活动已经按照它们的结束时间初始排序。
+- en: '**Exercises**'
+  id: totrans-59
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***15.1-1***'
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.1-1***'
+- en: Give a dynamic-programming algorithm for the activity-selection problem, based
+    on recurrence (15.2). Have your algorithm compute the sizes *c*[*i*, *j*] as defined
+    above and also produce the maximum-size subset of mutually compatible activities.
+    Assume that the inputs have been sorted as in equation (15.1). Compare the running
+    time of your solution to the running time of GREEDY-ACTIVITY-SELECTOR.
+  id: totrans-61
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 根据递归（15.2）为活动选择问题提供一个动态规划算法。让你的算法计算上面定义的大小 *c*[*i*, *j*]，并且产生最大大小的相互兼容活动子集。假设输入已按照方程（15.1）进行了排序。将你的解决方案的运行时间与
+    GREEDY-ACTIVITY-SELECTOR 的运行时间进行比较。
+- en: '***15.1-2***'
+  id: totrans-62
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.1-2***'
+- en: Suppose that instead of always selecting the first activity to finish, you instead
+    select the last activity to start that is compatible with all previously selected
+    activities. Describe how this approach is a greedy algorithm, and prove that it
+    yields an optimal solution.
+  id: totrans-63
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设您不总是选择第一个完成的活动，而是选择最后一个与先前选择的所有活动兼容的活动开始。描述这种方法如何是一种贪婪算法，并证明它产生最优解。
+- en: '***15.1-3***'
+  id: totrans-64
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.1-3***'
+- en: Not just any greedy approach to the activity-selection problem produces a maximum-size
+    set of mutually compatible activities. Give an example to show that the approach
+    of selecting the activity of least duration from among those that are compatible
+    with previously selected activities does not work. Do the same for the approaches
+    of always selecting the compatible activity that overlaps the fewest other remaining
+    activities and always selecting the compatible remaining activity with the earliest
+    start time.
+  id: totrans-65
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 不是任何贪婪方法都能产生最大规模的相互兼容活动集。举例说明，从与先前选择的活动兼容的活动中选择持续时间最短的活动的方法不起作用。对于总是选择与剩余活动重叠最少的兼容活动和总是选择剩余活动中开始时间最早的兼容活动的方法也是如此。
+- en: '***15.1-4***'
+  id: totrans-66
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.1-4***'
+- en: You are given a set of activities to schedule among a large number of lecture
+    halls, where any activity can take place in any lecture hall. You wish to schedule
+    all the activities using as few lecture halls as possible. Give an efficient greedy
+    algorithm to determine which activity should use which lecture hall.
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一组要在大量讲堂中安排的活动，其中任何活动都可以在任何讲堂中进行。您希望尽可能少地使用讲堂安排所有活动。给出一个有效的贪婪算法，确定哪个活动应该使用哪个讲堂。
+- en: (This problem is also known as the ***interval-graph coloring problem***. It
+    is modeled by an interval graph whose vertices are the given activities and whose
+    edges connect incompatible activities. The smallest number of colors required
+    to color every vertex so that no two adjacent vertices have the same color corresponds
+    to finding the fewest lecture halls needed to schedule all of the given activities.)
+  id: totrans-68
+  prefs: []
+  type: TYPE_NORMAL
+  zh: （这个问题也被称为***区间图着色问题***。它由一个顶点是给定活动的区间图建模，其边连接不兼容的活动。为了着色每个顶点，使得相邻的两个顶点不具有相同颜色所需的最少颜色数对应于找到安排所有给定活动所需的最少讲堂数。）
+- en: '***15.1-5***'
+  id: totrans-69
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.1-5***'
+- en: Consider a modification to the activity-selection problem in which each activity
+    *a[i]* has, in addition to a start and finish time, a value *v[i]*. The objective
+    is no longer to maximize the number of activities scheduled, but instead to maximize
+    the total value of the activities scheduled. That is, the goal is to choose a
+    set *A* of compatible activities such that ![art](images/Art_P495.jpg) is maximized.
+    Give a polynomial-time algorithm for this problem.
+  id: totrans-70
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑对活动选择问题进行修改，其中每个活动*a[i]*除了有开始和结束时间外，还有一个价值*v[i]*。目标不再是最大化安排的活动数量，而是最大化安排的活动的总价值。也就是说，目标是选择一组兼容的活动*A*，使得![art](images/Art_P495.jpg)最大化。给出这个问题的多项式时间算法。
+- en: '[**15.2    Elements of the greedy strategy**](toc.xhtml#Rh1-89)'
+  id: totrans-71
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**15.2    贪婪策略的要素**](toc.xhtml#Rh1-89)'
+- en: A greedy algorithm obtains an optimal solution to a problem by making a sequence
+    of choices. At each decision point, the algorithm makes the choice that seems
+    best at the moment. This heuristic strategy does not always produce an optimal
+    solution, but as in the activity-selection problem, sometimes it does. This section
+    discusses some of the general properties of greedy methods.
+  id: totrans-72
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 贪婪算法通过一系列选择获得问题的最优解。在每个决策点，算法都会做出当时看起来最好的选择。这种启发式策略并不总是产生最优解，但就像在活动选择问题中一样，有时候确实会。本节讨论了贪婪方法的一些一般特性。
+- en: 'The process that we followed in [Section 15.1](chapter015.xhtml#Sec_15.1) to
+    develop a greedy algorithm was a bit more involved than is typical. It consisted
+    of the following steps:'
+  id: totrans-73
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们在[第15.1节](chapter015.xhtml#Sec_15.1)中遵循的开发贪婪算法的过程比通常更复杂一些。它包括以下步骤：
+- en: Determine the optimal substructure of the problem.
+  id: totrans-74
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 确定问题的最优子结构。
+- en: Develop a recursive solution. (For the activity-selection problem, we formulated
+    recurrence (15.2), but bypassed developing a recursive algorithm based solely
+    on this recurrence.)
+  id: totrans-75
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 开发一个递归解决方案。（对于活动选择问题，我们制定了递归式(15.2)，但是绕过了仅基于此递归式开发递归算法的步骤。）
+- en: Show that if you make the greedy choice, then only one subproblem remains.
+  id: totrans-76
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 显示如果做出贪婪选择，那么只剩下一个子问题。
+- en: Prove that it is always safe to make the greedy choice. (Steps 3 and 4 can occur
+    in either order.)
+  id: totrans-77
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 证明做出贪婪选择总是安全的。（步骤3和4可以以任意顺序发生。）
+- en: Develop a recursive algorithm that implements the greedy strategy.
+  id: totrans-78
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 制定实施贪婪策略的递归算法。
+- en: Convert the recursive algorithm to an iterative algorithm.
+  id: totrans-79
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 将递归算法转换为迭代算法。
+- en: These steps highlighted in great detail the dynamic-programming underpinnings
+    of a greedy algorithm. For example, the first cut at the activity-selection problem
+    defined the subproblems *S[ij]*, where both *i* and *j* varied. We then found
+    that if you always make the greedy choice, you can restrict the subproblems to
+    be of the form *S[k]*.
+  id: totrans-80
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这些步骤详细介绍了贪婪算法的动态规划基础。例如，对活动选择问题的第一次尝试定义了子问题*S[ij]*，其中*i*和*j*都变化。然后我们发现，如果总是做出贪婪选择，可以将子问题限制为*S[k]*形式。
+- en: 'An alternative approach is to fashion optimal substructure with a greedy choice
+    in mind, so that the choice leaves just one subproblem to solve. In the activity-selection
+    problem, start by dropping the second subscript and defining subproblems of the
+    form *S[k]*. Then prove that a greedy choice (the first activity *a[m]* to finish
+    in *S[k]*), combined with an optimal solution to the remaining set *S[m]* of compatible
+    activities, yields an optimal solution to *S[k]*. More generally, you can design
+    greedy algorithms according to the following sequence of steps:'
+  id: totrans-81
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 另一种方法是考虑贪心选择，以便构建具有最优子结构的问题，这样选择只留下一个子问题需要解决。在活动选择问题中，首先去掉第二个下标，并定义形式为*S[k]*的子问题。然后证明贪心选择（在*S[k]*中完成的第一个活动*a[m]*），结合对剩余兼容活动集合*S[m]*的最优解，得到*S[k]*的最优解。更一般地，你可以按照以下步骤设计贪心算法：
+- en: Cast the optimization problem as one in which you make a choice and are left
+    with one subproblem to solve.
+  id: totrans-82
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 将优化问题构造为做出选择后只剩下一个子问题需要解决。
+- en: Prove that there is always an optimal solution to the original problem that
+    makes the greedy choice, so that the greedy choice is always safe.
+  id: totrans-83
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 证明总是存在一个原问题的最优解，使得贪心选择是安全的。
+- en: Demonstrate optimal substructure by showing that, having made the greedy choice,
+    what remains is a subproblem with the property that if you combine an optimal
+    solution to the subproblem with the greedy choice you have made, you arrive at
+    an optimal solution to the original problem.
+  id: totrans-84
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 通过展示做出贪心选择后剩下的是具有性质的子问题，来证明最优子结构，如果你将子问题的最优解与你做出的贪心选择相结合，就会得到原问题的最优解。
+- en: Later sections of this chapter will use this more direct process. Nevertheless,
+    beneath every greedy algorithm, there is almost always a more cumbersome dynamic-programming
+    solution.
+  id: totrans-85
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本章后面的部分将使用这种更直接的过程。然而，在每个贪婪算法的背后，几乎总是有一个更繁琐的动态规划解决方案。
+- en: How can you tell whether a greedy algorithm will solve a particular optimization
+    problem? No way works all the time, but the greedy-choice property and optimal
+    substructure are the two key ingredients. If you can demonstrate that the problem
+    has these properties, then you are well on the way to developing a greedy algorithm
+    for it.
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如何判断贪心算法是否能解决特定的优化问题？没有一种方法始终有效，但贪心选择性质和最优子结构是两个关键要素。如果你能证明问题具有这些性质，那么你就已经在为其开发贪心算法铺平道路。
+- en: '**Greedy-choice property**'
+  id: totrans-87
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**贪心选择性质**'
+- en: 'The first key ingredient is the ***greedy-choice property***: you can assemble
+    a globally optimal solution by making locally optimal (greedy) choices. In other
+    words, when you are considering which choice to make, you make the choice that
+    looks best in the current problem, without considering results from subproblems.'
+  id: totrans-88
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第一个关键要素是***贪心选择性质***：通过做出局部最优（贪心）选择，你可以组合出一个全局最优解。换句话说，在考虑要做出哪种选择时，你只考虑当前问题中看起来最好的选择，而不考虑子问题的结果。
+- en: Here is where greedy algorithms differ from dynamic programming. In dynamic
+    programming, you make a choice at each step, but the choice usually depends on
+    the solutions to subproblems. Consequently, you typically solve dynamic-programming
+    problems in a bottom-up manner, progressing from smaller subproblems to larger
+    subproblems. (Alternatively, you can solve them top down, but memoizing. Of course,
+    even though the code works top down, you still must solve the subproblems before
+    making a choice.) In a greedy algorithm, you make whatever choice seems best at
+    the moment and then solve the subproblem that remains. The choice made by a greedy
+    algorithm may depend on choices so far, but it cannot depend on any future choices
+    or on the solutions to subproblems. Thus, unlike dynamic programming, which solves
+    the subproblems before making the first choice, a greedy algorithm makes its first
+    choice before solving any subproblems. A dynamic-programming algorithm proceeds
+    bottom up, whereas a greedy strategy usually progresses top down, making one greedy
+    choice after another, reducing each given problem instance to a smaller one.
+  id: totrans-89
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这就是贪心算法与动态规划的区别所在。在动态规划中，你每一步都要做出选择，但选择通常取决于子问题的解决方案。因此，你通常以自底向上的方式解决动态规划问题，从较小的子问题逐渐推进到较大的子问题。（或者，你可以自顶向下解决，但要进行记忆化。当然，即使代码是自顶向下的，你仍然必须在做出选择之前解决子问题。）在贪心算法中，你在当前时刻做出看起来最好的选择，然后解决剩下的子问题。贪心算法所做的选择可能取决于到目前为止的选择，但不能取决于任何未来的选择或子问题的解决方案。因此，与动态规划不同，动态规划在做出第一个选择之前解决子问题，而贪心算法则在解决任何子问题之前做出第一个选择。动态规划算法自底���上进行，而贪心策略通常自顶向下进行，一次又一次地做出贪心选择，将每个给定的问题实例减小为一个更小的问题。
+- en: Of course, you need to prove that a greedy choice at each step yields a globally
+    optimal solution. Typically, as in the case of Theorem 15.1, the proof examines
+    a globally optimal solution to some subproblem. It then shows how to modify the
+    solution to substitute the greedy choice for some other choice, resulting in one
+    similar, but smaller, subproblem.
+  id: totrans-90
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当然，你需要证明每一步的贪心选择都会产生一个全局最优解。通常情况下，就像定理15.1的情况一样，证明会检查某个子问题的全局最优解。然后展示如何修改解决方案，用贪心选择替换其他选择，从而得到一个类似但更小的子问题。
+- en: You can usually make the greedy choice more efficiently than when you have to
+    consider a wider set of choices. For example, in the activity-selection problem,
+    assuming that the activities were already sorted in monotonically increasing order
+    by finish times, each activity needed to be examined just once. By preprocessing
+    the input or by using an appropriate data structure (often a priority queue),
+    you often can make greedy choices quickly, thus yielding an efficient algorithm.
+  id: totrans-91
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通常情况下，你可以比考虑更广泛的选择更有效地做出贪心选择。例如，在活动选择问题中，假设活动已按完成时间单调递增的顺序排序，每个活动只需要检查一次。通过预处理输入或使用适当的数据结构（通常是优先队列），你通常可以快速做出贪心选择，从而得到一个高效的算法。
+- en: '**Optimal substructure**'
+  id: totrans-92
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最优子结构**'
+- en: As we saw in [Chapter 14](chapter014.xhtml), a problem exhibits ***optimal substructure***
+    if an optimal solution to the problem contains within it optimal solutions to
+    subproblems. This property is a key ingredient of assessing whether dynamic programming
+    applies, and it’s also essential for greedy algorithms. As an example of optimal
+    substructure, recall how [Section 15.1](chapter015.xhtml#Sec_15.1) demonstrated
+    that if an optimal solution to subproblem *S[ij]* includes an activity *a[k]*,
+    then it must also contain optimal solutions to the subproblems *S[ik]* and *S[kj]*.
+    Given this optimal substructure, we argued that if you know which activity to
+    use as *a[k]*, you can construct an optimal solution to *S[ij]* by selecting *a[k]*
+    along with all activities in optimal solutions to the subproblems *S[ik]* and
+    *S[kj]*. This observation of optimal substructure gave rise to the recurrence
+    (15.2) that describes the value of an optimal solution.
+  id: totrans-93
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 正如我们在[第14章](chapter014.xhtml)中所看到的，如果问题表现出***最优子结构***，则问题的最优解中包含子问题的最优解。这个特性是评估动态规划是否适用的关键因素，也对贪心算法至关重要。举一个最优子结构的例子，回想一下[第15.1节](chapter015.xhtml#Sec_15.1)是如何演示的，如果子问题*S[ij]*的最优解包括活动*a[k]*，那么它也必须包含子问题*S[ik]*和*S[kj]*的最优解。基于这种最优子结构，我们认为如果你知道要使用哪个活动作为*a[k]*，你可以通过选择*a[k]*以及所有子问题*S[ik]*和*S[kj]*的最优解中的所有活动来构建*S[ij]*的最优解。这种最优子结构的观察导致了描述最优解值的递归式(15.2)的产生。
+- en: You will usually use a more direct approach regarding optimal substructure when
+    applying it to greedy algorithms. As mentioned above, you have the luxury of assuming
+    that you arrived at a subproblem by having made the greedy choice in the original
+    problem. All you really need to do is argue that an optimal solution to the subproblem,
+    combined with the greedy choice already made, yields an optimal solution to the
+    original problem. This scheme implicitly uses induction on the subproblems to
+    prove that making the greedy choice at every step produces an optimal solution.
+  id: totrans-94
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当将最优子结构应用于贪心算法时，通常会采用更直接的方法。如上所述，你可以假设通过在原始问题中做出贪心选择而到达子问题。你真正需要做的就是证明子问题的最优解，结合已经做出的贪心选择，可以产生原始问题的最优解。这种方案隐含地使用了对子问题的归纳，以证明在每一步都做出贪心选择会产生最优解。
+- en: '**Greedy versus dynamic programming**'
+  id: totrans-95
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**贪心与动态规划**'
+- en: Because both the greedy and dynamic-programming strategies exploit optimal substructure,
+    you might be tempted to generate a dynamic-programming solution to a problem when
+    a greedy solution suffices or, conversely, you might mistakenly think that a greedy
+    solution works when in fact a dynamic-programming solution is required. To illustrate
+    the subtle differences between the two techniques, let’s investigate two variants
+    of a classical optimization problem.
+  id: totrans-96
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于贪心和动态规划策略都利用了最优子结构，当贪心解足够时，你可能会倾向于生成一个动态规划解决方案，或者相反，你可能会错误地认为贪心解决方案有效，而实际上需要动态规划解决方案。为了说明这两种技术之间的微妙差异，让我们研究一个经典优化问题的两个变体。
+- en: The ***0-1 knapsack problem*** is the following. A thief robbing a store wants
+    to take the most valuable load that can be carried in a knapsack capable of carrying
+    at most *W* pounds of loot. The thief can choose to take any subset of *n* items
+    in the store. The *i*th item is worth *v[i]* dollars and weighs *w[i]* pounds,
+    where *v[i]* and *w[i]* are integers. Which items should the thief take? (We call
+    this the 0-1 knapsack problem because for each item, the thief must either take
+    it or leave it behind. The thief cannot take a fractional amount of an item or
+    take an item more than once.)
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***0-1背包问题***如下。一个抢劫商店的小偷想要拿走最有价值的战利品，可以装在一个最多能装*W*磅战利品的背包中。小偷可以选择拿走商店中的*n*个物品中的任意子集。第*i*个物品价值*v[i]*美元，重*w[i]*磅，其中*v[i]*和*w[i]*都是整数。小偷应该拿走哪些物品？（我们称之为0-1背包问题，因为对于每个物品，小偷必须要么拿走它，要么留下它。小偷不能拿走物品的部分数量，也不能多次拿走同一物品。）'
+- en: In the ***fractional knapsack problem***, the setup is the same, but the thief
+    can take fractions of items, rather than having to make a binary (0-1) choice
+    for each item. You can think of an item in the 0-1 knapsack problem as being like
+    a gold ingot and an item in the fractional knapsack problem as more like gold
+    dust.
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在***分数背包问题***中，设置是一样的，但小偷可以拿走物品的部分数量，而不是对每个物品做出二进制（0-1）选择。你可以将0-1背包问题中的物品看作是金锭，而将分数背包问题中的物品更像是金粉。
+- en: Both knapsack problems exhibit the optimal-substructure property. For the 0-1
+    problem, if the most valuable load weighing at most *W* pounds includes item *j*,
+    then the remaining load must be the most valuable load weighing at most *W* −
+    *w[j]* pounds that the thief can take from the *n* − 1 original items excluding
+    item *j*. For the comparable fractional problem, if if the most valuable load
+    weighing at most *W* pounds includes weight *w* of item *j*, then the remaining
+    load must be the most valuable load weighing at most *W* − *w* pounds that the
+    thief can take from the *n* − 1 original items plus *w[j]* − *w* pounds of item
+    *j*.
+  id: totrans-99
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 两个背包问题都表现出最优子结构性质。对于0-1问题，如果最有价值的战利品重量不超过*W*磅包括物品*j*，那么剩下的战利品必须是小偷可以从*n*−1个原始物品中除去物品*j*后重量不超过*W*−*w[j]*磅的最有价值的战利品。对于可比较的分数问题，如果最有价值的战利品重量不超过*W*磅包括物品*j*的重量*w*，那么剩下的战利品必须是小偷可以从*n*−1个原始物品中拿走不超过*W*−*w*磅的最有价值的战利品，再加上物品*j*的*w[j]*−*w*磅。
+- en: Although the problems are similar, a greedy strategy works to solve the fractional
+    knapsack problem, but not the 0-1 problem. To solve the fractional problem, first
+    compute the value per pound *v[i]*/*w[i]* for each item. Obeying a greedy strategy,
+    the thief begins by taking as much as possible of the item with the greatest value
+    per pound. If the supply of that item is exhausted and the thief can still carry
+    more, then the thief takes as much as possible of the item with the next greatest
+    value per pound, and so forth, until reaching the weight limit *W*. Thus, by sorting
+    the items by value per pound, the greedy algorithm runs in *O*(*n* lg *n*) time.
+    You are asked to prove that the fractional knapsack problem has the greedy-choice
+    property in Exercise 15.2-1.
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 尽管这两个问题很相似，贪婪策略可以解决分数背包问题，但不能解决0-1问题。为了解决分数问题，首先计算每个物品的每磅价值*v[i]*/*w[i]*。遵循贪婪策略，小偷首先尽可能多地拿取每磅价值最高的物品。如果该物品的供应用尽，小偷仍然可以携带更多，那么小偷将尽可能多地拿取每磅价值次高的物品，依此类推，直到达到重量限制*W*。因此，通过按每磅价值对物品进行排序，贪婪算法的运行时间为*O*(*n*
+    lg *n*)。你被要求在练习15.2-1中证明分数背包问题具有贪婪选择性质。
+- en: To see that this greedy strategy does not work for the 0-1 knapsack problem,
+    consider the problem instance illustrated in [Figure 15.3(a)](chapter015.xhtml#Fig_15-3).
+    This example has three items and a knapsack that can hold 50 pounds. Item 1 weighs
+    10 pounds and is worth $60\. Item 2 weighs 20 pounds and is worth $100\. Item
+    3 weighs 30 pounds and is worth $120\. Thus, the value per pound of item 1 is
+    $6 per pound, which is greater than the value per pound of either item 2 ($5 per
+    pound) or item 3 ($4 per pound). The greedy strategy, therefore, would take item
+    1 first. As you can see from the case analysis in [Figure 15.3(b)](chapter015.xhtml#Fig_15-3),
+    however, the optimal solution takes items 2 and 3, leaving item 1 behind. The
+    two possible solutions that take item 1 are both suboptimal.
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了看到这种贪婪策略无法解决0-1背包问题，考虑在[图15.3(a)](chapter015.xhtml#Fig_15-3)中所示的问题实例。这个例子有三个物品和一个可以容纳50磅的背包。物品1重10磅，价值60美元。物品2重20磅，价值100美元。物品3重30磅，价值120美元。因此，物品1的每磅价值为6美元，高于物品2（每磅5美元）或物品3（每磅4美元）的每磅价值。因此，贪婪策略会首先选择物品1。然而，如[图15.3(b)](chapter015.xhtml#Fig_15-3)中的案例分析所示，最优解是选择物品2和3，留下物品1。包含物品1的两种可能解决方案都是次优的。
+- en: For the comparable fractional problem, however, the greedy strategy, which takes
+    item 1 first, does yield an optimal solution, as shown in [Figure 15.3(c)](chapter015.xhtml#Fig_15-3).
+    Taking item 1 doesn’t work in the 0-1 problem, because the thief is unable to
+    fill the knapsack to capacity, and the empty space lowers the effective value
+    per pound of the load. In the 0-1 problem, when you consider whether to include
+    an item in the knapsack, you must compare the solution to the subproblem that
+    includes the item with the solution to the subproblem that excludes the item before
+    you can make the choice. The problem formulated in this way gives rise to many
+    overlapping subproblems—a hallmark of dynamic programming, and indeed, as Exercise
+    15.2-2 asks you to show, you can use dynamic programming to solve the 0-1 problem.
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 然而，对于可比较的分数问题，贪婪策略，即首先选择物品1，确实会得到最优解，如[图15.3(c)](chapter015.xhtml#Fig_15-3)所示。在0-1问题中，选择物品1不起作用，因为小偷无法将背包填满，而空余空间降低了负载的有效每磅价值。在0-1问题中，当考虑是否将物品包含在背包中时，必须在做出选择之前比��包含该物品的子问题的解决方案与不包含该物品的子问题的解决方案。这样构造的问题会产生许多重叠的子问题——动态规划的一个特征，正如练习15.2-2要求你展示的那样，你可以使用动态规划来解决0-1问题。
+- en: '![art](images/Art_P496.jpg)'
+  id: totrans-103
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P496.jpg)'
+- en: '**Figure 15.3** An example showing that the greedy strategy does not work for
+    the 0-1 knapsack problem. **(a)** The thief must select a subset of the three
+    items shown whose weight must not exceed 50 pounds. **(b)** The optimal subset
+    includes items 2 and 3\. Any solution with item 1 is suboptimal, even though item
+    1 has the greatest value per pound. **(c)** For the fractional knapsack problem,
+    taking the items in order of greatest value per pound yields an optimal solution.'
+  id: totrans-104
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图15.3** 一个示例，展示贪婪策略无法解决0-1背包问题。**(a)** 小偷必须选择所示三个物品的子集，其重量不能超过50磅。**(b)**
+    最佳子集包括物品2和3。任何包含物品1的解决方案都是次优的，即使物品1的每磅价值最高。**(c)** 对于分数背包问题，按每磅价值最高的顺序取物品可以得到最佳解决方案。'
+- en: '**Exercises**'
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***15.2-1***'
+  id: totrans-106
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-1***'
+- en: Prove that the fractional knapsack problem has the greedy-choice property.
+  id: totrans-107
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明分数背包问题具有贪婪选择性质。
+- en: '***15.2-2***'
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-2***'
+- en: Give a dynamic-programming solution to the 0-1 knapsack problem that runs in
+    *O*(*n W*) time, where *n* is the number of items and *W* is the maximum weight
+    of items that the thief can put in the knapsack.
+  id: totrans-109
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个动态规划解决方案，解决0-1背包问题，其运行时间为*O*(*n W*)，其中*n*是物品数量，*W*是小偷可以放入背包的最大重量。
+- en: '***15.2-3***'
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-3***'
+- en: Suppose that in a 0-1 knapsack problem, the order of the items when sorted by
+    increasing weight is the same as their order when sorted by decreasing value.
+    Give an efficient algorithm to find an optimal solution to this variant of the
+    knapsack problem, and argue that your algorithm is correct.
+  id: totrans-111
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设在0-1背包问题中，按重量递增排序的物品顺序与按价值递减排序的物品顺序相同。给出一个有效的算法来找到这种变体背包问题的最优解，并证明你的算法是正确的。
+- en: '***15.2-4***'
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-4***'
+- en: Professor Gekko has always dreamed of inline skating across North Dakota. The
+    professor plans to cross the state on highway U.S. 2, which runs from Grand Forks,
+    on the eastern border with Minnesota, to Williston, near the western border with
+    Montana. The professor can carry two liters of water and can skate *m* miles before
+    running out of water. (Because North Dakota is relatively flat, the professor
+    does not have to worry about drinking water at a greater rate on uphill sections
+    than on flat or downhill sections.) The professor will start in Grand Forks with
+    two full liters of water. The professor has an official North Dakota state map,
+    which shows all the places along U.S. 2 to refill water and the distances between
+    these locations.
+  id: totrans-113
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Gekko教授一直梦想着在北达科他州内滑旱冰。教授计划沿着美国2号公路从东部边界的大福克斯到靠近西部边界的威利斯顿滑行。教授可以携带两升水，在滑行*m*英里后会用尽水。
+    (由于北达科他州相对平坦，教授不必担心在上坡段比在平坦或下坡段饮水速度更快。) 教授将在大福克斯开始时携带两升水。 教授有一张官方的北达科他州地图，显示了沿着美国2号公路补充水源的所有地点以及这些地点之间的距离。
+- en: The professor’s goal is to minimize the number of water stops along the route
+    across the state. Give an efficient method by which the professor can determine
+    which water stops to make. Prove that your strategy yields an optimal solution,
+    and give its running time.
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 教授的目标是尽量减少沿着穿越州的路线的补水站数量。 给出教授可以确定哪些补水站的有效方法。 证明你的策略产生最佳解，并给出其运行时间。
+- en: '***15.2-5***'
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-5***'
+- en: Describe an efficient algorithm that, given a set {*x*[1], *x*[2], … , *x[n]*}
+    of points on the real line, determines the smallest set of unit-length closed
+    intervals that contains all of the given points. Argue that your algorithm is
+    correct.
+  id: totrans-116
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 描述一个高效的算法，给定一组{*x*[1], *x*[2], … , *x[n]*}在实数线上的点，确定包含所有给定点的最小单位长度闭区间集合。证明你的算法是正确的。
+- en: ★ ***15.2-6***
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***15.2-6***
+- en: Show how to solve the fractional knapsack problem in *O*(*n*) time.
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何在*O*(*n*)时间内解决分数背包问题。
+- en: '***15.2-7***'
+  id: totrans-119
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.2-7***'
+- en: You are given two sets *A* and *B*, each containing *n* positive integers. You
+    can choose to reorder each set however you like. After reordering, let *a[i]*
+    be the *i*th element of set *A*, and let *b[i]* be the *i*th element of set *B*.
+    You then receive a payoff of ![art](images/Art_P497.jpg). Give an algorithm that
+    maximizes your payoff. Prove that your algorithm maximizes the payoff, and state
+    its running time, omitting the time for reordering the sets.
+  id: totrans-120
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定两个包含*n*个正整数的集合*A*和*B*。 你可以随意重新排列每个集合。 重新排列后，让*a[i]*为集合*A*的第*i*个元素，让*b[i]*为集合*B*的第*i*个元素。
+    然后你将获得一笔报酬为![art](images/Art_P497.jpg)。 给出最大化你的报酬的算法。 证明你的算法最大化了报酬，并说明其运行时间，省略重新排列集合的时间。
+- en: '[**15.3    Huffman codes**](toc.xhtml#Rh1-90)'
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**15.3    Huffman编码**](toc.xhtml#Rh1-90)'
+- en: 'Huffman codes compress data well: savings of 20% to 90% are typical, depending
+    on the characteristics of the data being compressed. The data arrive as a sequence
+    of characters. Huffman’s greedy algorithm uses a table giving how often each character
+    occurs (its frequency) to build up an optimal way of representing each character
+    as a binary string.'
+  id: totrans-122
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Huffman编码可以很好地压缩数据：根据被压缩数据的特性，节省20%至90%是典型的。 数据以字符序列的形式到达。 Huffman的贪婪算法使用一个表格，给出每个字符出现的频率，以构建表示每个字符的最佳二进制字符串的方法。
+- en: Suppose that you have a 100,000-character data file that you wish to store compactly
+    and you know that the 6 distinct characters in the file occur with the frequencies
+    given by [Figure 15.4](chapter015.xhtml#Fig_15-4). The character a occurs 45,000
+    times, the character b occurs 13,000 times, and so on.
+  id: totrans-123
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设你有一个包含100,000个字符的数据文件，希望紧凑地存储，并且你知道文件中的6个不同字符出现的频率如[图15.4](chapter015.xhtml#Fig_15-4)所示。
+    字符a出现45,000次，字符b出现13,000次，依此类推。
+- en: 'You have many options for how to represent such a file of information. Here,
+    we consider the problem of designing a ***binary character code*** (or ***code***
+    for short) in which each character is represented by a unique binary string, which
+    we call a ***codeword***. If you use a ***fixed-length code***, you need ⌈lg *n*⌉
+    bits to represent *n* ≥ 2 characters. For 6 characters, therefore, you need 3
+    bits: a = 000, b = 001, c = 010, d = 011, e = 100, and f = 101\. This method requires
+    300,000 bits to encode the entire file. Can you do better?'
+  id: totrans-124
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你有许多选项来表示这样一个信息文件。 在这里，我们考虑设计一个***二进制字符编码***（或简称为***编码***），其中每个字符由一个唯一的二进制字符串表示，我们称之为***编码字***。
+    如果使用***固定长度编码***，则需要⌈lg *n*⌉位来表示*n*≥2个字符。 因此，对于6个字符，你需要3位：a = 000，b = 001，c =
+    010，d = 011，e = 100和f = 101。 这种方法需要300,000位来编码整个文件。 你能做得更好吗？
+- en: '![art](images/Art_P498.jpg)'
+  id: totrans-125
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P498.jpg)'
+- en: '**Figure 15.4** A character-coding problem. A data file of 100,000 characters
+    contains only the characters a–f, with the frequencies indicated. With each character
+    represented by a 3-bit codeword, encoding the file requires 300,000 bits. With
+    the variable-length code shown, the encoding requires only 224,000 bits.'
+  id: totrans-126
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图15.4** 字符编码问题。 一个包含100,000个字符的数据文件仅包含字符a-f，并显示了频率。 每个字符由一个3位编码字表示，编码文件需要300,000位。
+    使用所示的可变长度编码，编码仅需要224,000位。'
+- en: 'A ***variable-length code*** can do considerably better than a fixed-length
+    code. The idea is simple: give frequent characters short codewords and infrequent
+    characters long codewords. [Figure 15.4](chapter015.xhtml#Fig_15-4) shows such
+    a code. Here, the 1-bit string 0 represents a, and the 4-bit string 1100 represents
+    f. This code requires'
+  id: totrans-127
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个***可变长度编码***可以比固定长度编码好得多。 思路很简单：给予频繁出现的字符短的编码字和不频繁出现的字符长的编码字。 [图15.4](chapter015.xhtml#Fig_15-4)展示了这样一个编码。
+    这里，1位字符串0代表a，4位字符串1100代表f。 这个编码需要
+- en: (45 · 1 + 13 · 3 + 12 · 3 + 16 · 3 + 9 · 4 + 5 · 4) · 1,000 = 224,000 bits
+  id: totrans-128
+  prefs: []
+  type: TYPE_NORMAL
+  zh: (45 · 1 + 13 · 3 + 12 · 3 + 16 · 3 + 9 · 4 + 5 · 4) · 1,000 = 224,000 位
+- en: to represent the file, a savings of approximately 25%. In fact, this is an optimal
+    character code for this file, as we shall see.
+  id: totrans-129
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 用大约25%的节省来表示文件。 实际上，这是这个文件的最佳字符编码，我们将看到。
+- en: '**Prefix-free codes**'
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**前缀自由编码**'
+- en: We consider here only codes in which no codeword is also a prefix of some other
+    codeword. Such codes are called ***prefix-free codes***. Although we won’t prove
+    it here, a prefix-free code can always achieve the optimal data compression among
+    any character code, and so we suffer no loss of generality by restricting our
+    attention to prefix-free codes.
+  id: totrans-131
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们这里只考虑没有任何码字也是其他码字的前缀的编码。这些编码称为***前缀自由编码***。尽管我们在这里不会证明，但前缀自由编码总是可以在任何字符编码中实现最佳数据压缩，因此通过将注意力限制在前缀自由编码上，我们不会损失广泛性。
+- en: 'Encoding is always simple for any binary character code: just concatenate the
+    codewords representing each character of the file. For example, with the variable-length
+    prefix-free code of [Figure 15.4](chapter015.xhtml#Fig_15-4), the 4-character
+    file face has the encoding 1100 · 0 · 100 · 1101 = 110001001101, where “·” denotes
+    concatenation.'
+  id: totrans-132
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于任何二进制字符编码，编码总是简单的：只需连接表示文件每个字符的码字。例如，在[图15.4](chapter015.xhtml#Fig_15-4)中的可变长度前缀自由编码中，4个字符文件face的编码为1100
+    · 0 · 100 · 1101 = 110001001101，其中“·”表示连接。
+- en: Prefix-free codes are desirable because they simplify decoding. Since no codeword
+    is a prefix of any other, the codeword that begins an encoded file is unambiguous.
+    You can simply identify the initial codeword, translate it back to the original
+    character, and repeat the decoding process on the remainder of the encoded file.
+    In our example, the string 100011001101 parses uniquely as 100 · 0 · 1100 · 1101,
+    which decodes to cafe.
+  id: totrans-133
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 前缀自由编码是理想的，因为它们简化了解码。由于没有任何一个码字是另一个码字的前缀，因此开始编码文件的码字是明确的。您只需简单地识别初始码字，将其翻译回原始字符，然后对编码文件的其余部分重复解码过程。在我们的示例中，字符串100011001101唯一解析为100
+    · 0 · 1100 · 1101，解码为cafe。
+- en: '![art](images/Art_P499.jpg)'
+  id: totrans-134
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P499.jpg)'
+- en: '**Figure 15.5** Trees corresponding to the coding schemes in [Figure 15.4](chapter015.xhtml#Fig_15-4).
+    Each leaf is labeled with a character and its frequency of occurrence. Each internal
+    node is labeled with the sum of the frequencies of the leaves in its subtree.
+    All frequencies are in thousands. **(a)** The tree corresponding to the fixed-length
+    code a = 000, b = 001, c = 010, d = 011, e = 100, f = 101\. **(b)** The tree corresponding
+    to the optimal prefix-free code a = 0, b = 101, c = 100, d = 111, e = 1101, f
+    = 1100.'
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图15.5** 对应于[图15.4](chapter015.xhtml#Fig_15-4)中编码方案的树。每个叶子都标有一个字符及其出现频率。每个内部节点都标有其子树中叶子频率的总和。所有频率都是以千为单位。**(a)**
+    对应于固定长度编码a = 000，b = 001，c = 010，d = 011，e = 100，f = 101的树。**(b)** 对应于最佳前缀自由编码a
+    = 0，b = 101，c = 100，d = 111，e = 1101，f = 1100的树。'
+- en: The decoding process needs a convenient representation for the prefix-free code
+    so that you can easily pick off the initial codeword. A binary tree whose leaves
+    are the given characters provides one such representation. Interpret the binary
+    codeword for a character as the simple path from the root to that character, where
+    0 means “go to the left child” and 1 means “go to the right child.” [Figure 15.5](chapter015.xhtml#Fig_15-5)
+    shows the trees for the two codes of our example. Note that these are not binary
+    search trees, since the leaves need not appear in sorted order and internal nodes
+    do not contain character keys.
+  id: totrans-136
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解码过程需要一个方便的表示形式，以便您可以轻松地选择初始码字。一个二叉树，其叶子是给定的字符，提供了这样的表示形式。将字符的二进制码字解释为从根到该字符的简单路径，其中0表示“转到左子节点”，1表示“转到右子节点”。[图15.5](chapter015.xhtml#Fig_15-5)显示了我们示例中两个编码的树。请注意，这些不是二叉搜索树，因为叶子不需要按排序顺序出现，内部节点不包含字符键。
+- en: 'An optimal code for a file is always represented by a *full* binary tree, in
+    which every nonleaf node has two children (see Exercise 15.3-2). The fixed-length
+    code in our example is not optimal since its tree, shown in [Figure 15.5(a)](chapter015.xhtml#Fig_15-5),
+    is not a full binary tree: it contains codewords beginning with 10, but none beginning
+    with 11\. Since we can now restrict our attention to full binary trees, we can
+    say that if *C* is the alphabet from which the characters are drawn and all character
+    frequencies are positive, then the tree for an optimal prefix-free code has exactly
+    |*C* | leaves, one for each letter of the alphabet, and exactly |*C* | − 1 internal
+    nodes (see Exercise B.5-3 on page 1175).'
+  id: totrans-137
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于文件的最佳编码总是由一个*完全*二叉树表示，其中每个非叶节点都有两个子节点（参见练习15.3-2）。我们示例中的固定长度编码不是最佳的，因为其树，如[图15.5(a)](chapter015.xhtml#Fig_15-5)所示，不是完全二叉树：它包含以10开头的码字，但没有以11开头的码字。由于我们现在可以将注意力限制在完全二叉树上，因此我们可以说，如果*C*是从中提取字符的字母表，并且所有字符频率为正，则最佳前缀自由编码的树���好有|*C*|个叶子，每个字母表中的字母一个，并且恰好有|*C*|
+    − 1个内部节点（参见第1175页的练习B.5-3）。
+- en: Given a tree *T* corresponding to a prefix-free code, we can compute the number
+    of bits required to encode a file. For each character *c* in the alphabet *C*,
+    let the attribute *c*.*freq* denote the frequency of *c* in the file and let *d[T]*(*c*)
+    denote the depth of *c*’s leaf in the tree. Note that *d[T]* (*c*) is also the
+    length of the codeword for character *c*. The number of bits required to encode
+    a file is thus
+  id: totrans-138
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定与前缀自由编码对应的树*T*，我们可以计算编码文件所需的位数。对于字母表*C*中的每个字符*c*，让属性*c*.*freq*表示文件中*c*的频率，让*d[T]*(*c*)表示树中*c*叶子的深度。注意*d[T]*(*c*)也是字符*c*的码字长度。因此，编码文件所需的位数为
+- en: '![art](images/Art_P500.jpg)'
+  id: totrans-139
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P500.jpg)'
+- en: which we define as the ***cost*** of the tree *T*.
+  id: totrans-140
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将其定义为树*T*的***成本***。
+- en: '**Constructing a Huffman code**'
+  id: totrans-141
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**构建哈夫曼编码**'
+- en: Huffman invented a greedy algorithm that constructs an optimal prefix-free code,
+    called a ***Huffman code*** in his honor. In line with our observations in [Section
+    15.2](chapter015.xhtml#Sec_15.2), its proof of correctness relies on the greedy-choice
+    property and optimal substructure. Rather than demonstrating that these properties
+    hold and then developing pseudocode, we present the pseudocode first. Doing so
+    will help clarify how the algorithm makes greedy choices.
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Huffman发明了一种贪婪算法，构建了一种最优前缀编码，以他的名字命名为***Huffman编码***。根据我们在[第15.2节](chapter015.xhtml#Sec_15.2)中的观察，其正确性证明依赖于贪婪选择属性和最优子结构。与其证明这些属性成立然后开发伪代码，我们首先呈现伪代码。这样做将有助于澄清算法如何进行贪婪选择。
+- en: The procedure HUFFMAN assumes that *C* is a set of *n* characters and that each
+    character *c* ∈ *C* is an object with an attribute *c*.*freq* giving its frequency.
+    The algorithm builds the tree *T* corresponding to an optimal code in a bottom-up
+    manner. It begins with a set of |*C* | leaves and performs a sequence of |*C*
+    | − 1 “merging” operations to create the final tree. The algorithm uses a min-priority
+    queue *Q*, keyed on the *freq* attribute, to identify the two least-frequent objects
+    to merge together. The result of merging two objects is a new object whose frequency
+    is the sum of the frequencies of the two objects that were merged.
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: HUFFMAN过程假设*C*是一个包含*n*个字符的集合，并且每个字符*c*∈*C*是一个具有给出其频率的属性*c*.*freq*的对象。该算法以自底向上的方式构建与最优编码对应的树*T*。它从一组|*C*|叶子开始，��执行一系列|*C*|-1次“合并”操作以创建最终的树。该算法使用以*freq*属性为键的最小优先队列*Q*，以识别要合并的两个最不频繁的对象。合并两个对象的结果是一个新对象，其频率是合并的两个对象的频率之和。
+- en: HUFFMAN(*C*)
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: HUFFMAN(*C*)
+- en: '|   1 | *n* = &#124;*C* &#124; |   |'
+  id: totrans-145
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | *n* = &#124;*C* &#124; |   |'
+- en: '|   2 | *Q* = *C* |   |'
+  id: totrans-146
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *Q* = *C* |   |'
+- en: '|   3 | **for** *i* = 1 **to** *n* − 1 |   |'
+  id: totrans-147
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | **for** *i* = 1 **to** *n* − 1 |   |'
+- en: '|   4 | allocate a new node *z* |   |'
+  id: totrans-148
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | 分配一个新节点*z* |   |'
+- en: '|   5 | *x* = EXTRACT-MIN(*Q*) |   |'
+  id: totrans-149
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | *x* = EXTRACT-MIN(*Q*) |   |'
+- en: '|   6 | *y* = EXTRACT-MIN(*Q*) |   |'
+  id: totrans-150
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | *y* = EXTRACT-MIN(*Q*) |   |'
+- en: '|   7 | *z*.*left* = *x* |   |'
+  id: totrans-151
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | *z*.*left* = *x* |   |'
+- en: '|   8 | *z*.*right* = *y* |   |'
+  id: totrans-152
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *z*.*right* = *y* |   |'
+- en: '|   9 | *z*.*freq* = *x*.*freq* + *y*.*freq* |   |'
+  id: totrans-153
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | *z*.*freq* = *x*.*freq* + *y*.*freq* |   |'
+- en: '| 10 | INSERT(*Q*, *z*) |   |'
+  id: totrans-154
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | INSERT(*Q*, *z*) |   |'
+- en: '| 11 | **return** EXTRACT-MIN(*Q*) | **//** the root of the tree is the only
+    node left |'
+  id: totrans-155
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | **return** EXTRACT-MIN(*Q*) | **//** 树的根是唯一剩下的节点 |'
+- en: For our example, Huffman’s algorithm proceeds as shown in [Figure 15.6](chapter015.xhtml#Fig_15-6).
+    Since the alphabet contains 6 letters, the initial queue size is *n* = 6, and
+    5 merge steps build the tree. The final tree represents the optimal prefix-free
+    code. The codeword for a letter is the sequence of edge labels on the simple path
+    from the root to the letter.
+  id: totrans-156
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于我们的示例，Huffman算法的执行如[图15.6](chapter015.xhtml#Fig_15-6)所示。由于字母表包含6个字母，初始队列大小为*n*=6，经过5次合并构建了树。最终的树代表了最优前缀编码。字母的编码是从根到该字母的简单路径上的边标签序列。
+- en: '![art](images/Art_P501.jpg)'
+  id: totrans-157
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P501.jpg)'
+- en: '**Figure 15.6** The steps of Huffman’s algorithm for the frequencies given
+    in [Figure 15.4](chapter015.xhtml#Fig_15-4). Each part shows the contents of the
+    queue sorted into increasing order by frequency. Each step merges the two trees
+    with the lowest frequencies. Leaves are shown as rectangles containing a character
+    and its frequency. Internal nodes are shown as circles containing the sum of the
+    frequencies of their children. An edge connecting an internal node with its children
+    is labeled 0 if it is an edge to a left child and 1 if it is an edge to a right
+    child. The codeword for a letter is the sequence of labels on the edges connecting
+    the root to the leaf for that letter. **(a)** The initial set of *n* = 6 nodes,
+    one for each letter. **(b)–(e)** Intermediate stages. **(f)** The final tree.'
+  id: totrans-158
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图15.6** Huffman算法在[图15.4](chapter015.xhtml#Fig_15-4)中给出的频率下的步骤。每个部分显示按频率递增排序的队列内容。每个步骤合并具有最低频率的两棵树。叶子节点显示为包含字符及其频率的矩形。内部节点显示为包含其子节点频率总和的圆圈。将内部节点与其子节点连接的边，如果是指向左子节点的边，则标记为0，如果是指向右子节点的边，则标记为1。字母的编码是连接根和该字母叶子的边标签序列。**(a)**
+    初始的*n*=6个节点，每个节点代表一个字母。**(b)–(e)** 中间阶段。**(f)** 最终的树。'
+- en: The HUFFMAN procedure works as follows. Line 2 initializes the min-priority
+    queue *Q* with the characters in *C*. The **for** loop in lines 3–10 repeatedly
+    extracts the two nodes *x* and *y* of lowest frequency from the queue and replaces
+    them in the queue with a new node *z* representing their merger. The frequency
+    of *z* is computed as the sum of the frequencies of *x* and *y* in line 9\. The
+    node *z* has *x* as its left child and *y* as its right child. (This order is
+    arbitrary. Switching the left and right child of any node yields a different code
+    of the same cost.) After *n* − 1 mergers, line 11 returns the one node left in
+    the queue, which is the root of the code tree.
+  id: totrans-159
+  prefs: []
+  type: TYPE_NORMAL
+  zh: HUFFMAN过程的工作方式如下。第2行使用字符*C*初始化最小优先队列*Q*。第3-10行的**for**循环重复地从队列中提取两个频率最低的节点*x*和*y*，并用代表它们合并的新节点*z*替换它们。在第9行计算*z*的频率为*x*和*y*的频率之和。节点*z*的左子节点为*x*，右子节点为*y*。（这个顺序是任意的。交换任何节点的左右子节点会产生相同成本的不同编码。）经过*n*-1次合并后，第11行返回队列中剩下的一个节点，即编码树的根。
+- en: The algorithm produces the same result without the variables *x* and *y*, assigning
+    the values returned by the EXTRACT-MIN calls directly to *z*.*left* and *z*.*right*
+    in lines 7 and 8, and changing line 9 to *z*.*freq* = *z*.*left*.*freq*+*z*.*right*.*freq*.
+    We’ll use the node names *x* and *y* in the proof of correctness, however, so
+    we leave them in.
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 该算法在不使用变量*x*和*y*的情况下产生相同的结果，在第7和8行直接将EXTRACT-MIN调用返回的值分配给*z*.*left*和*z*.*right*，并将第9行更改为*z*.*freq*
+    = *z*.*left*.*freq*+*z*.*right*.*freq*。然而，在正确性证明中我们将使用节点名称*x*和*y*，因此我们保留它们。
+- en: The running time of Huffman’s algorithm depends on how the min-priority queue
+    *Q* is implemented. Let’s assume that it’s implemented as a binary min-heap (see
+    [Chapter 6](chapter006.xhtml)). For a set *C* of *n* characters, the BUILD-MIN-HEAP
+    procedure discussed in [Section 6.3](chapter006.xhtml#Sec_6.3) can initialize
+    *Q* in line 2 in *O*(*n*) time. The **for** loop in lines 3–10 executes exactly
+    *n* − 1 times, and since each heap operation runs in *O*(lg *n*) time, the loop
+    contributes *O*(*n* lg *n*) to the running time. Thus, the total running time
+    of HUFFMAN on a set of *n* characters is *O*(*n* lg *n*).
+  id: totrans-161
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Huffman算法的运行时间取决于最小优先队列*Q*的实现方式。假设它被实现为二进制最小堆（参见[第 6 章](chapter006.xhtml)）。对于一个包含*n*个字符的集合*C*，在第
+    2 行中讨论的BUILD-MIN-HEAP过程可以在*O*(*n*)时间内初始化*Q*。第 3-10 行的**for**循环执行*n* - 1次，由于每个堆操作运行时间为*O*(lg
+    *n*)，循环对运行时间的贡献为*O*(*n* lg *n*)。因此，HUFFMAN在一个包含*n*个字符的集合上的总运行时间为*O*(*n* lg *n*)。
+- en: '**Correctness of Huffman’s algorithm**'
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**Huffman算法的正确性**'
+- en: To prove that the greedy algorithm HUFFMAN is correct, we’ll show that the problem
+    of determining an optimal prefix-free code exhibits the greedy-choice and optimal-substructure
+    properties. The next lemma shows that the greedy-choice property holds.
+  id: totrans-163
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了证明贪心算法HUFFMAN的正确性，我们将展示确定最优前缀自由码的问题展现出贪心选择和最优子结构性质。下一个引理显示贪心选择性质成立。
+- en: '***Lemma 15.2 (Optimal prefix-free codes have the greedy-choice property)***'
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理 15.2（最优前缀自由码具有贪心选择性质）***'
+- en: Let *C* be an alphabet in which each character *c* ∈ *C* has frequency *c*.*freq*.
+    Let *x* and *y* be two characters in *C* having the lowest frequencies. Then there
+    exists an optimal prefix-free code for *C* in which the codewords for *x* and
+    *y* have the same length and differ only in the last bit.
+  id: totrans-165
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*C*是一个字母表，其中每个字符*c* ∈ *C*具有频率*c.freq*。设*x*和*y*是*C*中具有最低频率的两个字符。那么存在一个*C*的最优前缀自由码，其中*x*和*y*的编码长度相同，只在最后一位上有所不同。
+- en: '***Proof***   The idea of the proof is to take the tree *T* representing an
+    arbitrary optimal prefix-free code and modify it to make a tree representing another
+    optimal prefix-free code such that the characters *x* and *y* appear as sibling
+    leaves of maximum depth in the new tree. In such a tree, the codewords for *x*
+    and *y* have the same length and differ only in the last bit.'
+  id: totrans-166
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 证明的思路是取代表示任意最优前缀自由码的树*T*，并修改它以使表示另一个最优前缀自由码的树，使得字符*x*和*y*在新树中作为最大深度的兄弟叶子节点出现。在这样的树中，*x*和*y*的编码长度相同，只在最后一位上有所不同。'
+- en: Let *a* and *b* be any two characters that are sibling leaves of maximum depth
+    in *T*. Without loss of generality, assume that *a*.*freq* ≤ *b*.*freq* and *x*.*freq*
+    ≤ *y*.*freq*. Since *x*.*freq* and *y*.*freq* are the two lowest leaf frequencies,
+    in order, and *a*.*freq* and *b*.*freq* are two arbitrary frequencies, in order,
+    we have *x*.*freq* ≤ *a*.*freq* and *y*.*freq* ≤ *b*.*freq*.
+  id: totrans-167
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设*a*和*b*是*T*中最大深度的兄弟叶子节点上的任意两个字符。不失一般性，假设*a.freq* ≤ *b.freq*和*x.freq* ≤ *y.freq*。由于*x.freq*和*y.freq*是两个最低的叶子频率，按顺序，而*a.freq*和*b.freq*是两个任意的频率，按顺序，我们有*x.freq*
+    ≤ *a.freq*和*y.freq* ≤ *b.freq*。
+- en: In the remainder of the proof, it is possible that we could have *x*.*freq*
+    = *a*.*freq* or *y*.*freq* = *b*.*freq*, but *x*.*freq* = *b*.*freq* implies that
+    *a*.*freq* = *b*.*freq* = *x*.*freq* = *y*.*freq* (see Exercise 15.3-1), and the
+    lemma would be trivially true. Therefore, assume that *x.freq* ≠ *b.freq*, which
+    means that *x* ≠ *b*.
+  id: totrans-168
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在证明的其余部分中，可能会出现*x.freq* = *a.freq*或*y.freq* = *b.freq*的情况，但*x.freq* = *b.freq*意味着*a.freq*
+    = *b.freq* = *x.freq* = *y.freq*（参见练习 15.3-1），引理将显而易见地成立。因此，假设*x.freq* ≠ *b.freq*，这意味着*x*
+    ≠ *b*。
+- en: '![art](images/Art_P502.jpg)'
+  id: totrans-169
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P502.jpg)'
+- en: '**Figure 15.7** An illustration of the key step in the proof of Lemma 15.2\.
+    In the optimal tree *T*, leaves *a* and *b* are two siblings of maximum depth.
+    Leaves *x* and *y* are the two characters with the lowest frequencies. They appear
+    in arbitrary positions in *T*. Assuming that *x* ≠ *b*, swapping leaves *a* and
+    *x* produces tree *T*′, and then swapping leaves *b* and *y* produces tree *T*
+    ″. Since each swap does not increase the cost, the resulting tree *T* ″ is also
+    an optimal tree.'
+  id: totrans-170
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 15.7** 证明引理 15.2 的关键步骤的示例。在最优树*T*中，叶子节点*a*和*b*是最大深度的两个兄弟。叶子节点*x*和*y*是频率最低的两个字符。它们在*T*中以任意位置出现。假设*x*
+    ≠ *b*，交换叶子节点*a*和*x*产生树*T*′，然后交换叶子节点*b*和*y*产生树*T* ″。由于每次交换不会增加成本，结果树*T* ″ 也是一个最优树。'
+- en: As [Figure 15.7](chapter015.xhtml#Fig_15-7) shows, imagine exchanging the positions
+    in *T* of *a* and *x* to produce a tree *T*′, and then exchanging the positions
+    in *T*′ of *b* and *y* to produce a tree *T*″ in which *x* and *y* are sibling
+    leaves of maximum depth. (Note that if *x* = *b* but *y* ≠ *a*, then tree *T*
+    ″ does not have *x* and *y* as sibling leaves of maximum depth. Because we assume
+    that *x* ≠ *b*, this situation cannot occur.) By equation (15.4), the difference
+    in cost between *T* and *T*′ is
+  id: totrans-171
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如[图 15.7](chapter015.xhtml#Fig_15-7)所示，想象交换*T*中*a*和*x*的位置以生成树*T*′，然后交换*T*′中*b*和*y*的位置以生成树*T*″，其中*x*和*y*是最大深度的兄弟叶子节点。（请注意，如果*x*
+    = *b*但*y* ≠ *a*，则树*T*″不会将*x*和*y*作为最大深度的兄弟叶子节点。因为我们假设*x* ≠ *b*，这种情况不会发生。）根据方程（15.4），*T*和*T*′之间的成本差异为
+- en: '![art](images/Art_P503.jpg)'
+  id: totrans-172
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P503.jpg)'
+- en: because both *a*.*freq* − *x*.*freq* and *d[T]* (*a*) − *d[T]* (*x*) are nonnegative.
+    More specifically, *a.freq* − *x*.*freq* is nonnegative because *x* is a minimum-frequency
+    leaf, and *d[T]* (*a*) − *d[T]* (*x*) is nonnegative because *a* is a leaf of
+    maximum depth in *T*. Similarly, exchanging *y* and *b* does not increase the
+    cost, and so *B*(*T*′) − *B*(*T* ″) is nonnegative. Therefore, *B*(*T* ″) ≤ *B*(*T*′)
+    ≤ *B*(*T*), and since *T* is optimal, we have *B*(*T*) ≤ *B*(*T* ″), which implies
+    *B*(*T* ″) = *B*(*T*). Thus, *T* ″ is an optimal tree in which *x* and *y* appear
+    as sibling leaves of maximum depth, from which the lemma follows.
+  id: totrans-173
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为*a*.*freq* − *x*.*freq*和*d[T]*(*a*) − *d[T]*(*x*)都是非负的。更具体地说，*a.freq* − *x*.*freq*是非负的，因为*x*是最小频率叶子，*d[T]*(*a*)
+    − *d[T]*(*x*)是非负的，因为*a*是*T*中最大深度的叶子。同样，交换*y*和*b*不会增加成本，因此*B*(*T*′) − *B*(*T* ″)是非负的。因此，*B*(*T*
+    ″) ≤ *B*(*T*′) ≤ *B*(*T*)，由于*T*是最佳的，我们有*B*(*T*) ≤ *B*(*T* ″)，这意味着*B*(*T* ″) =
+    *B*(*T*)。因此，*T* ″是一个最佳树，其中*x*和*y*出现为最大深度的兄弟叶子，引理随之而来。
+- en: ▪
+  id: totrans-174
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Lemma 15.2 implies that the process of building up an optimal tree by mergers
+    can, without loss of generality, begin with the greedy choice of merging together
+    those two characters of lowest frequency. Why is this a greedy choice? We can
+    view the cost of a single merger as being the sum of the frequencies of the two
+    items being merged. Exercise 15.3-4 shows that the total cost of the tree constructed
+    equals the sum of the costs of its mergers. Of all possible mergers at each step,
+    HUFFMAN chooses the one that incurs the least cost.
+  id: totrans-175
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 引理15.2表明，通过合并构建最佳树的过程可以从贪婪选择开始，而不会失去一般性，合并两个最低频率字符的贪婪选择是如何？我们可以将单个合并的成本视为合并的两个项目频率的总和。练习15.3-4表明，构建的树的总成本等于其合并的成本之和。在每一步的所有可能合并中，HUFFMAN选择产生最小成本的合并。
+- en: The next lemma shows that the problem of constructing optimal prefix-free codes
+    has the optimal-substructure property.
+  id: totrans-176
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一个引理显示构建最佳前缀无码的问题具有最佳子结构性质。
+- en: '***Lemma 15.3 (Optimal prefix-free codes have the optimal-substructure property)***'
+  id: totrans-177
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理15.3（最佳前缀无码具有最佳子结构性质）***'
+- en: Let *C* be a given alphabet with frequency *c*.*freq* defined for each character
+    *c* ∈ *C*. Let *x* and *y* be two characters in *C* with minimum frequency. Let
+    *C*′ be the alphabet *C* with the characters *x* and *y* removed and a new character
+    *z* added, so that *C*′ = (*C* − {*x*, *y*}) ∪ {*z*}. Define *freq* for all characters
+    in *C*′ with the same values as in *C*, along with *z*.*freq* = *x*.*freq* + *y*.*freq*.
+    Let *T*′ be any tree representing an optimal prefix-free code for alphabet *C*′.
+    Then the tree *T*, obtained from *T*′ by replacing the leaf node for *z* with
+    an internal node having *x* and *y* as children, represents an optimal prefix-free
+    code for the alphabet *C*.
+  id: totrans-178
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*C*是一个给定的具有每个字符*c* ∈ *C*的频率*c*.*freq*的字母表。让*x*和*y*是*C*中频率最低的两个字符。让*C*′是字母表*C*，其中移除了字符*x*和*y*并添加了一个新字符*z*，以便*C*′
+    = (*C* − {*x*, *y*}) ∪ {*z*}。为*C*′中的所有字符定义*freq*，其值与*C*中的值相同，以及*z*.*freq* = *x*.*freq*
+    + *y*.*freq*。让*T*′是代表字母表*C*′的最佳前缀无码的任何树。那么从*T*′通过用*x*和*y*作为子节点替换*z*的叶节点得到的树*T*代表字母表*C*的最佳前缀无码。
+- en: '***Proof***   We first show how to express the cost *B*(*T*) of tree *T* in
+    terms of the cost *B*(*T*′) of tree *T*′, by considering the component costs in
+    equation (15.4). For each character *c* ∈ *C* − {*x*, *y*}, we have that *d[T]*
+    (*c*) = *d[T′]* (*c*), and hence *c*.*freq · d[T]* (*c*) = *c*.*freq* · *d[T′]*
+    (*c*). Since *d[T]* (*x*) = *d[T]* (*y*) = *d[T′]* (*z*) + 1, we have'
+  id: totrans-179
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们首先展示如何用方程式(15.4)中的组件成本来表示树*T*的成本*B*(*T*)，考虑每个字符*c* ∈ *C* − {*x*,
+    *y*}，我们有*d[T]*(*c*) = *d[T′]*(*c*)，因此*c*.*freq* · d[T]*(*c*) = *c*.*freq* · *d[T′]*(*c*)。由于*d[T]*(*x*)
+    = *d[T]*(*y*) = *d[T′]*(*z*) + 1，我们有'
+- en: '| *x*.*freq* · *d[T]* (*x*) + *y*.*freq* · *d[T]* (*y*) | = | (*x*.*freq* +
+    *y*.*freq*)(*d[T′]* (*z*) + 1) |'
+  id: totrans-180
+  prefs: []
+  type: TYPE_TB
+  zh: '| *x*.*freq* · *d[T]*(*x*) + *y*.*freq* · *d[T]*(*y*) | = | (*x*.*freq* + *y*.*freq*)(*d[T′]*(*z*)
+    + 1) |'
+- en: '|  | = | *z*.*freq* · *d[T′]*(*z*)+ (*x*.*freq* + *y*.*freq*), |'
+  id: totrans-181
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *z*.*freq* · *d[T′]*(*z*)+ (*x*.*freq* + *y*.*freq*), |'
+- en: from which we conclude that
+  id: totrans-182
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由此我们得出
+- en: '*B*(*T*) = *B*(*T*′) + *x*.*freq* + *y*.*freq*'
+  id: totrans-183
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*B*(*T*) = *B*(*T*′) + *x*.*freq* + *y*.*freq*'
+- en: or, equivalently,
+  id: totrans-184
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 或者，等价地，
+- en: '*B*(*T*′) = *B*(*T*) − *x*.*freq* − *y*.*freq*.'
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*B*(*T*′) = *B*(*T*) − *x*.*freq* − *y*.*freq*。'
+- en: We now prove the lemma by contradiction. Suppose that *T* does not represent
+    an optimal prefix-free code for *C*. Then there exists an optimal tree *T*″ such
+    that *B*(*T*″) < *B*(*T*). Without loss of generality (by Lemma 15.2), *T*″ has
+    *x* and *y* as siblings. Let *T*^(″′) be the tree *T*″ with the common parent
+    of *x* and *y* replaced by a leaf *z* with frequency *z*.*freq* = *x*.*freq* +
+    *y*.*freq*. Then
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们现在通过反证法证明引理。假设*T*不代表*C*的最佳前缀无码。那么存在一个最佳树*T*″，使得*B*(*T*″) < *B*(*T*)。不失一般性（根据引理15.2），*T*″有*x*和*y*作为兄弟。让*T*^(″′)是树*T*″，其中*x*和*y*的共同父节点被频率为*z*.*freq*
+    = *x*.*freq* + *y*.*freq*的叶*z*替换。那么
+- en: '| *B*(*T*‴) | = | *B*(*T*″) − *x*.*freq* − *y*.*freq* |'
+  id: totrans-187
+  prefs: []
+  type: TYPE_TB
+  zh: '| *B*(*T*‴) | = | *B*(*T*″) − *x*.*freq* − *y*.*freq* |'
+- en: '|  | < | *B*(*T*) − *x*.*freq* − *y*.*freq* |'
+  id: totrans-188
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | < | *B*(*T*) − *x*.*freq* − *y*.*freq* |'
+- en: '|  | = | *B*(*T*′), |'
+  id: totrans-189
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | = | *B*(*T*′), |'
+- en: yielding a contradiction to the assumption that *T*′ represents an optimal prefix-free
+    code for *C*′. Thus, *T* must represent an optimal prefix-free code for the alphabet
+    *C*.
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设*T*′代表*C*′的最佳前缀无码，那么会导致矛盾。因此，*T*必须代表字母*C*的最佳前缀无码。
+- en: ▪
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '***Theorem 15.4***'
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理15.4***'
+- en: Procedure HUFFMAN produces an optimal prefix-free code.
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: HUFFMAN过程产生最佳前缀无码。
+- en: '***Proof***   Immediate from Lemmas 15.2 and 15.3.'
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   根据引理15.2和15.3立即得出。'
+- en: '**Exercises**'
+  id: totrans-195
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***15.3-1***'
+  id: totrans-196
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-1***'
+- en: Explain why, in the proof of Lemma 15.2, if *x*.*freq* = *b*.*freq*, then we
+    must have *a*.*freq* = *b*.*freq* = *x*.*freq* = *y*.*freq*.
+  id: totrans-197
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解释为什么在引理15.2的证明中，如果*x*.*freq* = *b*.*freq*，那么我们必须有*a*.*freq* = *b*.*freq* =
+    *x*.*freq* = *y*.*freq*。
+- en: '***15.3-2***'
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-2***'
+- en: Prove that a non-full binary tree cannot correspond to an optimal prefix-free
+    code.
+  id: totrans-199
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明非满二叉树不能对应于最佳前缀无码。
+- en: '***15.3-3***'
+  id: totrans-200
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-3***'
+- en: What is an optimal Huffman code for the following set of frequencies, based
+    on the first 8 Fibonacci numbers?
+  id: totrans-201
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于以下频率集合，基于前8个斐波那契数，最佳的哈夫曼编码是什么？
+- en: a:1 b:1 c:2 d:3 e:5 f:8 g:13 h:21
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: a:1 b:1 c:2 d:3 e:5 f:8 g:13 h:21
+- en: Can you generalize your answer to find the optimal code when the frequencies
+    are the first *n* Fibonacci numbers?
+  id: totrans-203
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你能否推广你的答案，找到频率为前*n*个斐波那契数时的最佳编码？
+- en: '***15.3-4***'
+  id: totrans-204
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-4***'
+- en: Prove that the total cost *B*(*T*) of a full binary tree *T* for a code equals
+    the sum, over all internal nodes, of the combined frequencies of the two children
+    of the node.
+  id: totrans-205
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明一个完全二叉树*T*的总成本*B*(*T*)等于所有内部节点的两个子节点的组合频率之和。
+- en: '***15.3-5***'
+  id: totrans-206
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-5***'
+- en: 'Given an optimal prefix-free code on a set *C* of *n* characters, you wish
+    to transmit the code itself using as few bits as possible. Show how to represent
+    any optimal prefix-free code on *C* using only 2*n* − 1 + *n* ⌈lg *n*⌉ bits. (*Hint*:
+    Use 2*n* − 1 bits to specify the structure of the tree, as discovered by a walk
+    of the tree.)'
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个集合*C*中*n*个字符的最佳前缀无码，你希望尽可能少地使用位来传输代码本身。展示如何仅使用2*n* − 1 + *n* ⌈lg *n*⌉位来表示*C*上的任何最佳前缀无码。(*提示*：使用2*n*
+    − 1位来指定树的结构，通过树的遍历来发现。)
+- en: '***15.3-6***'
+  id: totrans-208
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-6***'
+- en: Generalize Huffman’s algorithm to ternary codewords (i.e., codewords using the
+    symbols 0, 1, and 2), and prove that it yields optimal ternary codes.
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将Huffman算法推广到三进制码字（即使用符号0、1和2的码字），并证明它产生最佳的三进制码。
+- en: '***15.3-7***'
+  id: totrans-210
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-7***'
+- en: 'A data file contains a sequence of 8-bit characters such that all 256 characters
+    are about equally common: the maximum character frequency is less than twice the
+    minimum character frequency. Prove that Huffman coding in this case is no more
+    efficient than using an ordinary 8-bit fixed-length code.'
+  id: totrans-211
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个数据文件包含一个8位字符序列，以至于所有256个字符大致相同频率：最大字符频率不超过最小字符频率的两倍。证明在这种情况下，哈夫曼编码不比使用普通的8位固定长度代码更有效。
+- en: '***15.3-8***'
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.3-8***'
+- en: 'Show that no lossless (invertible) compression scheme can guarantee that for
+    every input file, the corresponding output file is shorter. (*Hint*: Compare the
+    number of possible files with the number of possible encoded files.)'
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示没有无损（可逆）压缩方案可以保证对于每个输入文件，相应的输出文件都更短。(*提示*：比较可能的文件数量与可能的编码文件数量。)
+- en: '[**15.4    Offline caching**](toc.xhtml#Rh1-91)'
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**15.4    离线缓存**](toc.xhtml#Rh1-91)'
+- en: 'Computer systems can decrease the time to access data by storing a subset of
+    the main memory in the ***cache***: a small but faster memory. A cache organizes
+    data into ***cache blocks*** typically comprising 32, 64, or 128 bytes. You can
+    also think of main memory as a cache for disk-resident data in a virtual-memory
+    system. Here, the blocks are called ***pages***, and 4096 bytes is a typical size.'
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 计算机系统可以通过将主存的子集存储在***缓存***中来减少访问数据的时间：一个小但更快的存储器。缓存将数据组织成通常包含32、64或128字节的***缓存块***。你也可以将主存视为虚拟内存系统中磁盘驻留数据的缓存。在这里，块被称为***页***，4096字节是典型大小。
+- en: 'As a computer program executes, it makes a sequence of memory requests. Say
+    that there are *n* memory requests, to data in blocks *b*[1], *b*[2], … , *b[n]*,
+    in that order. The blocks in the access sequence might not be distinct, and indeed,
+    any given block is usually accessed multiple times. For example, a program that
+    accesses four distinct blocks *p*, *q*, *r*, *s* might make a sequence of requests
+    to blocks *s*, *q*, *s*, *q*, *q*, *s*, *p*, *p*, *r*, *s*, *s*, *q*, *p*, *r*,
+    *q*. The cache can hold up to some fixed number *k* of cache blocks. It starts
+    out empty before the first request. Each request causes at most one block to enter
+    the cache and at most one block to be evicted from the cache. Upon a request for
+    block *b[i]*, any one of three scenarios may occur:'
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '当计算机程序执行时，它会产生一系列内存请求。假设有*n*个内存请求，对应于块*b*[1]、*b*[2]、…、*b[n]*的数据，按照顺序。访问序列中的块可能不是不同的，实际上，任何给定块通常会被多次访问。例如，一个访问四个不同块*p*、*q*、*r*、*s*的程序可能会对块*s*、*q*、*s*、*q*、*q*、*s*、*p*、*p*、*r*、*s*、*s*、*q*、*p*、*r*、*q*进行请求。缓存最多可以容纳一定数量*k*的缓存块。在第一个请求之前，缓存是空的。对于块*b[i]*的请求，可能发生三种情况之一：  '
+- en: Block *b[i]* is already in the cache, due to a previous request for the same
+    block. The cache remains unchanged. This situation is known as a ***cache hit***.
+  id: totrans-217
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 块*b[i]*已经在缓存中，由于之前请求相同块。缓存保持不变。这种情况被称为***缓存命中***。
+- en: Block *b[i]* is not in the cache at that time, but the cache contains fewer
+    than *k* blocks. In this case, block *b[i]* is placed into the cache, so that
+    the cache contains one more block than it did before the request.
+  id: totrans-218
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 在那个时候，块*b[i]*不在缓存中，但缓存包含少于*k*个块。在这种情况下，块*b[i]*被放入缓存，以便缓存比请求之前多一个块。
+- en: 'Block *b[i]* is not in the cache at that time and the cache is full: it contains
+    *k* blocks. Block *b[i]* is placed into the cache, but before that happens, some
+    other block in the cache must be evicted from the cache in order to make room.'
+  id: totrans-219
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 在那个时候，块*b[i]*不在缓存中且缓存已满：它包含*k*个块。块*b[i]*被放入缓存，但在此之前，必须从缓存中驱逐另一个块以腾出空间。
+- en: The latter two situations, in which the requested block is not already in the
+    cache, are called ***cache misses***. The goal is to minimize the number of cache
+    misses or, equivalently, to maximize the number of cache hits, over the entire
+    sequence of *n* requests. A cache miss that occurs while the cache holds fewer
+    than *k* blocks—that is, as the cache is first being filled up—is known as a ***compulsory
+    miss***, since no prior decision could have kept the requested block in the cache.
+    When a cache miss occurs and the cache is full, ideally the choice of which block
+    to evict should allow for the smallest possible number of cache misses over the
+    entire sequence of future requests.
+  id: totrans-220
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 后两种情况，即请求的块不在缓存中时，被称为***缓存未命中***。目标是最小化缓存未命中的次数，或者等效地，最大化整个*n*个请求序列中的缓存命中次数。当缓存中的块少于*k*个时发生的缓存未命中，即当缓存首次填满时，被称为***强制未命中***，因为之前的决策无法保留请求的块在缓存中。当发生缓存未命中且缓存已满时，理想情况下，选择要驱逐的块应该允许在未来请求序列的整个过程中产生尽可能少的缓存未命中。
+- en: Typically, caching is an online problem. That is, the computer has to decide
+    which blocks to keep in the cache without knowing the future requests. Here, however,
+    let’s consider the offline version of this problem, in which the computer knows
+    in advance the entire sequence of *n* requests and the cache size *k*, with a
+    goal of minimizing the total number of cache misses.
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 通常，缓存是一个在线问题。也就是说，计算机必须在不知道未来请求的情况下决定保留哪些块在缓存中。然而，在这里，让我们考虑这个问题的离线版本，计算机事先知道整个*n*个请求序列和缓存大小*k*，目标是最小化缓存未命中的总数。
+- en: 'To solve this offline problem, you can use a greedy strategy called ***furthest-in-future***,
+    which chooses to evict the block in the cache whose next access in the request
+    sequence comes furthest in the future. Intuitively, this strategy makes sense:
+    if you’re not going to need something for a while, why keep it around? We’ll show
+    that the furthest-in-future strategy is indeed optimal by showing that the offline
+    caching problem exhibits optimal substructure and that furthest-in-future has
+    the greedy-choice property.'
+  id: totrans-222
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要解决这个离线问题，您可以使用一种称为***未来最远***的贪婪策略，该策略选择驱逐缓存中下一个访问在请求序列中最远的块。直观地说，这种策略是有道��的：如果您一段时间内不需要某物，为什么还要保留它呢？我们将展示未来最远策略确实是最优的，方法是展示离线缓存问题具有最优子结构，并且未来最远具有贪婪选择性质。
+- en: Now, you might be thinking that since the computer usually doesn’t know the
+    sequence of requests in advance, there is no point in studying the offline problem.
+    Actually, there is. In some situations, you do know the sequence of requests in
+    advance. For example, if you view the main memory as the cache and the full set
+    of data as residing on disk (or a solid-state drive), there are algorithms that
+    plan out the entire set of reads and writes in advance. Furthermore, we can use
+    the number of cache misses produced by an optimal algorithm as a baseline for
+    comparing how well online algorithms perform. We’ll do just that in [Section 27.3](chapter027.xhtml#Sec_27.3).
+  id: totrans-223
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在，您可能会认为，由于计算机通常不知道请求序列，所以研究离线问题没有意义。实际上是有意义的。在某些情况下，您确实事先知道请求序列。例如，如果您将主存储器视为缓存，将完整的数据集视为存储在磁盘（或固态硬盘）上，那么有算法可以提前规划整个读写集。此外，我们可以使用最优算法产生的缓存未命中次数作为比较在线算法表现优异程度的基准。我们将在[第27.3节](chapter027.xhtml#Sec_27.3)中进行这样的比较。
+- en: Offline caching can even model real-world problems. For example, consider a
+    scenario where you know in advance a fixed schedule of *n* events at known locations.
+    Events may occur at a location multiple times, not necessarily consecutively.
+    You are managing a group of *k* agents, you need to ensure that you have one agent
+    at each location when an event occurs, and you want to minimize the number of
+    times that agents have to move. Here, the agents are like the blocks, the events
+    are like the requests, and moving an agent is akin to a cache miss.
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 离线缓存甚至可以模拟现实世界的问题。例如，考虑这样一个场景：您事先知道在已知位置上有*n*个事件的固定时间表。事件可能在同一位置多次发生，不一定是连续的。您管理着一组*k*个代理，您需要确保每个位置在事件发生时都有一个代理，并且希望最小化代理移动的次数。在这里，代理就像是块，事件就像是请求，移动代理就像是缓存未命中。
+- en: '**Optimal substructure of offline caching**'
+  id: totrans-225
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**离线缓存的最优子结构**'
+- en: To show that the offline problem exhibits optimal substructure, let’s define
+    the subproblem (*C*, *i*) as processing requests for blocks *b[i]*, *b*[*i*+1],
+    … , *b[n]* with cache configuration *C* at the time that the request for block
+    *b[i]* occurs, that is, *C* is a subset of the set of blocks such that |*C* |
+    ≤ *k*. A solution to subproblem (*C*, *i*) is a sequence of decisions that specifies
+    which block to evict (if any) upon each request for blocks *b[i]*, *b*[*i*+1],
+    … , *b[n]*. An optimal solution to subproblem (*C*, *i*) minimizes the number
+    of cache misses.
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了展示离线问题具有最优子结构，让我们将子问题(*C*, *i*)定义为在请求块*b[i]*、*b*[*i*+1]，…，*b[n]*时处理请求的块的缓存配置*C*，即在请求块*b[i]*发生时的时间，即*C*是块的集合的子集，使得|*C*|
+    ≤ *k*。子问题(*C*, *i*)的解是指在每次请求块*b[i]*、*b*[*i*+1]，…，*b[n]*时指定要驱逐的块（如果有的话）的决策序列。子问题(*C*,
+    *i*)的最优解最小化缓存未命中的次数。
+- en: Consider an optimal solution *S* to subproblem (*C*, *i*), and let *C*′ be the
+    contents of the cache after processing the request for block *b[i]* in solution
+    *S*. Let *S*′ be the subsolution of *S* for the resulting subproblem (*C*′, *i*
+    + 1). If the request for *b[i]* results in a cache hit, then the cache remains
+    unchanged, so that *C*′ = *C*. If the request for block *b[i]* results in a cache
+    miss, then the contents of the cache change, so that *C*′ ≠ *C*. We claim that
+    in either case, *S*′ is an optimal solution to subproblem (*C*′, *i* + 1). Why?
+    If *S*′ is not an optimal solution to subproblem (*C*′, *i* + 1), then there exists
+    another solution *S*″ to subproblem (*C*′, *i* + 1) that makes fewer cache misses
+    than *S*′. Combining *S*″ with the decision of *S* at the request for block *b[i]*
+    yields another solution that makes fewer cache misses than *S*, which contradicts
+    the assumption that *S* is an optimal solution to subproblem (*C*, *i*).
+  id: totrans-227
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑一个最优解*S*，解决子问题(*C*, *i*)，让*C*′是在解决方案*S*中处理对块*b[i]*的请求后缓存的内容。让*S*′是结果子问题(*C*′,
+    *i* + 1)的子解。如果对*b[i]*的请求导致缓存命中，则缓存保持不变，即*C*′ = *C*。如果对块*b[i]*的请求导致缓存未命中，则缓存内容发生变化，即*C*′
+    ≠ *C*。我们声称在任一情况下，*S*′是子问题(*C*′, *i* + 1)的最优解。为什么？如果*S*′不是子问题(*C*′, *i* + 1)的最优解，则存在另一个解*S*″，使得在*b[i]*的请求中比*S*′少发生缓存未命中。将*S*″与*S*在对块*b[i]*的请求的决策相结合，得到另一个比*S*少发生缓存未命中的解，这与*S*是子问题(*C*,
+    *i*)的最优解的假设相矛盾。
+- en: 'To quantify a recursive solution, we need a little more notation. Let *R*[*C*,*i*]
+    be the set of all cache configurations that can immediately follow configuration
+    *C* after processing a request for block *b[i]*. If the request results in a cache
+    hit, then the cache remains unchanged, so that *R*[*C*,*i*] = {*C* }. If the request
+    for *b[i]* results in a cache miss, then there are two possibilities. If the cache
+    is not full (|*C* | < *k*), then the cache is filling up and the only choice is
+    to insert *b[i]* into the cache, so that *R*[*C*,*i*]= {*C* ∪ {*b[i]*}}. If the
+    cache is full (|*C* | = *k*) upon a cache miss, then *R*[*C*,*i*] contains *k*
+    potential configurations: one for each candidate block in *C* that could be evicted
+    and replaced by block *b[i]*. In this case, *R*[*C*,*i*] = {(*C* − {*x*}) ∪ {*b[i]*}
+    : *x* ∈ *C* }. For example, if *C* = {*p*, *q*, *r*}, *k* = 3, and block *s* is
+    requested, then *R*[*C*,*i*] = {{*p*, *q*, *s*},{*p*, *r*, *s*},{*q*, *r*, *s*}}.'
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '为了量化递归解，我们需要更多的符号。让*R*[*C*,*i*]是在处理对块*b[i]*的请求后可以立即跟随配置*C*的所有缓存配置的集合。如果请求导致缓存命中，则缓存保持不变，即*R*[*C*,*i*]
+    = {*C*}。如果对*b[i]*的请求导致缓存未命中，则有两种可能性。如果缓存未满（|*C*| < *k*），则缓存正在填充，唯一选择是将*b[i]*插入缓存，即*R*[*C*,*i*]=
+    {*C* ∪ {*b[i]*}}。如果缓存已满（|*C*| = *k*）在缓存未命中时，则*R*[*C*,*i*]包含*k*个潜在配置：每个候选块在*C*中都可以被驱逐并替换为块*b[i]*。在这种情况下，*R*[*C*,*i*]
+    = {(*C* − {*x*}) ∪ {*b[i]*} : *x* ∈ *C*}。例如，如果*C* = {*p*, *q*, *r*}，*k* = 3，请求块*s*，则*R*[*C*,*i*]
+    = {{*p*, *q*, *s*},{*p*, *r*, *s*},{*q*, *r*, *s*}}。'
+- en: 'Let *miss*(*C*, *i*) denote the minimum number of cache misses in a solution
+    for subproblem (*C*, *i*). Here is a recurrence for *miss*(*C*, *i*):'
+  id: totrans-229
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*miss*(*C*, *i*)表示子问题(*C*, *i*)的解中缓存未命中的最小次数。以下是*miss*(*C*, *i*)的递归公式：
+- en: '![art](images/Art_P504.jpg)'
+  id: totrans-230
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P504.jpg)'
+- en: '**Greedy-choice property**'
+  id: totrans-231
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**贪心选择性质**'
+- en: To prove that the furthest-in-future strategy yields an optimal solution, we
+    need to show that optimal offline caching exhibits the greedy-choice property.
+    Combined with the optimal-substructure property, the greedy-choice property will
+    prove that furthest-in-future produces the minimum possible number of cache misses.
+  id: totrans-232
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了证明最远未来策略产生最优解，我们需要展示最优离线缓存表现出贪心选择性��。结合最优子结构性质，贪心选择性质将证明最远未来产生最小可能的缓存未命中次数。
+- en: '***Theorem 15.5 (Optimal offline caching has the greedy-choice property)***'
+  id: totrans-233
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理15.5（最优离线缓存具有贪心选择性质）***'
+- en: Consider a subproblem (*C*, *i*) when the cache *C* contains *k* blocks, so
+    that it is full, and a cache miss occurs. When block *b[i]* is requested, let
+    *z* = *b[m]* be the block in *C* whose next access is furthest in the future.
+    (If some block in the cache will never again be referenced, then consider any
+    such block to be block *z*, and add a dummy request for block *z* = *b[m]* = *b*[*n*+1].)
+    Then evicting block *z* upon a request for block *b[i]* is included in some optimal
+    solution for the subproblem (*C*, *i*).
+  id: totrans-234
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑一个子问题(*C*, *i*)，当缓存*C*包含*k*个块时，即缓存已满，并且发生缓存未命中。当请求块*b[i]*时，让*z* = *b[m]*是在*C*中下一次访问最远的块（如果缓存中的某个块永远不会再被引用，则将任何这样的块视为块*z*，并添加一个块*z*
+    = *b[m]* = *b*[*n*+1]的虚拟请求）。然后，在子问题(*C*, *i*)的某个最优解中，对请求块*b[i]*驱逐块*z*是包括在内的。
+- en: '***Proof***   Let *S* be an optimal solution to subproblem (*C*, *i*). If *S*
+    evicts block *z* upon the request for block *b[i]*, then we are done, since we
+    have shown that some optimal solution includes evicting *z*.'
+  id: totrans-235
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   设*S*是子问题(*C*, *i*)的最优解。如果*S*在对块*b[i]*的请求时驱逐块*z*，那么我们完成了，因为我们已经证明了某些最优解包括驱逐*z*。'
+- en: 'So now suppose that optimal solution *S* evicts some other block *x* when block
+    *b[i]* is requested. We’ll construct another solution *S*′ to subproblem (*C*,
+    *i*) which, upon the request for *b[i]*, evicts block *z* instead of *x* and induces
+    no more cache misses than *S* does, so that *S*′ is also optimal. Because different
+    solutions may yield different cache configurations, denote by *C*[*S*,*j*] the
+    configuration of the cache under solution *S* just before the request for some
+    block *b[j]*, and likewise for solution *S*′ and *C*[*S*′,*j*]. We’ll show how
+    to construct *S*′ with the following properties:'
+  id: totrans-236
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在假设最优解*S*在请求块*b[i]*时驱逐了另一个块*x*。我们将构建另一个解*S*′，解决子问题(*C*, *i*)，在对*b[i]*的请求时，驱逐块*z*而不是*x*，并且不会比*S*引起更多的缓存未命中，因此*S*′也是最优的。因为不同的解可能产生不同的缓存配置，所以用*C*[*S*,*j*]表示解*S*在请求某个块*b[j]*之前的缓存配置，解*S*′和*C*[*S*′,*j*]同理。我们将展示如何构建*S*′，具有以下特性：
+- en: For *j* = *i* + 1, … , *m*, let *D[j]* = *C*[*S*,*j*] ∩ *C*[*S*′,*j*]. Then,
+    |*D[j]* | ≥ *k* − 1, so that the cache configurations *C*[*S*,*j*] and *C*[*S*′,*j*]
+    differ by at most one block. If they differ, then *C*[*S*,*j*] = *D[j]* ∪ {*z*}
+    and *C*[*S*′,*j*] = *D[j]* ∪ {*y*} for some block *y* ≠ *z*.
+  id: totrans-237
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 对于*j* = *i* + 1, … , *m*，令*D[j]* = *C*[*S*,*j*] ∩ *C*[*S*′,*j*]。那么，|*D[j]*|
+    ≥ *k* − 1，因此缓存配置*C*[*S*,*j*]和*C*[*S*′,*j*]最多相差一个块。如果它们不同，则*C*[*S*,*j*] = *D[j]*
+    ∪ {*z*}，*C*[*S*′,*j*] = *D[j]* ∪ {*y*}，其中*y* ≠ *z*。
+- en: For each request of blocks *b[i]*, … , *b*[*m*−1], if solution *S* has a cache
+    hit, then solution *S*′ also has a cache hit.
+  id: totrans-238
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 对于每个块*b[i]*的请求，… , *b*[*m*−1]，如果解决方案*S*有一个缓存命中，则解决方案*S*′也有一个缓存命中。
+- en: For all *j* > *m*, the cache configurations *C*[*S*,*j*] and *C*[*S*′,*j*] are
+    identical.
+  id: totrans-239
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 对于所有*j* > *m*，缓存配置*C*[*S*,*j*]和*C*[*S*′,*j*]是相同的。
+- en: Over the sequence of requests for blocks *b[i]*, … , *b[m]*, the number of cache
+    misses produced by solution *S*′ is at most the number of cache misses produced
+    by solution *S*.
+  id: totrans-240
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 在对块*b[i]*的请求序列，… , *b[m]*，解决方案*S*′产生的缓存未命中次数最多不超过解决方案*S*产生的缓存未命中次数。
+- en: We’ll prove inductively that these properties hold for each request.
+  id: totrans-241
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将逐步证明这些属性对每个请求都成立。
+- en: We proceed by induction on *j*, for *j* = *i* +1, … , *m*. For the base case,
+    the initial caches *C*[*S*,*i*] and *C*[*S*′,*i*] are identical. Upon the request
+    for block *b[i]*, solution *S* evicts *x* and solution *S*′ evicts *z*. Thus,
+    cache configurations *C*[*S*,*i*+1] and *C*[*S*′,*i*+1] differ by just one block,
+    *C*[*S*,*i*+1] = *D*[*i*+1] ∪ {*z*}, *C*[*S*′,*i*+1] = *D*[*i*+1] ∪ {*x*}, and
+    *x* ≠ *z*.
+  id: totrans-242
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 我们对*j*进行归纳，对*j* = *i* +1, … , *m*。对于基本情况，初始缓存*C*[*S*,*i*]和*C*[*S*′,*i*]是相同的。在请求块*b[i]*时，解决方案*S*驱逐*x*，解决方案*S*′驱逐*z*。因此，缓存配置*C*[*S*,*i*+1]和*C*[*S*′,*i*+1]仅相差一个块，*C*[*S*,*i*+1]
+    = *D*[*i*+1] ∪ {*z*}，*C*[*S*′,*i*+1] = *D*[*i*+1] ∪ {*x*}，且*x* ≠ *z*。
+- en: 'The inductive step defines how solution *S*′ behaves upon a request for block
+    *b[j]* for *i* + 1 ≤ *j* ≤ *m* − 1\. The inductive hypothesis is that property
+    1 holds when *b[j]* is requested. Because *z* = *b[m]* is the block in *C*[*S*,*i*]
+    whose next reference is furthest in the future, we know that *b[j]* ≠ *z*. We
+    consider several scenarios:'
+  id: totrans-243
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+  zh: 归纳步骤定义了解决方案*S*′在请求*i* + 1 ≤ *j* ≤ *m* − 1时对块*b[j]*的行为。归纳假设是当请求*b[j]*时属性1成立。因为*z*
+    = *b[m]*是*C*[*S*,*i*]中下一次引用最远的块，我们知道*b[j]* ≠ *z*。我们考虑几种情况：
+- en: If *C*[*S*,*j*] = *C*[*S*′,*j*] (so that |*D[j]* | = *k*), then solution *S*′
+    makes the same decision upon the request for *b[j]* as *S* makes, so that *C*[*S*,*j*+1]
+    = *C*[*S*′,*j*+1].
+  id: totrans-244
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*C*[*S*,*j*] = *C*[*S*′,*j*]（使得|*D[j]*| = *k*），那么解决方案*S*′在请求*b[j]*时做出与*S*相同的���定，因此*C*[*S*,*j*+1]
+    = *C*[*S*′,*j*+1]。
+- en: If |*D[j]*| = *k* − 1 and *b[j]* ∈ *D[j]*, then both caches already contain
+    block *b[j]*, and both solutions *S* and *S*′ have cache hits. Therefore, *C*[*S*,*j*+1]
+    = *C*[*S*,*j*] and *C*[*S*′,*j*+1] = *C*[*S*′,*j*].
+  id: totrans-245
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果|*D[j]*| = *k* − 1且*b[j]* ∈ *D[j]*，那么两个缓存已经包含块*b[j]*，并且两个解决方案*S*和*S*′都有缓存命中。因此，*C*[*S*,*j*+1]
+    = *C*[*S*,*j*]，*C*[*S*′,*j*+1] = *C*[*S*′,*j*]。
+- en: If |*D*[*j*] | = *k* − 1 and *b[j]* ∉ *D[j]*, then because *C*[*S*,*j*] = *D[j]*
+    ∪ {*z*} and *b[j]* ≠ *z*, solution *S* has a cache miss. It evicts either block
+    *z* or some block *w* ∈ *D[j]*.
+  id: totrans-246
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果|*D[j]*| = *k* − 1且*b[j]* ∉ *D[j]*，那么因为*C*[*S*,*j*] = *D[j]* ∪ {*z*}且*b[j]*
+    ≠ *z*，解决方案*S*有一个缓存未命中。它会驱逐块*z*或一些块*w* ∈ *D[j]*。
+- en: 'If solution *S* evicts block *z*, then *C*[*S*,*j*+1] = *D[j]* ∪ {*b[j]*}.
+    There are two cases, depending on whether *b[j]* = *y*:'
+  id: totrans-247
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果解决方案*S*驱逐块*z*，那么*C*[*S*,*j*+1] = *D[j]* ∪ {*b[j]*}。根据*b[j]* = *y*有两种情况：
+- en: If *b[j]* = *y*, then solution *S*′ has a cache hit, so that *C*[*S*′,*j*+1]
+    = *C*[*S*′,*j*] = *D[j]* ∪ {*b[j]*}. Thus, *C*[*S*,*j*+1] = *C*[*S*′,*j* +1].
+  id: totrans-248
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*b[j]* = *y*，那么解决方案*S*′有一个缓存命中，因此*C*[*S*′,*j*+1] = *C*[*S*′,*j*] = *D[j]*
+    ∪ {*b[j]*}。因此，*C*[*S*,*j*+1] = *C*[*S*′,*j* +1]。
+- en: If *b[j]* ≠ *y*, then solution *S*′ has a cache miss. It evicts block *y*, so
+    that *C*[*S*′,*j*+1] = *D[j]* ∪ {*b[j]* }, and again *C*[*S*,*j*+1] = *C*[*S*′,*j*+1].
+  id: totrans-249
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*b[j]* ≠ *y*，那么解决方案*S*′有一个缓存未命中。它会驱逐块*y*，因此*C*[*S*′,*j*+1] = *D[j]* ∪ {*b[j]*}，再次*C*[*S*,*j*+1]
+    = *C*[*S*′,*j*+1]。
+- en: 'If solution *S* evicts some block *w* ∈ *D[j]*, then *C*[*S*,*j*+1] = (*D[j]*
+    − {*w*}) ∪ {*b[j]*, *z*}. Once again, there are two cases, depending on whether
+    *b[j]* = *y*:'
+  id: totrans-250
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果解决方案*S*驱逐一些块*w* ∈ *D[j]*，那么*C*[*S*,*j*+1] = (*D[j]* − {*w*}) ∪ {*b[j]*, *z*}。再次，根据*b[j]*
+    = *y*有两种情况：
+- en: If *b[j]* = *y*, then solution *S*′ has a cache hit, so that *C*[*S*′,*j*+1]
+    = *C*[*S*′,*j*] = *D[j]* ∪ {*b[j]*}. Since *w* ∈ *D[j]* and *w* was not evicted
+    by solution *S*′, we have *w* ∈ *C*[*S*′,*j* +1]. Therefore, *w* ∉ *D*[*j*+1]
+    and *b[j]* ∈ *D*[*j*+1], so that *D*[*j*+1] = (*D[j]* − {*w*}) ∪ {*b[j]* }. Thus,
+    *C*[*S*,*j*+1] = *D*[*j*+1] ∪ {*z*},*C*[*S*′,*j*+1] = *D*[*j* +1] ∪ {*w*}, and
+    because *w* ≠ *z*, property 1 holds when block *b*[*j*+1] is requested. (In other
+    words, block *w* replaces block *y* in property 1.)
+  id: totrans-251
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*b[j]* = *y*，那么解决方案*S*′有一个缓存命中，因此*C*[*S*′,*j*+1] = *C*[*S*′,*j*] = *D[j]*
+    ∪ {*b[j]*}。由于*w* ∈ *D[j]*且*w*没有被解决方案*S*′驱逐，我们有*w* ∈ *C*[*S*′,*j* +1]。因此，*w* ∉
+    *D*[*j*+1]且*b[j]* ∈ *D*[*j*+1]，所以*D*[*j*+1] = (*D[j]* − {*w*}) ∪ {*b[j]*}。因此，*C*[*S*,*j*+1]
+    = *D*[*j*+1] ∪ {*z*}，*C*[*S*′,*j*+1] = *D*[*j* +1] ∪ {*w*}，因为*w* ≠ *z*，当请求块*b*[*j*+1*]时，属性1成立。（换句话说，块*w*替换了属性1中的块*y*。）
+- en: If *b[j]* ≠ *y*, then solution *S*′ has a cache miss. It evicts block *w*, so
+    that *C*[*S*′,*j* +1] = (*D[j]* − {*w*}) ∪ {*b[j]*, *y*}. Therefore, we have that
+    *D*[*j*+1] = (*D[j]* − {*w*}) ∪ {*b[j]* } and so *C*[*S*,*j*+1] = *D*[*j*+1] ∪
+    {*z*} and *C*[*S*′,*j*+1] = *D*[*j* +1] ∪ {*y*}.
+  id: totrans-252
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*b[j]* ≠ *y*，那么解决方案*S*′有一个缓存未命中。它会驱逐块*w*，因此*C*[*S*′,*j* +1] = (*D[j]* − {*w*})
+    ∪ {*b[j]*, *y*}。因此，我们有*D*[*j*+1] = (*D[j]* − {*w*}) ∪ {*b[j]*}，因此*C*[*S*,*j*+1]
+    = *D*[*j*+1] ∪ {*z*}，*C*[*S*′,*j*+1] = *D*[*j* +1] ∪ {*y*}。
+- en: In the above discussion about maintaining property 1, solution *S* may have
+    a cache hit in only the first two cases, and solution *S*′ has a cache hit in
+    these cases if and only if *S* does.
+  id: totrans-253
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 在关于维持属性1的讨论中，解决方案*S*可能仅在前两种情况下有一个缓存命中，而解决方案*S*′在这些情况下有一个缓存命中当且仅当*S*有一个缓存命中。
+- en: If *C*[*S*,*m*] = *C*[*S*′,*m*], then solution *S*′ makes the same decision
+    upon the request for block *z* = *b[m]* as *S* makes, so that *C*[*S*,*m*+1] =
+    *C*[*S*′,*m*+1]. If *C*[*S*,*m*] ≠ *C*[*S*′,*m*], then by property 1, *C*[*S*,*m*]
+    = *D[m]*∪{*z*} and *C*[*S*′,*m*] = *D[m]*∪{*y*}, where *y* ≠ *z*. In this case,
+    solution *S* has a cache hit, so that *C*[*S*,*m*+1] = *C*[*S*,*m*] = *D[m]* ∪
+    {*z*}. Solution *S*′ evicts block *y* and brings in block *z*, so that *C*[*S*′,*m*+1]
+    = *D[m]* ∪ {*z*} = *C*[*S*,*m*+1]. Thus, regardless of whether or not *C*[*S*,*m*]
+    = *C*[*S*′,*m*], we have *C*[*S*,*m*+1] = *C*[*S*′,*m*+1], and starting with the
+    request for block *b*[*m*+1], solution *S*′ simply makes the same decisions as
+    *S*.
+  id: totrans-254
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 如果*C*[*S*,*m*] = *C*[*S*′,*m*]，那么解*S*′ 在请求块*z* = *b[m]* 时做出与*S* 相同的决定，因此*C*[*S*,*m*+1]
+    = *C*[*S*′,*m*+1]。如果*C*[*S*,*m*] ≠ *C*[*S*′,*m*]，那么根据性质1，*C*[*S*,*m*] = *D[m]*∪{*z*}，*C*[*S*′,*m*]
+    = *D[m]*∪{*y*}，其中*y* ≠ *z*。在这种情况下，解*S* 有缓存命中，因此*C*[*S*,*m*+1] = *C*[*S*,*m*] =
+    *D[m]* ∪ {*z*}。解*S*′ 驱逐块*y* 并引入块*z*，因此*C*[*S*′,*m*+1] = *D[m]* ∪ {*z*} = *C*[*S*,*m*+1]。因此，无论*C*[*S*,*m*]
+    = *C*[*S*′,*m*] 还是不是，我们都有*C*[*S*,*m*+1] = *C*[*S*′,*m*+1]，并且从请求块*b*[*m*+1]* 开始，解*S*′
+    简单地做出与*S* 相同的决定。
+- en: 'By property 2, upon the requests for blocks *b[i]*, … , *b*[*m*−1], whenever
+    solution *S* has a cache hit, so does *S*′. Only the request for block *b[m]*
+    = *z* remains to be considered. If *S* has a cache miss upon the request for *b[m]*,
+    then regardless of whether *S*′ has a cache hit or a cache miss, we are done:
+    *S*′ has at most the same number of cache misses as *S*.'
+  id: totrans-255
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 根据性质2，在请求块*b[i]*, … , *b*[*m*−1]* 时，只要解*S* 有缓存命中，解*S*′ 也有缓存命中。只剩下请求块*b[m]* =
+    *z* 的情况需要考虑。如果*S* 在请求*b[m]* 时有缓存未命中，那么无论*S*′ 在请求时有缓存命中还是缓存未命中，我们都完成了：*S*′ 的缓存未命中数量最多与*S*
+    相同。
+- en: So now suppose that *S* has a cache hit and *S*′ has a cache miss upon the request
+    for *b[m]*. We’ll show that there exists a request for at least one of blocks
+    *b*[*i*+1], … , *b*[*m*−1] in which the request results in a cache miss for *S*
+    and a cache hit for *S*′, thereby compensating for what happens upon the request
+    for block *b[m]*. The proof is by contradiction. Assume that no request for blocks
+    *b*[*i*+1], … , *b*[*m*−1] results in a cache miss for *S* and a cache hit for
+    *S*′.
+  id: totrans-256
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+  zh: 现在假设*S* 在请求*b[m]* 时有缓存命中，*S*′ 在请求时有缓存未命中。我们将展示，在至少一个块*b*[*i*+1]*, … , *b*[*m*−1]*
+    的请求中，请求导致*S* 缓存未命中且*S*′ 缓存命中，从而弥补了在请求块*b[m]* 时发生的情况。证明是通过反证法。假设对于块*b*[*i*+1]*,
+    … , *b*[*m*−1]* 的请求，没有一个导致*S* 缓存未命中且*S*′ 缓存命中。
+- en: 'We start by observing that once the caches *C*[*S*,*j*] and *C*[*S*′*j*] are
+    equal for some *j* > *i*, they remain equal thereafter. Observe also that if *b[m]*
+    ∈ *C*[*S*,*m*] and *b[m]* ∉ *C*[*S*′,*m*], then *C*[*S*,*m*] ≠ *C*[*S*′,*m*].
+    Therefore, solution *S* cannot have evicted block *z* upon the requests for blocks
+    *b[i]*, … , *b*[*m*−1], for if it had, then these two cache configurations would
+    be equal. The remaining possibility is that upon each of these requests, we had
+    *C*[*S*,*j*] = *D*[*j*] ∪ {*z*}, *C*[*S*′,*j*] = *D[j]* ∪ {*y*} for some block
+    *y* ≠ *z*, and solution *S* evicted some block *w* ∈ *D[j]*. Moreover, since none
+    of these requests resulted in a cache miss for *S* and a cache hit for *S*^′,
+    the case of *b[j]* = *y* never occurred. That is, for every request of blocks
+    *b*[*i*+1], … , *b*[*m*−1], the requested block *b[j]* was never the block *y*
+    ∈ *C*[*S*′,*j*] − *C*[*S*,*j*]. In these cases, after processing the request,
+    we had *C*[*S*′,*j* +1] = *D*[*j* +1] ∪ {*y*}: the difference between the two
+    caches did not change. Now, let’s go back to the request for block *b[i]*, where
+    afterward, we had *C*[*S*′,*i*+1] = *D*[*i*+1] ∪ {*x*}. Because every succeeding
+    request until requesting block *b[m]* did not change the difference between the
+    caches, we had *C*[*S*′,*j*] = *D[j]* ∪ {*x*} for *j* = *i* + 1, … , *m*.'
+  id: totrans-257
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+  zh: 我们首先观察到一旦缓存*C*[*S*,*j*] 和*C*[*S*′*j*] 对于某个*j* > *i* 相等，它们之后保持相等。还要注意，如果*b[m]*
+    ∈ *C*[*S*,*m*] 且*b[m]* ∉ *C*[*S*′,*m*]，那么*C*[*S*,*m*] ≠ *C*[*S*′,*m*]。因此，解*S*
+    不能在请求块*b[i]*, … , *b*[*m*−1]* 时驱逐块*z*，因为如果是这样，这两个缓存配置将相等。剩下的可能性是，在每个这些请求时，我们有*C*[*S*,*j*]
+    = *D*[*j*] ∪ {*z*}，*C*[*S*′,*j*] = *D[j]* ∪ {*y*}，其中*y* ≠ *z*，解*S* 驱逐了某个块*w* ∈
+    *D[j]*。此外，由于这些请求中没有一个导致*S* 缓存未命中且*S*^′ 缓存命中，因此*b[j]* = *y* 的情况从未发生。也就是说，对于每个请求的块*b*[*i*+1]*,
+    … , *b*[*m*−1]*，请求的块*b[j]* 从未是块*y* ∈ *C*[*S*′,*j*] − *C*[*S*,*j*]。在这些情况下，在处理请求后，我们有*C*[*S*′,*j*
+    +1] = *D*[*j* +1] ∪ {*y*}：两个缓存之间的差异没有改变。现在，让我们回到请求块*b[i]*，在此之后，我们有*C*[*S*′,*i*+1]
+    = *D*[*i*+1] ∪ {*x*}。因为直到请求块*b[m]* 之前的每个后续请求都没有改变缓存之间的差异，我们有*C*[*S*′,*j*] = *D[j]*
+    ∪ {*x*}，对于*j* = *i* + 1, … , *m*。
+- en: By definition, block *z* = *b[m]* is requested after block *x*. That means at
+    least one of blocks *b*[*i*+1], … , *b*[*m*−1] is block *x*. But for *j* = *i*
+    + 1, … , *m*, we have *x* ∈ *C*[*S*′,*j*] and *x* ∉ *C*[*S*,*j*], so that at least
+    one of these requests had a cache hit for *S*′ and a cache miss for *S*, a contradiction.
+    We conclude that if solution *S* has a cache hit and solution *S*′ has a cache
+    miss upon the request for block *b[m]*, then some earlier request had the opposite
+    result, and so solution *S*′ produces no more cache misses than solution *S*.
+    Since *S* is assumed to be optimal, *S*′ is optimal as well.
+  id: totrans-258
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+  zh: 根据定义，块*z* = *b[m]* 在块*x* 之后被请求。这意味着至少有一个块*b*[*i*+1], … , *b*[*m*−1] 是块*x*。但对于*j*
+    = *i* + 1, … , *m*，我们有*x* ∈ *C*[*S*′,*j*] 且 *x* ∉ *C*[*S*,*j*]，因此至少有一个这些请求对*S*′
+    有缓存命中，对*S* 有缓存未命中，这与前提矛盾。我们得出结论，如果解*S* 在请求块*b[m]* 时有缓存命中，解*S*′ 在请求时有缓存未命中，那么之前的某个请求结果相反，因此解*S*′
+    产生的缓存未命中不会比解*S* 更多。由于*S* 被假定为最优解，*S*′ 也是最优解。
+- en: ▪
+  id: totrans-259
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: Along with the optimal-substructure property, Theorem 15.5 tells us that the
+    furthest-in-future strategy yields the minimum number of cache misses.
+  id: totrans-260
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 除了最优子结构性质，定理15.5 告诉我们，最远未来策略产生最少的缓存未命中次数。
+- en: '**Exercises**'
+  id: totrans-261
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***15.4-1***'
+  id: totrans-262
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.4-1***'
+- en: Write pseudocode for a cache manager that uses the furthest-in-future strategy.
+    It should take as input a set *C* of blocks in the cache, the number of blocks
+    *k* that the cache can hold, a sequence *b*[1], *b*[2], … , *b[n]* of requested
+    blocks, and the index *i* into the sequence for the block *b[i]* being requested.
+    For each request, it should print out whether a cache hit or cache miss occurs,
+    and for each cache miss, it should also print out which block, if any, is evicted.
+  id: totrans-263
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 编写一个使用最远未来策略的缓存管理器的伪代码。它应该接受缓存中的块集合*C*，缓存可以容纳的块数*k*，请求的块序列*b*[1]，*b*[2]，…，*b[n]*以及请求块*b[i]*的索引*i*作为输入。对于每个请求，它应该打印出缓存命中或缓存未命中的情况，并对于每个缓存未命中，它还应该打印出哪个块（如果有的话）被替换。
+- en: '***15.4-2***'
+  id: totrans-264
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.4-2***'
+- en: Real cache managers do not know the future requests, and so they often use the
+    past to decide which block to evict. The ***least-recently-used***, or ***LRU***,
+    strategy evicts the block that, of all blocks currently in the cache, was the
+    least recently requested. (You can think of LRU as “furthest-in-past.”) Give an
+    example of a request sequence in which the LRU strategy is not optimal, by showing
+    that it induces more cache misses than the furthest-in-future strategy does on
+    the same request sequence.
+  id: totrans-265
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 真实的缓存管理器不知道未来的请求，因此它们通常使用过去来决定要替换哪个块。***最近最少使用***，或***LRU***，策略替换了当前缓存中最近请求的所有块中最久未请求的块。
+    （你可以将LRU视为“最远过去”。）通过展示在相同请求序列上LRU策略比最远未来策略产生更多缓存未命中的示例，证明LRU策略不是最佳的。
+- en: '***15.4-3***'
+  id: totrans-266
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.4-3***'
+- en: Professor Croesus suggests that in the proof of Theorem 15.5, the last clause
+    in property 1 can change to *C*[*S*′,*j*] = *D[j]* ∪ {*x*} or, equivalently, require
+    the block *y* given in property 1 to always be the block *x* evicted by solution
+    *S* upon the request for block *b[i]*. Show where the proof breaks down with this
+    requirement.
+  id: totrans-267
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 克罗伊斯教授建议在定理15.5的证明中，属性1的最后一条款可以更改为*C*[*S*′,*j*] = *D[j]* ∪ {*x*}，或者等效地要求属性1中给出的块*y*始终是由解决方案*S*在请求块*b[i]*时替换的块*x*。展示这一要求会导致证明失败的地方。
+- en: '***15.4-4***'
+  id: totrans-268
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15.4-4***'
+- en: This section has assumed that at most one block is placed into the cache whenever
+    a block is requested. You can imagine, however, a strategy in which multiple blocks
+    may enter the cache upon a single request. Show that for every solution that allows
+    multiple blocks to enter the cache upon each request, there is another solution
+    that brings in only one block upon each request and is at least as good.
+  id: totrans-269
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节假设每次请求块时最多只能将一个块放入缓存。然而，你可以想象一种策略，即多个块可能在单个请求时进入缓存。证明对于允许每次请求时多个块进入缓存的每个解决方案，都存在另一个只带入一个块的解决方案且至少同样好。
+- en: '**Problems**'
+  id: totrans-270
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***15-1     Coin changing***'
+  id: totrans-271
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15-1     找零问题***'
+- en: Consider the problem of making change for *n* cents using the smallest number
+    of coins. Assume that each coin’s value is an integer.
+  id: totrans-272
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑使用最少数量的硬币为*n*美分找零的问题。假设每个硬币的价值是整数。
+- en: '***a.*** Describe a greedy algorithm to make change consisting of quarters,
+    dimes, nickels, and pennies. Prove that your algorithm yields an optimal solution.'
+  id: totrans-273
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 描述一个贪婪算法，由25美分、10美分、5美分和1美分组成。证明你的算法产生最优解。'
+- en: '***b.*** Suppose that the available coins are in denominations that are powers
+    of *c*: the denominations are *c*⁰, *c*¹, … , *c^k* for some integers *c >* 1
+    and *k* ≥ 1\. Show that the greedy algorithm always yields an optimal solution.'
+  id: totrans-274
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 假设可用的硬币面额是*c*的幂次方：面额为*c*⁰、*c*¹、…、*c^k*，其中*c >* 1且*k* ≥ 1。证明贪婪算法总是产生最优解。'
+- en: '***c.*** Give a set of coin denominations for which the greedy algorithm does
+    not yield an optimal solution. Your set should include a penny so that there is
+    a solution for every value of *n*.'
+  id: totrans-275
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 给出一个硬币面额集合，贪婪算法不能产生最优解。你的集合应该包括一分钱，以便对每个*n*值都有解。'
+- en: '***d.*** Give an *O*(*nk*)-time algorithm that makes change for any set of
+    *k* different coin denominations using the smallest number of coins, assuming
+    that one of the coins is a penny.'
+  id: totrans-276
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 给出一个*O*(*nk*)时间复杂度的算法，使用最少数量的硬币为任意一组*k*个不同的硬币面额找零，假设其中一个硬币是一分钱。'
+- en: '***15-2     Scheduling to minimize average completion time***'
+  id: totrans-277
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***15-2     调度以最小化平均完成时间***'
+- en: You are given a set *S* = {*a*[1], *a*[2], … , *a[n]*} of tasks, where task
+    *a[i]* requires *p[i]* units of processing time to complete. Let *C[i]* be the
+    ***completion time*** of task *a[i]*, that is, the time at which task *a[i]* completes
+    processing. Your goal is to minimize the average completion time, that is, to
+    minimize ![art](images/Art_P505.jpg). For example, suppose that there are two
+    tasks *a*[1] and *a*[2] with *p*[1] = 3 and *p*[2] = 5, and consider the schedule
+    in which *a*[2] runs first, followed by *a*[1]. Then we have *C*[2] = 5, *C*[1]
+    = 8, and the average completion time is (5 + 8)/2 = 6.5\. If task *a*[1] runs
+    first, however, then we have *C*[1] = 3, *C*[2] = 8, and the average completion
+    time is (3 + 8)/2 = 5.5.
+  id: totrans-278
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一组任务*S* = {*a*[1]，*a*[2]，…，*a[n]*}，其中任务*a[i]*需要*p[i]*个处理时间单位才能完成。让*C[i]*是任务*a[i]*的***完成时间***，即任务*a[i]*完成处理的时间。你的目标是最小化平均完成时间，即最小化![art](images/Art_P505.jpg)。例如，假设有两个任务*a*[1]和*a*[2]，其中*p*[1]
+    = 3*，*p*[2] = 5*，并考虑*a*[2]*先运行，然后是*a*[1]*的调度。那么我们有*C*[2] = 5*，*C*[1] = 8*，平均完成时间为(5
+    + 8)/2 = 6.5。然而，如果任务*a*[1]*先运行，则有*C*[1] = 3*，*C*[2] = 8*，平均完成时间为(3 + 8)/2 = 5.5。
+- en: '***a.*** Give an algorithm that schedules the tasks so as to minimize the average
+    completion time. Each task must run nonpreemptively, that is, once task *a[i]*
+    starts, it must run continuously for *p[i]* units of time until it is done. Prove
+    that your algorithm minimizes the average completion time, and analyze the running
+    time of your algorithm.'
+  id: totrans-279
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 给出一种调度任务的算法，以使平均完成时间最小化。每个任务必须以非抢占方式运行，也就是说，一旦任务*a[i]*开始，它必须连续运行*p[i]*个时间单位直到完成。证明你的算法最小化了平均完成时间，并分析你的算法的运行时间。'
+- en: '***b.*** Suppose now that the tasks are not all available at once. That is,
+    each task cannot start until its ***release time*** *b[i]*. Suppose also that
+    tasks may be ***preempted***, so that a task can be suspended and restarted at
+    a later time. For example, a task *a[i]* with processing time *p[i]* = 6 and release
+    time *b[i]* = 1 might start running at time 1 and be preempted at time 4\. It
+    might then resume at time 10 but be preempted at time 11, and it might finally
+    resume at time 13 and complete at time 15\. Task *a[i]* has run for a total of
+    6 time units, but its running time has been divided into three pieces. Give an
+    algorithm that schedules the tasks so as to minimize the average completion time
+    in this new scenario. Prove that your algorithm minimizes the average completion
+    time, and analyze the running time of your algorithm.'
+  id: totrans-280
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 现在假设任务不是一次性全部可用的。 也就是说，每个任务直到其***发布时间*** *b[i]* 之前都不能开始。 还假设任务可以***抢占***，因此任务可以被暂停并在以后重新启动。
+    例如，具有处理时间 *p[i]* = 6 和发布时间 *b[i]* = 1 的任务 *a[i]* 可能在时间1开始运行，然后在时间4被抢占。 它可能在时间10恢复，但在时间11被抢占，最后可能在时间13恢复并在时间15完成。
+    任务 *a[i]* 总共运行了6个时间单位，但其运行时间被分成了三部分。 给出一个调度任务的算法，以便在这种新情况下最小化平均完成时间。 证明您的算法最小化了平均完成时间，并分析您的算法的运行时间。'
+- en: '**Chapter notes**'
+  id: totrans-281
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节笔记**'
+- en: Much more material on greedy algorithms can be found in Lawler [[276](bibliography001.xhtml#endnote_276)]
+    and Papadimitriou and Steiglitz [[353](bibliography001.xhtml#endnote_353)]. The
+    greedy algorithm first appeared in the combinatorial optimization literature in
+    a 1971 article by Edmonds [[131](bibliography001.xhtml#endnote_131)].
+  id: totrans-282
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 更多关于贪婪算法的材料可以在劳勒[[276](bibliography001.xhtml#endnote_276)]和帕帕迪米特里乌和斯泰格利茨[[353](bibliography001.xhtml#endnote_353)]中找到。
+    贪婪算法最早出现在组合优化文献中，是在1971年爱德蒙兹的文章中[[131](bibliography001.xhtml#endnote_131)]。
+- en: The proof of correctness of the greedy algorithm for the activity-selection
+    problem is based on that of Gavril [[179](bibliography001.xhtml#endnote_179)].
+  id: totrans-283
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 活动选择问题中贪婪算法的正确性证明基于加夫里尔的证明[[179](bibliography001.xhtml#endnote_179)]。
+- en: Huffman codes were invented in 1952 [[233](bibliography001.xhtml#endnote_233)].
+    Lelewer and Hirschberg [[294](bibliography001.xhtml#endnote_294)] surveys data-compression
+    techniques known as of 1987.
+  id: totrans-284
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 哈夫曼编码是在1952年发明的[[233](bibliography001.xhtml#endnote_233)]。 利勒韦尔和赫希伯格[[294](bibliography001.xhtml#endnote_294)]调查了截至1987年已知的数据压缩技术。
+- en: The furthest-in-future strategy was proposed by Belady [[41](bibliography001.xhtml#endnote_41)],
+    who suggested it for virtual-memory systems. Alternative proofs that furthest-in-future
+    is optimal appear in articles by Lee et al. [[284](bibliography001.xhtml#endnote_284)]
+    and Van Roy [[443](bibliography001.xhtml#endnote_443)].
+  id: totrans-285
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最远未来策略是由贝拉迪提出的[[41](bibliography001.xhtml#endnote_41)], 他建议在虚拟内存系统中使用这种策略。 李等人[[284](bibliography001.xhtml#endnote_284)]和范·罗伊[[443](bibliography001.xhtml#endnote_443)]的文章中提供了最远未来是最优的备选证明。
+- en: '[¹](#footnote_ref_1) We sometimes refer to the sets *S[k]* as subproblems rather
+    than as just sets of activities. The context will make it clear whether we are
+    referring to *S[k]* as a set of activities or as a subproblem whose input is that
+    set.'
+  id: totrans-286
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 我们有时将 *S[k]* 称为子问题，而不仅仅是活动集合。 上下文将清楚地表明我们是将 *S[k]* 视为活动集合还是作为其输入的子问题。'
+- en: '[²](#footnote_ref_2) Because the pseudocode takes *s* and *f* as arrays, it
+    indexes into them with square brackets rather than with subscripts.'
+  id: totrans-287
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 因为伪代码将 *s* 和 *f* 视为数组，所以它使用方括号而不是下标进行索引。'

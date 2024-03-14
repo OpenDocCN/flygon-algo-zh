@@ -1,0 +1,1605 @@
+- en: '[**21        Minimum Spanning Trees**](toc.xhtml#chap-21)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**21        最小生成树**](toc.xhtml#chap-21)'
+- en: Electronic circuit designs often need to make the pins of several components
+    electrically equivalent by wiring them together. To interconnect a set of *n*
+    pins, the designer can use an arrangement of *n* − 1 wires, each connecting two
+    pins. Of all such arrangements, the one that uses the least amount of wire is
+    usually the most desirable.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 电子电路设计通常需要通过将几个元件的引脚电气等效地连接在一起。为了连接一组*n*个引脚，设计者可以使用*n* − 1根导线的布置，每根导线连接两个引脚。在所有这样的布置中，使用最少导线的布置通常是最理想的。
+- en: To model this wiring problem, use a connected, undirected graph *G* = (*V*,
+    *E*), where *V* is the set of pins, *E* is the set of possible interconnections
+    between pairs of pins, and for each edge (*u*, *v*) ∈ *E*, a weight *w*(*u*, *v*)
+    specifies the cost (amount of wire needed) to connect *u* and *v*. The goal is
+    to find an acyclic subset *T* ⊆ *E* that connects all of the vertices and whose
+    total weight
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了模拟这个布线问题，使用一个连通的无向图*G* = (*V*, *E*)，其中*V*是引脚的集合，*E*是可能的引脚对之间的互连集合，对于每条边(*u*,
+    *v*) ∈ *E*，权重*w*(*u*, *v*)指定连接*u*和*v*所需的成本（所需的导线长度）。目标是找到一个无环子集*T* ⊆ *E*，连接所有顶点且总权重最小。
+- en: '![art](images/Art_P618.jpg)'
+  id: totrans-3
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P618.jpg)'
+- en: is minimized. Since *T* is acyclic and connects all of the vertices, it must
+    form a tree, which we call a ***spanning tree*** since it “spans” the graph *G*.
+    We call the problem of determining the tree *T* the ***minimum-spanning-tree problem***.^([1](#footnote_1))
+    [Figure 21.1](chapter021.xhtml#Fig_21-1) shows an example of a connected graph
+    and a minimum spanning tree.
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 被最小化。由于*T*是无环的且连接所有顶点，它必须形成一棵树，我们称之为***生成树***，因为它“跨越”了图*G*。我们称确定树*T*的问题为***最小生成树问题***。^([1](#footnote_1))
+    [图21.1](chapter021.xhtml#Fig_21-1)显示了一个连通图和一棵最小生成树的示例。
+- en: This chapter studies two ways to solve the minimum-spanning-tree problem. Kruskal’s
+    algorithm and Prim’s algorithm both run in *O*(*E* lg *V*) time. Prim’s algorithm
+    achieves this bound by using a binary heap as a priority queue. By using Fibonacci
+    heaps instead (see page 478), Prim’s algorithm runs in *O*(*E* + *V* lg *V*) time.
+    This bound is better than *O*(*E* lg *V*) whenever |*E*| grows asymptotically
+    faster than |*V*|.
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本章研究了解决最小生成树问题的两种方法。Kruskal算法和Prim算法都在*O*(*E* lg *V*)时间内运行。Prim算法通过使用二叉堆作为优先队列来实现这一界限。通过使用斐波那契堆（见第478页），Prim算法在*O*(*E*
+    + *V* lg *V*)时间内运行。当|*E*|增长得比|*V*|快时，这个界限比*O*(*E* lg *V*)更好。
+- en: '![art](images/Art_P619.jpg)'
+  id: totrans-6
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P619.jpg)'
+- en: '**Figure 21.1** A minimum spanning tree for a connected graph. The weights
+    on edges are shown, and the blue edges form a minimum spanning tree. The total
+    weight of the tree shown is 37\. This minimum spanning tree is not unique: removing
+    the edge (*b*, *c*) and replacing it with the edge (*a*, *h*) yields another spanning
+    tree with weight 37.'
+  id: totrans-7
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图21.1** 一个连通图的最小生成树。显示了边上的权重，蓝色的边形成了一棵最小生成树。所示树的总权重为37。这个最小生成树不是唯一的：删除边(*b*,
+    *c*)并用边(*a*, *h*)替换它会得到另一棵权重为37的生成树。'
+- en: The two algorithms are greedy algorithms, as described in [Chapter 15](chapter015.xhtml).
+    Each step of a greedy algorithm must make one of several possible choices. The
+    greedy strategy advocates making the choice that is the best at the moment. Such
+    a strategy does not generally guarantee that it always finds globally optimal
+    solutions to problems. For the minimum-spanning-tree problem, however, we can
+    prove that certain greedy strategies do yield a spanning tree with minimum weight.
+    Although you can read this chapter independently of [Chapter 15](chapter015.xhtml),
+    the greedy methods presented here are a classic application of the theoretical
+    notions introduced there.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这两种算法都是贪婪算法，如[第15章](chapter015.xhtml)所述。贪婪算法的每一步必须做出几种可能的选择之一。贪婪策略主张在当前选择最佳的选择。这种策略通常不能保证它总是找到问题的全局最优解。然而，对于最小生成树问题，我们可以证明某些贪婪策略确实会产生具有最小权重的生成树。尽管您可以独立阅读本章而不阅读[第15章](chapter015.xhtml)，但这里介绍的贪婪方法是引入的理论概念的经典应用。
+- en: '[Section 21.1](chapter021.xhtml#Sec_21.1) introduces a “generic” minimum-spanning-tree
+    method that grows a spanning tree by adding one edge at a time. [Section 21.2](chapter021.xhtml#Sec_21.2)
+    gives two algorithms that implement the generic method. The first algorithm, due
+    to Kruskal, is similar to the connected-components algorithm from [Section 19.1](chapter019.xhtml#Sec_19.1).
+    The second, due to Prim, resembles Dijkstra’s shortest-paths algorithm ([Section
+    22.3](chapter022.xhtml#Sec_22.3)).'
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第21.1节](chapter021.xhtml#Sec_21.1)介绍了一种“通用”最小生成树方法，通过逐步添加一条边来生成一棵生成树。[第21.2节](chapter021.xhtml#Sec_21.2)提供了两种实现通用方法的算法。第一个算法由Kruskal提出，类似于[第19.1节](chapter019.xhtml#Sec_19.1)中的连通分量算法。第二个算法由Prim提出，类似于Dijkstra的最短路径算法([第22.3节](chapter022.xhtml#Sec_22.3))。'
+- en: Because a tree is a type of graph, in order to be precise we must define a tree
+    in terms of not just its edges, but its vertices as well. Because this chapter
+    focuses on trees in terms of their edges, we’ll implicitly understand that the
+    vertices of a tree *T* are those that some edge of *T* is incident on.
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为树是图的一种类型，为了准确起见，我们必须根据不仅是边，还有顶点来定义树。因为本章侧重于树的边，我们将默认理解树*T*的顶点是某些*T*的边相接的顶点。
+- en: '[**21.1    Growing a minimum spanning tree**](toc.xhtml#Rh1-125)'
+  id: totrans-11
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**21.1    生成最小生成树**](toc.xhtml#Rh1-125)'
+- en: 'The input to the minumum-spanning-tree problem is a connected, undirected graph
+    *G* = (*V*, *E*) with a weight function *w* : *E* → ℝ. The goal is to find a minimum
+    spanning tree for *G*. The two algorithms considered in this chapter use a greedy
+    approach to the problem, although they differ in how they apply this approach.'
+  id: totrans-12
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最小生成树问题的输入是一个带有权重函数*w*：*E* → ℝ的连通无向图*G* = (*V*, *E*)。目标是为*G*找到一棵最小生成树。本章考虑的两种算法都采用贪婪方法解决问题，尽管它们在如何应用这种方法上有所不同。
+- en: 'This greedy strategy is captured by the procedure GENERIC-MST on the facing
+    page, which grows the minimum spanning tree one edge at a time. The generic method
+    manages a set A of edges, maintaining the following loop invariant:'
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这种贪婪策略由面对页面上的GENERIC-MST过程捕捉，该过程一次增加一条边来扩展最小生成树。通用方法管理一组边*A*，保持以下循环不变量：
+- en: Prior to each iteration, *A* is a subset of some minimum spanning tree.
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在每次迭代之前，*A*是某个最小生成树的子集。
+- en: GENERIC-MST(*G*, *w*)
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: GENERIC-MST(*G*, *w*)
+- en: '| 1 | *A* = Ø |'
+  id: totrans-16
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *A* = Ø |'
+- en: '| 2 | **while** A does not form a spanning tree |'
+  id: totrans-17
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **当** A不形成一棵生成树时**执行** |'
+- en: '| 3 | find an edge (*u*, *v*) that is safe for *A* |'
+  id: totrans-18
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | 找到一条对*A*安全的边(*u*, *v*) |'
+- en: '| 4 | *A* = *A* ∪ {(*u*, *v*)} |'
+  id: totrans-19
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | *A* = *A* ∪ {(*u*, *v*)} |'
+- en: '| 5 | **return** *A* |'
+  id: totrans-20
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **返回** *A* |'
+- en: Each step determines an edge (*u*, *v*) that the procedure can add to *A* without
+    violating this invariant, in the sense that *A* ∪ {(*u*, *v*)} is also a subset
+    of a minimum spanning tree. We call such an edge a ***safe edge*** for *A*, since
+    it can be added safely to *A* while maintaining the invariant.
+  id: totrans-21
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 每一步确定一条边(*u*, *v*)，该过程可以将其添加到*A*而不违反这个不变量，即*A* ∪ {(*u*, *v*)}也是最小生成树的子集。我们称这样的边为*A*的***安全边***，因为它可以安全地添加到*A*中而保持不变。
+- en: 'This generic algorithm uses the loop invariant as follows:'
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个通用算法使用循环不变量如下：
+- en: '**Initialization:** After line 1, the set *A* trivially satisfies the loop
+    invariant.'
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**初始化：** 在第1行之后，集合*A*显然满足循环不变量。'
+- en: '**Maintenance:** The loop in lines 2–4 maintains the invariant by adding only
+    safe edges.'
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**维护：** 第2-4行的循环通过仅添加安全边来维护不变量。'
+- en: '**Termination:** All edges added to *A* belong to a minimum spanning tree,
+    and the loop must terminate by the time it has considered all edges. Therefore,
+    the set *A* returned in line 5 must be a minimum spanning tree.'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**终止条件：** 所有添加到*A*的边都属于最小生成树，循环必须在考虑所有边之前终止。因此，第5行返回的集合*A*必须是最小生成树。'
+- en: The tricky part is, of course, finding a safe edge in line 3\. One must exist,
+    since when line 3 is executed, the invariant dictates that there is a spanning
+    tree *T* such that *A* ⊆ *T*. Within the **while** loop body, *A* must be a proper
+    subset of *T*, and therefore there must be an edge (*u*, *v*) ∈ *T* such that
+    (*u*, *v*) ∉ *A* and (*u*, *v*) is safe for *A*.
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 困难的部分当然是在第3行找到一个安全边。必须存在一个，因为当执行第3行时，不变量规定存在一棵生成树*T*，使得*A* ⊆ *T*。在**while**循环体内，*A*必须是*T*的真子集，因此必须存在一条边(*u*,
+    *v*) ∈ *T*，使得(*u*, *v*) ∉ *A*且(*u*, *v*)对于*A*是安全的。
+- en: The remainder of this section provides a rule (Theorem 21.1) for recognizing
+    safe edges. The next section describes two algorithms that use this rule to find
+    safe edges efficiently.
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节的其余部分提供了一个规则（定理21.1）来识别安全边。下一节描述了两个使用此规则高效找到安全边的算法。
+- en: We first need some definitions. *A****cut*** (S, *V* – S) of an undirected graph
+    *G* = (*V*, *E*) is a partition of *V*. [Figure 21.2](chapter021.xhtml#Fig_21-2)
+    illustrates this notion. We say that an edge (*u*, *v*) ∈ *E****crosses*** the
+    cut (*S*, *V* – *S*) if one of its endpoints belongs to *S* and the other belongs
+    to *V* – *S*. A cut ***respects*** a set *A* of edges if no edge in *A* crosses
+    the cut. An edge is a ***light edge*** crossing a cut if its weight is the minimum
+    of any edge crossing the cut. There can be more than one light edge crossing a
+    cut in the case of ties. More generally, we say that an edge is a ***light edge***
+    satisfying a given property if its weight is the minimum of any edge satisfying
+    the property.
+  id: totrans-28
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 首先我们需要一些定义。无向图*G* = (*V*, *E*)的一个切割(*S*, *V* – *S*)是*V*的一个分区。[图21.2](chapter021.xhtml#Fig_21-2)说明了这个概念。我们说一条边(*u*,
+    *v*) ∈ *E*穿过切割(*S*, *V* – *S*)，如果它的一个端点属于*S*，另一个端点属于*V* – *S*。如果没有边在切割上穿过，则切割***尊重***边集*A*。一条边是穿过切割的***轻边***，如果它的权重是穿过切割的任何边中的最小值。在平局的情况下，可能有多条轻边穿过切割。更一般地，我们说一条边是满足给定属性的***轻边***，如果它的权重是满足该属性的任何边中的最小值。
+- en: The following theorem gives the rule for recognizing safe edges.
+  id: totrans-29
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下定理给出了识别安全边的规则。
+- en: '***Theorem 21.1***'
+  id: totrans-30
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***定理21.1***'
+- en: Let *G* = (*V*, *E*) be a connected, undirected graph with a real-valued weight
+    function *w* defined on *E*. Let *A* be a subset of *E* that is included in some
+    minimum spanning tree for *G*, let (*S*, *V* – *S*) be any cut of *G* that respects
+    *A*, and let (*u*, *v*) be a light edge crossing (*S*, *V* – *S*). Then, edge
+    (*u*, *v*) is safe for *A*.
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)是一个连通的无向图，其边上定义了一个实值权重函数*w*。设*A*是*G*的某个最小生成树的子集，设(*S*, *V*
+    – *S*)是*G*的任意一个尊重*A*的切割，设(*u*, *v*)是穿过(*S*, *V* – *S*)的一条轻边。那么，边(*u*, *v*)对于*A*是安全的。
+- en: '![art](images/Art_P620.jpg)'
+  id: totrans-32
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P620.jpg)'
+- en: '**Figure 21.2** *A* cut (*S*, *V* – *S*) of the graph from [Figure 21.1](chapter021.xhtml#Fig_21-1).
+    Orange vertices belong to the set *S*, and tan vertices belong to *V* – *S*. The
+    edges crossing the cut are those connecting tan vertices with orange vertices.
+    The edge (*d*, *c*) is the unique light edge crossing the cut. Blue edges form
+    a subset *A* of the edges. The cut (*S*, *V* – *S*) respects *A*, since no edge
+    of *A* crosses the cut.'
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图21.2** 图21.1中的图的一个切割(*S*, *V* – *S*)。橙色顶点属于集合*S*，深黄色顶点属于*V* – *S*。穿过切割的边是连接深黄色顶点和橙色顶点的边。边(*d*,
+    *c*)是穿过切割的唯一轻边。蓝色边构成边的一个子集*A*。切割(*S*, *V* – *S*)尊重*A*，因为没有边穿过切割。'
+- en: '***Proof***   Let *T* be a minimum spanning tree that includes *A*, and assume
+    that *T* does not contain the light edge (*u*, *v*), since if it does, we are
+    done. We’ll construct another minimum spanning tree *T*′ that includes *A* ∪ {(*u*,
+    *v*)} by using a cut-and-paste technique, thereby showing that (*u*, *v*) is a
+    safe edge for *A*.'
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   设*T*是包含*A*的最小生成树，并假设*T*不包含轻边(*u*, *v*)，因为如果包含，我们就完成了。我们将通过使用切割和粘贴技术构造另一个包含*A*
+    ∪ {(*u*, *v*)}的最小生成树*T*′，从而证明(*u*, *v*)对于*A*是安全的。'
+- en: The edge (*u*, *v*) forms a cycle with the edges on the simple path p from *u*
+    to *v* in *T*, as [Figure 21.3](chapter021.xhtml#Fig_21-3) illustrates. Since
+    *u* and *v* are on opposite sides of the cut (*S*, *V* – *S*), at least one edge
+    in *T* lies on the simple path *p* and also crosses the cut. Let (*x*, *y*) be
+    any such edge. The edge (*x*, *y*) is not in *A*, because the cut respects *A*.
+    Since (*x*, *y*) is on the unique simple path from *u* to *v* in *T*, removing
+    (*x*, *y*) breaks *T* into two components. Adding (*u*, *v*) reconnects them to
+    form a new spanning tree *T*′ = (*T* – {(*x*, *y*)}) ∪ {(*u*, *v*)}.
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 边(*u*, *v*)与树*T*中从*u*到*v*的简单路径*p*上的边形成一个循环，如[图21.3](chapter021.xhtml#Fig_21-3)所示。由于*u*和*v*在切割(*S*,
+    *V* - *S*)的两侧，至少有一条边在简单路径*p*上并且跨越了切割。设(*x*, *y*)是这样的一条边。边(*x*, *y*)不在*A*中，因为切割尊重*A*。由于(*x*,
+    *y*)在*T*中从*u*到*v*的唯一简单路径上，移除(*x*, *y*)将*T*分成两个部分。添加(*u*, *v*)重新连接它们形成一个新的生成树*T*'
+    = (*T* - {(*x*, *y*)}) ∪ {(*u*, *v*)}。
+- en: We next show that *T*′ is a minimum spanning tree. Since (*u*, *v*) is a light
+    edge crossing (*S*, *V* – *S*) and (*x*, *y*) also crosses this cut, *w*(*u*,
+    *v*) ≤ *w*(*x*, *y*). Therefore,
+  id: totrans-36
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 接下来我们将证明*T*'是一个最小生成树。由于(*u*, *v*)是穿过(*S*, *V* - *S*)的轻边，而(*x*, *y*)也穿过了这个切割，所以*w*(*u*,
+    *v*) ≤ *w*(*x*, *y*)。因此，
+- en: '| *w*(*T*′) | = | *w*(*T*) − *w*(*x*, *y*) + *w*(*u*, *v*) |'
+  id: totrans-37
+  prefs: []
+  type: TYPE_TB
+  zh: '| *w*(*T*'''') | = | *w*(*T*) - *w*(*x*, *y*) + *w*(*u*, *v*) |'
+- en: '|  | ≤ | *w*(*T*). |'
+  id: totrans-38
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | ≤ | *w*(*T*). |'
+- en: But *T* is a minimum spanning tree, so that *w*(*T*) ≤ *w*(*T*′), and thus,
+    *T*′ must be a minimum spanning tree as well.
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 但*T*是一个最小生成树，所以*w*(*T*) ≤ *w*(*T*'')，因此，*T*'必须也是一个最小生成树。
+- en: It remains to show that (*u*, *v*) is actually a safe edge for *A*. We have
+    *A* ⊆ *T*′, since *A* ⊆ *T* and (*x*, *y*) ∉ *A*, and thus, *A* ∪ {(*u*, *v*)}
+    ⊆ *T*′. Consequently, since *T*′ is a minimum spanning tree, (*u*, *v*) is safe
+    for *A*.
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 还需要证明(*u*, *v*)实际上对*A*是一个安全边。由于*A* ⊆ *T*'，因为*A* ⊆ *T*且(*x*, *y*) ∉ *A*，因此，*A*
+    ∪ {(*u*, *v*)} ⊆ *T*'。因此，由于*T*'是一个最小生成树，(*u*, *v*)对*A*是安全的。
+- en: ▪
+  id: totrans-41
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: 'Theorem 21.1 provides insight into how the GENERIC-MST method works on a connected
+    graph *G* = (*V*, *E*). As the method proceeds, the set *A* is always acyclic,
+    since it is a subset of a minimum spanning tree and a tree may not contain a cycle.
+    At any point in the execution, the graph *G[A]* = (*V*, *A*) is a forest, and
+    each of the connected components of *G[A]* is a tree. (Some of the trees may contain
+    just one vertex, as is the case, for example, when the method begins: *A* is empty
+    and the forest contains |*V*| trees, one for each vertex.) Moreover, any safe
+    edge (*u*, *v*) for *A* connects distinct components of *G[A]*, since *A* ∪ {(*u*,
+    *v*)} must be acyclic.'
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 定理21.1揭示了GENERIC-MST方法在连通图*G* = (*V*, *E*)上的工作原理。随着方法的进行，集合*A*始终是无环的，因为它是最小生成树的子集，而树不可能包含循环。在执行的任何时刻，图*G[A]*
+    = (*V*, *A*)是一个森林，*G[A]*的每个连通分量都是一棵树。（一些树可能只包含一个顶点，例如当方法开始时：*A*为空且森林包含|*V*|棵树，每个顶点一棵树。）此外，任何对*A*是安全的边(*u*,
+    *v*)连接*G[A]*的不同分量，因为*A* ∪ {(*u*, *v*)}必须是无环的。
+- en: '![art](images/Art_P621.jpg)'
+  id: totrans-43
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P621.jpg)'
+- en: '**Figure 21.3** The proof of Theorem 21.1\. Orange vertices belong to *S*,
+    and tan vertices belong to *V* – *S*. Only edges in the minimum spanning tree
+    *T* are shown, along with edge (*u*, *v*), which does not lie in *T*. The edges
+    in *A* are blue, and (*u*, *v*) is a light edge crossing the cut (*S*, *V* – *S*).
+    The edge (*x*, *y*) is an edge on the unique simple path *p* from *u* to *v* in
+    *T*. To form a minimum spanning tree *T*′ that contains (*u*, *v*), remove the
+    edge (*x*, *y*) from *T* and add the edge (*u*, *v*).'
+  id: totrans-44
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图21.3** 定理21.1的证明。橙色顶点属于*S*，黄褐色顶点属于*V* - *S*。只显示了最小生成树*T*中的边，以及不在*T*中的边(*u*,
+    *v*)。*A*中的边是蓝色的，(*u*, *v*)是穿过切割(*S*, *V* - *S*)的轻边。边(*x*, *y*)是在*T*中从*u*到*v*的唯一简单路径*p*上的边。为了形成包含(*u*,
+    *v*)的最小生成树*T*''，从*T*中移除边(*x*, *y*)并添加边(*u*, *v*)。'
+- en: The **while** loop in lines 2–4 of GENERIC-MST executes |*V*| – 1 times because
+    it finds one of the |*V*| – 1 edges of a minimum spanning tree in each iteration.
+    Initially, when *A* = Ø, there are |*V*| trees in *G[A]*, and each iteration reduces
+    that number by 1\. When the forest contains only a single tree, the method terminates.
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: GENERIC-MST中第2-4行的**while**循环执行|*V*| - 1次，因为它在每次迭代中找到一个最小生成树的|*V*| - 1条边。最初，当*A*
+    = Ø时，在*G[A]*中有|*V*|棵树，每次迭代将该数字减少1。当森林只包含一棵树时，方法终止。
+- en: The two algorithms in [Section 21.2](chapter021.xhtml#Sec_21.2) use the following
+    corollary to Theorem 21.1.
+  id: totrans-46
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第21.2节](chapter021.xhtml#Sec_21.2)中的两个算法使用了定理21.1的以下推论。'
+- en: '***Corollary 21.2***'
+  id: totrans-47
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***推论21.2***'
+- en: Let *G* = (*V*, *E*) be a connected, undirected graph with a real-valued weight
+    function *w* defined on *E*. Let *A* be a subset of *E* that is included in some
+    minimum spanning tree for *G*, and let *C* = (*V[C]*, *E[C]*) be a connected component
+    (tree) in the forest *G[A]* = (*V*, *A*). If (*u*, *v*) is a light edge connecting
+    *C* to some other component in *G[A]*, then (*u*, *v*) is safe for *A*.
+  id: totrans-48
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*G* = (*V*, *E*)是一个连通的无向图，其边上有一个实值权重函数*w*定义在*E*上。设*A*是包含在*G*的某个最小生成树中的边的子集，*C*
+    = (*V[C]*, *E[C]*)是*G[A]* = (*V*, *A*)中的一个连通分量（树）。如果(*u*, *v*)是连接*C*到*G[A]*中的另一个分量的轻边，则(*u*,
+    *v*)对*A*是安全的。
+- en: '***Proof***   The cut (*V[C]*, *V* – *V[C]*) respects *A*, and (*u*, *v*) is
+    a light edge for this cut. Therefore, (*u*, *v*) is safe for *A*.'
+  id: totrans-49
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明*** 切割(*V[C]*, *V* - *V[C]*)尊重*A*，而(*u*, *v*)是这个切割的轻边。因此，(*u*, *v*)对*A*是安全的。'
+- en: ▪
+  id: totrans-50
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Exercises**'
+  id: totrans-51
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***21.1-1***'
+  id: totrans-52
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-1***'
+- en: Let (*u*, *v*) be a minimum-weight edge in a connected graph *G*. Show that
+    (*u*, *v*) belongs to some minimum spanning tree of *G*.
+  id: totrans-53
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设(*u*, *v*)是一个连通图*G*中的最小权重边。证明(*u*, *v*)属于*G*的某个最小生成树。
+- en: '***21.1-2***'
+  id: totrans-54
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-2***'
+- en: Professor Sabatier conjectures the following converse of Theorem 21.1\. Let
+    *G* = (*V*, *E*) be a connected, undirected graph with a real-valued weight function
+    *w* defined on *E*. Let *A* be a subset of *E* that is included in some minimum
+    spanning tree for *G*, let (*S*, *V* – *S*) be any cut of *G* that respects *A*,
+    and let (*u*, *v*) be a safe edge for *A* crossing (*S*, *V* – *S*). Then, (*u*,
+    *v*) is a light edge for the cut. Show that the professor’s conjecture is incorrect
+    by giving a counterexample.
+  id: totrans-55
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Sabatier教授猜想21.1定理的以下逆否命题。设*G* = (*V*, *E*)是一个具有实值权重函数*w*的连通无向图。设*A*是包含在*G*的某个最小生成树中的*E*的子集，(*S*,
+    *V* – *S*)是尊重*A*的图的任何切割，(*u*, *v*)是穿过(*S*, *V* – *S*)的安全边。然后，(*u*, *v*)是切割的轻边。通��给出一个反例证明教授的猜想是不正确的。
+- en: '***21.1-3***'
+  id: totrans-56
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-3***'
+- en: Show that if an edge (*u*, *v*) is contained in some minimum spanning tree,
+    then it is a light edge crossing some cut of the graph.
+  id: totrans-57
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明如果边(*u*, *v*)包含在某个最小生成树中，则它是穿过图的某个切割的轻边。
+- en: '***21.1-4***'
+  id: totrans-58
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-4***'
+- en: 'Give a simple example of a connected graph such that the set of edges {(*u*,
+    *v*) : there exists a cut (*S*, *V* – *S*) such that (*u*, *v*) is a light edge
+    crossing (*S*, *V* – *S*)} does not form a minimum spanning tree.'
+  id: totrans-59
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个简单的例子，其中连接图的边集{(*u*, *v*)：存在一个切割(*S*, *V* – *S*)，使得(*u*, *v*)是穿过(*S*, *V*
+    – *S*)的轻边}不形成最小生成树。
+- en: '***21.1-5***'
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-5***'
+- en: Let *e* be a maximum-weight edge on some cycle of connected graph *G* = (*V*,
+    *E*). Prove that there is a minimum spanning tree of *G*′ = (*V*, *E* – {*e*})
+    that is also a minimum spanning tree of *G*. That is, there is a minimum spanning
+    tree of *G* that does not include *e*.
+  id: totrans-61
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*e*为连接图*G* = (*V*, *E*)的某个循环上的最大权重边。证明存在一个*G*′ = (*V*, *E* – {*e*})的最小生成树，也是*G*的最小生成树。也就是说，存在一个不包括*e*的*G*的最小生成树。
+- en: '***21.1-6***'
+  id: totrans-62
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-6***'
+- en: Show that a graph has a unique minimum spanning tree if, for every cut of the
+    graph, there is a unique light edge crossing the cut. Show that the converse is
+    not true by giving a counterexample.
+  id: totrans-63
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明如果对于图的每个切割，都存在唯一的轻边穿过切割，则图具有唯一的最小生成树。通过给出一个反例证明逆否命题不成立。
+- en: '***21.1-7***'
+  id: totrans-64
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-7***'
+- en: Argue that if all edge weights of a graph are positive, then any subset of edges
+    that connects all vertices and has minimum total weight must be a tree. Give an
+    example to show that the same conclusion does not follow if we allow some weights
+    to be nonpositive.
+  id: totrans-65
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 论证如果图的所有边权重都是正的，则连接所有顶点并具有最小总权重的边子集必须是一棵树。给出一个例子，表明如果允许一些权重为非正数，则不会得出相同的结论。
+- en: '***21.1-8***'
+  id: totrans-66
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-8***'
+- en: Let *T* be a minimum spanning tree of a graph *G*, and let *L* be the sorted
+    list of the edge weights of *T*. Show that for any other minimum spanning tree
+    *T*′ of *G*, the list *L* is also the sorted list of edge weights of *T*′.
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*T*为图*G*的最小生成树，*L*为*T*的边权重的排序列表。证明对于图*G*的任何其他最小生成树*T*′，列表*L*也是*T*′的边权重的排序列表。
+- en: '***21.1-9***'
+  id: totrans-68
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-9***'
+- en: Let *T* be a minimum spanning tree of a graph *G* = (*V*, *E*), and let *V*′
+    be a subset of *V*. Let *T*′ be the subgraph of *T* induced by *V*′, and let *G*′
+    be the subgraph of *G* induced by *V*′. Show that if *T*′ is connected, then *T*′
+    is a minimum spanning tree of G′.
+  id: totrans-69
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 设*T*为图*G* = (*V*, *E*)的最小生成树，*V*′为*V*的子集。设*T*′为由*V*′诱导的*T*的子图，*G*′为由*V*′诱导的*G*的子图。证明如果*T*′是连通的，则*T*′是*G*′的最小生成树。
+- en: '***21.1-10***'
+  id: totrans-70
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.1-10***'
+- en: Given a graph *G* and a minimum spanning tree *T*, suppose that the weight of
+    one of the edges in *T* decreases. Show that *T* is still a minimum spanning tree
+    for *G*. More formally, let *T* be a minimum spanning tree for *G* with edge weights
+    given by weight function *w*. Choose one edge (*x*, *y*) ∈ *T* and a positive
+    number *k*, and define the weight function *w*′ by
+  id: totrans-71
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定图*G*和最小生成树*T*，假设*T*中的一条边的权重减小。证明*T*仍然是*G*的最小生成树。更正式地，设*T*是由权重函数*w*给出的*G*的最小生成树。选择一条边(*x*,
+    *y*) ∈ *T*和一个正数*k*，并定义权重函数*w*′为
+- en: '![art](images/Art_P622.jpg)'
+  id: totrans-72
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P622.jpg)'
+- en: Show that *T* is a minimum spanning tree for *G* with edge weights given by
+    *w*′.
+  id: totrans-73
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 证明*T*是由*w*′给出的*G*的最小生成树。
+- en: ★ ***21.1-11***
+  id: totrans-74
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***21.1-11***
+- en: Given a graph *G* and a minimum spanning tree *T*, suppose that the weight of
+    one of the edges *not* in *T* decreases. Give an algorithm for finding the minimum
+    spanning tree in the modified graph.
+  id: totrans-75
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定图*G*和最小生成树*T*，假设*T*中的一条边的权重*不在*T*中*减小。给出在修改后的图中找到最小生成树的算法。
+- en: '[**21.2    The algorithms of Kruskal and Prim**](toc.xhtml#Rh1-126)'
+  id: totrans-76
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**21.2    Kruskal和Prim算法**](toc.xhtml#Rh1-126)'
+- en: The two minimum-spanning-tree algorithms described in this section elaborate
+    on the generic method. They each use a specific rule to determine a safe edge
+    in line 3 of GENERIC-MST. In Kruskal’s algorithm, the set *A* is a forest whose
+    vertices are all those of the given graph. The safe edge added to *A* is always
+    a lowest-weight edge in the graph that connects two distinct components. In Prim’s
+    algorithm, the set *A* forms a single tree. The safe edge added to *A* is always
+    a lowest-weight edge connecting the tree to a vertex not in the tree. Both algorithms
+    assume that the input graph is connected and represented by adjacency lists.
+  id: totrans-77
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节描述的两种最小生成树算法详细说明了通用方法。它们各自使用特定规则来确定GENERIC-MST中的安全边。在Kruskal算法中，集合*A*是一个森林，其顶点是给定图的所有顶点。添加到*A*的安全边始终是连接两个不同分量的图中的最低权重边。在Prim算法中，集合*A*形成一棵单树。添加到*A*的安全边始终是连接树与不在树中的顶点的最低权重边。这两种算法都假定输入图是连通的，并由邻接表表示。
+- en: '![art](images/Art_P623.jpg)'
+  id: totrans-78
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P623.jpg)'
+- en: '**Figure 21.4** The execution of Kruskal’s algorithm on the graph from [Figure
+    21.1](chapter021.xhtml#Fig_21-1). Blue edges belong to the forest *A* being grown.
+    The algorithm considers each edge in sorted order by weight. A red arrow points
+    to the edge under consideration at each step of the algorithm. If the edge joins
+    two distinct trees in the forest, it is added to the forest, thereby merging the
+    two trees.'
+  id: totrans-79
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图21.4** 展示了Kruskal算法在[图21.1](chapter021.xhtml#Fig_21-1)中的图上的执行过程。蓝色边属于正在增长的森林*A*。该算法按权重排序考虑每条边。红色箭头指向算法每一步考虑的边。如果边连接森林中的两棵不同树，则将其添加到森林中，从而合并这两棵树。'
+- en: '**Kruskal’s algorithm**'
+  id: totrans-80
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**Kruskal算法**'
+- en: Kruskal’s algorithm finds a safe edge to add to the growing forest by finding,
+    of all the edges that connect any two trees in the forest, an edge (*u*, *v*)
+    with the lowest weight. Let *C*[1] and *C*[2] denote the two trees that are connected
+    by (*u*, *v*). Since (*u*, *v*) must be a light edge connecting *C*[1] to some
+    other tree, Corollary 21.2 implies that (*u*, *v*) is a safe edge for *C*[1].
+    Kruskal’s algorithm qualifies as a greedy algorithm because at each step it adds
+    to the forest an edge with the lowest possible weight.
+  id: totrans-81
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Kruskal算法通过找到连接森林中任意两棵树的所有边中权重最低的边(*u*, *v*)来找到一个安全的边添加到不断增长的森林中。设*C*[1]和*C*[2]表示由(*u*,
+    *v*)连接的两棵树。由于(*u*, *v*)必须是连接*C*[1]到其他某棵树的轻边，推论21.2暗示(*u*, *v*)对于*C*[1]是一条安全边。Kruskal算法被归类为贪婪算法，因为在每一步中，它都会添加具有最低可能权重的边到森林中。
+- en: '![art](images/Art_P624.jpg)'
+  id: totrans-82
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P624.jpg)'
+- en: '**Figure 21.4, continued** Further steps in the execution of Kruskal’s algorithm.'
+  id: totrans-83
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图21.4，续** Kruskal算法执行的进一步步骤。'
+- en: Like the algorithm to compute connected components from [Section 19.1](chapter019.xhtml#Sec_19.1),
+    the procedure MST-KRUSKAL on the following page uses a disjoint-set data structure
+    to maintain several disjoint sets of elements. Each set contains the vertices
+    in one tree of the current forest. The operation FIND-SET(*u*) returns a representative
+    element from the set that contains *u*. Thus, to determine whether two vertices
+    *u* and *v* belong to the same tree, just test whether FIND-SET(*u*) equals FIND-SET(*v*).
+    To combine trees, Kruskal’s algorithm calls the UNION procedure.
+  id: totrans-84
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 类似于从[第19.1节](chapter019.xhtml#Sec_19.1)计算连通分量的算法，下一页上的MST-KRUSKAL过程使用不相交集数据结构来维护几个不相交元素集。每个集合包含当前森林中一棵树中的顶点。操作FIND-SET(*u*)返回包含*u*的集合中的代表元素。因此，要确定两个顶点*u*和*v*是否属于同一棵树，只需测试FIND-SET(*u*)是否等于FIND-SET(*v*)。为了合并树，Kruskal算法调用UNION过程。
+- en: '[Figure 21.4](chapter021.xhtml#Fig_21-4) shows how Kruskal’s algorithm works.
+    Lines 1–3 initialize the set *A* to the empty set and create |*V*| trees, one
+    containing each vertex. The **for** loop in lines 6–9 examines edges in order
+    of weight, from lowest to highest. The loop checks, for each edge (*u*, *v*),
+    whether the endpoints *u* and *v* belong to the same tree. If they do, then the
+    edge (*u*, *v*) cannot be added to the forest without creating a cycle, and the
+    edge is ignored. Otherwise, the two vertices belong to different trees. In this
+    case, line 8 adds the edge (*u*, *v*) to *A*, and line 9 merges the vertices in
+    the two trees.'
+  id: totrans-85
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图21.4](chapter021.xhtml#Fig_21-4)展示了Kruskal算法的工作原理。第1-3行初始化集合*A*为空集，并创建|*V*|棵树，每棵树包含一个顶点。第6-9行的**for**循环按权重从低到高检查边。循环对于每条边(*u*,
+    *v*)，检查端点*u*和*v*是否属于同一棵树。如果是，则边(*u*, *v*)不能被添加到森林中而不产生循环，并且该边被忽略。否则，两个顶点属于不同的树。在这种情况下，第8行将边(*u*,
+    *v*)添加到*A*，第9行合并两棵树中的顶点。'
+- en: MST-KRUSKAL(*G*, *w*)
+  id: totrans-86
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MST-KRUSKAL(*G*, *w*)
+- en: '|   1 | *A* = Ø |'
+  id: totrans-87
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | *A* = Ø |'
+- en: '|   2 | **for** each vertex *v* ∈ *G.V* |'
+  id: totrans-88
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | **对于**每个顶点*v* ∈ *G.V* |'
+- en: '|   3 | MAKE-SET(*v*) |'
+  id: totrans-89
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | MAKE-SET(*v*) |'
+- en: '|   4 | create a single list of the edges in *G.E* |'
+  id: totrans-90
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | 创建*G.E*中边的单一列表 |'
+- en: '|   5 | sort the list of edges into monotonically increasing order by weight
+    *w* |'
+  id: totrans-91
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | 将边的列表按权重*w*单调递增排序 |'
+- en: '|   6 | **for** each edge (*u*, *v*) taken from the sorted list in order |'
+  id: totrans-92
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **对于**按顺序从排序列表中取出的每条边(*u*, *v*) |'
+- en: '|   7 | **if** FIND-SET(*u*) ≠ FIND-SET(*v*) |'
+  id: totrans-93
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | **如果** FIND-SET(*u*) ≠ FIND-SET(*v*) |'
+- en: '|   8 | *A* = *A* ∪ {(*u*, *v*)} |'
+  id: totrans-94
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *A* = *A* ∪ {(*u*, *v*)} |'
+- en: '|   9 | UNION(*u*, *v*) |'
+  id: totrans-95
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | UNION(*u*, *v*) |'
+- en: '| 10 | **return** *A* |'
+  id: totrans-96
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **返回** *A* |'
+- en: The running time of Kruskal’s algorithm for a graph *G* = (*V*, *E*) depends
+    on the specific implementation of the disjoint-set data structure. Let’s assume
+    that it uses the disjoint-set-forest implementation of [Section 19.3](chapter019.xhtml#Sec_19.3)
+    with the union-by-rank and path-compression heuristics, since that is the asymptotically
+    fastest implementation known. Initializing the set *A* in line 1 takes *O*(1)
+    time, creating a single list of edges in line 4 takes *O*(*V* + *E*) time (which
+    is *O*(E) because *G* is connected), and the time to sort the edges in line 5
+    is *O*(*E* lg *E*). (We’ll account for the cost of the |*V*| MAKE-SET operations
+    in the **for** loop of lines 2–3 in a moment.) The **for** loop of lines 6–9 performs
+    *O*(*E*) FIND-SET and UNION operations on the disjoint-set forest. Along with
+    the |*V*| MAKE-SET operations, these disjoint-set operations take a total of *O*((*V*
+    + *E*) α(*V*)) time, where α is the very slowly growing function defined in [Section
+    19.4](chapter019.xhtml#Sec_19.4). Because we assume that *G* is connected, we
+    have |*E*| ≥ |*V*| – 1, and so the disjoint-set operations take *O*(*E* α(*V*))
+    time. Moreover, since α(|*V*|) = *O*(lg *V*) = *O*(lg *E*), the total running
+    time of Kruskal’s algorithm is *O*(*E* lg *E*). Observing that |*E*| < |*V*|²,
+    we have lg |*E*| = *O*(lg *V*), and so we can restate the running time of Kruskal’s
+    algorithm as *O*(*E* lg *V*).
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Kruskal算法对于图*G* = (*V*, *E*)的运行时间取决于不相交集合数据结构的具体实现。假设它使用了[第 19.3 节](chapter019.xhtml#Sec_19.3)中的不相交集合森林实现，其中包含按秩合并和路径压缩启发式方法，因为这是已知的渐进最快实现。在第
+    1 行中初始化集合*A*需要*O*(1)时间，在第 4 行中创建边的单个列表需要*O*(*V* + *E*)时间（因为*G*是连通的，所以是*O*(*E*)），在第
+    5 行中对边进行排序需要*O*(*E* lg *E*)时间。（我们将在稍后考虑第 2-3 行的**for**循环中的|*V*| MAKE-SET 操作的成本。）第
+    6-9 行的**for**循环在不相交集合森林上执行*O*(*E*) FIND-SET 和 UNION 操作。加上|*V*| MAKE-SET 操作，这些不相交集合操作总共需要*O*((*V*
+    + *E*) α(*V*))时间，其中α是[第 19.4 节](chapter019.xhtml#Sec_19.4)中定义的增长非常缓慢的函数。因为我们假设*G*是连通的，所以有|*E*|
+    ≥ |*V*| – 1，因此不相交集合操作需要*O*(*E* α(*V*))时间。此外，由于α(|*V*|) = *O*(lg *V*) = *O*(lg
+    *E*)，Kruskal算法的总运行时间为*O*(*E* lg *E*)。观察到|*E*| < |*V*|²，我们有lg |*E*| = *O*(lg *V*)，因此我们可以将Kruskal算���的运行时间重新表述为*O*(*E*
+    lg *V*)。
+- en: '**Prim’s algorithm**'
+  id: totrans-98
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**Prim算法**'
+- en: Like Kruskal’s algorithm, Prim’s algorithm is a special case of the generic
+    minimum-spanning-tree method from [Section 21.1](chapter021.xhtml#Sec_21.1). Prim’s
+    algorithm operates much like Dijkstra’s algorithm for finding shortest paths in
+    a graph, which we’ll see in [Section 22.3](chapter022.xhtml#Sec_22.3). Prim’s
+    algorithm has the property that the edges in the set *A* always form a single
+    tree. As [Figure 21.5](chapter021.xhtml#Fig_21-5) shows, the tree starts from
+    an arbitrary root vertex r and grows until it spans all the vertices in *V*. Each
+    step adds to the tree A a light edge that connects *A* to an isolated vertex—one
+    on which no edge of *A* is incident. By Corollary 21.2, this rule adds only edges
+    that are safe for *A*. Therefore, when the algorithm terminates, the edges in
+    *A* form a minimum spanning tree. This strategy qualifies as greedy since at each
+    step it adds to the tree an edge that contributes the minimum amount possible
+    to the tree’s weight.
+  id: totrans-99
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 和Kruskal算法一样，Prim算法是来自[第 21.1 节](chapter021.xhtml#Sec_21.1)的通用最小生成树方法的特例。Prim算法的操作方式类似于Dijkstra算法在图中寻找最短路径的方式，我们将在[第
+    22.3 节](chapter022.xhtml#Sec_22.3)中看到。Prim算法的特点是集合*A*中的边始终形成一棵树。正如[图 21.5](chapter021.xhtml#Fig_21-5)所示，树从任意根顶点*r*开始生长，直到覆盖所有顶点*V*。每一步都向树*A*添加一个连接*A*到孤立顶点（即*A*上没有边与之关联的顶点）的轻边。根据推论
+    21.2，这个规则只会添加对*A*安全的边。因此，当算法终止时，*A*中的边形成了一棵最小生成树。这种策略被称为贪婪，因为每一步都向树中添加对树权重贡献最小的边。
+- en: '![art](images/Art_P625.jpg)'
+  id: totrans-100
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P625.jpg)'
+- en: '**Figure 21.5** The execution of Prim’s algorithm on the graph from [Figure
+    21.1](chapter021.xhtml#Fig_21-1). The root vertex is *a*. Blue vertices and edges
+    belong to the tree being grown, and tan vertices have yet to be added to the tree.
+    At each step of the algorithm, the vertices in the tree determine a cut of the
+    graph, and a light edge crossing the cut is added to the tree. The edge and vertex
+    added to the tree are highlighted in orange. In the second step (part (c)), for
+    example, the algorithm has a choice of adding either edge (*b*, *c*) or edge (*a*,
+    *h*) to the tree since both are light edges crossing the cut.'
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 21.5** Prim算法在[图 21.1](chapter021.xhtml#Fig_21-1)中的图上的执行过程。根顶点为*a*。蓝色顶点和边属于正在生成的树，棕色顶点尚未添加到树中。算法的每一步中，树中的顶点确定了图的一个切割，然后将穿过切割的轻边添加到树中。添加到树中的边和顶点用橙色突出显示。例如，在第二步（部分(c)）中，算法可以选择添加边(*b*,
+    *c*)或边(*a*, *h*)到树中，因为两者都是穿过切割的轻边。'
+- en: In the procedure MST-PRIM below, the connected graph *G* and the root *r* of
+    the minimum spanning tree to be grown are inputs to the algorithm. In order to
+    efficiently select a new edge to add into tree *A*, the algorithm maintains a
+    min-priority queue *Q* of all vertices that are *not* in the tree, based on a
+    *key* attribute. For each vertex *v*, the attribute *v.key* is the minimum weight
+    of any edge connecting *v* to a vertex in the tree, where by convention, *v.key*
+    = ∞ if there is no such edge. The attribute *v*.π names the parent of *v* in the
+    tree. The algorithm implicitly maintains the set *A* from GENERIC-MST as
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在下面的MST-PRIM过程中，输入算法的是连通图*G*和最小生成树的根*r*。为了高效地选择要添加到树*A*中的新边，算法维护一个基于*key*属性的所有不在树中的顶点的最小优先队列*Q*。对于每个顶点*v*，属性*v.key*是连接*v*到树中顶点的任何边的最小权重，按照惯例，如果没有这样的边，则*v.key*
+    = ∞。属性*v*.π指定了树中*v*的父节点。算法隐式地维护了GENERIC-MST中的集合*A*，如下所示：
+- en: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {*r*} – *Q*},'
+  id: totrans-103
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {*r*} – *Q*},'
+- en: where we interpret the vertices in *Q* as forming a set. When the algorithm
+    terminates, the min-priority queue *Q* is empty, and thus the minimum spanning
+    tree *A* for *G* is
+  id: totrans-104
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将顶点在*Q*中解释为一个集合。当算法终止时，最小优先队列*Q*为空，因此图*G*的最小生成树*A*为
+- en: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {*r*}}.'
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {*r*}}。'
+- en: MST-PRIM(*G*, *w*, *r*)
+  id: totrans-106
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MST-PRIM(*G*, *w*, *r*)
+- en: '|   1 | **for** each vertex *u* ∈ *G*.*V* |'
+  id: totrans-107
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | **对于** 每个顶点 *u* ∈ *G*.*V* |'
+- en: '|   2 | *u.key* = ∞ |'
+  id: totrans-108
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *u.key* = ∞ |'
+- en: '|   3 | *u*.π = NIL |'
+  id: totrans-109
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | *u*.π = NIL |'
+- en: '|   4 | *r.key* = 0 |'
+  id: totrans-110
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | *r.key* = 0 |'
+- en: '|   5 | *Q* = Ø |'
+  id: totrans-111
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | *Q* = Ø |'
+- en: '|   6 | **for** each vertex *u* ∈ *G.V* |'
+  id: totrans-112
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **对于** 每个顶点 *u* ∈ *G.V* |'
+- en: '|   7 | INSERT(*Q*, *u*) |'
+  id: totrans-113
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | 插入(*Q*, *u*) |'
+- en: '|   8 | **while** *Q* ≠ Ø |'
+  id: totrans-114
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | **当** *Q* ≠ Ø 时 |'
+- en: '|   9 | *u* = EXTRACT-MIN(*Q*) | // add *u* to the tree |'
+  id: totrans-115
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | *u* = 取出最小(*Q*) | // 将 *u* 添加到树中 |'
+- en: '| 10 | **for** each vertex *v* in *G.Adj*[*u*] | // update keys of *u*’s non-tree
+    neighbors |'
+  id: totrans-116
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **对于** 每个顶点 *v* 在 *G.Adj*[*u*] 中 | // 更新 *u* 的非树邻居的键 |'
+- en: '| 11 | **if** *v* ∈ *Q* and *w*(*u*, *v*) < *v.key* |'
+  id: totrans-117
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | **如果** *v* ∈ *Q* 并且 *w*(*u*, *v*) < *v.key* |'
+- en: '| 12 | *v*.π = *u* |'
+  id: totrans-118
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | *v*.π = *u* |'
+- en: '| 13 | *v.key* = *w*(*u*, *v*) |'
+  id: totrans-119
+  prefs: []
+  type: TYPE_TB
+  zh: '| 13 | *v.key* = *w*(*u*, *v*) |'
+- en: '| 14 | DECREASE-KEY(*Q*, *v*, *w*(*u*, *v*)) |'
+  id: totrans-120
+  prefs: []
+  type: TYPE_TB
+  zh: '| 14 | DECREASE-KEY(*Q*, *v*, *w*(*u*, *v*)) |'
+- en: '[Figure 21.5](chapter021.xhtml#Fig_21-5) shows how Prim’s algorithm works.
+    Lines 1–7 set the key of each vertex to ∞ (except for the root *r*, whose key
+    is set to 0 to make it the first vertex processed), set the parent of each vertex
+    to NIL, and insert each vertex into the min-priority queue *Q*. The algorithm
+    maintains the following three-part loop invariant:'
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图 21.5](chapter021.xhtml#Fig_21-5) 展示了 Prim 算法的工作原理。第 1-7 行将每个顶点的键设置为 ∞（除了根
+    *r*，其键设置为 0 以使其成为第一个处理的顶点），将每个顶点的父节点设置为 NIL，并将每个顶点插入最小优先队列 *Q*。该算法维护以下三部分循环不变式：'
+- en: Prior to each iteration of the **while** loop of lines 8–14,
+  id: totrans-122
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在第 8-14 行的 **while** 循环的每次迭代之前，
+- en: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {r} – *Q*}.'
+  id: totrans-123
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '*A* = {(*v*, *v*.π) : *v* ∈ *V* – {r} – *Q*}。'
+- en: The vertices already placed into the minimum spanning tree are those in *V*
+    − *Q*.
+  id: totrans-124
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 已放入最小生成树中的顶点是 *V* − *Q* 中的顶点。
+- en: For all vertices *v* ∈ *Q*, if *v*.π ≠ NIL, then *v.key* < ∞ and *v.key* is
+    the weight of a light edge (*v*, *v*.π) connecting *v* to some vertex already
+    placed into the minimum spanning tree.
+  id: totrans-125
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 对于所有 *v* ∈ *Q* 的顶点，如果 *v*.π ≠ NIL，则 *v.key* < ∞，且 *v.key* 是连接 *v* 到已放入最小生成树中某个顶点的轻边
+    (*v*, *v*.π) 的权重。
+- en: Line 9 identifies a vertex *u* ∈ *Q* incident on a light edge that crosses the
+    cut (*V* – *Q*, *Q*) (with the exception of the first iteration, in which *u*
+    = *r* due to lines 4–7). Removing *u* from the set *Q* adds it to the set *V*
+    – *Q* of vertices in the tree, thus adding the edge (*u*, *u*.π) to *A*. The **for**
+    loop of lines 10–14 updates the *key* and attributes of every vertex *v* adjacent
+    to *u* but not in the tree, thereby maintaining the third part of the loop invariant.
+    Whenever line 13 updates *v.key*, line 14 calls DECREASE-KEY to inform the min-priority
+    queue that *v*’s key has changed.
+  id: totrans-126
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第 9 行确定了一个顶点 *u* ∈ *Q*，它与穿过切割 (*V* – *Q*, *Q*) 的轻边相交（除了第一次迭代外，由于第 4-7 行，*u*
+    = *r*）。从集合 *Q* 中移除 *u* 将其添加到树中的顶点集合 *V* – *Q* 中，从而将边 (*u*, *u*.π) 添加到 *A* 中。第
+    10-14 行的 **for** 循环更新了与 *u* 相邻但不在树中的每个顶点 *v* 的 *key* 和属性，从而保持了循环不变式的第三部分。每当第 13
+    行更新 *v.key* 时，第 14 行调用 DECREASE-KEY 来通知最小优先队列 *v* 的键已更改。
+- en: The running time of Prim’s algorithm depends on the specific implementation
+    of the min-priority queue *Q*. You can implement *Q* with a binary min-heap (see
+    [Chapter 6](chapter006.xhtml)), including a way to map between vertices and their
+    corresponding heap elements. The BUILD-MIN-HEAP procedure can perform lines 5–7
+    in *O*(*V*) time. In fact, there is no need to call BUILD-MIN-HEAP. You can just
+    put the key of *r* at the root of the min-heap, and because all other keys are
+    ∞, they can go anywhere else in the min-heap. The body of the **while** loop executes
+    |*V*| times, and since each EXTRACT-MIN operation takes *O*(lg *V*) time, the
+    total time for all calls to EXTRACT-MIN is *O*(*V* lg *V*). The **for** loop in
+    lines 10–14 executes *O*(*E*) times altogether, since the sum of the lengths of
+    all adjacency lists is 2 |*E*|. Within the **for** loop, the test for membership
+    in *Q* in line 11 can take constant time if you keep a bit for each vertex that
+    indicates whether it belongs to *Q* and update the bit when the vertex is removed
+    from *Q*. Each call to DECREASE-KEY in line 14 takes *O*(lg *V*) time. Thus, the
+    total time for Prim’s algorithm is *O*(*V* lg *V* + *E* lg *V*) = *O*(*E* lg *V*),
+    which is asymptotically the same as for our implementation of Kruskal’s algorithm.
+  id: totrans-127
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Prim 算法的运行时间取决于最小优先队列 *Q* 的具体实现。您可以使用二叉最小堆实现 *Q*（参见 [第 6 章](chapter006.xhtml)），包括一种在顶点和它们对应的堆元素之间进行映射的方法。BUILD-MIN-HEAP
+    过程可以在 *O*(*V*) 时间内执行第 5-7 行。实际上，没有必要调用 BUILD-MIN-HEAP。您只需将 *r* 的键放在最小堆的根部，因为所有其他键都是
+    ∞，它们可以放在最小堆的任何其他位置。**while** 循环的主体执行 |*V*| 次，由于每次 EXTRACT-MIN 操作都需要 *O*(lg *V*)
+    时间，所有对 EXTRACT-MIN 的调用总时间为 *O*(*V* lg *V*)。第 10-14 行的 **for** 循环总共执行 *O*(*E*)
+    次，因为所有邻接表的长度之和为 2 |*E*|。在 **for** 循环中，第 11 行对 *Q* 中的成员资格进行测试，如果保留每个顶点的一个位来指示它是否属于
+    *Q* 并在顶点从 *Q* 中移除时更新该位，则测试可以在常数时间内完成。第 14 行中的每次 DECREASE-KEY 调用需要 *O*(lg *V*)
+    时间。因此，Prim 算法的总时间为 *O*(*V* lg *V* + *E* lg *V*) = *O*(*E* lg *V*)，这与我们对 Kruskal
+    算法的实现的渐近时间相同。
+- en: You can further improve the asymptotic running time of Prim’s algorithm by implementing
+    the min-priority queue with a Fibonacci heap (see page 478). If a Fibonacci heap
+    holds |*V*| elements, an EXTRACT-MIN operation takes *O*(lg *V*) amortized time
+    and each INSERT and DECREASE-KEY operation takes only *O*(1) amortized time. Therefore,
+    by using a Fibonacci heap to implement the min-priority queue *Q*, the running
+    time of Prim’s algorithm improves to *O*(*E*+*V* lg *V*).
+  id: totrans-128
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您可以通过使用 Fibonacci 堆（参见第 478 页）来实现最小优先队列，进一步改进 Prim 算法的渐近运行时间。如果 Fibonacci 堆包含
+    |*V*| 个元素，则 EXTRACT-MIN 操作的摊还时间为 *O*(lg *V*)，每个 INSERT 和 DECREASE-KEY 操作仅需要 *O*(1)
+    的摊还时间。因此，通过使用 Fibonacci 堆来实现最小优先队列 *Q*，Prim 算法的运行时间将改进为 *O*(*E*+*V* lg *V*)。
+- en: '**Exercises**'
+  id: totrans-129
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***21.2-1***'
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-1***'
+- en: Kruskal’s algorithm can return different spanning trees for the same input graph
+    *G*, depending on how it breaks ties when the edges are sorted. Show that for
+    each minimum spanning tree *T* of *G*, there is a way to sort the edges of *G*
+    in Kruskal’s algorithm so that the algorithm returns *T*.
+  id: totrans-131
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Kruskal 算法可以针对相同输入图 *G* 返回不同的生成树，具体取决于在对边进行排序时如何处理并列情况。证明对于图 *G* 的每个最小生成树 *T*，都有一种方法可以对图
+    *G* 的边进行排序，使得 Kruskal 算法返回 *T*。
+- en: '***21.2-2***'
+  id: totrans-132
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-2***'
+- en: Give a simple implementation of Prim’s algorithm that runs in *O*(*V*²) time
+    when the graph *G* = (*V*, *E*) is represented as an adjacency matrix.
+  id: totrans-133
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个简单的 Prim 算法实现，当图 *G* = (*V*, *E*) 以邻接矩阵表示时，运行时间为 *O*(*V*²)。
+- en: '***21.2-3***'
+  id: totrans-134
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-3***'
+- en: For a sparse graph *G* = (*V*, *E*), where |*E*| = Θ(*V*), is the implementation
+    of Prim’s algorithm with a Fibonacci heap asymptotically faster than the binary-heap
+    implementation? What about for a dense graph, where |*E*| = Θ(*V*²)? How must
+    the sizes |*E*| and |*V*| be related for the Fibonacci-heap implementation to
+    be asymptotically faster than the binary-heap implementation?
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于稀疏图 *G* = (*V*, *E*)，其中 |*E*| = Θ(*V*)，使用 Fibonacci 堆实现的 Prim 算法在渐近意义上是否比使用二叉堆实现的算法更快？对于稠密图，其中
+    |*E*| = Θ(*V*²)，情况如何？Fibonacci 堆实现比二叉堆实现更快的渐��条件是什么？
+- en: '***21.2-4***'
+  id: totrans-136
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-4***'
+- en: Suppose that all edge weights in a graph are integers in the range from 1 to
+    |*V*|. How fast can you make Kruskal’s algorithm run? What if the edge weights
+    are integers in the range from 1 to *W* for some constant *W*?
+  id: totrans-137
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设图中所有边的权重都是介于 1 到 |*V*| 之间的整数。你能让 Kruskal 算法运行多快？如果边的权重是介于 1 到某个常数 *W* 之间的整数呢？
+- en: '***21.2-5***'
+  id: totrans-138
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-5***'
+- en: Suppose that all edge weights in a graph are integers in the range from 1 to
+    |*V*|. How fast can you make Prim’s algorithm run? What if the edge weights are
+    integers in the range from 1 to *W* for some constant *W*?
+  id: totrans-139
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设图中所有边的权重都是介于 1 到 |*V*| 之间的整数。你能让 Prim 算法运行多快？如果边的权重是介于 1 到某个常数 *W* 之间的整数呢？
+- en: '***21.2-6***'
+  id: totrans-140
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21.2-6***'
+- en: Professor Borden proposes a new divide-and-conquer algorithm for computing minimum
+    spanning trees, which goes as follows. Given a graph *G* = (*V*, *E*), partition
+    the set *V* of vertices into two sets *V*[1] and *V*[2] such that |*V*[1]| and
+    |*V*[2]| differ by at most 1\. Let *E*[1] be the set of edges that are incident
+    only on vertices in *V*[1], and let *E*[2] be the set of edges that are incident
+    only on vertices in *V*[2]. Recursively solve a minimum-spanning-tree problem
+    on each of the two subgraphs *G*[1] = (*V*[1], *E*[1]) and *G*[2] = (*V*[2], *E*[2]).
+    Finally, select the minimum-weight edge in *E* that crosses the cut *V*[1], *V*[2]),
+    and use this edge to unite the resulting two minimum spanning trees into a single
+    spanning tree.
+  id: totrans-141
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 博士 Borden 提出了一种新的分治算法来计算最小生成树，步骤如下。给定一个图 *G* = (*V*, *E*)，将顶点集 *V* 分成两个集合 *V*[1]
+    和 *V*[2]，使得 |*V*[1]| 和 |*V*[2]| 之间的差异最多为 1。让 *E*[1] 为仅与 *V*[1] 中的顶点关联的边的集合，让 *E*[2]
+    为仅与 *V*[2] 中的顶点关联的边的集合。在两个子图 *G*[1] = (*V*[1], *E*[1]) 和 *G*[2] = (*V*[2], *E*[2])
+    上递归解决最小生成树问题。最后，选择跨越切分 *V*[1], *V*[2]) 的最小权重边 *E*，并使用此边将生成的两棵最小生成树合并为一棵生成树。
+- en: Either argue that the algorithm correctly computes a minimum spanning tree of
+    *G*, or provide an example for which the algorithm fails.
+  id: totrans-142
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 要么证明该算法正确计算了 *G* 的最小生成树，要么提供一个算法失败的例子。
+- en: ★ ***21.2-7***
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***21.2-7***
+- en: Suppose that the edge weights in a graph are uniformly distributed over the
+    half-open interval [0, 1). Which algorithm, Kruskal’s or Prim’s, can you make
+    run faster?
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设图中的边权重在半开区间 [0, 1) 上均匀分布。哪种算法，Kruskal 还是 Prim，你能让其运行得更快？
+- en: ★ ***21.2-8***
+  id: totrans-145
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ★ ***21.2-8***
+- en: Suppose that a graph *G* has a minimum spanning tree already computed. How quickly
+    can you update the minimum spanning tree upon adding a new vertex and incident
+    edges to *G*?
+  id: totrans-146
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设图 *G* 已经计算出最小生成树。在向 *G* 添加新顶点和关联边后，如何快速更新最小生成树？
+- en: '**Problems**'
+  id: totrans-147
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***21-1     Second-best minimum spanning tree***'
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21-1     第二优最小生成树***'
+- en: 'Let *G* = (*V*, *E*) be an undirected, connected graph whose weight function
+    is *w* : *E* → ℝ, and suppose that |*E*| ≥ |*V*| and all edge weights are distinct.'
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '让 *G* = (*V*, *E*) 是一个无向连通图，其权重函数为 *w* : *E* → ℝ，并假设 |*E*| ≥ |*V*| 且所有边的权重都不同。'
+- en: 'We define a second-best minimum spanning tree as follows. Let T be the set
+    of all spanning trees of *G*, and let *T* be a minimum spanning tree of *G*. Then
+    a ***second-best minimum spanning tree*** is a spanning tree *T*′ such that *w*(*T*′)
+    = min {*w*(*T*″) : *T*″ ∈ T − {*T*}}.'
+  id: totrans-150
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '我们将第二优最小生成树定义如下。设 *T* 为 *G* 的所有生成树的集合，*T* 为 *G* 的最小生成树。那么一个***第二优最小生成树***是一个生成树
+    *T*′，使得 *w*(*T*′) = min {*w*(*T*″) : *T*″ ∈ T − {*T*}}。'
+- en: '***a.*** Show that the minimum spanning tree is unique, but that the second-best
+    minimum spanning tree need not be unique.'
+  id: totrans-151
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 证明最小生成树是唯一的，但第二优最小生成树不一定是唯一的。'
+- en: '***b.*** Let *T* be the minimum spanning tree of *G*. Prove that *G* contains
+    some edge (*u*, *v*) ∈ *T* and some edge (*x*, *y*) ∉ *T* such that (*T* – {(*u*,
+    *v*)}) ∪ {(*x*, *y*)} is a second-best minimum spanning tree of *G*.'
+  id: totrans-152
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 设 *T* 是 *G* 的最小生成树。证明 *G* 包含一条边 (*u*, *v*) ∈ *T* 和一条边 (*x*, *y*) ∉
+    *T*，使得 (*T* – {(*u*, *v*)}) ∪ {(*x*, *y*)} 是 *G* 的第二优最小生成树。'
+- en: '***c.*** Now let *T* be any spanning tree of *G* and, for any two vertices
+    *u*, *v* ∈ *V*, let *max*[*u*, *v*] denote an edge of maximum weight on the unique
+    simple path between *u* and *v* in *T*. Describe an *O*(*V*²)-time algorithm that,
+    given *T*, computes *max*[*u*, *v*] for all *u, v* ∈ *V*.'
+  id: totrans-153
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 现在让 *T* 是 *G* 的任意生成树，并且对于任意两个顶点 *u*, *v* ∈ *V*，让 *max*[*u*, *v*] 表示
+    *T* 中连接 *u* 和 *v* 之间唯一简单路径上权重最大的边。描述一个 *O*(*V*²) 时间复杂度的算法，给定 *T*，计算所有 *u, v* ∈
+    *V* 的 *max*[*u*, *v*]。'
+- en: '***d.*** Give an efficient algorithm to compute the second-best minimum spanning
+    tree of *G*.'
+  id: totrans-154
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 给出一个有效的算法来计算 *G* 的次优最小生成树。'
+- en: '***21-2     Minimum spanning tree in sparse graphs***'
+  id: totrans-155
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21-2     稀疏图中的最小生成树***'
+- en: For a very sparse connected graph *G* = (*V*, *E*), it is possible to further
+    improve upon the *O*(*E* + *V* lg *V*) running time of Prim’s algorithm with a
+    Fibonacci heap by preprocessing *G* to decrease the number of vertices before
+    running Prim’s algorithm. In particular, for each vertex *u*, choose the minimum-weight
+    edge (*u*, *v*) incident on *u*, and put (*u*, *v*) into the minimum spanning
+    tree under construction. Then, contract all chosen edges (see [Section B.4](appendix002.xhtml#Sec_B.4)).
+    Rather than contracting these edges one at a time, first identify sets of vertices
+    that are united into the same new vertex. Then create the graph that would have
+    resulted from contracting these edges one at a time, but do so by “renaming” edges
+    according to the sets into which their endpoints were placed. Several edges from
+    the original graph might be renamed the same as each other. In such a case, only
+    one edge results, and its weight is the minimum of the weights of the corresponding
+    original edges.
+  id: totrans-156
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于一个非常稀疏的连通图*G* = (*V*, *E*)，可以通过预处理*G*以减少运行Prim算法之前的顶点数量来进一步改进Prim算法的*O*(*E*
+    + *V* lg *V*)运行时间。特别地，对于每个顶点*u*，选择与*u*关联的最小权重边(*u*, *v*)，并将(*u*, *v*)放入正在构建的最小生成树中。然后，缩约所有选择的边（参见[第B.4节](appendix002.xhtml#Sec_B.4)）。与逐个缩约这些边不同，首先识别统一到同一新顶点的顶点集。然后创建将会由逐个缩约这些边而产生的图，但是通过“重命名”边来做到，根据它们的端点被放置到的集合。原始图中的几条边可能被重命名为相同的。在这种情况下，只有一条边产生，其权���是相应原始边的最小权重。
+- en: Initially, set the minimum spanning tree *T* being constructed to be empty,
+    and for each edge (*u*, *v*) ∈ *E*, initialize the two attributes (*u*, *v*).*orig*
+    = (*u*, *v*) and (*u*, *v*).*c* = *w*(*u*, *v*). Use the *orig* attribute to reference
+    the edge from the initial graph that is associated with an edge in the contracted
+    graph. The *c* attribute holds the weight of an edge, and as edges are contracted,
+    it is updated according to the above scheme for choosing edge weights. The procedure
+    MST-REDUCE on the facing page takes inputs *G* and *T*, and it returns a contracted
+    graph *G*′ with updated attributes *orig*′ and *c*′. The procedure also accumulates
+    edges of *G* into the minimum spanning tree *T*.
+  id: totrans-157
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最初，将正在构建的最小生成树*T*设置为空，并对于每条边(*u*, *v*) ∈ *E*，初始化两个属性(*u*, *v*).*orig* = (*u*,
+    *v*)和(*u*, *v*).*c* = *w*(*u*, *v*)。使用*orig*属性引用与缩约图中的边相关联的初始图中的边。*c*属性保存边的权重，随着边的缩约，根据上述选择边权重的方案进行更新。面向页面的MST-REDUCE过程接受输入*G*和*T*，并返回具有更新属性*orig*′和*c*′的缩约图*G*′。该过程还将*G*的边累积到最小生成树*T*中。
+- en: '***a.*** Let *T* be the set of edges returned by MST-REDUCE, and let *A* be
+    the minimum spanning tree of the graph *G*′ formed by the call MST-PRIM(*G*′,
+    *c*′, *r*), where *c*′ is the weight attribute on the edges of *G*′.*E* and *r*
+    is any vertex in *G*′:*V*. Prove that *T* ∪ {(*x*, *y*).*orig*′ : (*x*, *y*) ∈
+    *A*} is a minimum spanning tree of *G*.'
+  id: totrans-158
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 令*T*为MST-REDUCE返回的边集，*A*为由调用MST-PRIM(*G*′, *c*′, *r*)形成的图*G*′的最小生成树，其中*c*′是*G*′上边的权重属性，*r*是*G*′:*V*中的任意顶点。证明*T*
+    ∪ {(*x*, *y*).*orig*′ : (*x*, *y*) ∈ *A*}是*G*的最小生成树。'
+- en: '***b.*** Argue that |*G*′.*V*| ≤ |*V*| /2.'
+  id: totrans-159
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 论证|*G*′.*V*| ≤ |*V*| /2。'
+- en: '***c.*** Show how to implement MST-REDUCE so that it runs in *O*(*E*) time.
+    (*Hint:* Use simple data structures.)'
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 展示如何实现MST-REDUCE以使其在*O*(*E*)时间内运行。(*提示:* 使用简单的数据结构。)'
+- en: '***d.*** Suppose that you run *k* phases of MST-REDUCE, using the output *G*′
+    produced by one phase as the input *G* to the next phase and accumulating edges
+    in *T*. Argue that the overall running time of the *k* phases is *O*(*kE*).'
+  id: totrans-161
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 假设你运行MST-REDUCE的*k*个阶段，使用一个阶段产生的输出*G*′作为下一个阶段的输入*G*，并在*T*中累积边。论证*k*个阶段的总运行时间为*O*(*kE*)。'
+- en: '***e.*** Suppose that after running *k* phases of MST-REDUCE, as in part (*d*),
+    you run Prim’s algorithm by calling MST-PRIM(*G*′, *c*′, *r*), where *G*′, with
+    weight attribute *c*′, is returned by the last phase and *r* is any vertex in
+    *G*′.*V*. Show how to pick *k* so that the overall running time is *O*(*E* lg
+    lg *V*). Argue that your choice of *k* minimizes the overall asymptotic running
+    time.'
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***e.*** 假设在MST-REDUCE的*k*个阶段之后，如(d)部分所述，通过调用MST-PRIM(*G*′, *c*′, *r*)运行Prim算法，其中*G*′，带有权重属性*c*′，是最后一个阶段返回的，*r*是*G*′:*V*中的任意顶点。展示如何选择*k*以使总运行时间为*O*(*E*
+    lg lg *V*)。论证你选择的*k*最小化了总体渐近运行时间。'
+- en: '***f.*** For what values of |*E*| (in terms of |*V*|) does Prim’s algorithm
+    with preprocessing asymptotically beat Prim’s algorithm without preprocessing?'
+  id: totrans-163
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***f.*** 对于|*E*|的哪些值（关于|*V*|），带有预处理的Prim算法在渐近意义上击败没有预处理的Prim算法？'
+- en: MST-REDUCE(*G*, *T*)
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MST-REDUCE(*G*, *T*)
+- en: '|   1 | **for** each vertex *v* ∈ *G.V* |'
+  id: totrans-165
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | **对于**每个顶点*v* ∈ *G.V* |'
+- en: '|   2 | *v.mark* = FALSE |'
+  id: totrans-166
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | *v.mark* = FALSE |'
+- en: '|   3 | MAKE-SET(*v*) |'
+  id: totrans-167
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | MAKE-SET(*v*) |'
+- en: '|   4 | **for** each vertex *u* ∈ *G.V* |'
+  id: totrans-168
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **对于**每个顶点*u* ∈ *G.V* |'
+- en: '|   5 | **if** *u.mark* == FALSE |'
+  id: totrans-169
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | **如果** *u.mark* == FALSE |'
+- en: '|   6 | choose *v* ∈ *G.Adj*[*u*] such that (*u*, *v*).*c* is minimized |'
+  id: totrans-170
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | 选择*G.Adj*[*u*]中使(*u*, *v*).*c*最小的*v* |'
+- en: '|   7 | UNION(*u*, *v*) |'
+  id: totrans-171
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | UNION(*u*, *v*) |'
+- en: '|   8 | *T* = *T* ∪ {(*u*, *v*).*orig*} |'
+  id: totrans-172
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | *T* = *T* ∪ {(*u*, *v*).*orig*} |'
+- en: '|   9 | *u.mark* = TRUE |'
+  id: totrans-173
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | *u.mark* = TRUE |'
+- en: '| 10 | *v.mark* = TRUE |'
+  id: totrans-174
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | *v.mark* = TRUE |'
+- en: '| 11 | *G*′.*V* = {FIND-SET(*v*) : *v* ∈ *G.V*} |'
+  id: totrans-175
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | *G*′.*V* = {FIND-SET(*v*) : *v* ∈ *G.V*} |'
+- en: '| 12 | *G*′.*E* = Ø |'
+  id: totrans-176
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | *G*′.*E* = Ø |'
+- en: '| 13 | **for** each edge (*x*, *y*) ∈ *G.E* |'
+  id: totrans-177
+  prefs: []
+  type: TYPE_TB
+  zh: '| 13 | **对于**每条边(*x*, *y*) ∈ *G.E* |'
+- en: '| 14 | *u* = FIND-SET(*x*) |'
+  id: totrans-178
+  prefs: []
+  type: TYPE_TB
+  zh: '| 14 | *u* = FIND-SET(*x*) |'
+- en: '| 15 | *v* = FIND-SET(*y*) |'
+  id: totrans-179
+  prefs: []
+  type: TYPE_TB
+  zh: '| 15 | *v* = FIND-SET(*y*) |'
+- en: '| 16 | **if** *u* ≠ *v* |'
+  id: totrans-180
+  prefs: []
+  type: TYPE_TB
+  zh: '| 16 | **如果** *u* ≠ *v* |'
+- en: '| 17 | **if** (*u*, *v*) ∉ *G*′.*E* |'
+  id: totrans-181
+  prefs: []
+  type: TYPE_TB
+  zh: '| 17 | **如果** (*u*, *v*) ∉ *G*′.*E* |'
+- en: '| 18 | *G*′.*E* = *G*′.*E* ∪ {(u, v)} |'
+  id: totrans-182
+  prefs: []
+  type: TYPE_TB
+  zh: '| 18 | *G*′.*E* = *G*′.*E* ∪ {(u, v)} |'
+- en: '| 19 | (*u, v*).*orig*′ = (*x*, *y*).*orig* |'
+  id: totrans-183
+  prefs: []
+  type: TYPE_TB
+  zh: '| 19 | (*u, v*).*orig*′ = (*x*, *y*).*orig* |'
+- en: '| 20 | (*u*, *v*).*c*′ = (*x*, *y*).*c* |'
+  id: totrans-184
+  prefs: []
+  type: TYPE_TB
+  zh: '| 20 | (*u*, *v*).*c*′ = (*x*, *y*).*c* |'
+- en: '| 21 | **elseif** (*x*, *y*).*c* < (*u*, *v*).c′ |'
+  id: totrans-185
+  prefs: []
+  type: TYPE_TB
+  zh: '| 21 | **否则** (*x*, *y*).*c* < (*u*, *v*).c′ |'
+- en: '| 22 | (*u*, *v*).*orig*′ = (*x*, *y*).*orig* |'
+  id: totrans-186
+  prefs: []
+  type: TYPE_TB
+  zh: '| 22 | (*u*, *v*).*orig*′ = (*x*, *y*).*orig* |'
+- en: '| 23 | (*u*, *v*).*c*′ = (*x*, *y*).*c* |'
+  id: totrans-187
+  prefs: []
+  type: TYPE_TB
+  zh: '| 23 | (*u*, *v*).*c*′ = (*x*, *y*).*c* |'
+- en: '| 24 | construct adjacency lists *G*′.*Adj* for *G*′ |'
+  id: totrans-188
+  prefs: []
+  type: TYPE_TB
+  zh: '| 24 | 为*G*′构建邻接表*G*′.*Adj* |'
+- en: '| 25 | **return** *G*′ and *T* |'
+  id: totrans-189
+  prefs: []
+  type: TYPE_TB
+  zh: '| 25 | **返回** *G*′ 和 *T* |'
+- en: '***21-3     Alternative minimum-spanning-tree algorithms***'
+  id: totrans-190
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21-3     替代最小生成树算法***'
+- en: Consider the three algorithms MAYBE-MST-A, MAYBE-MST-B, and MAYBE-MST-C on the
+    next page. Each one takes a connected graph and a weight function as input and
+    returns a set of edges *T*. For each algorithm, either prove that *T* is a minimum
+    spanning tree or prove that *T* is not necessarily a minimum spanning tree. Also
+    describe the most efficient implementation of each algorithm, regardless of whether
+    it computes a minimum spanning tree.
+  id: totrans-191
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑下一页上的三个算法 MAYBE-MST-A、MAYBE-MST-B 和 MAYBE-MST-C。每个算法都接受一个连通图和一个权重函数作为输入，并返回一组边
+    *T*。对于每个算法，要么证明 *T* 是最小生成树，要么证明 *T* 不一定是最小生成树。还要描述每个算法的最有效实现，无论它是否计算最小生成树。
+- en: '***21-4     Bottleneck spanning tree***'
+  id: totrans-192
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***21-4     瓶颈生成树***'
+- en: A ***bottleneck spanning tree*** *T* of an undirected graph *G* is a spanning
+    tree of *G* whose largest edge weight is minimum over all spanning trees of *G*.
+    The value of the bottleneck spanning tree is the weight of the maximum-weight
+    edge in *T*.
+  id: totrans-193
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个***瓶颈生成树*** *T* 是一个无向图 *G* 的生成树，其最大边权重在所有 *G* 的生成树中是最小的。瓶颈生成树的值是 *T* 中最大权重边的权重。
+- en: MAYBE-MST-A(*G*, *w*)
+  id: totrans-194
+  prefs: []
+  type: TYPE_NORMAL
+  zh: MAYBE-MST-A(*G*, *w*)
+- en: '| 1 | sort the edges into monotonically decreasing order of edge weights *w*
+    |'
+  id: totrans-195
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 按边权重 *w* 单调递减的顺序对边进行排序 |'
+- en: '| 2 | *T* = *E* |'
+  id: totrans-196
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | *T* = *E* |'
+- en: '| 3 | **for** each edge *e*, taken in monotonically decreasing order by weight
+    |'
+  id: totrans-197
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **对于** 每条边 *e*，按权重单调递减的顺序 |'
+- en: '| 4 | **if** *T* – {*e*} is a connected graph |'
+  id: totrans-198
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **如果** *T* – {*e*} 是一个连通图 |'
+- en: '| 5 | *T* = *T* – {*e*} |'
+  id: totrans-199
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | *T* = *T* – {*e*} |'
+- en: '| 6 | **return** *T* |'
+  id: totrans-200
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | **返回** *T* |'
+- en: '| MAYBE-MST-B(*G*, *w*) |'
+  id: totrans-201
+  prefs: []
+  type: TYPE_TB
+  zh: '| MAYBE-MST-B(*G*, *w*) |'
+- en: '| 1 | *T* = Ø |'
+  id: totrans-202
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *T* = Ø |'
+- en: '| 2 | **for** each edge *e*, taken in arbitrary order |'
+  id: totrans-203
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** 每条边 *e*，按任意顺序 |'
+- en: '| 3 | **if** *T* ∪ {*e*} has no cycles |'
+  id: totrans-204
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **如果** *T* ∪ {*e*} 没有循环 |'
+- en: '| 4 | *T* = *T* ∪ {*e*} |'
+  id: totrans-205
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | *T* = *T* ∪ {*e*} |'
+- en: '| 5 | **return** T |'
+  id: totrans-206
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **返回** T |'
+- en: '| MAYBE-MST-C(*G*, *w*) |'
+  id: totrans-207
+  prefs: []
+  type: TYPE_TB
+  zh: '| MAYBE-MST-C(*G*, *w*) |'
+- en: '| 1 | *T* = Ø |'
+  id: totrans-208
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *T* = Ø |'
+- en: '| 2 | **for** each edge *e*, taken in arbitrary order |'
+  id: totrans-209
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** 每条边 *e*，按任意顺序 |'
+- en: '| 3 | *T* = *T* ∪ {*e*} |'
+  id: totrans-210
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | *T* = *T* ∪ {*e*} |'
+- en: '| 4 | **if** *T* has a cycle *c* |'
+  id: totrans-211
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **如果** *T* 有一个循环 *c* |'
+- en: '| 5 | let *e*′ be a maximum-weight edge on *c* |'
+  id: totrans-212
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | 让 *e*′ 是 *c* 上的最大权重边 |'
+- en: '| 6 | *T* = *T* – {*e*′} |'
+  id: totrans-213
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | *T* = *T* – {*e*′} |'
+- en: '| 7 | **return** *T* |'
+  id: totrans-214
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | **返回** *T* |'
+- en: '***a.*** Argue that a minimum spanning tree is a bottleneck spanning tree.'
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 论证最小生成树是瓶颈生成树。'
+- en: Part (a) shows that finding a bottleneck spanning tree is no harder than finding
+    a minimum spanning tree. In the remaining parts, you will show how to find a bottleneck
+    spanning tree in linear time.
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 第（a）部分表明找到瓶颈生成树并不比找到最小生成树更困难。在剩下的部分中，您将展示如何在线性时间内找到瓶颈生成树。
+- en: '***b.*** Give a linear-time algorithm that, given a graph *G* and an integer
+    *b*, determines whether the value of the bottleneck spanning tree is at most *b*.'
+  id: totrans-217
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 给出一个线性时间算法，给定一个图 *G* 和一个整数 *b*，确定瓶颈生成树的值是否至多为 *b*。'
+- en: '***c.*** Use your algorithm for part (b) as a subroutine in a linear-time algorithm
+    for the bottleneck-spanning-tree problem. (*Hint:* You might want to use a subroutine
+    that contracts sets of edges, as in the MST-REDUCE procedure described in Problem
+    21-2.)'
+  id: totrans-218
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 使用第（b）部分的算法作为瓶颈生成树问题的线性时间算法的子程序。(*提示:* 您可能想使用一个缩减边集的子程序，就像问题 21-2
+    中描述的 MST-REDUCE 过程一样。)'
+- en: '**Chapter notes**'
+  id: totrans-219
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: Tarjan [[429](bibliography001.xhtml#endnote_429)] surveys the minimum-spanning-tree
+    problem and provides excellent advanced material. Graham and Hell [[198](bibliography001.xhtml#endnote_198)]
+    compiled a history of the minimum-spanning-tree problem.
+  id: totrans-220
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Tarjan [[429](bibliography001.xhtml#endnote_429)] 对最小生成树问题进行了调查，并提供了优秀的高级材料。Graham
+    和 Hell [[198](bibliography001.xhtml#endnote_198)] 编写了最小生成树问题的历史。
+- en: Tarjan attributes the first minimum-spanning-tree algorithm to a 1926 paper
+    by O. Borůvka. Borůvka’s algorithm consists of running *O*(lg *V*) iterations
+    of the procedure MST-REDUCE described in Problem 21-2\. Kruskal’s algorithm was
+    reported by Kruskal [[272](bibliography001.xhtml#endnote_272)] in 1956\. The algorithm
+    commonly known as Prim’s algorithm was indeed invented by Prim [[367](bibliography001.xhtml#endnote_367)],
+    but it was also invented earlier by V. Jarník in 1930.
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 'Tarjan 将第一个最小生成树算法归因于 O. Borůvka 在 1926 年的一篇论文。Borůvka 的算法包括运行问题 21-2 中描述的
+    MST-REDUCE 过程的 *O*(lg *V*) 次迭代。Kruskal 的算法由 Kruskal [[272](bibliography001.xhtml#endnote_272)]
+    在 1956 年报告。普遍称为 Prim 算法的算法确实是��� Prim [[367](bibliography001.xhtml#endnote_367)]
+    发明的，但它也在 1930 年由 V. Jarník 发明。 '
+- en: When |*E*| = Ω(*V* lg *V*), Prim’s algorithm, implemented with a Fibonacci heap,
+    runs in *O*(*E*) time. For sparser graphs, using a combination of the ideas from
+    Prim’s algorithm, Kruskal’s algorithm, and Borůvka’s algorithm, together with
+    advanced data structures, Fredman and Tarjan [[156](bibliography001.xhtml#endnote_156)]
+    give an algorithm that runs in *O*(*E* lg* *V*) time. Gabow, Galil, Spencer, and
+    Tarjan [[165](bibliography001.xhtml#endnote_165)] improved this algorithm to run
+    in *O*(*E* lg lg* *V*) time. Chazelle [[83](bibliography001.xhtml#endnote_83)]
+    gives an algorithm that runs in *O*(*E* ![art](images/alphac.jpg)(*E*, *V*)) time,
+    where ![art](images/alphac.jpg)(*E*, *V*) is the functional inverse of Ackermann’s
+    function. (See the chapter notes for [Chapter 19](chapter019.xhtml) for a brief
+    discussion of Ackermann’s function and its inverse.) Unlike previous minimum-spanning-tree
+    algorithms, Chazelle’s algorithm does not follow the greedy method. Pettie and
+    Ramachandran [[356](bibliography001.xhtml#endnote_356)] give an algorithm based
+    on precomputed “MST decision trees” that also runs in *O*(*E* ![art](images/alphac.jpg)(*E*,
+    *V*)) time.
+  id: totrans-222
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当 |*E*| = Ω(*V* lg *V*) 时，使用斐波那契堆实现的 Prim 算法的运行时间为 *O*(*E*)。对于稀疏图，使用 Prim 算法、Kruskal
+    算法和 Borůvka 算法的思想结合先进的数据结构，Fredman 和 Tarjan [[156](bibliography001.xhtml#endnote_156)]
+    给出了一个在 *O*(*E* lg* *V*) 时间内运行的算法。Gabow、Galil、Spencer 和 Tarjan [[165](bibliography001.xhtml#endnote_165)]
+    将这个算法改进为在 *O*(*E* lg lg* *V*) 时间内运行。Chazelle [[83](bibliography001.xhtml#endnote_83)]
+    给出了一个在 *O*(*E* ![art](images/alphac.jpg)(*E*, *V*)) 时间内运行的算法，其中 ![art](images/alphac.jpg)(*E*,
+    *V*) 是 Ackermann 函数的函数反。 （有关 Ackermann 函数及其反函数的简要讨论，请参阅[第19章](chapter019.xhtml)的章节注释。）与以往的最小生成树算法不同，Chazelle
+    的算法不遵循贪婪方法。Pettie 和 Ramachandran [[356](bibliography001.xhtml#endnote_356)] 给出了一种基于预计算的“MST
+    决策树”的算法，也在 *O*(*E* ![art](images/alphac.jpg)(*E*, *V*)) 时间内运行。
+- en: 'A related problem is ***spanning-tree verification***: given a graph *G* =
+    (*V*, *E*) and a tree *T* ⊆ *E*, determine whether *T* is a minimum spanning tree
+    of *G*. King [[254](bibliography001.xhtml#endnote_254)] gives a linear-time algorithm
+    to verify a spanning tree, building on earlier work of Komlós [[269](bibliography001.xhtml#endnote_269)]
+    and Dixon, Rauch, and Tarjan [[120](bibliography001.xhtml#endnote_120)].'
+  id: totrans-223
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一个相关问题是***生成树验证***：给定图 *G* = (*V*, *E*) 和树 *T* ⊆ *E*，确定 *T* 是否是 *G* 的最小生成树。King
+    [[254](bibliography001.xhtml#endnote_254)] 给出了一个线性时间算法来验证生成树，借鉴了 Komlós [[269](bibliography001.xhtml#endnote_269)]
+    和 Dixon、Rauch 和 Tarjan [[120](bibliography001.xhtml#endnote_120)] 的早期工作。
+- en: 'The above algorithms are all deterministic and fall into the comparison-based
+    model described in [Chapter 8](chapter008.xhtml). Karger, Klein, and Tarjan [[243](bibliography001.xhtml#endnote_243)]
+    give a randomized minimum-spanning-tree algorithm that runs in *O*(*V* + *E*)
+    expected time. This algorithm uses recursion in a manner similar to the linear-time
+    selection algorithm in [Section 9.3](chapter009.xhtml#Sec_9.3): a recursive call
+    on an auxiliary problem identifies a subset of the edges *E*′ that cannot be in
+    any minimum spanning tree. Another recursive call on *E* – *E*′ then finds the
+    minimum spanning tree. The algorithm also uses ideas from Borůvka’s algorithm
+    and King’s algorithm for spanning-tree verification.'
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 上述算法都是确定性的，并属于[第8章](chapter008.xhtml)描述的基于比较的模型。Karger、Klein 和 Tarjan [[243](bibliography001.xhtml#endnote_243)]
+    给出了一个随机化最小生成树算法，预期运行时间为 *O*(*V* + *E*)。该算法类似于[第9.3节](chapter009.xhtml#Sec_9.3)中的线性时间选择算法，使用递归的方式：对辅助问题进行递归调用，识别一组边
+    *E*′，这些边不能在任何最小生成树中。然后对 *E* – *E*′ 进行另一个递归调用，找到最小生成树。该算法还使用了 Borůvka 算法和 King
+    的生成树验证算法的思想。
+- en: Fredman and Willard [[158](bibliography001.xhtml#endnote_158)] showed how to
+    find a minimum spanning tree in *O*(*V* + *E*) time using a deterministic algorithm
+    that is not comparison based. Their algorithm assumes that the data are *b*-bit
+    integers and that the computer memory consists of addressable *b*-bit words.
+  id: totrans-225
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Fredman 和 Willard [[158](bibliography001.xhtml#endnote_158)] 展示了如何使用非比较的确定性算法在
+    *O*(*V* + *E*) 时间内找到最小生成树。他们的算法假设数据是 *b* 位整数，计算机内存由可寻址的 *b* 位字组成。
+- en: '[¹](#footnote_ref_1) The phrase “minimum spanning tree” is a shortened form
+    of the phrase “minimum-weight spanning tree.” There is no point in minimizing
+    the number of edges in *T*, since all spanning trees have exactly |*V*| − 1 edges
+    by Theorem B.2 on page 1169.'
+  id: totrans-226
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 短语“最小生成树”是“最小权重生成树”的缩写形式。最小生成树 *T* 中边的数量最小化没有意义，因为根据第1169页的定理
+    B.2，所有生成树的边数都恰好为 |*V*| − 1。'

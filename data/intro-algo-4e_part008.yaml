@@ -1,0 +1,60 @@
+- en: '[***Part VIII    Appendix: Mathematical Background***](toc.xhtml#part-8)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[***第八部分    附录：数学背景***](toc.xhtml#part-8)'
+- en: '[**Introduction**](toc.xhtml#Rh1-213)'
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**介绍**](toc.xhtml#Rh1-213)'
+- en: When you analyze algorithms, you often need to draw upon a body of mathematical
+    tools. Some of these tools are as simple as high-school algebra, but others may
+    be new to you. In [Part I](part001.xhtml), we saw how to manipulate asymptotic
+    notations and solve recurrences. This appendix comprises a compendium of several
+    other concepts and methods used in analyzing algorithms. As noted in the introduction
+    to [Part I](part001.xhtml), you may have seen much of the material in this appendix
+    before having read this book, although some of the specific notational conventions
+    appearing here might differ from those you have seen elsewhere. Hence, you should
+    treat this appendix as reference material. As in the rest of this book, however,
+    we have included exercises and problems, in order for you to improve your skills
+    in these areas.
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 当你分析算法时，通常需要借助一系列数学工具。其中一些工具像高中代数那样简单，但其他可能对你来说是新的。在[第一部分](part001.xhtml)中，我们看到了如何操纵渐近符号和解决递归。本附录包括了在分析算法中使用的其他概念和方法的汇编。正如在[第一部分](part001.xhtml)的介绍中所指出的，你可能在阅读本书之前就已经看过本附录中的许多材料，尽管这里出现的一些特定符号约定可能与你在其他地方看到的不同。因此，你应该将本附录视为参考资料。然而，与本书的其余部分一样，我们包含了练习和问题，以帮助你提高这些领域的技能。
+- en: '[Appendix A](appendix001.xhtml) offers methods for evaluating and bounding
+    summations, which occur frequently in the analysis of algorithms. Many of the
+    formulas here appear in any calculus text, but you will find it convenient to
+    have these methods compiled in one place.'
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[附录 A](appendix001.xhtml) 提供了评估和界定求和的方法，这在算法分析中经常出现。这里的许多公式在任何微积分教材中都会出现，但将这些方法编制在一个地方会更方便。'
+- en: '[Appendix B](appendix002.xhtml) contains basic definitions and notations for
+    sets, relations, functions, graphs, and trees. It also gives some basic properties
+    of these mathematical objects.'
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[附录 B](appendix002.xhtml) 包含了集合、关系、函数、图和树的基本定义和符号，同时给出了这些数学对象的一些基本性质。'
+- en: '[Appendix C](appendix003.xhtml) begins with elementary principles of counting:
+    permutations, combinations, and the like. The remainder contains definitions and
+    properties of basic probability. Most of the algorithms in this book require no
+    probability for their analysis, and thus you can easily omit the latter sections
+    of the chapter on a first reading, even without skimming them. Later, when you
+    encounter a probabilistic analysis that you want to understand better, you will
+    find [Appendix C](appendix003.xhtml) well organized for reference purposes.'
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[附录 C](appendix003.xhtml) 以计数的基本原理开始：排列、组合等。其余部分包含基本概率的定义和性质。本书中大多数算法在分析时不需要概率，因此即使在第一次阅读时，你也可以轻松地跳过本章的后半部分，甚至不用略读。当你遇到想更好理解的概率分析时，你会发现[附录
+    C](appendix003.xhtml)为参考目的而组织良好。'
+- en: '[Appendix D](appendix004.xhtml) defines matrices, their operations, and some
+    of their basic properties. You have probably seen most of this material already
+    if you have taken a course in linear algebra. But you might find it helpful to
+    have one place to look for notations and definitions.'
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[附录 D](appendix004.xhtml) 定义了矩阵、它们的运算以及一些基本性质。如果你已经修过线性代数课程，那么你可能已经看过这些材料的大部分。但如果你想查找符号和定义的地方，这里可能会有所帮助。'

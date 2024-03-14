@@ -1,0 +1,2027 @@
+- en: '[**23        All-Pairs Shortest Paths**](toc.xhtml#chap-23)'
+  id: totrans-0
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**23        全对最短路径**](toc.xhtml#chap-23)'
+- en: In this chapter, we turn to the problem of finding shortest paths between all
+    pairs of vertices in a graph. A classic application of this problem occurs in
+    computing a table of distances between all pairs of cities for a road atlas. Classic
+    perhaps, but not a true application of finding shortest paths between *all* pairs
+    of vertices. After all, a road map modeled as a graph has one vertex for *every*
+    road intersection and one edge wherever a road connects intersections. A table
+    of intercity distances in an atlas might include distances for 100 cities, but
+    the United States has approximately 300,000 signal-controlled intersections^([1](#footnote_1))
+    and many more uncontrolled intersections.
+  id: totrans-1
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在本章中，我们转向在图中查找所有顶点对之间的最短路径的问题。这个问题的一个经典应用是计算道路地图上所有城市对之间的距离表。也许经典，但并不是查找*所有*顶点对之间最短路径的真正应用。毕竟，将道路地图建模为图形式，每个道路交叉口有一个顶点，道路连接交叉口的地方有一条边。地图上的城市间距离表可能包括100个城市的距离，但美国大约有300,000个信号控制的交叉口^([1](#footnote_1))，还有更多无控制的交叉口。
+- en: 'A legitimate application of all-pairs shortest paths is to determine the ***diameter***
+    of a network: the longest of all shortest paths. If a directed graph models a
+    communication network, with the weight of an edge indicating the time required
+    for a message to traverse a communication link, then the diameter gives the longest
+    possible transit time for a message in the network.'
+  id: totrans-2
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 全对最短路径的一个合法应用是确定网络的***直径***：所有最短路径中的最长路径。如果一个有向图模拟通信网络，边的权重表示消息在通信链路上传输所需的时间，那么直径给出了网络中消息可能的最长传输时间。
+- en: 'As in [Chapter 22](chapter022.xhtml), the input is a weighted, directed graph
+    *G* = (*V*, *E*) with a weight function *w* : *E* → ℝ that maps edges to real-valued
+    weights. Now the goal is to find, for every pair of vertices *u, v* ∈ *V*, a shortest
+    (least-weight) path from *u* to *v*, where the weight of a path is the sum of
+    the weights of its constituent edges. For the all-pairs problem, the output typically
+    takes a tabular form in which the entry in *u*’s row and *v*’s column is the weight
+    of a shortest path from *u* to *v*.'
+  id: totrans-3
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '如同[第22章](chapter022.xhtml)中一样，输入是一个带权重的有向图*G* = (*V*, *E*)，具有将边映射到实值权重的权重函数*w*
+    : *E* → ℝ。现在的目标是找到对于每对顶点*u, v* ∈ *V*，从*u*到*v*的最短（最小权重）路径，其中路径的权重是其组成边的权重之和。对于全对问题，输出通常采用表格形式，其中*u*行和*v*列中的条目是从*u*到*v*的最短路径的权重。'
+- en: You can solve an all-pairs shortest-paths problem by running a single-source
+    shortest-paths algorithm |*V*| times, once with each vertex as the source. If
+    all edge weights are nonnegative, you can use Dijkstra’s algorithm. If you implement
+    the min-priority queue with a linear array, the running time is *O*(*V*³ + *VE*)
+    which is *O*(*V*³). The binary min-heap implementation of the min-priority queue
+    yields a running time of *O*(*V*(*V* + *E*) lg *V*). If |*E*| = Ω(*V*), the running
+    time becomes *O*(*VE* lg *V*), which is faster than *O*(*V*³) if the graph is
+    sparse. Alternatively, you can implement the min-priority queue with a Fibonacci
+    heap, yielding a running time of *O*(*V*² lg *V* + *VE*).
+  id: totrans-4
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 你可以通过运行单源最短路径算法|*V*|次来解决全对最短路径问题，每次以一个顶点作为源。如果所有边的权重都是非负的，你可以使用Dijkstra算法。如果你用线性数组实现最小优先队列，运行时间为*O*(*V*³
+    + *VE*)，即*O*(*V*³)。二进制最小堆实现的最小优先队列的运行时间为*O*(*V*(*V* + *E*) lg *V*)。如果|*E*| = Ω(*V*)，运行时间变为*O*(*VE*
+    lg *V*)，在图稀疏时比*O*(*V*³)更快。另外，你可以用斐波那契堆实现最小优先队列，运行时间为*O*(*V*² lg *V* + *VE*)。
+- en: If the graph contains negative-weight edges, Dijkstra’s algorithm doesn’t work,
+    but you can run the slower Bellman-Ford algorithm once from each vertex. The resulting
+    running time is *O*(*V*²*E*), which on a dense graph is *O*(*V*⁴). This chapter
+    shows how to guarantee a much better asymptotic running time. It also investigates
+    the relation of the all-pairs shortest-paths problem to matrix multiplication.
+  id: totrans-5
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果图中包含负权边，Dijkstra算法无法工作，但你可以从每个顶点运行较慢的Bellman-Ford算法一次。结果的运行时间为*O*(*V*²*E*)，在稠密图中为*O*(*V*⁴)。本章展示了如何保证更好的渐近运行时间。它还探讨了全对最短路径问题与矩阵乘法的关系。
+- en: Unlike the single-source algorithms, which assume an adjacency-list representation
+    of the graph, most of the algorithms in this chapter represent the graph by an
+    adjacency matrix. (Johnson’s algorithm for sparse graphs, in [Section 23.3](chapter023.xhtml#Sec_23.3),
+    uses adjacency lists.) For convenience, we assume that the vertices are numbered
+    1, 2, … , |*V*|, so that the input is an *n* × *n* matrix *W* = (*w[ij]*) representing
+    the edge weights of an *n*-vertex directed graph *G* = (*V*, *E*), where
+  id: totrans-6
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 与单源算法不同，假设图的邻接列表表示，本章大部分算法使用邻接矩阵表示图。（Johnson算法用于稀疏图，在[第23.3节](chapter023.xhtml#Sec_23.3)中使用邻接列表。）为方便起见，我们假设顶点编号为1,
+    2, … , |*V*|，因此输入是一个*n* × *n*矩阵*W* = (*w[ij]*)，表示*n*顶点有向图*G* = (*V*, *E*)的边权重，其中
+- en: '![art](images/Art_P679.jpg)'
+  id: totrans-7
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P679.jpg)'
+- en: The graph may contain negative-weight edges, but we assume for the time being
+    that the input graph contains no negative-weight cycles.
+  id: totrans-8
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 图中可能包含负权边，但我们暂时假设输入图中不包含负权环。
+- en: The tabular output of each of the all-pairs shortest-paths algorithms presented
+    in this chapter is an *n* × *n* matrix. The (*i*, *j*) entry of the output matrix
+    contains δ(*i*, *j), the shortest-path weight from vertex i* to vertex *j*, as
+    in [Chapter 22](chapter022.xhtml).
+  id: totrans-9
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本章介绍的全对最短路径算法的表格输出是一个*n* × *n*矩阵。输出矩阵的(*i*, *j*)条目包含δ(*i*, *j)，即从顶点*i*到顶点*j*的最短路径权重，如[第22章](chapter022.xhtml)中所示。
+- en: A full solution to the all-pairs shortest-paths problem includes not only the
+    shortest-path weights but also a ***predecessor matrix*** Π = (π[*ij*]), where
+    π[*ij*] is NIL if either *i* = *j* or there is no path from *i* to *j*, and otherwise
+    π[*ij*] is the predecessor of *j* on some shortest path from *i*. Just as the
+    predecessor subgraph *G*[π] from [Chapter 22](chapter022.xhtml) is a shortest-paths
+    tree for a given source vertex, the subgraph induced by the *i*th row of the Π
+    matrix should be a shortest-paths tree with root *i*. For each vertex *i* ∈ *V*,
+    the ***predecessor subgraph*** of *G* for *i* is *G*[π,*i*] = (*V*[π,*i*], *E*[π,*i*]),
+    where
+  id: totrans-10
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 解决全对最短路径问题的完整解决方案不仅包括最短路径权重，还包括一个***前任矩阵*** Π = (π[*ij*])，其中如果 *i* = *j* 或者从
+    *i* 到 *j* 没有路径，则 π[*ij*] 为 NIL，否则 π[*ij*] 是从 *i* 到 *j* 的某条最短路径上 *j* 的前任。正如来自[第22章](chapter022.xhtml)的前任子图
+    *G*[π] 是给定源顶点的最短路径树一样，Π 矩阵的第 *i* 行诱导的子图应该是以 *i* 为根的最短路径树。对于每个顶点 *i* ∈ *V*，*i*
+    的***前任子图*** *G* 是 *i* 的前任子图 *G*[π,*i*] = (*V*[π,*i*], *E*[π,*i*])，其中
+- en: '| *V*[π,*i*] | = | {*j* ∈ *V* : π[*ij*] ≠ NIL} ∪ {*i*}, |'
+  id: totrans-11
+  prefs: []
+  type: TYPE_TB
+  zh: '| *V*[π,*i*] | = | {*j* ∈ *V* : π[*ij*] ≠ NIL} ∪ {*i*}, |'
+- en: '| *E*[π,*i*] | = | {(π[*ij*], *j*) : *j* ∈ *V*[π,*i*] − {*i*}}. |'
+  id: totrans-12
+  prefs: []
+  type: TYPE_TB
+  zh: '| *E*[π,*i*] | = | {(π[*ij*], *j*) : *j* ∈ *V*[π,*i*] − {*i*}}. |'
+- en: If *G*[π,*i*] is a shortest-paths tree, then PRINT-ALL-PAIRS-SHORTEST-PATH on
+    the following page, which is a modified version of the PRINT-PATH procedure from
+    [Chapter 20](chapter020.xhtml), prints a shortest path from vertex *i* to vertex
+    *j*.
+  id: totrans-13
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果 *G*[π,*i*] 是最短路径树，则下一页的 PRINT-ALL-PAIRS-SHORTEST-PATH，这是来自[第20章](chapter020.xhtml)的
+    PRINT-PATH 程序的修改版本，打印从顶点 *i* 到顶点 *j* 的最短路径。
+- en: In order to highlight the essential features of the all-pairs algorithms in
+    this chapter, we won’t cover how to compute predecessor matrices and their properties
+    as extensively as we dealt with predecessor subgraphs in [Chapter 22](chapter022.xhtml).
+    Some of the exercises cover the basics.
+  id: totrans-14
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为了突出本章中全对算法的基本特征，我们不会像在[第22章](chapter022.xhtml)中处理前任子图那样广泛地涵盖如何计算前任矩阵及其属性。一些练习涵盖了基础知识。
+- en: PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, *j*)
+  id: totrans-15
+  prefs: []
+  type: TYPE_NORMAL
+  zh: PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, *j*)
+- en: '| 1 | **if** *i* == *j* |'
+  id: totrans-16
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | **如果** *i* == *j* |'
+- en: '| 2 | print *i* |'
+  id: totrans-17
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | 输出 *i* |'
+- en: '| 3 | **elseif** π[*ij*] == NIL |'
+  id: totrans-18
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **否则** 如果 π[*ij*] == NIL |'
+- en: '| 4 | print “no path from” *i* “to” *j* “exists” |'
+  id: totrans-19
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | 输出“从” *i* “到” *j* “不存在路径” |'
+- en: '| 5 | **else** PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, π[*ij*]) |'
+  id: totrans-20
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **否则** PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, π[*ij*]) |'
+- en: '| 6 | print *j* |'
+  id: totrans-21
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | 输出 *j* |'
+- en: '**Chapter outline**'
+  id: totrans-22
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节大纲**'
+- en: '[Section 23.1](chapter023.xhtml#Sec_23.1) presents a dynamic-programming algorithm
+    based on matrix multiplication to solve the all-pairs shortest-paths problem.
+    The technique of “repeated squaring” yields a running time of Θ(*V*³ lg *V*).
+    [Section 23.2](chapter023.xhtml#Sec_23.2) gives another dynamic-programming algorithm,
+    the Floyd-Warshall algorithm, which runs in Θ(*V*³) time. [Section 23.2](chapter023.xhtml#Sec_23.2)
+    also covers the problem of finding the transitive closure of a directed graph,
+    which is related to the all-pairs shortest-paths problem. Finally, [Section 23.3](chapter023.xhtml#Sec_23.3)
+    presents Johnson’s algorithm, which solves the all-pairs shortest-paths problem
+    in *O*(*V*² lg *V* + *VE*) time and is a good choice for large, sparse graphs.'
+  id: totrans-23
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[第23.1节](chapter023.xhtml#Sec_23.1)介绍了一个基于矩阵乘法的动态规划算法，用于解决全对最短路径问题。 “重复平方”技术使得运行时间为
+    Θ(*V*³ lg *V*)。[第23.2节](chapter023.xhtml#Sec_23.2)提供了另一个动态规划算法，弗洛伊德-沃舍尔算法，其运行时间为
+    Θ(*V*³)。[第23.2节](chapter023.xhtml#Sec_23.2)还涵盖了查找有向图的传递闭包问题，这与全对最短路径问题有关。最后，[第23.3节](chapter023.xhtml#Sec_23.3)介绍了约翰逊算法，它以
+    *O*(*V*² lg *V* + *VE*) 的时间解决了全对最短路径问题，并且对于大型稀疏图是一个不错的选择。'
+- en: Before proceeding, we need to establish some conventions for adjacency-matrix
+    representations. First, we generally assume that the input graph *G* = (*V*, *E*)
+    has *n* vertices, so that *n* = |*V*|. Second, we use the convention of denoting
+    matrices by uppercase letters, such as *W*, *L*, or *D*, and their individual
+    elements by subscripted lowercase letters, such as *w[ij]*, *l[ij]*, or *d[ij]*.
+    Finally, some matrices have parenthesized superscripts, as in ![art](images/Art_P680.jpg)
+    or ![art](images/Art_P680a.jpg), to indicate iterates.
+  id: totrans-24
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在继续之前，我们需要为邻接矩阵表示建立一些约定。首先，我们通常假设输入图 *G* = (*V*, *E*) 有 *n* 个顶点，即 *n* = |*V*|。其次，我们使用大写字母表示矩阵，如
+    *W*、*L* 或 *D*，并用带下标的小写字母表示它们的各个元素，如 *w[ij]*、*l[ij]* 或 *d[ij]*。最后，一些矩阵具有带括号上标的形式，如
+    ![art](images/Art_P680.jpg) 或 ![art](images/Art_P680a.jpg)，表示迭代。
+- en: '[**23.1    Shortest paths and matrix multiplication**](toc.xhtml#Rh1-136)'
+  id: totrans-25
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**23.1    最短路径和矩阵乘法**](toc.xhtml#Rh1-136)'
+- en: This section presents a dynamic-programming algorithm for the all-pairs shortest-paths
+    problem on a directed graph *G* = (*V*, *E*). Each major loop of the dynamic program
+    invokes an operation similar to matrix multiplication, so that the algorithm looks
+    like repeated matrix multiplication. We’ll start by developing a Θ(*V*⁴)-time
+    algorithm for the all-pairs shortest-paths problem, and then we’ll improve its
+    running time to Θ(*V*³ lg *V*).
+  id: totrans-26
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 本节介绍了一个动态规划算法，用于解决有向图 *G* = (*V*, *E*) 上的全对最短路径问题。动态规划的每个主要循环调用类似于矩阵乘法的操作，使得算法看起来像是重复的矩阵乘法。我们将首先为全对最短路径问题开发一个
+    Θ(*V*⁴) 时间复杂度的算法，然后将其运行时间改进为 Θ(*V*³ lg *V*)。
+- en: 'Before proceeding, let’s briefly recap the steps given in [Chapter 14](chapter014.xhtml)
+    for developing a dynamic-programming algorithm:'
+  id: totrans-27
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在继续之前，让我们简要回顾一下[第14章](chapter014.xhtml)中为开发动态规划算法给出的步骤：
+- en: Characterize the structure of an optimal solution.
+  id: totrans-28
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 描述最优解的结构。
+- en: Recursively define the value of an optimal solution.
+  id: totrans-29
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 递归地定义最优解的值。
+- en: Compute the value of an optimal solution in a bottom-up fashion.
+  id: totrans-30
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 以自底向上的方式计算最优解的值。
+- en: We reserve the fourth step—constructing an optimal solution from computed information—for
+    the exercises.
+  id: totrans-31
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们将第四步——从计算信息构造最优解——留给练习。
+- en: '**The structure of a shortest path**'
+  id: totrans-32
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最短路径的结构**'
+- en: Let’s start by characterizing the structure of an optimal solution. Lemma 22.1
+    tells us that all subpaths of a shortest path are shortest paths. Consider a shortest
+    path *p* from vertex *i* to vertex *j*, and suppose that *p* contains at most
+    *r* edges. Assuming that there are no negative-weight cycles, *r* is finite. If
+    *i = j*, then *p* has weight 0 and no edges. If vertices *i* and *j* are distinct,
+    then decompose path *p* into ![art](images/Art_P681.jpg), where path *p*′ now
+    contains at most *r* − 1 edges. Lemma 22.1 says that *p*′ is a shortest path from
+    *i* to *k*, and so δ(*i*, *j*) = δ(*i*, *k*) + *w[kj]*.
+  id: totrans-33
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让我们从描述最优解的结构开始。引理22.1告诉我们，最短路径的所有子路径都是最短路径。考虑从顶点*i*到顶点*j*的最短路径*p*，假设*p*包含最多*r*条边。假设没有负权重环路，则*r*是有限的。如果*i*=*j*，那么*p*的权重为0且没有边。如果顶点*i*和*j*不同，则将路径*p*分解为![art](images/Art_P681.jpg)，其中路径*p*′现在包含最多*r*−1条边。引理22.1表示*p*′是从*i*到*k*的最短路径，因此δ(*i*,
+    *j*) = δ(*i*, *k*) + *w[kj]*。
+- en: '**A recursive solution to the all-pairs shortest-paths problem**'
+  id: totrans-34
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**所有对最短路径问题的递归解**'
+- en: Now, let ![art](images/Art_P682.jpg) be the minimum weight of any path from
+    vertex *i* to vertex *j* that contains at most *r* edges. When *r* = 0, there
+    is a shortest path from *i* to *j* with no edges if and only if *i* = *j*, yielding
+  id: totrans-35
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在，设![art](images/Art_P682.jpg)为从顶点*i*到顶点*j*的任何包含最多*r*条边的路径的最小权重。当*r*=0时，如果*i*=*j*，则从*i*到*j*的最短路径没有边，得到
+- en: '![art](images/Art_P683.jpg)'
+  id: totrans-36
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P683.jpg)'
+- en: For *r* ≥ 1, one way to achieve a minimum-weight path from *i* to *j* with at
+    most *r* edges is by taking a path containing at most *r* − 1 edges, so that ![art](images/Art_P684.jpg).
+    Another way is by taking a path of at most *r* − 1 edges from *i* to some vertex
+    *k* and then taking the edge (*k*, *j*), so that ![art](images/Art_P685.jpg).
+    Therefore, to examine paths from *i* to *j* consisting of at most *r* edges, try
+    all possible predecessors *k* of *j*, giving the recursive definition
+  id: totrans-37
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于*r*≥1，实现从*i*到*j*的最多包含*r*条边的最小权重路径的一种方法是采用包含最多*r*−1条边的路径，因此![art](images/Art_P684.jpg)。另一种方法是从*i*到某个顶点*k*的最多*r*−1条边的路径，然后再取边(*k*,
+    *j*)，因此![art](images/Art_P685.jpg)。因此，要检查从*i*到*j*的最多包含*r*条边的路径，尝试所有可能的*j*的前驱*k*，给出递归定义
+- en: '![art](images/Art_P686.jpg)'
+  id: totrans-38
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P686.jpg)'
+- en: The last equality follows from the observation that *w[jj]* = 0 for all *j*.
+  id: totrans-39
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最后一个等式来自于观察*w[jj]* = 0对所有*j*成立。
+- en: What are the actual shortest-path weights δ(*i*, *j*)? If the graph contains
+    no negative-weight cycles, then whenever δ(*i*, *j*) < ∞, there is a shortest
+    path from vertex *i* to vertex *j* that is simple. (A path *p* from *i* to *j*
+    that is not simple contains a cycle. Since each cycle’s weight is nonnegative,
+    removing all cycles from the path leaves a simple path with weight no greater
+    than *p*’s weight.) Because any simple path contains at most *n* − 1 edges, a
+    path from vertex *i* to vertex *j* with more than *n* − 1 edges cannot have lower
+    weight than a shortest path from *i* to *j*. The actual shortest-path weights
+    are therefore given by
+  id: totrans-40
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 实际的最短路径权重δ(*i*, *j*)是多少？如果图中不包含负权重环路，则每当δ(*i*, *j*) < ∞时，从顶点*i*到顶点*j*的最短路径就是简单的。（从*i*到*j*的路径*p*如果不简单，则包含一个环路。由于每个环路的权重是非负的，将路径中的所有环路移除后，留下的简单路径的权重不会超过*p*的权重。）因为任何简单路径最多包含*n*−1条边，从顶点*i*到顶点*j*的路径如果超过*n*−1条边，则不可能比最短路径的权重更低。因此，实际的最短路径权重由以下给出
+- en: '![art](images/Art_P687.jpg)'
+  id: totrans-41
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P687.jpg)'
+- en: '**Computing the shortest-path weights bottom up**'
+  id: totrans-42
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**自底向上计算最短路径权重**'
+- en: Taking as input the matrix *W* = (*w[ij]*), let’s see how to compute a series
+    of matrices *L*^((0)), *L*^((1)), … , *L*^((*n*−1)), where ![art](images/Art_P688.jpg)
+    for *r* = 0, 1, … , *n* − 1\. The initial matrix is *L*^((0)) given by equation
+    (23.2). The final matrix *L*^((*n*−1)) contains the actual shortest-path weights.
+  id: totrans-43
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以矩阵*W* = (*w[ij]*)为输入，让我们看看如何���算一系列矩阵*L*^((0)), *L*^((1)), … , *L*^((*n*−1))，其中![art](images/Art_P688.jpg)对于*r*=0,
+    1, … , *n*−1。初始矩阵是由方程(23.2)给出的*L*^((0))。最终矩阵*L*^((*n*−1))包含实际的最短路径权重。
+- en: The heart of the algorithm is the procedure EXTEND-SHORTEST-PATHS, which implements
+    equation (23.3) for all *i* and *j*. The four inputs are the matrix *L*^((*r*−1))
+    computed so far; the edge-weight matrix *W*; the output matrix *L*^((*r*)), which
+    will hold the computed result and whose elements are all initialized to ∞ before
+    invoking the procedure; and the number *n* of vertices. The superscripts *r* and
+    *r* − 1 help to make the correspondence of the pseudocode with equation (23.3)
+    plain, but they play no actual role in the pseudocode. The procedure extends the
+    shortest paths computed so far by one more edge, producing the matrix *L*^((*r*))
+    of shortest-path weights from the matrix *L*^((*r*−1)) computed so far. Its running
+    time is Θ(*n*³) due to the three nested **for** loops.
+  id: totrans-44
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 该算法的核心是实现方程(23.3)的过程EXTEND-SHORTEST-PATHS，用于所有*i*和*j*。四个输入是迄今为止计算的矩阵*L*^((*r*−1))；边权重矩阵*W*；将保存计算结果的输出矩阵*L*^((*r*))，在调用该过程之前，其所有元素都初始化为∞；以及顶点数*n*。上标*r*和*r*−1有助于使伪代码与方程(23.3)的对应关系明显，但它们在伪代码中并不起实际作用。该过程通过再增加一条边扩展迄今为止计算的最短路径，生成迄今为止计算的矩阵*L*^((*r*))的最短路径权重。由于存在三个嵌套的**for**循环，其运行时间为Θ(*n*³)。
+- en: EXTEND-SHORTEST-PATHS(*L*^((*r*−1)), *W*, *L*^((*r*)), *n*)
+  id: totrans-45
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 扩展最短路径(*L*^((*r*−1)), *W*, *L*^((*r*)), *n*)
+- en: '| 1 | // Assume that the elements of *L*^((*r*)) are initialized to ∞. |'
+  id: totrans-46
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | // 假设*L*^((*r*))的元素初始化为∞。 |'
+- en: '| 2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-47
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** *i* = 1 **到** *n* |'
+- en: '| 3 | **for** *j* = 1 **to** *n* |'
+  id: totrans-48
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **对于** *j* = 1 **到** *n* |'
+- en: '| 4 | **for** *k* = 1 **to** *n* |'
+  id: totrans-49
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **对于** *k* = 1 **到** *n* |'
+- en: '| 5 | ![art](images/Art_P689.jpg) |'
+  id: totrans-50
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | ![art](images/Art_P689.jpg) |'
+- en: 'Let’s now understand the relation of this computation to matrix multiplication.
+    Consider how to compute the matrix product *C* = *A* · *B* of two *n* × *n* matrices
+    *A* and *B*. The straightforward method used by MATRIX-MULTIPLY on page 81 uses
+    a triply nested loop to implement equation (4.1), which we repeat here for convenience:'
+  id: totrans-51
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在让我们了解这个计算与矩阵乘法的关系。考虑如何计算两个 *n* × *n* 矩阵 *A* 和 *B* 的矩阵积 *C* = *A* · *B*。MATRIX-MULTIPLY
+    在第 81 页使用的直接方法使用三重嵌套循环来实现方程式 (4.1)，我们在此为方便起见重复一次：
+- en: '![art](images/Art_P690.jpg)'
+  id: totrans-52
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P690.jpg)'
+- en: for *i*, *j* = 1, 2, … , *n*. Now make the substitutions
+  id: totrans-53
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *i*, *j* = 1, 2, … , *n*。现在进行替换
+- en: '| *l*^((*r*−1)) |  →  | *a*, |'
+  id: totrans-54
+  prefs: []
+  type: TYPE_TB
+  zh: '| *l*^((*r*−1)) |  →  | *a*, |'
+- en: '| *w* |  →  | *b*, |'
+  id: totrans-55
+  prefs: []
+  type: TYPE_TB
+  zh: '| *w* |  →  | *b*, |'
+- en: '| *l*^((*r*)) |  →  | *c*, |'
+  id: totrans-56
+  prefs: []
+  type: TYPE_TB
+  zh: '| *l*^((*r*)) |  →  | *c*, |'
+- en: '| min |  →  | +, |'
+  id: totrans-57
+  prefs: []
+  type: TYPE_TB
+  zh: '| min |  →  | +, |'
+- en: '| + |  →  | . |'
+  id: totrans-58
+  prefs: []
+  type: TYPE_TB
+  zh: '| + |  →  | . |'
+- en: in equation (23.3). You get equation (23.5)! Making these changes to EXTEND-SHORTEST-PATHS,
+    and also replacing ∞ (the identity for min) by 0 (the identity for +), yields
+    the procedure MATRIX-MULTIPLY. We can see that the procedure EXTEND-SHORTEST-PATHS(*L*^((*r*−1)),
+    *W*, *L*^((*r*)), *n*) computes the matrix “product” *L*^((*r*)) = *L*^((*r*−1)).
+    *W* using this unusual definition of matrix multiplication.^([2](#footnote_2))
+  id: totrans-59
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在方程式 (23.3) 中。您得到方程式 (23.5)！对 EXTEND-SHORTEST-PATHS 进行这些更改，并将 ∞（min 的单位元）替换为
+    0（+ 的单位元），得到了过程 MATRIX-MULTIPLY。我们可以看到过程 EXTEND-SHORTEST-PATHS(*L*^((*r*−1)),
+    *W*, *L*^((*r*)), *n*) 使用这种不寻常的矩阵乘法定义计算矩阵“乘积” *L*^((*r*)) = *L*^((*r*−1))。*W*。^([2](#footnote_2))
+- en: 'Thus, we can solve the all-pairs shortest-paths problem by repeatedly multiplying
+    matrices. Each step extends the shortest-path weights computed so far by one more
+    edge using EXTEND-SHORTEST-PATHS(*L*^((*r*−1)), *W*, *L*^((*r*)), *n*) to perform
+    the matrix multiplication. Starting with the matrix *L*^((0)), we produce the
+    following sequence of *n* − 1 matrices corresponding to powers of *W*:'
+  id: totrans-60
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，我们可以通过反复相乘矩阵来解决全对最短路径问题。每一步都使用EXTEND-SHORTEST-PATHS(*L*^((*r*−1)), *W*, *L*^((*r*)),
+    *n*)来执行矩阵乘法，将迄今为止计算的最短路径权重延伸一个边。从矩阵 *L*^((0)) 开始，我们产生以下序列的 *n* − 1 个矩阵，对应于 *W*
+    的幂：
+- en: '| *L*^((1)) | = | *L*^((0)) · *W* | = | *W*¹, |'
+  id: totrans-61
+  prefs: []
+  type: TYPE_TB
+  zh: '| *L*^((1)) | = | *L*^((0)) · *W* | = | *W*¹, |'
+- en: '| *L*^((2)) | = | *L*^((1)) · *W* | = | *W*², |'
+  id: totrans-62
+  prefs: []
+  type: TYPE_TB
+  zh: '| *L*^((2)) | = | *L*^((1)) · *W* | = | *W*², |'
+- en: '| *L*^((3)) | = | *L*^((2)) · *W* | = | *W*³, |'
+  id: totrans-63
+  prefs: []
+  type: TYPE_TB
+  zh: '| *L*^((3)) | = | *L*^((2)) · *W* | = | *W*³, |'
+- en: '|  |  | ⋮ |  |  |'
+  id: totrans-64
+  prefs: []
+  type: TYPE_TB
+  zh: '|  |  | ⋮ |  |  |'
+- en: '| *L*^((*n*−1)) | = | *L*^((*n*−2)) · *W* | = | *W*^(*n*−1). |'
+  id: totrans-65
+  prefs: []
+  type: TYPE_TB
+  zh: '| *L*^((*n*−1)) | = | *L*^((*n*−2)) · *W* | = | *W*^(*n*−1). |'
+- en: At the end, the matrix *L*^((*n*−1)) = *W*^(*n*−1) contains the shortest-path
+    weights.
+  id: totrans-66
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最后，矩阵 *L*^((*n*−1)) = *W*^(*n*−1) 包含最短路径权重。
+- en: The procedure SLOW-APSP on the next page computes this sequence in Θ(*n*⁴) time.
+    The procedure takes the *n* × *n* matrices *W* and *L*^((0)) as inputs, along
+    with *n*. [Figure 23.1](chapter023.xhtml#Fig_23-1) illustrates its operation.
+    The pseudocode uses two *n* × *n* matrices *L* and *M* to store powers of *W*,
+    computing *M* = *L* · *W* on each iteration. Line 2 initializes *L* = *L*^((0)).
+    For each iteration *r*, line 4 initializes *M* = ∞, where ∞ in this context is
+    a matrix of scalar ∞ values. The *r*th iteration starts with the invariant *L*
+    = *L*^((*r*−1)) = *W*^(*r*−1). Line 6 computes *M* = *L* · *W* = *L*^((*r*−1))
+    · *W* = *W*^(*r*−1) · *W* = *W*^(*r*) = *L*^((*r*)) so that the invariant can
+    be restored for the next iteration by line 7, which sets *L* = *M*. At the end,
+    the matrix *L* = *L*^((*n*−1)) = *W*^(*n*−1) of shortest-path weights is returned.
+    The assignments to *n* × *n* matrices in lines 2, 4, and 7 implicitly run doubly
+    nested loops that take Θ(*n*²) time for each assignment. The *n* − 1 invocations
+    of EXTEND-SHORTEST-PATHS, each of which takes Θ(*n*³) time, dominate the computation,
+    yielding a total running time of Θ(*n*⁴).
+  id: totrans-67
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 下一页的 SLOW-APSP 过程在 Θ(*n*⁴) 时间内计算这个序列。该过程将 *n* × *n* 矩阵 *W* 和 *L*^((0)) 作为输入，以及
+    *n*。[图 23.1](chapter023.xhtml#Fig_23-1)说明了其操作。伪代码使用两个 *n* × *n* 矩阵 *L* 和 *M* 来存储
+    *W* 的幂，每次迭代计算 *M* = *L* · *W*。第 2 行初始化 *L* = *L*^((0))。对于每次迭代 *r*，第 4 行初始化 *M*
+    = ∞，其中在这种情况下，∞ 是一个标量 ∞ 值的矩阵。第 *r* 次迭代从不变式 *L* = *L*^((*r*−1)) = *W*^(*r*−1) 开始。第
+    6 行计算 *M* = *L* · *W* = *L*^((*r*−1)) · *W* = *W*^(*r*−1) · *W* = *W*^(*r*) =
+    *L*^((*r*))，以便通过第 7 行恢复不变式，设置 *L* = *M*，以便下一次迭代。最后，返回最短路径权重的矩阵 *L* = *L*^((*n*−1))
+    = *W*^(*n*−1)。第 2、4 和 7 行对 *n* × *n* 矩阵的赋值隐含地运行双重嵌套循环，每次赋值需要 Θ(*n*²) 的时间。*n* −
+    1 次 EXTEND-SHORTEST-PATHS 的调用，每次需要 Θ(*n*³) 的时间，主导了计算，产生了总运行时间为 Θ(*n*⁴)。
+- en: '![art](images/Art_P691.jpg)'
+  id: totrans-68
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P691.jpg)'
+- en: '**Figure 23.1** A directed graph and the sequence of matrices *L*^((*r*)) computed
+    by SLOW-APSP. You might want to verify that *L*^((5)), defined as *L*^((4)) ·
+    *W*, equals *L*^((4)), and thus *L*^((*r*)) = *L*^((4)) for all *r* ≥ 4.'
+  id: totrans-69
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 23.1** 一个有向图和由 SLOW-APSP 计算的矩阵序列 *L*^((*r*))。您可能想要验证 *L*^((5))，定义为 *L*^((4))
+    · *W*，是否等于 *L*^((4))，因此对于所有 *r* ≥ 4，*L*^((*r*)) = *L*^((4))。'
+- en: SLOW-APSP(*W*, *L*^((0)), *n*)
+  id: totrans-70
+  prefs: []
+  type: TYPE_NORMAL
+  zh: SLOW-APSP(*W*, *L*^((0)), *n*)
+- en: '| 1 | let *L* = (*l[ij]*) and *M* = (*m[ij]*) be new *n* × *n* matrices |'
+  id: totrans-71
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 让 *L* = (*l[ij]*) 和 *M* = (*m[ij]*) 成为新的 *n* × *n* 矩阵 |'
+- en: '| 2 | *L* = *L*^((0)) |'
+  id: totrans-72
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | *L* = *L*^((0)) |'
+- en: '| 3 | **for** *r* = 1 **to** *n* − 1 |'
+  id: totrans-73
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **对于** *r* = 1 **到** *n* − 1 |'
+- en: '| 4 | *M* = ∞       // initialize *M* |'
+  id: totrans-74
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | *M* = ∞       // 初始化 *M* |'
+- en: '| 5 | // Compute the matrix “product” *M* = *L* · *W*. |'
+  id: totrans-75
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | // 计算矩阵“乘积” *M* = *L* · *W*。 |'
+- en: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *W*, *M*, *n*) |'
+  id: totrans-76
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *W*, *M*, *n*) |'
+- en: '| 7 | *L* = *M* |'
+  id: totrans-77
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | *L* = *M* |'
+- en: '| 8 | **return** *L* |'
+  id: totrans-78
+  prefs: []
+  type: TYPE_TB
+  zh: '| 8 | **返回** *L* |'
+- en: '**Improving the running time**'
+  id: totrans-79
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**改进运行时间**'
+- en: 'Bear in mind that the goal is not to compute *all* the *L*^((*r*)) matrices:
+    only the matrix *L*^((*n*−1)) matters. Recall that in the absence of negative-weight
+    cycles, equation (23.4) implies *L*^((*r*)) = *L*^((*n*−1)) for all integers *r*
+    ≥ *n* − 1\. Just as traditional matrix multiplication is associative, so is matrix
+    multiplication defined by the EXTEND-SHORTEST-PATHS procedure (see Exercise 23.1-4).
+    In fact, we can compute *L*^((*n*−1)) with only ⌈lg(*n* – 1)⌉ matrix products
+    by using the technique of ***repeated squaring***:'
+  id: totrans-80
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 请记住，目标不是计算*所有*的*L*^((*r*))矩阵：只有矩阵*L*^((*n*−1))才重要。回想在没有负权重环路的情况下，方程(23.4)意味着对于所有整数*r*
+    ≥ *n* − 1，*L*^((*r*)) = *L*^((*n*−1))。正如传统矩阵乘法是可结合的，通过EXTEND-SHORTEST-PATHS过程定义的矩阵乘法也是可结合的（参见练习23.1-4）。实际上，我们可以通过***重复平方法***只用⌈lg(*n*
+    – 1)⌉次矩阵乘法计算*L*^((*n*−1))：
+- en: '![art](images/Art_P693.jpg)'
+  id: totrans-81
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P693.jpg)'
+- en: Since 2^(⌈lg(*n* – 1)⌉) ≥ *n* – 1, the final product is ![art](images/Art_P695.jpg).
+  id: totrans-82
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 由于2^(⌈lg(*n* – 1)⌉) ≥ *n* – 1，最终的乘积为![art](images/Art_P695.jpg)。
+- en: The procedure FASTER-APSP implements this idea. It takes just the *n* × *n*
+    matrix *W* and the size *n* as inputs. Each iteration of the **while** loop of
+    lines 4–8 starts with the invariant *L* = *W^r*, which it squares using EXTEND-SHORTEST-PATHS
+    to obtain the matrix *M* = *L*² = (*W^r*)² = *W*^(2*r*). At the end of each iteration,
+    the value of *r* doubles, and *L* for the next iteration becomes *M*, restoring
+    the invariant. Upon exiting the loop when *r* ≥ *n* − 1, the procedure returns
+    *L* = *W*^r = *L*^((*r*)) = *L*^((*n*−1)) by equation (23.4). As in SLOW-APSP,
+    the assignments to *n* × *n* matrices in lines 2, 5, and 8 implicitly run doubly
+    nested loops, taking Θ(*n*²) time for each assignment.
+  id: totrans-83
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FASTER-APSP过程实现了这一思想。它只需要*n* × *n*矩阵*W*和大小*n*作为输入。行4-8的**while**循环的每次迭代都以不变量*L*
+    = *W^r*开始，使用EXTEND-SHORTEST-PATHS对其进行平方，得到矩阵*M* = *L*² = (*W^r*)² = *W*^(2*r*)。在每次迭代结束时，*r*的值加倍，下一次迭代的*L*变为*M*，恢复不变量。当*r*
+    ≥ *n* − 1时退出循环，过程通过方程(23.4)返回*L* = *W*^r = *L*^((*r*)) = *L*^((*n*−1))。与SLOW-APSP一样，行2、5和8中对*n*
+    × *n*矩阵的赋值隐含地运行双重嵌套循环，每次赋值需要Θ(*n*²)时间。
+- en: FASTER-APSP(*W*, *n*)
+  id: totrans-84
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FASTER-APSP(*W*, *n*)
+- en: '| 1 | let *L* and *M* be new *n* × *n* matrices |'
+  id: totrans-85
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | 令*L*和*M*为新的*n* × *n*矩阵 |'
+- en: '| 2 | *L* = *W* |'
+  id: totrans-86
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | *L* = *W* |'
+- en: '| 3 | *r* = 1 |'
+  id: totrans-87
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | *r* = 1 |'
+- en: '| 4 | **while** *r* < *n* − 1 |'
+  id: totrans-88
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **当** *r* < *n* − 1 **时**'
+- en: '| 5 | *M* = ∞ | // initialize M |'
+  id: totrans-89
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | *M* = ∞ | // 初始化M |'
+- en: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *L*, *M*, *n*) | // compute *M* = *L*² |'
+  id: totrans-90
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *L*, *M*, *n*) | // 计算*M* = *L*² |'
+- en: '| 7 | *r* = 2*r* |'
+  id: totrans-91
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | *r* = 2*r* |'
+- en: '| 8 | *L* = *M* | // ready for the next iteration |'
+  id: totrans-92
+  prefs: []
+  type: TYPE_TB
+  zh: '| 8 | *L* = *M* | // 准备下一次迭代 |'
+- en: '| 9 | **return** *L* |'
+  id: totrans-93
+  prefs: []
+  type: TYPE_TB
+  zh: '| 9 | **返回** *L* |'
+- en: Because each of the ⌈lg(*n* – 1)⌉ matrix products takes Θ(*n*³) time, FASTER-APSP
+    runs in Θ(*n*³ lg *n*) time. The code is tight, containing no elaborate data structures,
+    and the constant hidden in the Θ-notation is therefore small.
+  id: totrans-94
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为每个⌈lg(*n* – 1)⌉次矩阵乘法需要Θ(*n*³)时间，所以FASTER-APSP的运行时间为Θ(*n*³ lg *n*)。代码紧凑，不包含复杂的数据结构，因此Θ-符号中隐藏的常数很小。
+- en: '**Exercises**'
+  id: totrans-95
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***23.1-1***'
+  id: totrans-96
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-1***'
+- en: Run SLOW-APSP on the weighted, directed graph of [Figure 23.2](chapter023.xhtml#Fig_23-2),
+    showing the matrices that result for each iteration of the loop. Then do the same
+    for FASTER-APSP.
+  id: totrans-97
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在加权有向图[图23.2](chapter023.xhtml#Fig_23-2)上运行SLOW-APSP算法，展示循环的每次迭代所得的矩阵。然后对FASTER-APSP做同样的操作。
+- en: '![art](images/Art_P697.jpg)'
+  id: totrans-98
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P697.jpg)'
+- en: '**Figure 23.2** A weighted, directed graph for use in Exercises 23.1-1, 23.2-1,
+    and 23.3-1.'
+  id: totrans-99
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图23.2** 用于练习23.1-1、23.2-1和23.3-1的加权有向图。'
+- en: '***23.1-2***'
+  id: totrans-100
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-2***'
+- en: Why is it convenient for both SLOW-APSP and FASTER-APSP that *w[ii]* = 0 for
+    *i* = 1, 2, … , *n*?
+  id: totrans-101
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 为什么对于SLOW-APSP和FASTER-APSP来说，*w[ii]* = 0对于*i* = 1, 2, …, *n*很方便？
+- en: '***23.1-3***'
+  id: totrans-102
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-3***'
+- en: What does the matrix
+  id: totrans-103
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 矩阵
+- en: '![art](images/Art_P698.jpg)'
+  id: totrans-104
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P698.jpg)'
+- en: used in the shortest-paths algorithms correspond to in regular matrix multiplication?
+  id: totrans-105
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最短路径算法中使用的矩阵乘法与常规矩阵乘法中的哪些部分对应？
+- en: '***23.1-4***'
+  id: totrans-106
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-4***'
+- en: Show that matrix multiplication defined by EXTEND-SHORTEST-PATHS is associative.
+  id: totrans-107
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示由EXTEND-SHORTEST-PATHS定义的矩阵乘法是可结合的。
+- en: '***23.1-5***'
+  id: totrans-108
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-5***'
+- en: Show how to express the single-source shortest-paths problem as a product of
+    matrices and a vector. Describe how evaluating this product corresponds to a Bellman-Ford-like
+    algorithm (see [Section 22.1](chapter022.xhtml#Sec_22.1)).
+  id: totrans-109
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何将单源最短路径问题表示为矩阵和向量的乘积。描述评估此乘积对应于类似Bellman-Ford算法的过程（参见[第22.1节](chapter022.xhtml#Sec_22.1)）。
+- en: '***23.1-6***'
+  id: totrans-110
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-6***'
+- en: Argue that we don’t need the matrix *M* in SLOW-APSP because by substituting
+    *L* for *M* and leaving out the initialization of *M*, the code still works correctly.
+    (*Hint:* Relate line 5 of EXTEND-SHORTEST-PATHS to RELAX on page 610.) Do we need
+    the matrix *M* in FASTER-APSP?
+  id: totrans-111
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 论证在SLOW-APSP中我们不需要矩阵*M*，因为通过用*L*替换*M*并省略初始化*M*，代码仍然可以正确运行。（*提示*：将EXTEND-SHORTEST-PATHS的第5行与第610页上的RELAX联系起来。）在FASTER-APSP中我们需要矩阵*M*吗？
+- en: '***23.1-7***'
+  id: totrans-112
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-7***'
+- en: Suppose that you also want to compute the vertices on shortest paths in the
+    algorithms of this section. Show how to compute the predecessor matrix Π from
+    the completed matrix *L* of shortest-path weights in *O*(*n*³) time.
+  id: totrans-113
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设您还想在本节算法中计算最短路径上的顶点。展示如何在*O*(*n*³)时间内从完成的最短路径权重矩阵*L*中计算前驱矩阵*Π*。
+- en: '***23.1-8***'
+  id: totrans-114
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-8***'
+- en: You can also compute the vertices on shortest paths along with computing the
+    shortest-path weights. Define ![art](images/Art_P699.jpg) as the predecessor of
+    vertex *j* on any minimum-weight path from vertex *i* to vertex *j* that contains
+    at most *r* edges. Modify the EXTEND-SHORTEST-PATHS and SLOW-APSP procedures to
+    compute the matrices Π^((1)), Π^((2)), … , Π^((*n*−1)) as they compute the matrices
+    *L*^((1)), *L*^((2)), … , *L*^((*n*−1)).
+  id: totrans-115
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 除了计算最短路径权重的矩阵外，还可以计算最短路径上的顶点。将![art](images/Art_P699.jpg)定义为从顶点*i*到顶点*j*的最小权重路径上顶点*j*的前驱，其中最多包含*r*条边。修改EXTEND-SHORTEST-PATHS和SLOW-APSP过程，以在计算矩阵*Π*^((1))、*Π*^((2))、…、*Π*^((*n*−1))的同时计算矩阵*L*^((1))、*L*^((2))、…、*L*^((*n*−1))。
+- en: '***23.1-9***'
+  id: totrans-116
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-9***'
+- en: Modify FASTER-APSP so that it can determine whether the graph contains a negative-weight
+    cycle.
+  id: totrans-117
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 修改FASTER-APSP，使其能够确定图中是否包含负权重环路。
+- en: '***23.1-10***'
+  id: totrans-118
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.1-10***'
+- en: Give an efficient algorithm to find the length (number of edges) of a minimum-length
+    negative-weight cycle in a graph.
+  id: totrans-119
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一种有效的算法，用于在图中找到最短负权重循环的长度（边数）。
+- en: '[**23.2    The Floyd-Warshall algorithm**](toc.xhtml#Rh1-137)'
+  id: totrans-120
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**23.2    Floyd-Warshall算法**](toc.xhtml#Rh1-137)'
+- en: 'Having already seen one dynamic-programming solution to the all-pairs shortest-paths
+    problem, in this section we’ll see another: the ***Floyd-Warshall algorithm***,
+    which runs in Θ(*V*³) time. As before, negative-weight edges may be present, but
+    not negative-weight cycles. As in [Section 23.1](chapter023.xhtml#Sec_23.1), we
+    develop the algorithm by following the dynamic-programming process. After studying
+    the resulting algorithm, we present a similar method for finding the transitive
+    closure of a directed graph.'
+  id: totrans-121
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在本节中，我们已经看到了解决所有对最短路径问题的一个动态规划解决方案，现在我们将看到另一个：***Floyd-Warshall算法***，其运行时间为Θ(*V*³)。与之前一样，可能存在负权重边，但不存在负权重循环。与[第23.1节](chapter023.xhtml#Sec_23.1)一样，我们通过遵循动态规划过程来开发算法。在研究结果算法后，我们提出了一种类似的方法，用于找到有向图的传递闭包。
+- en: '**The structure of a shortest path**'
+  id: totrans-122
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**最短路径的结构**'
+- en: In the Floyd-Warshall algorithm, we characterize the structure of a shortest
+    path differently from how we characterized it in [Section 23.1](chapter023.xhtml#Sec_23.1).
+    The Floyd-Warshall algorithm considers the intermediate vertices of a shortest
+    path, where an ***intermediate*** vertex of a simple path *p* = 〈*v*[1], *v*[2],
+    … , *v[l]*〉 is any vertex of *p* other than *v*[1] or *v[l]*, that is, any vertex
+    in the set {*v*[2], *v*[3], … , *v*[*l*−1]}.
+  id: totrans-123
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在Floyd-Warshall算法中，我们对最短路径的结构进行了不同的刻画，与我们在[第23.1节](chapter023.xhtml#Sec_23.1)中的刻画方式不同。Floyd-Warshall算法考虑最短路径的中间顶点，其中简单路径*p*
+    = 〈*v*[1], *v*[2], … , *v[l]*〉的***中间***顶点是除了*v*[1]或*v[l]*之外的路径*p*的任何顶点，即集合{*v*[2],
+    *v*[3], … , *v*[*l*−1]}中的任何顶点。
+- en: The Floyd-Warshall algorithm relies on the following observation. Numbering
+    the vertices of *G* by *V* = {1, 2, … , *n*}, take a subset {1, 2, … , *k*} of
+    vertices for some 1 ≤ *k* ≤ *n*. For any pair of vertices *i*, *j* ∈ *V*, consider
+    all paths from *i* to *j* whose intermediate vertices are all drawn from {1, 2,
+    … , *k*}, and let *p* be a minimum-weight path from among them. (Path *p* is simple.)
+    The Floyd-Warshall algorithm exploits a relationship between path *p* and shortest
+    paths from *i* to *j* with all intermediate vertices in the set {1, 2, … , *k*
+    − 1}. The details of the relationship depend on whether *k* is an intermediate
+    vertex of path *p* or not.
+  id: totrans-124
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Floyd-Warshall算法依赖于以下观察。将*G*的顶点编号为*V* = {1, 2, … , *n*}，为某个1 ≤ *k* ≤ *n*取一个顶点子集{1,
+    2, … , *k*}。对于*V*中的任意一对顶点*i*、*j*，考虑所有从*i*到*j*的路径，其中所有中间顶点都来自{1, 2, … , *k*}，并让*p*是其中的最小权重路径。（路径*p*是简单的。）Floyd-Warshall算法利用了路径*p*与从*i*到*j*的最短路径之间的关系，其中所有中间顶点都在集合{1,
+    2, … , *k* − 1}中。这种关系的细节取决于*k*是否是路径*p*的中间顶点。
+- en: '![art](images/Art_P700.jpg)'
+  id: totrans-125
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P700.jpg)'
+- en: '**Figure 23.3** Optimal substructure used by the Floyd-Warshall algorithm.
+    Path *p* is a shortest path from vertex *i* to vertex *j*, and *k* is the highest-numbered
+    intermediate vertex of *p*. Path *p*[1], the portion of path *p* from vertex *i*
+    to vertex *k*, has all intermediate vertices in the set {1, 2, … , *k* − 1}. The
+    same holds for path *p*[2] from vertex *k* to vertex *j*.'
+  id: totrans-126
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图23.3** Floyd-Warshall算法使用的最优子结构。路径*p*是从顶点*i*到顶点*j*的最短路径，*k*是*p*的最高编号中间顶点。路径*p*[1]是从顶点*i*到顶点*k*的部分路径，其中所有中间顶点都在集合{1,
+    2, … , *k* − 1}中。对于从顶点*k*到顶点*j*的路径*p*[2]也是如此。'
+- en: If *k* is not an intermediate vertex of path *p*, then all intermediate vertices
+    of path *p* belong to the set {1, 2, … , *k* − 1}. Thus a shortest path from vertex
+    *i* to vertex *j* with all intermediate vertices in the set {1, 2, … , *k* − 1}
+    is also a shortest path from *i* to *j* with all intermediate vertices in the
+    set {1, 2, … , *k*}.
+  id: totrans-127
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*k*不是路径*p*的中间顶点，则路径*p*的所有中间顶点都属于集合{1, 2, … , *k* − 1}。因此，从顶点*i*到顶点*j*的最短路径，其中所有中间顶点都在集合{1,
+    2, … , *k* − 1}中，也是从*i*到*j*的最短路径，其中所有中间顶点都在集合{1, 2, … , *k*}中。
+- en: If *k* is an intermediate vertex of path *p*, then decompose *p* into ![art](images/Art_P701.jpg),
+    as [Figure 23.3](chapter023.xhtml#Fig_23-3) illustrates. By Lemma 22.1, *p*[1]
+    is a shortest path from *i* to *k* with all intermediate vertices in the set {1,
+    2, … , *k*}. In fact, we can make a slightly stronger statement. Because vertex
+    *k* is not an *intermediate* vertex of path *p*[1], all intermediate vertices
+    of *p*[1] belong to the set {1, 2, … , *k* − 1}. Therefore *p*[1] is a shortest
+    path from *i* to *k* with all intermediate vertices in the set {1, 2, … , *k*
+    − 1}. Likewise, *p*[2] is a shortest path from vertex *k* to vertex *j* with all
+    intermediate vertices in the set {1, 2, … , *k* − 1}.
+  id: totrans-128
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+  zh: 如果*k*是路径*p*的中间顶点，则将*p*分解为![art](images/Art_P701.jpg)，如[图23.3](chapter023.xhtml#Fig_23-3)所示。根据引理22.1，*p*[1]是从*i*到*k*的最短路径，其中所有中间顶点都在集合{1,
+    2, … , *k*}中。事实上，我们可以做出稍微更强的陈述。因为顶点*k*不是路径*p*[1]的*中间*顶点，所以*p*[1]的所有中间顶点都属于集合{1,
+    2, … , *k* − 1}。因此*p*[1]是从*i*到*k*的最短路径，其中所有中间顶点都在集合{1, 2, … , *k* − 1}中。同样，*p*[2]是从顶点*k*到顶点*j*的最短路径，其中所有中间顶点都在集合{1,
+    2, … , *k* − 1}中。
+- en: '**A recursive solution to the all-pairs shortest-paths problem**'
+  id: totrans-129
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**所有对最短路径问题的递归解决方案**'
+- en: The above observations suggest a recursive formulation of shortest-path estimates
+    that differs from the one in [Section 23.1](chapter023.xhtml#Sec_23.1). Let ![art](images/Art_P702.jpg)
+    be the weight of a shortest path from vertex *i* to vertex *j* for which all intermediate
+    vertices belong to the set {1, 2, … , *k*}. When *k* = 0, a path from vertex *i*
+    to vertex *j* with no intermediate vertex numbered higher than 0 has no intermediate
+    vertices at all. Such a path has at most one edge, and hence ![art](images/Art_P703.jpg).
+    Following the above discussion, define ![art](images/Art_P704.jpg) recursively
+    by
+  id: totrans-130
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 上述观察结果提出了一个与[第 23.1 节](chapter023.xhtml#Sec_23.1)中不同的最短路径估计的递归公式。设 ![art](images/Art_P702.jpg)
+    为从顶点 *i* 到顶点 *j* 的最短路径的权重，其中所有中间顶点属于集合 {1, 2, … , *k*}。当 *k* = 0 时，从顶点 *i* 到顶点
+    *j* 的路径没有任何高于 0 的中间顶点。这样的路径最多有一条边，因此 ![art](images/Art_P703.jpg)。根据上述讨论，通过以下递归定义
+    ![art](images/Art_P704.jpg)，
+- en: '![art](images/Art_P705.jpg)'
+  id: totrans-131
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P705.jpg)'
+- en: 'Because for any path, all intermediate vertices belong to the set {1, 2, …
+    , *n*}, the matrix ![art](images/Art_P706.jpg) gives the final answer: ![art](images/Art_P707.jpg)
+    for all *i*, *j* ∈ *V*.'
+  id: totrans-132
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因为对于任何路径，所有中间顶点都属于集合 {1, 2, … , *n*}，矩阵 ![art](images/Art_P706.jpg) 给出最终答案：对于所有
+    *i*, *j* ∈ *V*，![art](images/Art_P707.jpg)。
+- en: '**Computing the shortest-path weights bottom up**'
+  id: totrans-133
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**自底向上计算最短路径权重**'
+- en: Based on recurrence (23.6), the bottom-up procedure FLOYD-WARSHALL computes
+    the values ![art](images/Art_P708.jpg) in order of increasing values of *k*. Its
+    input is an *n* × *n* matrix *W* defined as in equation (23.1). The procedure
+    returns the matrix *D*^((*n*)) of shortest-path weights. [Figure 23.4](chapter023.xhtml#Fig_23-4)
+    shows the matrices *D*^((*k*)) computed by the Floyd-Warshall algorithm for the
+    graph in [Figure 23.1](chapter023.xhtml#Fig_23-1).
+  id: totrans-134
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 根据递推式 (23.6)，自底向上过程 FLOYD-WARSHALL 按照 *k* 值递增的顺序计算值 ![art](images/Art_P708.jpg)。其输入是一个如方程
+    (23.1) 中定义的 *n* × *n* 矩阵 *W*。该过程返回最短路径权重矩阵 *D*^((*n*))。[图 23.4](chapter023.xhtml#Fig_23-4)展示了
+    Floyd-Warshall 算法计算的图中的矩阵 *D*^((*k*))。
+- en: FLOYD-WARSHALL(*W*, *n*)
+  id: totrans-135
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FLOYD-WARSHALL(*W*, *n*)
+- en: '| 1 | D^((0)) = *W* |'
+  id: totrans-136
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | D^((0)) = *W* |'
+- en: '| 2 | **for** *k* = 1 **to** *n* |'
+  id: totrans-137
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** *k* = 1 **到** *n* |'
+- en: '| 3 | let ![art](images/Art_P709.jpg) be a new *n* × *n* matrix |'
+  id: totrans-138
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | 令 ![art](images/Art_P709.jpg) 为一个新的 *n* × *n* 矩阵 |'
+- en: '| 4 | **for** *i* = 1 **to** n |'
+  id: totrans-139
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **对于** *i* = 1 **到** n |'
+- en: '| 5 | **for** *j* = 1 **to** *n* |'
+  id: totrans-140
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | **对于** *j* = 1 **到** *n* |'
+- en: '| 6 | ![art](images/Art_P710.jpg) |'
+  id: totrans-141
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | ![art](images/Art_P710.jpg) |'
+- en: '| 7 | **return** *D*^((*n*)) |'
+  id: totrans-142
+  prefs: []
+  type: TYPE_TB
+  zh: '| 7 | **返回** *D*^((*n*)) |'
+- en: The running time of the Floyd-Warshall algorithm is determined by the triply
+    nested **for** loops of lines 2–6\. Because each execution of line 6 takes *O*(1)
+    time, the algorithm runs in Θ(*n*³) time. As in the final algorithm in [Section
+    23.1](chapter023.xhtml#Sec_23.1), the code is tight, with no elaborate data structures,
+    and so the constant hidden in the Θ-notation is small. Thus, the Floyd-Warshall
+    algorithm is quite practical for even moderate-sized input graphs.
+  id: totrans-143
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Floyd-Warshall 算法的运行时间由第 2–6 行的三重嵌套 **for** 循环决定。因为每次执行第 6 行都需要 *O*(1) 的时间，所以该算法的运行时间为
+    Θ(*n*³)。就像[第 23.1 节](chapter023.xhtml#Sec_23.1)中的最终算法一样，代码很紧凑，没有复杂的数据结构，因此 Θ-符号中的常数很小。因此，即使对于中等规模的输入图，Floyd-Warshall
+    算法也非常实用。
+- en: '**Constructing a shortest path**'
+  id: totrans-144
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**构建最短路径**'
+- en: There are a variety of different methods for constructing shortest paths in
+    the Floyd-Warshall algorithm. One way is to compute the matrix *D* of shortest-path
+    weights and then construct the predecessor matrix Π from the *D* matrix. Exercise
+    23.1-7 asks you to implement this method so that it runs in *O*(*n*³) time. Given
+    the predecessor matrix Π, the PRINT-ALL-PAIRS-SHORTEST-PATH procedure prints the
+    vertices on a given shortest path.
+  id: totrans-145
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Floyd-Warshall 算法有多种不同的构建最短路径的方法。一种方法是计算最短路径权重矩阵 *D*，然后从 *D* 矩阵构建前驱矩阵 Π。练习 23.1-7
+    要求您实现此方法，使其在 *O*(*n*³) 时间内运行。给定前驱矩阵 Π，PRINT-ALL-PAIRS-SHORTEST-PATH 程序打印给定最短路径上的顶点。
+- en: Alternatively, the predecessor matrix … can be computed while the algorithm
+    computes the matrices *D*^((0)), *D*^((1)), … , *D*^((*n*)). Specifically, compute
+    a sequence of matrices Π^((0)), Π^((1)), … , Π^((*n*)), where Π = Π^((*n*)) and
+    ![art](images/Art_P711.jpg) is the predecessor of vertex *j* on a shortest path
+    from vertex *i* with all intermediate vertices in the set {1, 2, … , *k*}.
+  id: totrans-146
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 或者，可以在算法计算矩阵 *D*^((0)), *D*^((1)), … , *D*^((*n*)) 的同时计算前驱矩阵…。具体来说，计算一个矩阵序列
+    Π^((0)), Π^((1)), … , Π^((*n*))，其中 Π = Π^((*n*))，![art](images/Art_P711.jpg) 是顶点
+    *i* 到顶点 *j* 的最短路径上顶点 *k* 的前驱，其中所有中间顶点都在集合 {1, 2, … , *k*} 中。
+- en: '![art](images/Art_P712.jpg)'
+  id: totrans-147
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P712.jpg)'
+- en: '**Figure 23.4** The sequence of matrices *D*^((*k*)) and Π^((*k*)) computed
+    by the Floyd-Warshall algorithm for the graph in [Figure 23.1](chapter023.xhtml#Fig_23-1).'
+  id: totrans-148
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图 23.4** Floyd-Warshall 算法计算的矩阵序列 *D*^((*k*)) 和 Π^((*k*))，对应于[图 23.1](chapter023.xhtml#Fig_23-1)中的图。'
+- en: Here’s a recursive formulation of ![art](images/Art_P713.jpg). When *k* = 0,
+    a shortest path from *i* to *j* has no intermediate vertices at all, and so
+  id: totrans-149
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这里是 ![art](images/Art_P713.jpg) 的递归公式。当 *k* = 0 时，从 *i* 到 *j* 的最短路径没有任何中间顶点，因此
+- en: '![art](images/Art_P714.jpg)'
+  id: totrans-150
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P714.jpg)'
+- en: For *k* ≥ 1, if the path has *k* as an intermediate vertex, so that it is *i*
+    ⇝ *k* ⇝ *j* where *k* ≠ *j*, then choose as the predecessor of *j* on this path
+    the same vertex as the predecessor of *j* chosen on a shortest path from *k* with
+    all intermediate vertices in the set {1, 2, … , *k* − 1}. Otherwise, when the
+    path from *i* to *j* does not have *k* as an intermediate vertex, choose the same
+    predecessor of *j* as on a shortest path from *i* with all intermediate vertices
+    in the set {1, 2, … , *k* − 1}. Formally, for *k* ≥ 1,
+  id: totrans-151
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于 *k* ≥ 1，如果路径以 *k* 作为中间顶点，即路径为 *i* ⇝ *k* ⇝ *j*，其中 *k* ≠ *j*，则选择此路径上 *j* 的前驱与从
+    *k* 到 *j* 的最短路径上所有中间顶点在集合 {1, 2, … , *k* − 1} 中选择的相同顶点。否则，当从 *i* 到 *j* 的路径不以 *k*
+    作为中间顶点时，选择 *j* 的前驱与从 *i* 到 *j* 的最短路径上所有中间顶点在集合 {1, 2, … , *k* − 1} 中选择的相同前驱。形式上，对于
+    *k* ≥ 1，
+- en: '![art](images/Art_P715.jpg)'
+  id: totrans-152
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P715.jpg)'
+- en: Exercise 23.2-3 asks you to show how to incorporate the Π^((*k*)) matrix computations
+    into the FLOYD-WARSHALL procedure. [Figure 23.4](chapter023.xhtml#Fig_23-4) shows
+    the sequence of Π^((*k*)) matrices that the resulting algorithm computes for the
+    graph of [Figure 23.1](chapter023.xhtml#Fig_23-1). The exercise also asks for
+    the more difficult task of proving that the predecessor subgraph *G*[π,*i*] is
+    a shortest-paths tree with root *i*. Exercise 23.2-7 asks for yet another way
+    to reconstruct shortest paths.
+  id: totrans-153
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 练习23.2-3要求您展示如何将Π^((*k*))矩阵计算整合到FLOYD-WARSHALL过程中。[图23.4](chapter023.xhtml#Fig_23-4)展示了生成算法为[图23.1](chapter023.xhtml#Fig_23-1)的图计算的Π^((*k*))矩阵序列。该练习还要求更困难的任务，即证明前驱子图*G*[π,*i*]是以*i*为根的最短路径树。练习23.2-7要求另一种重建最短路径的方法。
+- en: '**Transitive closure of a directed graph**'
+  id: totrans-154
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**有向图的传递闭包**'
+- en: Given a directed graph *G* = (*V*, *E*) with vertex set *V* = {1, 2, … , *n*},
+    you might wish to determine simply whether *G* contains a path from *i* to *j*
+    for all vertex pairs *i*, *j* ∈ *V*, without regard to edge weights. We define
+    the ***transitive closure*** of *G* as the graph *G** = (*V*, *E**), where
+  id: totrans-155
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定一个顶点集*V* = {1, 2, … , *n*}的有向图*G* = (*V*, *E*)，您可能希望简单地确定对于所有顶点对*i*, *j* ∈
+    *V*，*G*是否包含从顶点*i*到顶点*j*的路径，而不考虑边的权重。我们将*G*的***传递闭包***定义为图*G** = (*V*, *E**)，其中
+- en: '*E** = {(*i*, *j*) : there is a path from vertex *i* to vertex *j* in *G*}.'
+  id: totrans-156
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '*E** = {(*i*, *j*) : 图*G*中存在从顶点*i*到顶点*j*的路径}。'
+- en: One way to compute the transitive closure of a graph in Θ(*n*³) time is to assign
+    a weight of 1 to each edge of *E* and run the Floyd-Warshall algorithm. If there
+    is a path from vertex *i* to vertex *j*, you get *d[ij]* < *n*. Otherwise, you
+    get *d[ij]* = ∞.
+  id: totrans-157
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 一种计算图的传递闭包在Θ(*n*³)时间内的方法是给每条边赋予权重1，并运行Floyd-Warshall算法。如果从顶点*i*到顶点*j*有一条路径，则得到*d[ij]*
+    < *n*。否则，得到*d[ij]* = ∞。
+- en: There is another, similar way to compute the transitive closure of *G* in Θ(*n*³)
+    time, which can save time and space in practice. This method substitutes the logical
+    operations ∨ (logical OR) and ∧ (logical AND) for the arithmetic operations min
+    and + in the Floyd-Warshall algorithm. For *i*, *j*, *k* = 1, 2, … , *n*, define
+    ![art](images/Art_P716.jpg) to be 1 if there exists a path in graph *G* from vertex
+    *i* to vertex *j* with all intermediate vertices in the set {1, 2, … , *k*}, and
+    0 otherwise. To construct the transitive closure *G** = (*V*, *E**), put edge
+    (*i*, *j*) into *E** if and only if ![art](images/Art_P717.jpg). A recursive definition
+    of ![art](images/Art_P718.jpg), analogous to recurrence (23.6), is
+  id: totrans-158
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 还有另一种类似的方法可以在Θ(*n*³)时间内计算*G*的传递闭包，这在实践中可以节省时间和空间。该方法用逻辑操作∨（逻辑或）和∧（逻辑与）替换Floyd-Warshall算法中的最小值和加法运算。对于*i*,
+    *j*, *k* = 1, 2, … , *n*，定义![艺术](images/Art_P716.jpg)为1，如果图*G*中存在一条从顶点*i*到顶点*j*的路径，其中所有中间顶点在集合{1,
+    2, … , *k*}中，否则为0。为了构建传递闭包*G** = (*V*, *E**)，当且仅当![艺术](images/Art_P717.jpg)时，将边(*i*,
+    *j*)放入*E**。![艺术](images/Art_P718.jpg)的递归定义，类似于递归（23.6），是
+- en: '![art](images/Art_P719.jpg)'
+  id: totrans-159
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P719.jpg)'
+- en: '**Figure 23.5** A directed graph and the matrices *T*^((*k*)) computed by the
+    transitive-closure algorithm.'
+  id: totrans-160
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图23.5** 一个有向图和传递闭包算法计算的矩阵*T*^((*k*))。'
+- en: '![art](images/Art_P720.jpg)'
+  id: totrans-161
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P720.jpg)'
+- en: and for *k* ≥ 1,
+  id: totrans-162
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 对于*k* ≥ 1，
+- en: '![art](images/Art_P721.jpg)'
+  id: totrans-163
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P721.jpg)'
+- en: As in the Floyd-Warshall algorithm, the TRANSITIVE-CLOSURE procedure computes
+    the matrices ![art](images/Art_P722.jpg) in order of increasing *k*.
+  id: totrans-164
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 就像Floyd-Warshall算法一样，TRANSITIVE-CLOSURE过程按照递增的*k*计算矩阵![艺术](images/Art_P722.jpg)。
+- en: TRANSITIVE-CLOSURE(*G*, *n*)
+  id: totrans-165
+  prefs: []
+  type: TYPE_NORMAL
+  zh: TRANSITIVE-CLOSURE(*G*, *n*)
+- en: '|   1 | let ![art](images/Art_P723.jpg) be a new *n* × *n* matrix |'
+  id: totrans-166
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | 让![艺术](images/Art_P723.jpg)成为一个新的*n* × *n*矩阵 |'
+- en: '|   2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-167
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | **对于** *i* = 1 **到** *n* |'
+- en: '|   3 | **for** *j* = 1 **to** *n* |'
+  id: totrans-168
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | **对于** *j* = 1 **到** *n* |'
+- en: '|   4 | **if** *i* == *j* or (*i*, *j*) ∈ *G.E* |'
+  id: totrans-169
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **如果** *i* == *j* 或 (*i*, *j*) ∈ *G.E* |'
+- en: '|   5 | ![art](images/Art_P724.jpg) |'
+  id: totrans-170
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | ![艺术](images/Art_P724.jpg) |'
+- en: '|   6 | **else** ![art](images/Art_P725.jpg) |'
+  id: totrans-171
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **否则** ![艺术](images/Art_P725.jpg) | '
+- en: '|   7 | **for** *k* = 1 **to** *n* |'
+  id: totrans-172
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | **对于** *k* = 1 **到** *n* |'
+- en: '|   8 | let ![art](images/Art_P726.jpg) be a new *n* × *n* matrix |'
+  id: totrans-173
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | 让![艺术](images/Art_P726.jpg)成为一个新的*n* × *n*矩阵 |'
+- en: '|   9 | **for** *i* = 1 **to** *n* |'
+  id: totrans-174
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | **对于** *i* = 1 **到** *n* |'
+- en: '| 10 | **for** *j* = 1 **to** *n* |'
+  id: totrans-175
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | **对于** *j* = 1 **到** *n* |'
+- en: '| 11 | ![art](images/Art_P727.jpg) |'
+  id: totrans-176
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | ![艺术](images/Art_P727.jpg) |'
+- en: '| 12 | **return** *T*^((*n*)) |'
+  id: totrans-177
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | **返回** *T*^((*n*)) |'
+- en: '[Figure 23.5](chapter023.xhtml#Fig_23-5) shows the matrices *T*^((*k*)) computed
+    by the TRANSITIVE-CLOSURE procedure on a sample graph. The TRANSITIVE-CLOSURE
+    procedure, like the Floyd-Warshall algorithm, runs in Θ(*n*³) time. On some computers,
+    though, logical operations on single-bit values execute faster than arithmetic
+    operations on integer words of data. Moreover, because the direct transitive-closure
+    algorithm uses only boolean values rather than integer values, its space requirement
+    is less than the Floyd-Warshall algorithm’s by a factor corresponding to the size
+    of a word of computer storage.'
+  id: totrans-178
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[图23.5](chapter023.xhtml#Fig_23-5)展示了TRANSITIVE-CLOSURE过程在一个示例图上计算的矩阵*T*^((*k*))。TRANSITIVE-CLOSURE过程，就像Floyd-Warshall算法一样，运行时间为Θ(*n*³)。然而，在某些计算机上，逻辑操作单比特值的执行速度比整数数据的算术操作更快。此外，因为直接传递闭包算法仅使用布尔值而不是整数值，所以其空间需求比Floyd-Warshall算法少一个与计算机存储字长大小对应的因子。'
+- en: '**Exercises**'
+  id: totrans-179
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***23.2-1***'
+  id: totrans-180
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-1***'
+- en: Run the Floyd-Warshall algorithm on the weighted, directed graph of [Figure
+    23.2](chapter023.xhtml#Fig_23-2). Show the matrix *D*^((*k*)) that results for
+    each iteration of the outer loop.
+  id: totrans-181
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 在[图23.2](chapter023.xhtml#Fig_23-2)的加权有向图上运行Floyd-Warshall算法。展示外部循环的每次迭代产生的矩阵*D*^((*k*))。
+- en: '***23.2-2***'
+  id: totrans-182
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-2***'
+- en: Show how to compute the transitive closure using the technique of [Section 23.1](chapter023.xhtml#Sec_23.1).
+  id: totrans-183
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何使用[第23.1节](chapter023.xhtml#Sec_23.1)的技术计算传递闭包。
+- en: '***23.2-3***'
+  id: totrans-184
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-3***'
+- en: Modify the FLOYD-WARSHALL procedure to compute the Π^((*k*)) matrices according
+    to equations (23.7) and (23.8). Prove rigorously that for all *i* ∈ *V*, the predecessor
+    subgraph *G*[π,*i*] is a shortest-paths tree with root *i*. (*Hint:* To show that
+    *G*[π,*i*] is acyclic, first show that ![art](images/Art_P728.jpg) implies ![art](images/Art_P729.jpg),
+    according to the definition of ![art](images/Art_P730.jpg). Then adapt the proof
+    of Lemma 22.16.)
+  id: totrans-185
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 修改FLOYD-WARSHALL过程以根据方程(23.7)和(23.8)计算Π^((*k*))矩阵。严格证明对于所有*i* ∈ *V*，前驱子图*G*[π,*i*]是以*i*为根的最短路径树。(*提示:*
+    要证明*G*[π,*i*]是无环的，首先证明![艺术](images/Art_P728.jpg)意味着![艺术](images/Art_P729.jpg)，根据![艺术](images/Art_P730.jpg)的定义。然后调整引理22.16的证明。)
+- en: '***23.2-4***'
+  id: totrans-186
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-4***'
+- en: As it appears on page 657, the Floyd-Warshall algorithm requires Θ(*n*³) space,
+    since it creates ![art](images/Art_P731.jpg) for *i*, *j*, *k* = 1, 2, … , *n*.
+    Show that the procedure FLOYD-WARSHALL′, which simply drops all the superscripts,
+    is correct, and thus only Θ(*n*²) space is required.
+  id: totrans-187
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 正如在第657页所示，Floyd-Warshall算法需要Θ(*n*³)的空间，因为它为*i*, *j*, *k* = 1, 2, … , *n*创建了![艺术](images/Art_P731.jpg)。证明简单删除所有上标的过程FLOYD-WARSHALL′是正确的，因此只需要Θ(*n*²)的空间。
+- en: FLOYD-WARSHALL′(*W*, *n*)
+  id: totrans-188
+  prefs: []
+  type: TYPE_NORMAL
+  zh: FLOYD-WARSHALL′(*W*, *n*)
+- en: '| 1 | *D* = *W* |'
+  id: totrans-189
+  prefs: []
+  type: TYPE_TB
+  zh: '| 1 | *D* = *W* |'
+- en: '| 2 | **for** *k* = 1 **to** *n* |'
+  id: totrans-190
+  prefs: []
+  type: TYPE_TB
+  zh: '| 2 | **对于** *k* = 1 **到** *n* |'
+- en: '| 3 | **for** *i* = 1 **to** *n* |'
+  id: totrans-191
+  prefs: []
+  type: TYPE_TB
+  zh: '| 3 | **对于** *i* = 1 **到** *n* |'
+- en: '| 4 | **for** *j* = 1 **to** *n* |'
+  id: totrans-192
+  prefs: []
+  type: TYPE_TB
+  zh: '| 4 | **对于** *j* = 1 **到** *n* |'
+- en: '| 5 | *d[ij]* = min {*d[ij]*, *d[ik]* + *d[kj]*} |'
+  id: totrans-193
+  prefs: []
+  type: TYPE_TB
+  zh: '| 5 | *d[ij]* = min {*d[ij]*, *d[ik]* + *d[kj]*} |'
+- en: '| 6 | **return** *D* |'
+  id: totrans-194
+  prefs: []
+  type: TYPE_TB
+  zh: '| 6 | **返回** *D* |'
+- en: '***23.2-5***'
+  id: totrans-195
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-5***'
+- en: 'Consider the following change to how equation (23.8) handles equality:'
+  id: totrans-196
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 考虑对方程(23.8)处理相等性的以下更改：
+- en: '![art](images/Art_P732.jpg)'
+  id: totrans-197
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P732.jpg)'
+- en: Is this alternative definition of the predecessor matrix Π correct?
+  id: totrans-198
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 这个前驱矩阵Π的另一种定义正确吗？
+- en: '***23.2-6***'
+  id: totrans-199
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-6***'
+- en: Show how to use the output of the Floyd-Warshall algorithm to detect the presence
+    of a negative-weight cycle.
+  id: totrans-200
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如何使用Floyd-Warshall算法的输出来检测负权重环的存在。
+- en: '***23.2-7***'
+  id: totrans-201
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-7***'
+- en: Another way to reconstruct shortest paths in the Floyd-Warshall algorithm uses
+    values ![art](images/Art_P733.jpg) for *i*,*j*,*k* = 1, 2, … , *n*, where ![art](images/Art_P734.jpg)
+    is the highest-numbered intermediate vertex of a shortest path from *i* to *j*
+    in which all intermediate vertices lie in the set {1, 2, … , *k*}. Give a recursive
+    formulation for ![art](images/Art_P735.jpg), modify the FLOYD-WARSHALL procedure
+    to compute the ![art](images/Art_P736.jpg) values, and rewrite the PRINT-ALL-PAIRS-SHORTEST-PATH
+    procedure to take the matrix ![art](images/Art_P737.jpg) as an input. How is the
+    matrix Φ like the *s* table in the matrix-chain multiplication problem of [Section
+    14.2](chapter014.xhtml#Sec_14.2)?
+  id: totrans-202
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Floyd-Warshall算法中另一种重建最短路径的方法使用值![艺术](images/Art_P733.jpg)为*i*,*j*,*k* = 1,
+    2, … , *n*，其中![艺术](images/Art_P734.jpg)是从*i*到*j*的最短路径中所有中间顶点都在集合{1, 2, … , *k*}中的最高编号的中间顶点。给出![艺术](images/Art_P735.jpg)的递归公式，修改FLOYD-WARSHALL过程以计算![艺术](images/Art_P736.jpg)值，并重写PRINT-ALL-PAIRS-SHORTEST-PATH过程以将矩阵![艺术](images/Art_P737.jpg)作为输入。矩阵Φ与[第14.2节](chapter014.xhtml#Sec_14.2)中的矩阵链乘法问题中的*s*表有何相似之处？
+- en: '***23.2-8***'
+  id: totrans-203
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-8***'
+- en: Give an *O*(*VE*)-time algorithm for computing the transitive closure of a directed
+    graph *G* = (*V*, *E*). Assume that |*V*| = *O*(*E*) and that the graph is represented
+    with adjacency lists.
+  id: totrans-204
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给出一个计算有向图*G* = (*V*, *E*)的传递闭包的*O*(*VE*)时间算法。假设|*V*| = *O*(*E*)，并且图用邻接表表示。
+- en: '***23.2-9***'
+  id: totrans-205
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.2-9***'
+- en: Suppose that it takes *f*(|*V*|, |*E*|) time to compute the transitive closure
+    of a directed acyclic graph, where *f* is a monotonically increasing function
+    of both |*V*| and |*E*|. Show that the time to compute the transitive closure
+    *G** = (*V*, *E**) of a general directed graph *G* = (*V*, *E*) is then *f*(|*V*|,
+    |*E*|) + *O*(*V* + *E**).
+  id: totrans-206
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设计算有向无环图的传递闭包需要*f*(*|*V*|, |*E*|)的时间，其中*f*是*|*V*|和|*E*|的单调递增函数。证明计算一般有向图*G*
+    = (*V*, *E*)的传递闭包*G** = (*V*, *E**)的时间为*f*(*|*V*|, |*E*|) + *O*(*V* + *E**).
+- en: '[**23.3    Johnson’s algorithm for sparse graphs**](toc.xhtml#Rh1-138)'
+  id: totrans-207
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[**23.3    Johnson算法用于稀疏图**](toc.xhtml#Rh1-138)'
+- en: Johnson’s algorithm finds shortest paths between all pairs in *O*(*V*² lg *V*
+    + *VE*) time. For sparse graphs, it is asymptotically faster than either repeated
+    squaring of matrices or the Floyd-Warshall algorithm. The algorithm either returns
+    a matrix of shortest-path weights for all pairs of vertices or reports that the
+    input graph contains a negative-weight cycle. Johnson’s algorithm uses as subroutines
+    both Dijkstra’s algorithm and the Bellman-Ford algorithm, which [Chapter 22](chapter022.xhtml)
+    describes.
+  id: totrans-208
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Johnson算法在*O*(*V*² lg *V* + *VE*)时间内找到所有顶点对之间的最短路径。对于稀疏图，它在渐近意义上比矩阵重复平方或Floyd-Warshall算法更快。该算法要么返回所有顶点对的最短路径权重矩阵，要么报告输入图包含负权重环。Johnson算法使用Dijkstra算法和Bellman-Ford算法作为子程序，[第22章](chapter022.xhtml)对此进行了描述。
+- en: 'Johnson’s algorithm uses the technique of ***reweighting***, which works as
+    follows. If all edge weights *w* in a graph *G* = (*V*, *E*) are nonnegative,
+    Dijkstra’s algorithm can find shortest paths between all pairs of vertices by
+    running it once from each vertex. With the Fibonacci-heap min-priority queue,
+    the running time of this all-pairs algorithm is *O*(*V*² lg *V* + *VE*). If *G*
+    has negative-weight edges but no negative-weight cycles, first compute a new set
+    of nonnegative edge weights so that Dijkstra’s algorithm applies. The new set
+    of edge weights *ŵ* must satisfy two important properties:'
+  id: totrans-209
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Johnson算法使用***重新加权***技术，工作原理如下。如果图*G* = (*V*, *E*)中所有边的权重*w*都是非负的，那么Dijkstra算法可以通过从每个顶点运行一次来找到所有顶点对之间的最短路径。使用斐波那契堆最小优先队列，这种全对算法的运行时间为*O*(*V*²
+    lg *V* + *VE*)。如果*G*有负权边但没有负权环，首先计算一组新的非负边权，以便Dijkstra算法适用。新的边权集*ŵ*必须满足两个重要属性：
+- en: For all pairs of vertices *u, v* ∈ *V*, a path *p* is a shortest path from *u*
+    to *v* using weight function *w* if and only if *p* is also a shortest path from
+    *u* to *v* using weight function *ŵ*.
+  id: totrans-210
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: '对于所有顶点对*u, v* ∈ *V*，如果路径*p*是使用权重函数*w*从*u*到*v*的最短路径，则当且仅当路径*p*也是使用权重函数*ŵ*从*u*到*v*的最短路径时。 '
+- en: For all edges (*u*, *v*), the new weight *ŵ*(*u*, *v*) is nonnegative.
+  id: totrans-211
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+  zh: 对于所有边(*u*, *v*)，新的权重*ŵ*(*u*, *v*)是非负的。
+- en: As we’ll see in a moment, preprocessing *G* to determine the new weight function
+    *ŵ* takes *O*(*VE*) time.
+  id: totrans-212
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 正如我们将在下一刻看到的，预处理*G*以确定新的权重函数*ŵ*需要*O*(*VE*)的时间。
+- en: '**Preserving shortest paths by reweighting**'
+  id: totrans-213
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**通过重新加权保留最短路径**'
+- en: The following lemma shows how to reweight the edges to satisfy the first property
+    above. We use δ to denote shortest-path weights derived from weight function *w*
+    and ![art](images/Art_P738.jpg) to denote shortest-path weights derived from weight
+    function *ŵ*.
+  id: totrans-214
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 以下引理显示如何重新加权边以满足上述第一个性质。我们使用δ表示从权重函数*w*派生的最短路径权重，![art](images/Art_P738.jpg)表示从权重函数*ŵ*派生的最短路径权重。
+- en: '***Lemma 23.1 (Reweighting does not change shortest paths)***'
+  id: totrans-215
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***引理23.1（重新加权不改变最短路径）***'
+- en: 'Given a weighted, directed graph *G* = (*V*, *E*) with weight function *w*
+    : *E* → ℝ, let *h* : *V* → ℝ be any function mapping vertices to real numbers.
+    For each edge (*u*, *v*) ∈ *E*, define'
+  id: totrans-216
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 给定带有权重函数*w*：*E* → ℝ的加权有向图*G* = (*V*, *E*)，让*h*：*V* → ℝ是将顶点映射到实数的任意函数。对于每条边(*u*,
+    *v*) ∈ *E*，定义
+- en: '![art](images/Art_P739.jpg)'
+  id: totrans-217
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P739.jpg)'
+- en: Let *p* = 〈*v*[0], *v*[1], … , *v[k]*〉 be any path from vertex *v*[0] to vertex
+    *v[k]*. Then *p* is a shortest path from *v*[0] to *v[k]* with weight function
+    *w* if and only if it is a shortest path with weight function *ŵ*. That is, *w*(*p*)
+    = δ(*v*[0], *v[k]*) if and only if ![art](images/Art_P740.jpg). Furthermore, *G*
+    has a negative-weight cycle using weight function *w* if and only if *G* has a
+    negative-weight cycle using weight function *ŵ*.
+  id: totrans-218
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 让*p* = 〈*v*[0], *v*[1], … , *v[k]*〉是从顶点*v*[0]到顶点*v[k]*的任意路径。那么如果*p*是使用权重函数*w*从*v*[0]到*v[k]*的最短路径，那么它也是使用权重函数*ŵ*的最短路径。也就是说，*w*(*p*)
+    = δ(*v*[0], *v[k]*)当且仅当![art](images/Art_P740.jpg)。此外，如果*G*使用权重函数*w*具有负权重环，那么当且仅当*G*使用权重函数*ŵ*具有负权重环。
+- en: '***Proof***   We start by showing that'
+  id: totrans-219
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***证明***   我们首先展示'
+- en: '![art](images/Art_P741.jpg)'
+  id: totrans-220
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P741.jpg)'
+- en: We have
+  id: totrans-221
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们有
+- en: '![art](images/Art_P742.jpg)'
+  id: totrans-222
+  prefs: []
+  type: TYPE_IMG
+  zh: '![art](images/Art_P742.jpg)'
+- en: Therefore, any path *p* from *v*[0] to *v[k]* has *ŵ*(*p*) = *w*(*p*) + *h*(*v*[0])
+    − *h*(*v[k]*). Because *h*(*v*[0]) and *h*(*v[k]*) do not depend on the path,
+    if one path from *v*[0] to *v[k]* is shorter than another using weight function
+    *w*, then it is also shorter using *ŵ*. Thus, *w*(*p*) = δ(*v*[0], *v[k]*) if
+    and only if ![art](images/Art_P743.jpg).
+  id: totrans-223
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，任何从*v*[0]到*v[k]*的路径*p*都有*ŵ*(*p*) = *w*(*p*) + *h*(*v*[0]) − *h*(*v[k]*)。因为*h*(*v*[0])和*h*(*v[k]*)不依赖于路径，如果一条从*v*[0]到*v[k]*的路径比另一条使用权重函数*w*更短，那么使用*ŵ*也更短。因此，*w*(*p*)
+    = δ(*v*[0], *v[k]*)当且仅当![art](images/Art_P743.jpg)。
+- en: Finally, we show that *G* has a negative-weight cycle using weight function
+    *w* if and only if *G* has a negative-weight cycle using weight function *ŵ*.
+    Consider any cycle *c* = 〈*v*[0], *v*[1], … , *v[k]*〉, where *v*[0] = *v[k]*.
+    By equation (23.11),
+  id: totrans-224
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 最后，我们展示如果*G*使用权重函数*w*具有负权重环，则当且仅当*G*使用权重函数*ŵ*具有负权重环。考虑任意循环*c* = 〈*v*[0], *v*[1],
+    … , *v[k]*〉，其中*v*[0] = *v[k]*。根据方程（23.11），
+- en: '| *ŵ*(*c*) | = | *w*(*c*) + *h*(*v*[0]) + *h*(*v[k]*) |'
+  id: totrans-225
+  prefs: []
+  type: TYPE_TB
+  zh: '|*ŵ*(*c*)| = |*w*(*c*) + *h*(*v*[0]) + *h*(*v[k]*)|'
+- en: '|  | = | *w*(*c*), |'
+  id: totrans-226
+  prefs: []
+  type: TYPE_TB
+  zh: '|| = |*w*(*c*),|'
+- en: and thus *c* has negative weight using *w* if and only if it has negative weight
+    using *ŵ*.
+  id: totrans-227
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 因此，如果使用*w*时*c*具有负权重，则只有当使用*ŵ*时它具有负权重。
+- en: ▪
+  id: totrans-228
+  prefs: []
+  type: TYPE_NORMAL
+  zh: ▪
+- en: '**Producing nonnegative weights by reweighting**'
+  id: totrans-229
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**通过重新加权产生非负权重**'
+- en: 'Our next goal is to ensure that the second property holds: *ŵ*(*u*, *v*) must
+    be nonnegative for all edges (*u*, *v*) = *E*. Given a weighted, directed graph
+    *G* = (*V*, *E*) with weight function *w* : *E* → ℝ, we’ll see how to make a new
+    graph *G*′ = (*V*′, *E*′), where *V*′ = *V* ∪ {*s*} for some new vertex *s* ∉
+    *V* and *E*′ = *E* ∪ {(*s*, *v*) : *v* = *V* }. To incorporate the new vertex
+    *s*, extend the weight function *w* so that *w*(*s*, *v*) = 0 for all *v* ∈ *V*.
+    Since no edges enter *s*, no shortest paths in *G*′, other than those with source
+    *s*, contain *s*. Moreover, *G*′ has no negative-weight cycles if and only if
+    *G* has no negative-weight cycles. [Figure 23.6(a)](chapter023.xhtml#Fig_23-6)
+    shows the graph *G*′ corresponding to the graph *G* of [Figure 23.1](chapter023.xhtml#Fig_23-1).'
+  id: totrans-230
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 我们的下一个目标是确保第二个性质成立：对于所有边(*u*, *v*) = *E*，*ŵ*(*u*, *v*)必须是非负的。给定带有权重函数*w*：*E*
+    → ℝ的加权有向图*G* = (*V*, *E*)，我们将看到如何构建一个新图*G*′ = (*V*′, *E*′)，其中*V*′ = *V* ∪ {*s*}，对于一些新顶点*s*
+    ∉ *V*和*E*′ = *E* ∪ {(*s*, *v*)：*v* = *V*}。为了引入新顶点*s*，扩展权重函数*w*，使得对于所有*v* ∈ *V*，*w*(*s*,
+    *v*) = 0。由于没有边进入*s*，在*G*′中除了源为*s*的最短路径外，没有最短路径包含*s*。此外，*G*′没有负权重环当且仅当*G*没有负权重环。[图23.6(a)](chapter023.xhtml#Fig_23-6)展示了与[图23.1](chapter023.xhtml#Fig_23-1)的图*G*对应的图*G*′。
+- en: Now suppose that *G* and *G*′ have no negative-weight cycles. Define the function
+    *h*(*v*) = δ(*s*, *v*) for all *v* ∈ *V*′. By the triangle inequality (Lemma 22.10
+    on page 633), we have *h*(*v*) ≤ *h*(*u*) + *w*(*u*, *v*) for all edges (*u*,
+    *v*) ∈ *E*′. Thus, by defining reweighted edge weights *ŵ* according to equation
+    (23.10), we have *ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) ≥ 0, thereby
+    satisfying the second property. [Figure 23.6(b)](chapter023.xhtml#Fig_23-6) shows
+    the graph *G*′ from [Figure 23.6(a)](chapter023.xhtml#Fig_23-6) with reweighted
+    edges.
+  id: totrans-231
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 现在假设*G*和*G*′没有负权重环。定义函数*h*(*v*) = δ(*s*, *v*)对于所有*v* ∈ *V*′。根据三角不等式（第22.10页引理），我们有*h*(*v*)
+    ≤ *h*(*u*) + *w*(*u*, *v*)对于所有边(*u*, *v*) ∈ *E*′。因此，通过根据方程（23.10）定义重新加权的边权重*ŵ*，我们有*ŵ*(*u*,
+    *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) ≥ 0，从而满足第二个性质。[图23.6(b)](chapter023.xhtml#Fig_23-6)展示了从[图23.6(a)](chapter023.xhtml#Fig_23-6)重新加权边的图*G*′。
+- en: '**Computing all-pairs shortest paths**'
+  id: totrans-232
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**计算所有对最短路径**'
+- en: Johnson’s algorithm to compute all-pairs shortest paths uses the Bellman-Ford
+    algorithm ([Section 22.1](chapter022.xhtml#Sec_22.1)) and Dijkstra’s algorithm
+    ([Section 22.3](chapter022.xhtml#Sec_22.3)) as subroutines. The pseudocode appears
+    in the procedure JOHNSON on page 666\. It assumes implicitly that the edges are
+    stored in adjacency lists. The algorithm returns the usual |*V*| × |*V*| matrix
+    *D* = (*d[ij]*), where *d[ij]* = δ(*i*, *j*), or it reports that the input graph
+    contains a negative-weight cycle. As is typical for an all-pairs shortest-paths
+    algorithm, it assumes that the vertices are numbered from 1 to |*V*|.
+  id: totrans-233
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 用于计算所有顶点对最短路径的Johnson算法使用贝尔曼-福特算法([第22.1节](chapter022.xhtml#Sec_22.1))和Dijkstra算法([第22.3节](chapter022.xhtml#Sec_22.3))作为子程序。伪代码出现在第666页的JOHNSON过程中。它隐含地假设边存储在邻接表中。该算法返回通常的|*V*|
+    × |*V*|矩阵*D* = (*d[ij]*)，其中*d[ij]* = δ(*i*, *j*)，或者报告输入图包含负权重环。作为所有对最短路径算法的典型特征，它假设顶点从1到|*V*|编号。
+- en: '![art](images/Art_P744.jpg)'
+  id: totrans-234
+  prefs: []
+  type: TYPE_IMG
+  zh: '![艺术](images/Art_P744.jpg)'
+- en: '**Figure 23.6** Johnson’s all-pairs shortest-paths algorithm run on the graph
+    of [Figure 23.1](chapter023.xhtml#Fig_23-1). Vertex numbers appear outside the
+    vertices. **(a)** The graph *G*′ with the original weight function *w*. The new
+    vertex *s* is blue. Within each vertex *v* is *h*(*v*) = δ(*s*, *v*). **(b)**
+    After reweighting each edge (*u*, *v*) with weight function *ŵ*(*u*, *v*) = *w*(*u*,
+    *v*) + *h*(*u*) − *h*(*v*). **(c)–(g)** The result of running Dijkstra’s algorithm
+    on each vertex of *G* using weight function *ŵ*. In each part, the source vertex
+    *u* is blue, and blue edges belong to the shortest-paths tree computed by the
+    algorithm. Within each vertex *v* are the values ![art](images/Art_P745.jpg) and
+    δ(*u*, *v*), separated by a slash. The value *d[uv]* = δ(*u*, *v*) is equal to
+    ![art](images/Art_P746.jpg).'
+  id: totrans-235
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**图23.6** Johnson的所有对最短路径算法在[图23.1](chapter023.xhtml#Fig_23-1)的图上运行。顶点编号出现在顶点外部。**(a)**
+    具有原始权重函数*w*的图*G*′。新顶点*s*为蓝色。在每个顶点*v*内部是*h*(*v*) = δ(*s*, *v*)。**(b)** 通过重置每条边(*u*,
+    *v*)的权重函数为*ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*)后的结果。**(c)–(g)**
+    在每个顶点上使用权重函数*ŵ*运行Dijkstra算法的结果。在每个部分中，源顶点*u*为蓝色，蓝色边属于算法计算的最短路径树。在每个顶点*v*内部是值![艺术](images/Art_P745.jpg)和δ(*u*,
+    *v*)，用斜杠分隔。值*d[uv]* = δ(*u*, *v*)等于![艺术](images/Art_P746.jpg)。'
+- en: JOHNSON(*G*, *w*)
+  id: totrans-236
+  prefs: []
+  type: TYPE_NORMAL
+  zh: JOHNSON(*G*, *w*)
+- en: '|   1 | compute *G*′, where *G*′.*V* = *G.V* ∪ {*s*}, |'
+  id: totrans-237
+  prefs: []
+  type: TYPE_TB
+  zh: '|   1 | 计算*G*′，其中*G*′.*V* = *G.V* ∪ {*s*}， |'
+- en: '|  | *G*′.*E* = *G.E* ∪ {(*s*, *v*) : *v* ∈ *G.V*}, and |'
+  id: totrans-238
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | *G*′.*E* = *G.E* ∪ {(*s*, *v*) : *v* ∈ *G.V*}，并且 |'
+- en: '|  | *w*(*s*, *v*) = 0 for all *v* ∈ *G.V* |'
+  id: totrans-239
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | *w*(*s*, *v*) = 对于所有*v* ∈ *G.V*的0 |'
+- en: '|   2 | **if** BELLMAN-FORD(*G*′, *w*, *s*) == FALSE |'
+  id: totrans-240
+  prefs: []
+  type: TYPE_TB
+  zh: '|   2 | **如果** BELLMAN-FORD(*G*′, *w*, *s*) == FALSE |'
+- en: '|   3 | print “the input graph contains a negative-weight cycle” |'
+  id: totrans-241
+  prefs: []
+  type: TYPE_TB
+  zh: '|   3 | 打印“输入图包含负权重环” |'
+- en: '|   4 | **else for** each vertex *v* ∈ *G*′.*V* |'
+  id: totrans-242
+  prefs: []
+  type: TYPE_TB
+  zh: '|   4 | **否则对于** 每个顶点*v* ∈ *G*′.*V* |'
+- en: '|   5 | set *h*(*v*) to the value of δ(*s*, *v*) |'
+  id: totrans-243
+  prefs: []
+  type: TYPE_TB
+  zh: '|   5 | 将*h*(*v*)设置为δ(*s*, *v*)的值 |'
+- en: '|  | computed by the Bellman-Ford algorithm |'
+  id: totrans-244
+  prefs: []
+  type: TYPE_TB
+  zh: '|  | 由贝尔曼-福特算法计算 |'
+- en: '|   6 | **for** each edge (*u*, *v*) ∈ *G*′.*E* |'
+  id: totrans-245
+  prefs: []
+  type: TYPE_TB
+  zh: '|   6 | **对于** 每条边(*u*, *v*) ∈ *G*′.*E* |'
+- en: '|   7 | *ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) |'
+  id: totrans-246
+  prefs: []
+  type: TYPE_TB
+  zh: '|   7 | *ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) |'
+- en: '|   8 | let *D* = (*d[uv]*) be a new *n* × *n* matrix |'
+  id: totrans-247
+  prefs: []
+  type: TYPE_TB
+  zh: '|   8 | 让*D* = (*d[uv]*)成为一个新的*n* × *n*矩阵 |'
+- en: '|   9 | **for** each vertex *u* ∈ *G.V* |'
+  id: totrans-248
+  prefs: []
+  type: TYPE_TB
+  zh: '|   9 | **对于** 每个顶点*u* ∈ *G.V* |'
+- en: '| 10 | run DIJKSTRA(*G*, *ŵ*, *u*) to compute ![art](images/Art_P747.jpg) for
+    all *v* ∈ *G.V* |'
+  id: totrans-249
+  prefs: []
+  type: TYPE_TB
+  zh: '| 10 | 运行DIJKSTRA(*G*, *ŵ*, *u*)来计算所有*G.V*中的*v*的![艺术](images/Art_P747.jpg)
+    |'
+- en: '| 11 | for each vertex *v* ∈ *G.V* |'
+  id: totrans-250
+  prefs: []
+  type: TYPE_TB
+  zh: '| 11 | 对于每个顶点*v* ∈ *G.V* |'
+- en: '| 12 | ![art](images/Art_P748.jpg) |'
+  id: totrans-251
+  prefs: []
+  type: TYPE_TB
+  zh: '| 12 | ![艺术](images/Art_P748.jpg) |'
+- en: '| 13 | **return** *D* |'
+  id: totrans-252
+  prefs: []
+  type: TYPE_TB
+  zh: '| 13 | **返回** *D* |'
+- en: The JOHNSON procedure simply performs the actions specified earlier. Line 1
+    produces *G*′. Line 2 runs the Bellman-Ford algorithm on *G*′ with weight function
+    *w* and source vertex *s*. If *G*′, and hence *G*, contains a negative-weight
+    cycle, line 3 reports the problem. Lines 4–12 assume that *G*′ contains no negative-weight
+    cycles. Lines 4–5 set *h*(*v*) to the shortest-path weight δ(*s*, *v*) computed
+    by the Bellman-Ford algorithm for all *v* ∈ *V*′. Lines 6–7 compute the new weights
+    *ŵ*. For each pair of vertices *u*, *v* ∈ *V*, the **for** loop of lines 9–12
+    computes the shortest-path weight ![art](images/Art_P749.jpg) by calling Dijkstra’s
+    algorithm once from each vertex in *V*. Line 12 stores in matrix entry *d[uv]*
+    the correct shortest-path weight δ(*u*, *v*), calculated using equation (23.11).
+    Finally, line 13 returns the completed *D* matrix. [Figure 23.6](chapter023.xhtml#Fig_23-6)
+    depicts the execution of Johnson’s algorithm.
+  id: totrans-253
+  prefs: []
+  type: TYPE_NORMAL
+  zh: JOHNSON过程只是执行先前指定的操作。第1行生成*G*′。第2行使用权重函数*w*和源顶点*s*在*G*′上运行贝尔曼-福特算法。如果*G*′，因此*G*，包含负权重环，第3行报告问题。第4–12行假设*G*′不包含负权重环。第4–5行将*h*(*v*)设置为由贝尔曼-福特算法计算的所有*v*
+    ∈ *V*′的最短路径权重δ(*s*, *v*)。第6–7行计算新权重*ŵ*。对于每对顶点*u*，*v* ∈ *V*，第9–12行的**for**循环通过从*V*中的每个顶点一次调用Dijkstra算法来计算最短路径权重![艺术](images/Art_P749.jpg)。第12行使用方程(23.11)计算正确的最短路径权重δ(*u*,
+    *v*)并将其存储在矩阵条目*d[uv]*中。最后，第13行返回完成的*D*矩阵。[图23.6](chapter023.xhtml#Fig_23-6)描述了Johnson算法的执行。
+- en: If the min-priority queue in Dijkstra’s algorithm is implemented by a Fibonacci
+    heap, Johnson’s algorithm runs in *O*(*V*² lg *V* + *VE*) time. The simpler binary
+    min-heap implementation yields a running time of *O*(*VE* lg *V*), which is still
+    asymptotically faster than the Floyd-Warshall algorithm if the graph is sparse.
+  id: totrans-254
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果Dijkstra算法中的最小优先队列由斐波那契堆实现，Johnson算法的运行时间为*O*(*V*² lg *V* + *VE*)。更简单的二进制最小堆实现产生的运行时间为*O*(*VE*
+    lg *V*)，如果图是稀疏的，仍然在渐近意义上比Floyd-Warshall算法更快。
+- en: '**Exercises**'
+  id: totrans-255
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**练习**'
+- en: '***23.3-1***'
+  id: totrans-256
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-1***'
+- en: Use Johnson’s algorithm to find the shortest paths between all pairs of vertices
+    in the graph of [Figure 23.2](chapter023.xhtml#Fig_23-2). Show the values of *h*
+    and *ŵ* computed by the algorithm.
+  id: totrans-257
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 使用Johnson算法在[图23.2](chapter023.xhtml#Fig_23-2)的图中找到所有顶点对之间的最短路径。展示算法计算出的*h*和*ŵ*的值。
+- en: '***23.3-2***'
+  id: totrans-258
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-2***'
+- en: What is the purpose of adding the new vertex *s* to *V*, yielding *V*′?
+  id: totrans-259
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 将新顶点*s*添加到*V*，得到*V*′的目的是什么？
+- en: '***23.3-3***'
+  id: totrans-260
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-3***'
+- en: Suppose that *w*(*u*, *v*) ≥ 0 for all edges (*u*, *v*) ∈ *E*. What is the relationship
+    between the weight functions *w* and *ŵ*?
+  id: totrans-261
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 假设对于所有边(*u*, *v*) ∈ *E*，*w*(*u*, *v*) ≥ 0。权重函数*w*和*ŵ*之间有什么关系？
+- en: '***23.3-4***'
+  id: totrans-262
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-4***'
+- en: 'Professor Greenstreet claims that there is a simpler way to reweight edges
+    than the method used in Johnson’s algorithm. Letting *w** = min {*w*(*u*, *v*)
+    : (*u*, *v*) ∈ *E*}, just define *ŵ*(*u*, *v*) = *w*(*u*, *v*) − *w** for all
+    edges (*u*, *v*) ∈ *E*. What is wrong with the professor’s method of reweighting?'
+  id: totrans-263
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '格林斯威特教授声称重新赋权边的方法比约翰逊算法中使用的方法更简单。让*w** = min {*w*(*u*, *v*) : (*u*, *v*) ∈
+    *E*}，只需定义对于所有边(*u*, *v*) ∈ *E*，*ŵ*(*u*, *v*) = *w*(*u*, *v*) − *w**。教授的重新赋权方法有什么问题？'
+- en: '***23.3-5***'
+  id: totrans-264
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-5***'
+- en: Show that if *G* contains a 0-weight cycle *c*, then *ŵ*(*u*, *v*) = 0 for every
+    edge (*u*, *v*) in *c*.
+  id: totrans-265
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 展示如果*G*包含一个0权重循环*c*，那么对于循环中的每条边(*u*, *v*)，*ŵ*(*u*, *v*) = 0。
+- en: '***23.3-6***'
+  id: totrans-266
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23.3-6***'
+- en: Professor Michener claims that there is no need to create a new source vertex
+    in line 1 of JOHNSON. He suggests using *G*′ = *G* instead and letting *s* be
+    any vertex. Give an example of a weighted, directed graph *G* for which incorporating
+    the professor’s idea into JOHNSON causes incorrect answers. Assume that ∞ − ∞
+    is undefined, and in particular, it is not 0\. Then show that if *G* is strongly
+    connected (every vertex is reachable from every other vertex), the results returned
+    by JOHNSON with the professor’s modification are correct.
+  id: totrans-267
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 米歇纳教授声称在JOHNSON的第1行中没有必要创建新的源顶点。他建议使用*G*′ = *G*，并让*s*成为任何顶点。给出一个加权有向图*G*的例子，其中将教授的想法纳入JOHNSON会导致错误答案。假设∞
+    − ∞未定义，特别地，不是0。然后证明如果*G*是强连通的（每个顶点都可以从任何其他顶点到达），则JOHNSON在教授的修改下返回的结果是正确的。
+- en: '**Problems**'
+  id: totrans-268
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**问题**'
+- en: '***23-1     Transitive closure of a dynamic graph***'
+  id: totrans-269
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23-1     动态图的传递闭包***'
+- en: You wish to maintain the transitive closure of a directed graph *G* = (*V*,
+    *E*) as you insert edges into *E*. That is, after inserting an edge, you update
+    the transitive closure of the edges inserted so far. Start with *G* having no
+    edges initially, and represent the transitive closure by a boolean matrix.
+  id: totrans-270
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 您希望在向图*G* = (*V*, *E*)中插入边时保持传递闭包。也就是说，在插入边后，更新到目前为止插入的边的传递闭包。从一开始，*G*最初没有边，并通过布尔矩阵表示传递闭包。
+- en: '***a.*** Show how to update the transitive closure *G** = (*V*, *E**) of a
+    graph *G* = (*V*, *E*) in *O*(*V*²) time when a new edge is added to *G*.'
+  id: totrans-271
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 展示如何在向图*G* = (*V*, *E*)添加新边时，在*O*(*V*²)时间内更新图的传递闭包*G** = (*V*, *E**)。'
+- en: '***b.*** Give an example of a graph *G* and an edge *e* such that Ω(*V*²) time
+    is required to update the transitive closure after inserting *e* into *G*, no
+    matter what algorithm is used.'
+  id: totrans-272
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 给出一个图*G*和一条边*e*的例子，无论使用什么算法，插入*e*到*G*后更新传递闭包需要Ω(*V*²)时间。'
+- en: '***c.*** Give an algorithm for updating the transitive closure as edges are
+    inserted into the graph. For any sequence of *r* insertions, your algorithm should
+    run in time ![art](images/Art_P750.jpg), where *t[i]* is the time to update the
+    transitive closure upon inserting the *i*th edge. Prove that your algorithm attains
+    this time bound.'
+  id: totrans-273
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 给出一个算法，随着边被插入图中，更新传递闭包。对于任何一系列*r*次插入，您的算法应在时间![art](images/Art_P750.jpg)内运行，其中*t[i]*是插入第*i*条边时更新传递闭包的时间。证明您的算法达到了这个时间界限。'
+- en: '***23-2     Shortest paths in *ϵ*-dense graphs***'
+  id: totrans-274
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***23-2     *ϵ*-密集图中的最短路径***'
+- en: A graph *G* = (*V*, *E*) is ***ϵ-dense*** if |*E*| = Θ(*V*^(1+*ϵ*)) for some
+    constant in the range 0 < *ϵ* ≤ 1\. *d*-ary min-heaps (see Problem 6-2 on page
+    179) provide a way to match the running times of Fibonacci-heap-based shortest-path
+    algorithms on *ϵ*-dense graphs without using as complicated a data structure.
+  id: totrans-275
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 如果|*E*| = Θ(*V*^(1+*ϵ*))，对于范围在0 < *ϵ* ≤ 1的常数，那么图*G* = (*V*, *E*)是***ϵ-密集***的。*d*叉最小堆（参见第179页的问题6-2）提供了一种在*ϵ*-密集图上匹配斐波那契堆最短路径算法的运行时间而不使用复杂数据结构的方法。
+- en: '***a.*** What are the asymptotic running times for the operations INSERT, EXTRACT-MIN,
+    and DECREASE-KEY, as a function of *d* and the number *n* of elements in a *d*-ary
+    min-heap? What are these running times if you choose *d* = Θ(*n^π*) for some constant
+    0 < *α* ≤ 1? Compare these running times to the amortized costs of these operations
+    for a Fibonacci heap.'
+  id: totrans-276
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***a.*** 对于操作INSERT、EXTRACT-MIN和DECREASE-KEY，作为*d*和*d*叉最小堆中元素数*n*的函数，渐近运行时间是多少？如果选择*d*
+    = Θ(*n^π*)，其中常数0 < *α* ≤ 1，这些运行时间又是多少？将这些运行时间与斐波那契堆的摊还成本进行比较。'
+- en: '***b.*** Show how to compute shortest paths from a single source on an *ϵ*-dense
+    directed graph *G* = (*V*, *E*) with no negative-weight edges in *O*(*E*) time.
+    (*Hint:* Pick *d* as a function of *ϵ*.)'
+  id: totrans-277
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***b.*** 展示如何在没有负权边的*ϵ*-密集有向图*G* = (*V*, *E*)上以*O*(*E*)时间计算从单个源点到最短路径。(*提示:*
+    选择*d*作为*ϵ*的函数。)'
+- en: '***c.*** Show how to solve the all-pairs shortest-paths problem on an *ϵ*-dense
+    directed graph *G* = (*V*, *E*) with no negative-weight edges in *O*(*VE*) time.'
+  id: totrans-278
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***c.*** 展示如何在没有负权边的*ϵ*-密集有向图*G* = (*V*, *E*)上以*O*(*VE*)时间解决全对最短路径问题。'
+- en: '***d.*** Show how to solve the all-pairs shortest-paths problem in *O*(*VE*)
+    time on an *ϵ*-dense directed graph *G* = (*V*, *E*) that may have negative-weight
+    edges but has no negative-weight cycles.'
+  id: totrans-279
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '***d.*** 展示如何在可能具有负权边但没有负权环的*ϵ*-密集有向图*G* = (*V*, *E*)上以*O*(*VE*)时间解决全对最短路径问题。'
+- en: '**Chapter notes**'
+  id: totrans-280
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '**章节注释**'
+- en: Lawler [[276](bibliography001.xhtml#endnote_276)] has a good discussion of the
+    all-pairs shortest-paths problem. He attributes the matrix-multiplication algorithm
+    to the folklore. The Floyd-Warshall algorithm is due to Floyd [[144](bibliography001.xhtml#endnote_144)],
+    who based it on a theorem of Warshall [[450](bibliography001.xhtml#endnote_450)]
+    that describes how to compute the transitive closure of boolean matrices. Johnson’s
+    algorithm is taken from [[238](bibliography001.xhtml#endnote_238)].
+  id: totrans-281
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 劳勒[[276](bibliography001.xhtml#endnote_276)]对全对最短路径问题进行了深入讨论。他将矩阵乘法算法归功于传说。弗洛伊德-沃舍尔算法归功于弗洛伊德[[144](bibliography001.xhtml#endnote_144)]，他基于沃舍尔[[450](bibliography001.xhtml#endnote_450)]的一个定理描述了如何计算布尔矩阵的传递闭包。约翰逊的算法取自[[238](bibliography001.xhtml#endnote_238)]。
+- en: Several researchers have given improved algorithms for computing shortest paths
+    via matrix multiplication. Fredman [[153](bibliography001.xhtml#endnote_153)]
+    shows how to solve the all-pairs shortest paths problem using *O*(*V*^(5/2)) comparisons
+    between sums of edge weights and obtains an algorithm that runs in *O*(*V*³lg
+    lg *V*/lg *V*/^(1/3)) time, which is slightly better than the running time of
+    the Floyd-Warshall algorithm. This bound has been improved several times, and
+    the fastest algorithm is now by Williams [[457](bibliography001.xhtml#endnote_457)],
+    with a running time of ![art](images/Art_P751.jpg).
+  id: totrans-282
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 几位研究人员提出了通过矩阵乘法计算最短路径的改进算法。Fredman[[153](bibliography001.xhtml#endnote_153)]展示了如何使用*O*(*V*^(5/2))比较边权重之和来解决全对最短路径问题，并获得了一个运行时间为*O*(*V*³lg
+    lg *V*/lg *V*/^(1/3))的算法，略优于Floyd-Warshall算法的运行时间。这个界限已经被多次改进，现在最快的算法是由Williams[[457](bibliography001.xhtml#endnote_457)]提出的，运行时间为![art](images/Art_P751.jpg)。
+- en: Another line of research demonstrates how to apply algorithms for fast matrix
+    multiplication (see the chapter notes for [Chapter 4](chapter004.xhtml)) to the
+    all-pairs shortest paths problem. Let *O*(*n*^ω) be the running time of the fastest
+    algorithm for multiplying two *n* × *n* matrices. Galil and Margalit [[170](bibliography001.xhtml#endnote_170),
+    [171](bibliography001.xhtml#endnote_171)] and Seidel [[403](bibliography001.xhtml#endnote_403)]
+    designed algorithms that solve the all-pairs shortest paths problem in undirected,
+    unweighted graphs in (*V*^ω*p*(*V*)) time, where *p*(*n*) denotes a particular
+    function that is polylogarithmically bounded in *n*. In dense graphs, these algorithms
+    are faster than the *O*(*VE*) time needed to perform |*V*| breadth-first searches.
+    Several researchers have extended these results to give algorithms for solving
+    the all-pairs shortest paths problem in undirected graphs in which the edge weights
+    are integers in the range {1, 2, … , *W*}. The asymptotically fastest such algorithm,
+    by Shoshan and Zwick [[410](bibliography001.xhtml#endnote_410)], runs in *O*(*W
+    V*^ω*p*(*V W*)) time. In directed graphs, the best algorithm to date is due to
+    Zwick [[467](bibliography001.xhtml#endnote_467)] and runs in *Õ*(*W*^(1/(4−ω))*V*^(2+1/(4−ω)))
+    time.
+  id: totrans-283
+  prefs: []
+  type: TYPE_NORMAL
+  zh: 另一项研究表明如何将快速矩阵乘法算法（参见[第4章](chapter004.xhtml)的章节注释）应用于全对最短路径问题。设*O*(*n*^ω)为两个*n*
+    × *n*矩阵相乘的最快算法的运行时间。Galil和Margalit[[170](bibliography001.xhtml#endnote_170), [171](bibliography001.xhtml#endnote_171)]以及Seidel[[403](bibliography001.xhtml#endnote_403)]设计了算法，以(*V*^ω*p*(*V*))时间解决了无向、无权图中的全对最短路径问题，其中*p*(*n*)表示一个在*n*中具有对数界限的特定函数。在稠密图中，这些算法比执行|*V*|个广度优先搜索所需的*O*(*VE*)时间更快。一些研究人员已将这些结果扩展到解决无向图中边权值为{1,
+    2, … , *W*}的整数的全对最短路径问题的算法。Shoshan和Zwick[[410](bibliography001.xhtml#endnote_410)]提出的渐近最快算法在*O*(*W
+    V*^ω*p*(*V W*))时间内运行。在有向图中，迄今为止最好的算法归功于Zwick[[467](bibliography001.xhtml#endnote_467)]，运行时间为*Õ*(*W*^(1/(4−ω))*V*^(2+1/(4−ω)))。
+- en: Karger, Koller, and Phillips [[244](bibliography001.xhtml#endnote_244)] and
+    independently McGeoch [[320](bibliography001.xhtml#endnote_320)] have given a
+    time bound that depends on *E**, the set of edges in *E* that participate in some
+    shortest path. Given a graph with nonnegative edge weights, their algorithms run
+    in *O*(*VE** + *V*² lg *V*) time and improve upon running Dijkstra’s algorithm
+    |*V*| times when |*E**| = *o*(*E*). Pettie [[355](bibliography001.xhtml#endnote_355)]
+    uses an approach based on component hierarchies to achieve a running time of *O*(*VE*
+    + *V*² lg lg *V*), and the same running time is also achieved by Hagerup [[205](bibliography001.xhtml#endnote_205)].
+  id: totrans-284
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Karger、Koller和Phillips[[244](bibliography001.xhtml#endnote_244)]以及独立的McGeoch[[320](bibliography001.xhtml#endnote_320)]给出了一个取决于*E*的时间界限，*E*是参与某些最短路径的边集。给定具有非负边权重的图，他们的算法在*O*(*VE**
+    + *V*² lg *V*)时间内运行，并改进了当|*E**| = *o*(*E*)时运行Dijkstra算法|*V*|次的情况。Pettie[[355](bibliography001.xhtml#endnote_355)]使用基于组件层次结构的方法，实现了*O*(*VE*
+    + *V*² lg lg *V*)的运行时间，Hagerup[[205](bibliography001.xhtml#endnote_205)]也实现了相同的运行时间。
+- en: Baswana, Hariharan, and Sen [[37](bibliography001.xhtml#endnote_37)] examined
+    decremental algorithms, which allow a sequence of intermixed edge deletions and
+    queries, for maintaining all-pairs shortest paths and transitive-closure information.
+    When a path exists, their randomized transitive-closure algorithm can fail to
+    report it with probability 1/*n^c* for an arbitrary *c* > 0\. The query times
+    are *O*(1) with high probability. For transitive closure, the amortized time for
+    each update is *O*(*V*^(4/3) lg^(1/3)*V*). By comparison, Problem 23-1, in which
+    edges are inserted, asks for an incremental algorithm. For all-pairs shortest
+    paths, the update times depend on the queries. For queries just giving the shortest-path
+    weights, the amortized time per update is *O*(*V*³/*E* lg²*V*). To report the
+    actual shortest path, the amortized update time is min ![art](images/Art_P752.jpg).
+    Demetrescu and Italiano [[111](bibliography001.xhtml#endnote_111)] showed how
+    to handle update and query operations when edges are both inserted and deleted,
+    as long as the range of edge weights is bounded.
+  id: totrans-285
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Baswana、Hariharan和Sen[[37](bibliography001.xhtml#endnote_37)]研究了递减算法，允许一系列交错的边删除和查询，用于维护全对最短路径和传递闭包信息。当存在路径时，他们的随机传递闭包算法可能以概率1/*n^c*（其中*c*>0）未报告路径。查询时间为*O*(1)，概率很高。对于传递闭包，每次更新的摊销时间为*O*(*V*^(4/3)
+    lg^(1/3)*V*)。相比之下，插入边的问题23-1要求增量算法。对于全对最短路径，更新时间取决于查询。对于仅给出最短路径权重的查询，每次更新的摊销时间为*O*(*V*³/*E*
+    lg²*V*)。要报告实际最短路径，摊销更新时间为min ![art](images/Art_P752.jpg)。Demetrescu和Italiano[[111](bibliography001.xhtml#endnote_111)]展示了如何处理插入和删除边时的更新和查询操作，只要边权值范围有界。
+- en: Aho, Hopcroft, and Ullman [[5](bibliography001.xhtml#endnote_5)] defined an
+    algebraic structure known as a “closed semiring,” which serves as a general framework
+    for solving path problems in directed graphs. Both the Floyd-Warshall algorithm
+    and the transitive-closure algorithm from [Section 23.2](chapter023.xhtml#Sec_23.2)
+    are instantiations of an all-pairs algorithm based on closed semirings. Maggs
+    and Plotkin [[309](bibliography001.xhtml#endnote_309)] showed how to find minimum
+    spanning trees using a closed semiring.
+  id: totrans-286
+  prefs: []
+  type: TYPE_NORMAL
+  zh: Aho、Hopcroft 和 Ullman [[5](bibliography001.xhtml#endnote_5)] 定义了一种称为“闭半环”的代数结构，它作为解决有向图中路径问题的一般框架。Floyd-Warshall
+    算法和来自 [第 23.2 节](chapter023.xhtml#Sec_23.2) 的传递闭包算法都是基于闭半环的全对算法的实例。Maggs 和 Plotkin
+    [[309](bibliography001.xhtml#endnote_309)] 展示了如何使用闭半环找到最小生成树。
+- en: '[¹](#footnote_ref_1) According to a report cited by U.S. Department of Transportation
+    Federal Highway Administration, “a reasonable ‘rule of thumb’ is one signalized
+    intersection per 1,000 population.”'
+  id: totrans-287
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 根据美国交通部联邦公路管理局引用的一份报告，“一个合理的‘经验法则’是每 1,000 人口一个信号化交叉口。”'
+- en: '[²](#footnote_ref_2) An algebraic ***semiring*** contains operations ⊕, which
+    is commutative with identity *I*[⊕], and ⊕, with identity *I*[⊕], where ⊕ distributes
+    over ⊕ on both the left and right, and where *I*[⊕]⊕*x* = *x*⊕*I*[⊕] = *I*[⊕]
+    for all *x*. Standard matrix multiplication, as in MATRIX-MULTIPLY, uses the semiring
+    with + for ⊕, ⊕ for ⊕, 0 for *I*[⊕], and 1 for *I*[⊕]. The procedure EXTEND-SHORTEST-PATHS
+    uses another semiring, known as the ***tropical semiring***, with min for ⊕, +
+    for ⊕, ∞ for *I*[⊕], and 0 for *I*[⊕].'
+  id: totrans-288
+  prefs: []
+  type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 代数***半环***包含操作 ⊕，其与单位元 *I*[⊕] 交换律，以及 ⊕，其与单位元 *I*[⊕]，其中
+    ⊕ 在左右两侧都分配给 ⊕，并且 *I*[⊕]⊕*x* = *x*⊕*I*[⊕] = *I*[⊕] 对于所有 *x* 成立。标准矩阵乘法，如在 MATRIX-MULTIPLY
+    中，使用带有 + 的半环 ⊕，带有 ⊕ 的 ⊕，带有 0 的 *I*[⊕]，以及带有 1 的 *I*[⊕]。EXTEND-SHORTEST-PATHS 程序使用另一个半环，称为***热带半环***，其中
+    min 用于 ⊕，+ 用于 ⊕，∞ 用于 *I*[⊕]，0 用于 *I*[⊕]。'
