@@ -1,0 +1,1347 @@
+- en: '[**23        All-Pairs Shortest Paths**](toc.xhtml#chap-23)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter, we turn to the problem of finding shortest paths between all
+    pairs of vertices in a graph. A classic application of this problem occurs in
+    computing a table of distances between all pairs of cities for a road atlas. Classic
+    perhaps, but not a true application of finding shortest paths between *all* pairs
+    of vertices. After all, a road map modeled as a graph has one vertex for *every*
+    road intersection and one edge wherever a road connects intersections. A table
+    of intercity distances in an atlas might include distances for 100 cities, but
+    the United States has approximately 300,000 signal-controlled intersections^([1](#footnote_1))
+    and many more uncontrolled intersections.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A legitimate application of all-pairs shortest paths is to determine the ***diameter***
+    of a network: the longest of all shortest paths. If a directed graph models a
+    communication network, with the weight of an edge indicating the time required
+    for a message to traverse a communication link, then the diameter gives the longest
+    possible transit time for a message in the network.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As in [Chapter 22](chapter022.xhtml), the input is a weighted, directed graph
+    *G* = (*V*, *E*) with a weight function *w* : *E* → ℝ that maps edges to real-valued
+    weights. Now the goal is to find, for every pair of vertices *u, v* ∈ *V*, a shortest
+    (least-weight) path from *u* to *v*, where the weight of a path is the sum of
+    the weights of its constituent edges. For the all-pairs problem, the output typically
+    takes a tabular form in which the entry in *u*’s row and *v*’s column is the weight
+    of a shortest path from *u* to *v*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can solve an all-pairs shortest-paths problem by running a single-source
+    shortest-paths algorithm |*V*| times, once with each vertex as the source. If
+    all edge weights are nonnegative, you can use Dijkstra’s algorithm. If you implement
+    the min-priority queue with a linear array, the running time is *O*(*V*³ + *VE*)
+    which is *O*(*V*³). The binary min-heap implementation of the min-priority queue
+    yields a running time of *O*(*V*(*V* + *E*) lg *V*). If |*E*| = Ω(*V*), the running
+    time becomes *O*(*VE* lg *V*), which is faster than *O*(*V*³) if the graph is
+    sparse. Alternatively, you can implement the min-priority queue with a Fibonacci
+    heap, yielding a running time of *O*(*V*² lg *V* + *VE*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the graph contains negative-weight edges, Dijkstra’s algorithm doesn’t work,
+    but you can run the slower Bellman-Ford algorithm once from each vertex. The resulting
+    running time is *O*(*V*²*E*), which on a dense graph is *O*(*V*⁴). This chapter
+    shows how to guarantee a much better asymptotic running time. It also investigates
+    the relation of the all-pairs shortest-paths problem to matrix multiplication.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unlike the single-source algorithms, which assume an adjacency-list representation
+    of the graph, most of the algorithms in this chapter represent the graph by an
+    adjacency matrix. (Johnson’s algorithm for sparse graphs, in [Section 23.3](chapter023.xhtml#Sec_23.3),
+    uses adjacency lists.) For convenience, we assume that the vertices are numbered
+    1, 2, … , |*V*|, so that the input is an *n* × *n* matrix *W* = (*w[ij]*) representing
+    the edge weights of an *n*-vertex directed graph *G* = (*V*, *E*), where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P679.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The graph may contain negative-weight edges, but we assume for the time being
+    that the input graph contains no negative-weight cycles.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The tabular output of each of the all-pairs shortest-paths algorithms presented
+    in this chapter is an *n* × *n* matrix. The (*i*, *j*) entry of the output matrix
+    contains δ(*i*, *j), the shortest-path weight from vertex i* to vertex *j*, as
+    in [Chapter 22](chapter022.xhtml).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A full solution to the all-pairs shortest-paths problem includes not only the
+    shortest-path weights but also a ***predecessor matrix*** Π = (π[*ij*]), where
+    π[*ij*] is NIL if either *i* = *j* or there is no path from *i* to *j*, and otherwise
+    π[*ij*] is the predecessor of *j* on some shortest path from *i*. Just as the
+    predecessor subgraph *G*[π] from [Chapter 22](chapter022.xhtml) is a shortest-paths
+    tree for a given source vertex, the subgraph induced by the *i*th row of the Π
+    matrix should be a shortest-paths tree with root *i*. For each vertex *i* ∈ *V*,
+    the ***predecessor subgraph*** of *G* for *i* is *G*[π,*i*] = (*V*[π,*i*], *E*[π,*i*]),
+    where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *V*[π,*i*] | = | {*j* ∈ *V* : π[*ij*] ≠ NIL} ∪ {*i*}, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *E*[π,*i*] | = | {(π[*ij*], *j*) : *j* ∈ *V*[π,*i*] − {*i*}}. |'
+  prefs: []
+  type: TYPE_TB
+- en: If *G*[π,*i*] is a shortest-paths tree, then PRINT-ALL-PAIRS-SHORTEST-PATH on
+    the following page, which is a modified version of the PRINT-PATH procedure from
+    [Chapter 20](chapter020.xhtml), prints a shortest path from vertex *i* to vertex
+    *j*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to highlight the essential features of the all-pairs algorithms in
+    this chapter, we won’t cover how to compute predecessor matrices and their properties
+    as extensively as we dealt with predecessor subgraphs in [Chapter 22](chapter022.xhtml).
+    Some of the exercises cover the basics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, *j*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **if** *i* == *j* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | print *i* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **elseif** π[*ij*] == NIL |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | print “no path from” *i* “to” *j* “exists” |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | **else** PRINT-ALL-PAIRS-SHORTEST-PATH(Π, *i*, π[*ij*]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | print *j* |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Chapter outline**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Section 23.1](chapter023.xhtml#Sec_23.1) presents a dynamic-programming algorithm
+    based on matrix multiplication to solve the all-pairs shortest-paths problem.
+    The technique of “repeated squaring” yields a running time of Θ(*V*³ lg *V*).
+    [Section 23.2](chapter023.xhtml#Sec_23.2) gives another dynamic-programming algorithm,
+    the Floyd-Warshall algorithm, which runs in Θ(*V*³) time. [Section 23.2](chapter023.xhtml#Sec_23.2)
+    also covers the problem of finding the transitive closure of a directed graph,
+    which is related to the all-pairs shortest-paths problem. Finally, [Section 23.3](chapter023.xhtml#Sec_23.3)
+    presents Johnson’s algorithm, which solves the all-pairs shortest-paths problem
+    in *O*(*V*² lg *V* + *VE*) time and is a good choice for large, sparse graphs.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before proceeding, we need to establish some conventions for adjacency-matrix
+    representations. First, we generally assume that the input graph *G* = (*V*, *E*)
+    has *n* vertices, so that *n* = |*V*|. Second, we use the convention of denoting
+    matrices by uppercase letters, such as *W*, *L*, or *D*, and their individual
+    elements by subscripted lowercase letters, such as *w[ij]*, *l[ij]*, or *d[ij]*.
+    Finally, some matrices have parenthesized superscripts, as in ![art](images/Art_P680.jpg)
+    or ![art](images/Art_P680a.jpg), to indicate iterates.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**23.1    Shortest paths and matrix multiplication**](toc.xhtml#Rh1-136)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This section presents a dynamic-programming algorithm for the all-pairs shortest-paths
+    problem on a directed graph *G* = (*V*, *E*). Each major loop of the dynamic program
+    invokes an operation similar to matrix multiplication, so that the algorithm looks
+    like repeated matrix multiplication. We’ll start by developing a Θ(*V*⁴)-time
+    algorithm for the all-pairs shortest-paths problem, and then we’ll improve its
+    running time to Θ(*V*³ lg *V*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Before proceeding, let’s briefly recap the steps given in [Chapter 14](chapter014.xhtml)
+    for developing a dynamic-programming algorithm:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Characterize the structure of an optimal solution.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Recursively define the value of an optimal solution.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Compute the value of an optimal solution in a bottom-up fashion.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We reserve the fourth step—constructing an optimal solution from computed information—for
+    the exercises.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The structure of a shortest path**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s start by characterizing the structure of an optimal solution. Lemma 22.1
+    tells us that all subpaths of a shortest path are shortest paths. Consider a shortest
+    path *p* from vertex *i* to vertex *j*, and suppose that *p* contains at most
+    *r* edges. Assuming that there are no negative-weight cycles, *r* is finite. If
+    *i = j*, then *p* has weight 0 and no edges. If vertices *i* and *j* are distinct,
+    then decompose path *p* into ![art](images/Art_P681.jpg), where path *p*′ now
+    contains at most *r* − 1 edges. Lemma 22.1 says that *p*′ is a shortest path from
+    *i* to *k*, and so δ(*i*, *j*) = δ(*i*, *k*) + *w[kj]*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**A recursive solution to the all-pairs shortest-paths problem**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, let ![art](images/Art_P682.jpg) be the minimum weight of any path from
+    vertex *i* to vertex *j* that contains at most *r* edges. When *r* = 0, there
+    is a shortest path from *i* to *j* with no edges if and only if *i* = *j*, yielding
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P683.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For *r* ≥ 1, one way to achieve a minimum-weight path from *i* to *j* with at
+    most *r* edges is by taking a path containing at most *r* − 1 edges, so that ![art](images/Art_P684.jpg).
+    Another way is by taking a path of at most *r* − 1 edges from *i* to some vertex
+    *k* and then taking the edge (*k*, *j*), so that ![art](images/Art_P685.jpg).
+    Therefore, to examine paths from *i* to *j* consisting of at most *r* edges, try
+    all possible predecessors *k* of *j*, giving the recursive definition
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P686.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The last equality follows from the observation that *w[jj]* = 0 for all *j*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What are the actual shortest-path weights δ(*i*, *j*)? If the graph contains
+    no negative-weight cycles, then whenever δ(*i*, *j*) < ∞, there is a shortest
+    path from vertex *i* to vertex *j* that is simple. (A path *p* from *i* to *j*
+    that is not simple contains a cycle. Since each cycle’s weight is nonnegative,
+    removing all cycles from the path leaves a simple path with weight no greater
+    than *p*’s weight.) Because any simple path contains at most *n* − 1 edges, a
+    path from vertex *i* to vertex *j* with more than *n* − 1 edges cannot have lower
+    weight than a shortest path from *i* to *j*. The actual shortest-path weights
+    are therefore given by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P687.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Computing the shortest-path weights bottom up**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Taking as input the matrix *W* = (*w[ij]*), let’s see how to compute a series
+    of matrices *L*^((0)), *L*^((1)), … , *L*^((*n*−1)), where ![art](images/Art_P688.jpg)
+    for *r* = 0, 1, … , *n* − 1\. The initial matrix is *L*^((0)) given by equation
+    (23.2). The final matrix *L*^((*n*−1)) contains the actual shortest-path weights.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The heart of the algorithm is the procedure EXTEND-SHORTEST-PATHS, which implements
+    equation (23.3) for all *i* and *j*. The four inputs are the matrix *L*^((*r*−1))
+    computed so far; the edge-weight matrix *W*; the output matrix *L*^((*r*)), which
+    will hold the computed result and whose elements are all initialized to ∞ before
+    invoking the procedure; and the number *n* of vertices. The superscripts *r* and
+    *r* − 1 help to make the correspondence of the pseudocode with equation (23.3)
+    plain, but they play no actual role in the pseudocode. The procedure extends the
+    shortest paths computed so far by one more edge, producing the matrix *L*^((*r*))
+    of shortest-path weights from the matrix *L*^((*r*−1)) computed so far. Its running
+    time is Θ(*n*³) due to the three nested **for** loops.
+  prefs: []
+  type: TYPE_NORMAL
+- en: EXTEND-SHORTEST-PATHS(*L*^((*r*−1)), *W*, *L*^((*r*)), *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | // Assume that the elements of *L*^((*r*)) are initialized to ∞. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **for** *i* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **for** *j* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **for** *k* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | ![art](images/Art_P689.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: 'Let’s now understand the relation of this computation to matrix multiplication.
+    Consider how to compute the matrix product *C* = *A* · *B* of two *n* × *n* matrices
+    *A* and *B*. The straightforward method used by MATRIX-MULTIPLY on page 81 uses
+    a triply nested loop to implement equation (4.1), which we repeat here for convenience:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P690.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for *i*, *j* = 1, 2, … , *n*. Now make the substitutions
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *l*^((*r*−1)) |  →  | *a*, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *w* |  →  | *b*, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *l*^((*r*)) |  →  | *c*, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| min |  →  | +, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| + |  →  | . |'
+  prefs: []
+  type: TYPE_TB
+- en: in equation (23.3). You get equation (23.5)! Making these changes to EXTEND-SHORTEST-PATHS,
+    and also replacing ∞ (the identity for min) by 0 (the identity for +), yields
+    the procedure MATRIX-MULTIPLY. We can see that the procedure EXTEND-SHORTEST-PATHS(*L*^((*r*−1)),
+    *W*, *L*^((*r*)), *n*) computes the matrix “product” *L*^((*r*)) = *L*^((*r*−1)).
+    *W* using this unusual definition of matrix multiplication.^([2](#footnote_2))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Thus, we can solve the all-pairs shortest-paths problem by repeatedly multiplying
+    matrices. Each step extends the shortest-path weights computed so far by one more
+    edge using EXTEND-SHORTEST-PATHS(*L*^((*r*−1)), *W*, *L*^((*r*)), *n*) to perform
+    the matrix multiplication. Starting with the matrix *L*^((0)), we produce the
+    following sequence of *n* − 1 matrices corresponding to powers of *W*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *L*^((1)) | = | *L*^((0)) · *W* | = | *W*¹, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *L*^((2)) | = | *L*^((1)) · *W* | = | *W*², |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *L*^((3)) | = | *L*^((2)) · *W* | = | *W*³, |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  |  | ⋮ |  |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *L*^((*n*−1)) | = | *L*^((*n*−2)) · *W* | = | *W*^(*n*−1). |'
+  prefs: []
+  type: TYPE_TB
+- en: At the end, the matrix *L*^((*n*−1)) = *W*^(*n*−1) contains the shortest-path
+    weights.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The procedure SLOW-APSP on the next page computes this sequence in Θ(*n*⁴) time.
+    The procedure takes the *n* × *n* matrices *W* and *L*^((0)) as inputs, along
+    with *n*. [Figure 23.1](chapter023.xhtml#Fig_23-1) illustrates its operation.
+    The pseudocode uses two *n* × *n* matrices *L* and *M* to store powers of *W*,
+    computing *M* = *L* · *W* on each iteration. Line 2 initializes *L* = *L*^((0)).
+    For each iteration *r*, line 4 initializes *M* = ∞, where ∞ in this context is
+    a matrix of scalar ∞ values. The *r*th iteration starts with the invariant *L*
+    = *L*^((*r*−1)) = *W*^(*r*−1). Line 6 computes *M* = *L* · *W* = *L*^((*r*−1))
+    · *W* = *W*^(*r*−1) · *W* = *W*^(*r*) = *L*^((*r*)) so that the invariant can
+    be restored for the next iteration by line 7, which sets *L* = *M*. At the end,
+    the matrix *L* = *L*^((*n*−1)) = *W*^(*n*−1) of shortest-path weights is returned.
+    The assignments to *n* × *n* matrices in lines 2, 4, and 7 implicitly run doubly
+    nested loops that take Θ(*n*²) time for each assignment. The *n* − 1 invocations
+    of EXTEND-SHORTEST-PATHS, each of which takes Θ(*n*³) time, dominate the computation,
+    yielding a total running time of Θ(*n*⁴).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P691.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.1** A directed graph and the sequence of matrices *L*^((*r*)) computed
+    by SLOW-APSP. You might want to verify that *L*^((5)), defined as *L*^((4)) ·
+    *W*, equals *L*^((4)), and thus *L*^((*r*)) = *L*^((4)) for all *r* ≥ 4.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: SLOW-APSP(*W*, *L*^((0)), *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | let *L* = (*l[ij]*) and *M* = (*m[ij]*) be new *n* × *n* matrices |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | *L* = *L*^((0)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **for** *r* = 1 **to** *n* − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | *M* = ∞       // initialize *M* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | // Compute the matrix “product” *M* = *L* · *W*. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *W*, *M*, *n*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | *L* = *M* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 8 | **return** *L* |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Improving the running time**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Bear in mind that the goal is not to compute *all* the *L*^((*r*)) matrices:
+    only the matrix *L*^((*n*−1)) matters. Recall that in the absence of negative-weight
+    cycles, equation (23.4) implies *L*^((*r*)) = *L*^((*n*−1)) for all integers *r*
+    ≥ *n* − 1\. Just as traditional matrix multiplication is associative, so is matrix
+    multiplication defined by the EXTEND-SHORTEST-PATHS procedure (see Exercise 23.1-4).
+    In fact, we can compute *L*^((*n*−1)) with only ⌈lg(*n* – 1)⌉ matrix products
+    by using the technique of ***repeated squaring***:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P693.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Since 2^(⌈lg(*n* – 1)⌉) ≥ *n* – 1, the final product is ![art](images/Art_P695.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The procedure FASTER-APSP implements this idea. It takes just the *n* × *n*
+    matrix *W* and the size *n* as inputs. Each iteration of the **while** loop of
+    lines 4–8 starts with the invariant *L* = *W^r*, which it squares using EXTEND-SHORTEST-PATHS
+    to obtain the matrix *M* = *L*² = (*W^r*)² = *W*^(2*r*). At the end of each iteration,
+    the value of *r* doubles, and *L* for the next iteration becomes *M*, restoring
+    the invariant. Upon exiting the loop when *r* ≥ *n* − 1, the procedure returns
+    *L* = *W*^r = *L*^((*r*)) = *L*^((*n*−1)) by equation (23.4). As in SLOW-APSP,
+    the assignments to *n* × *n* matrices in lines 2, 5, and 8 implicitly run doubly
+    nested loops, taking Θ(*n*²) time for each assignment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: FASTER-APSP(*W*, *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | let *L* and *M* be new *n* × *n* matrices |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | *L* = *W* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | *r* = 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **while** *r* < *n* − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | *M* = ∞ | // initialize M |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | EXTEND-SHORTEST-PATHS(*L*, *L*, *M*, *n*) | // compute *M* = *L*² |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | *r* = 2*r* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 8 | *L* = *M* | // ready for the next iteration |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 9 | **return** *L* |'
+  prefs: []
+  type: TYPE_TB
+- en: Because each of the ⌈lg(*n* – 1)⌉ matrix products takes Θ(*n*³) time, FASTER-APSP
+    runs in Θ(*n*³ lg *n*) time. The code is tight, containing no elaborate data structures,
+    and the constant hidden in the Θ-notation is therefore small.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Run SLOW-APSP on the weighted, directed graph of [Figure 23.2](chapter023.xhtml#Fig_23-2),
+    showing the matrices that result for each iteration of the loop. Then do the same
+    for FASTER-APSP.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P697.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.2** A weighted, directed graph for use in Exercises 23.1-1, 23.2-1,
+    and 23.3-1.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why is it convenient for both SLOW-APSP and FASTER-APSP that *w[ii]* = 0 for
+    *i* = 1, 2, … , *n*?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What does the matrix
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P698.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: used in the shortest-paths algorithms correspond to in regular matrix multiplication?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that matrix multiplication defined by EXTEND-SHORTEST-PATHS is associative.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show how to express the single-source shortest-paths problem as a product of
+    matrices and a vector. Describe how evaluating this product corresponds to a Bellman-Ford-like
+    algorithm (see [Section 22.1](chapter022.xhtml#Sec_22.1)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Argue that we don’t need the matrix *M* in SLOW-APSP because by substituting
+    *L* for *M* and leaving out the initialization of *M*, the code still works correctly.
+    (*Hint:* Relate line 5 of EXTEND-SHORTEST-PATHS to RELAX on page 610.) Do we need
+    the matrix *M* in FASTER-APSP?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that you also want to compute the vertices on shortest paths in the
+    algorithms of this section. Show how to compute the predecessor matrix Π from
+    the completed matrix *L* of shortest-path weights in *O*(*n*³) time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can also compute the vertices on shortest paths along with computing the
+    shortest-path weights. Define ![art](images/Art_P699.jpg) as the predecessor of
+    vertex *j* on any minimum-weight path from vertex *i* to vertex *j* that contains
+    at most *r* edges. Modify the EXTEND-SHORTEST-PATHS and SLOW-APSP procedures to
+    compute the matrices Π^((1)), Π^((2)), … , Π^((*n*−1)) as they compute the matrices
+    *L*^((1)), *L*^((2)), … , *L*^((*n*−1)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Modify FASTER-APSP so that it can determine whether the graph contains a negative-weight
+    cycle.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.1-10***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Give an efficient algorithm to find the length (number of edges) of a minimum-length
+    negative-weight cycle in a graph.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**23.2    The Floyd-Warshall algorithm**](toc.xhtml#Rh1-137)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Having already seen one dynamic-programming solution to the all-pairs shortest-paths
+    problem, in this section we’ll see another: the ***Floyd-Warshall algorithm***,
+    which runs in Θ(*V*³) time. As before, negative-weight edges may be present, but
+    not negative-weight cycles. As in [Section 23.1](chapter023.xhtml#Sec_23.1), we
+    develop the algorithm by following the dynamic-programming process. After studying
+    the resulting algorithm, we present a similar method for finding the transitive
+    closure of a directed graph.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The structure of a shortest path**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the Floyd-Warshall algorithm, we characterize the structure of a shortest
+    path differently from how we characterized it in [Section 23.1](chapter023.xhtml#Sec_23.1).
+    The Floyd-Warshall algorithm considers the intermediate vertices of a shortest
+    path, where an ***intermediate*** vertex of a simple path *p* = 〈*v*[1], *v*[2],
+    … , *v[l]*〉 is any vertex of *p* other than *v*[1] or *v[l]*, that is, any vertex
+    in the set {*v*[2], *v*[3], … , *v*[*l*−1]}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Floyd-Warshall algorithm relies on the following observation. Numbering
+    the vertices of *G* by *V* = {1, 2, … , *n*}, take a subset {1, 2, … , *k*} of
+    vertices for some 1 ≤ *k* ≤ *n*. For any pair of vertices *i*, *j* ∈ *V*, consider
+    all paths from *i* to *j* whose intermediate vertices are all drawn from {1, 2,
+    … , *k*}, and let *p* be a minimum-weight path from among them. (Path *p* is simple.)
+    The Floyd-Warshall algorithm exploits a relationship between path *p* and shortest
+    paths from *i* to *j* with all intermediate vertices in the set {1, 2, … , *k*
+    − 1}. The details of the relationship depend on whether *k* is an intermediate
+    vertex of path *p* or not.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P700.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.3** Optimal substructure used by the Floyd-Warshall algorithm.
+    Path *p* is a shortest path from vertex *i* to vertex *j*, and *k* is the highest-numbered
+    intermediate vertex of *p*. Path *p*[1], the portion of path *p* from vertex *i*
+    to vertex *k*, has all intermediate vertices in the set {1, 2, … , *k* − 1}. The
+    same holds for path *p*[2] from vertex *k* to vertex *j*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If *k* is not an intermediate vertex of path *p*, then all intermediate vertices
+    of path *p* belong to the set {1, 2, … , *k* − 1}. Thus a shortest path from vertex
+    *i* to vertex *j* with all intermediate vertices in the set {1, 2, … , *k* − 1}
+    is also a shortest path from *i* to *j* with all intermediate vertices in the
+    set {1, 2, … , *k*}.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If *k* is an intermediate vertex of path *p*, then decompose *p* into ![art](images/Art_P701.jpg),
+    as [Figure 23.3](chapter023.xhtml#Fig_23-3) illustrates. By Lemma 22.1, *p*[1]
+    is a shortest path from *i* to *k* with all intermediate vertices in the set {1,
+    2, … , *k*}. In fact, we can make a slightly stronger statement. Because vertex
+    *k* is not an *intermediate* vertex of path *p*[1], all intermediate vertices
+    of *p*[1] belong to the set {1, 2, … , *k* − 1}. Therefore *p*[1] is a shortest
+    path from *i* to *k* with all intermediate vertices in the set {1, 2, … , *k*
+    − 1}. Likewise, *p*[2] is a shortest path from vertex *k* to vertex *j* with all
+    intermediate vertices in the set {1, 2, … , *k* − 1}.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**A recursive solution to the all-pairs shortest-paths problem**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The above observations suggest a recursive formulation of shortest-path estimates
+    that differs from the one in [Section 23.1](chapter023.xhtml#Sec_23.1). Let ![art](images/Art_P702.jpg)
+    be the weight of a shortest path from vertex *i* to vertex *j* for which all intermediate
+    vertices belong to the set {1, 2, … , *k*}. When *k* = 0, a path from vertex *i*
+    to vertex *j* with no intermediate vertex numbered higher than 0 has no intermediate
+    vertices at all. Such a path has at most one edge, and hence ![art](images/Art_P703.jpg).
+    Following the above discussion, define ![art](images/Art_P704.jpg) recursively
+    by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P705.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Because for any path, all intermediate vertices belong to the set {1, 2, …
+    , *n*}, the matrix ![art](images/Art_P706.jpg) gives the final answer: ![art](images/Art_P707.jpg)
+    for all *i*, *j* ∈ *V*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Computing the shortest-path weights bottom up**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Based on recurrence (23.6), the bottom-up procedure FLOYD-WARSHALL computes
+    the values ![art](images/Art_P708.jpg) in order of increasing values of *k*. Its
+    input is an *n* × *n* matrix *W* defined as in equation (23.1). The procedure
+    returns the matrix *D*^((*n*)) of shortest-path weights. [Figure 23.4](chapter023.xhtml#Fig_23-4)
+    shows the matrices *D*^((*k*)) computed by the Floyd-Warshall algorithm for the
+    graph in [Figure 23.1](chapter023.xhtml#Fig_23-1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: FLOYD-WARSHALL(*W*, *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | D^((0)) = *W* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **for** *k* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | let ![art](images/Art_P709.jpg) be a new *n* × *n* matrix |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **for** *i* = 1 **to** n |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | **for** *j* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | ![art](images/Art_P710.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | **return** *D*^((*n*)) |'
+  prefs: []
+  type: TYPE_TB
+- en: The running time of the Floyd-Warshall algorithm is determined by the triply
+    nested **for** loops of lines 2–6\. Because each execution of line 6 takes *O*(1)
+    time, the algorithm runs in Θ(*n*³) time. As in the final algorithm in [Section
+    23.1](chapter023.xhtml#Sec_23.1), the code is tight, with no elaborate data structures,
+    and so the constant hidden in the Θ-notation is small. Thus, the Floyd-Warshall
+    algorithm is quite practical for even moderate-sized input graphs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Constructing a shortest path**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are a variety of different methods for constructing shortest paths in
+    the Floyd-Warshall algorithm. One way is to compute the matrix *D* of shortest-path
+    weights and then construct the predecessor matrix Π from the *D* matrix. Exercise
+    23.1-7 asks you to implement this method so that it runs in *O*(*n*³) time. Given
+    the predecessor matrix Π, the PRINT-ALL-PAIRS-SHORTEST-PATH procedure prints the
+    vertices on a given shortest path.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Alternatively, the predecessor matrix … can be computed while the algorithm
+    computes the matrices *D*^((0)), *D*^((1)), … , *D*^((*n*)). Specifically, compute
+    a sequence of matrices Π^((0)), Π^((1)), … , Π^((*n*)), where Π = Π^((*n*)) and
+    ![art](images/Art_P711.jpg) is the predecessor of vertex *j* on a shortest path
+    from vertex *i* with all intermediate vertices in the set {1, 2, … , *k*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P712.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.4** The sequence of matrices *D*^((*k*)) and Π^((*k*)) computed
+    by the Floyd-Warshall algorithm for the graph in [Figure 23.1](chapter023.xhtml#Fig_23-1).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here’s a recursive formulation of ![art](images/Art_P713.jpg). When *k* = 0,
+    a shortest path from *i* to *j* has no intermediate vertices at all, and so
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P714.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For *k* ≥ 1, if the path has *k* as an intermediate vertex, so that it is *i*
+    ⇝ *k* ⇝ *j* where *k* ≠ *j*, then choose as the predecessor of *j* on this path
+    the same vertex as the predecessor of *j* chosen on a shortest path from *k* with
+    all intermediate vertices in the set {1, 2, … , *k* − 1}. Otherwise, when the
+    path from *i* to *j* does not have *k* as an intermediate vertex, choose the same
+    predecessor of *j* as on a shortest path from *i* with all intermediate vertices
+    in the set {1, 2, … , *k* − 1}. Formally, for *k* ≥ 1,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P715.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Exercise 23.2-3 asks you to show how to incorporate the Π^((*k*)) matrix computations
+    into the FLOYD-WARSHALL procedure. [Figure 23.4](chapter023.xhtml#Fig_23-4) shows
+    the sequence of Π^((*k*)) matrices that the resulting algorithm computes for the
+    graph of [Figure 23.1](chapter023.xhtml#Fig_23-1). The exercise also asks for
+    the more difficult task of proving that the predecessor subgraph *G*[π,*i*] is
+    a shortest-paths tree with root *i*. Exercise 23.2-7 asks for yet another way
+    to reconstruct shortest paths.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Transitive closure of a directed graph**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given a directed graph *G* = (*V*, *E*) with vertex set *V* = {1, 2, … , *n*},
+    you might wish to determine simply whether *G* contains a path from *i* to *j*
+    for all vertex pairs *i*, *j* ∈ *V*, without regard to edge weights. We define
+    the ***transitive closure*** of *G* as the graph *G** = (*V*, *E**), where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*E** = {(*i*, *j*) : there is a path from vertex *i* to vertex *j* in *G*}.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: One way to compute the transitive closure of a graph in Θ(*n*³) time is to assign
+    a weight of 1 to each edge of *E* and run the Floyd-Warshall algorithm. If there
+    is a path from vertex *i* to vertex *j*, you get *d[ij]* < *n*. Otherwise, you
+    get *d[ij]* = ∞.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is another, similar way to compute the transitive closure of *G* in Θ(*n*³)
+    time, which can save time and space in practice. This method substitutes the logical
+    operations ∨ (logical OR) and ∧ (logical AND) for the arithmetic operations min
+    and + in the Floyd-Warshall algorithm. For *i*, *j*, *k* = 1, 2, … , *n*, define
+    ![art](images/Art_P716.jpg) to be 1 if there exists a path in graph *G* from vertex
+    *i* to vertex *j* with all intermediate vertices in the set {1, 2, … , *k*}, and
+    0 otherwise. To construct the transitive closure *G** = (*V*, *E**), put edge
+    (*i*, *j*) into *E** if and only if ![art](images/Art_P717.jpg). A recursive definition
+    of ![art](images/Art_P718.jpg), analogous to recurrence (23.6), is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P719.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.5** A directed graph and the matrices *T*^((*k*)) computed by the
+    transitive-closure algorithm.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P720.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and for *k* ≥ 1,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P721.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: As in the Floyd-Warshall algorithm, the TRANSITIVE-CLOSURE procedure computes
+    the matrices ![art](images/Art_P722.jpg) in order of increasing *k*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: TRANSITIVE-CLOSURE(*G*, *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|   1 | let ![art](images/Art_P723.jpg) be a new *n* × *n* matrix |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   2 | **for** *i* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   3 | **for** *j* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   4 | **if** *i* == *j* or (*i*, *j*) ∈ *G.E* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   5 | ![art](images/Art_P724.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   6 | **else** ![art](images/Art_P725.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   7 | **for** *k* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   8 | let ![art](images/Art_P726.jpg) be a new *n* × *n* matrix |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   9 | **for** *i* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 10 | **for** *j* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 11 | ![art](images/Art_P727.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 12 | **return** *T*^((*n*)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '[Figure 23.5](chapter023.xhtml#Fig_23-5) shows the matrices *T*^((*k*)) computed
+    by the TRANSITIVE-CLOSURE procedure on a sample graph. The TRANSITIVE-CLOSURE
+    procedure, like the Floyd-Warshall algorithm, runs in Θ(*n*³) time. On some computers,
+    though, logical operations on single-bit values execute faster than arithmetic
+    operations on integer words of data. Moreover, because the direct transitive-closure
+    algorithm uses only boolean values rather than integer values, its space requirement
+    is less than the Floyd-Warshall algorithm’s by a factor corresponding to the size
+    of a word of computer storage.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Run the Floyd-Warshall algorithm on the weighted, directed graph of [Figure
+    23.2](chapter023.xhtml#Fig_23-2). Show the matrix *D*^((*k*)) that results for
+    each iteration of the outer loop.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show how to compute the transitive closure using the technique of [Section 23.1](chapter023.xhtml#Sec_23.1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Modify the FLOYD-WARSHALL procedure to compute the Π^((*k*)) matrices according
+    to equations (23.7) and (23.8). Prove rigorously that for all *i* ∈ *V*, the predecessor
+    subgraph *G*[π,*i*] is a shortest-paths tree with root *i*. (*Hint:* To show that
+    *G*[π,*i*] is acyclic, first show that ![art](images/Art_P728.jpg) implies ![art](images/Art_P729.jpg),
+    according to the definition of ![art](images/Art_P730.jpg). Then adapt the proof
+    of Lemma 22.16.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As it appears on page 657, the Floyd-Warshall algorithm requires Θ(*n*³) space,
+    since it creates ![art](images/Art_P731.jpg) for *i*, *j*, *k* = 1, 2, … , *n*.
+    Show that the procedure FLOYD-WARSHALL′, which simply drops all the superscripts,
+    is correct, and thus only Θ(*n*²) space is required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: FLOYD-WARSHALL′(*W*, *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *D* = *W* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **for** *k* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **for** *i* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **for** *j* = 1 **to** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | *d[ij]* = min {*d[ij]*, *d[ik]* + *d[kj]*} |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | **return** *D* |'
+  prefs: []
+  type: TYPE_TB
+- en: '***23.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Consider the following change to how equation (23.8) handles equality:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P732.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Is this alternative definition of the predecessor matrix Π correct?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show how to use the output of the Floyd-Warshall algorithm to detect the presence
+    of a negative-weight cycle.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another way to reconstruct shortest paths in the Floyd-Warshall algorithm uses
+    values ![art](images/Art_P733.jpg) for *i*,*j*,*k* = 1, 2, … , *n*, where ![art](images/Art_P734.jpg)
+    is the highest-numbered intermediate vertex of a shortest path from *i* to *j*
+    in which all intermediate vertices lie in the set {1, 2, … , *k*}. Give a recursive
+    formulation for ![art](images/Art_P735.jpg), modify the FLOYD-WARSHALL procedure
+    to compute the ![art](images/Art_P736.jpg) values, and rewrite the PRINT-ALL-PAIRS-SHORTEST-PATH
+    procedure to take the matrix ![art](images/Art_P737.jpg) as an input. How is the
+    matrix Φ like the *s* table in the matrix-chain multiplication problem of [Section
+    14.2](chapter014.xhtml#Sec_14.2)?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Give an *O*(*VE*)-time algorithm for computing the transitive closure of a directed
+    graph *G* = (*V*, *E*). Assume that |*V*| = *O*(*E*) and that the graph is represented
+    with adjacency lists.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.2-9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that it takes *f*(|*V*|, |*E*|) time to compute the transitive closure
+    of a directed acyclic graph, where *f* is a monotonically increasing function
+    of both |*V*| and |*E*|. Show that the time to compute the transitive closure
+    *G** = (*V*, *E**) of a general directed graph *G* = (*V*, *E*) is then *f*(|*V*|,
+    |*E*|) + *O*(*V* + *E**).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**23.3    Johnson’s algorithm for sparse graphs**](toc.xhtml#Rh1-138)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Johnson’s algorithm finds shortest paths between all pairs in *O*(*V*² lg *V*
+    + *VE*) time. For sparse graphs, it is asymptotically faster than either repeated
+    squaring of matrices or the Floyd-Warshall algorithm. The algorithm either returns
+    a matrix of shortest-path weights for all pairs of vertices or reports that the
+    input graph contains a negative-weight cycle. Johnson’s algorithm uses as subroutines
+    both Dijkstra’s algorithm and the Bellman-Ford algorithm, which [Chapter 22](chapter022.xhtml)
+    describes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Johnson’s algorithm uses the technique of ***reweighting***, which works as
+    follows. If all edge weights *w* in a graph *G* = (*V*, *E*) are nonnegative,
+    Dijkstra’s algorithm can find shortest paths between all pairs of vertices by
+    running it once from each vertex. With the Fibonacci-heap min-priority queue,
+    the running time of this all-pairs algorithm is *O*(*V*² lg *V* + *VE*). If *G*
+    has negative-weight edges but no negative-weight cycles, first compute a new set
+    of nonnegative edge weights so that Dijkstra’s algorithm applies. The new set
+    of edge weights *ŵ* must satisfy two important properties:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For all pairs of vertices *u, v* ∈ *V*, a path *p* is a shortest path from *u*
+    to *v* using weight function *w* if and only if *p* is also a shortest path from
+    *u* to *v* using weight function *ŵ*.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: For all edges (*u*, *v*), the new weight *ŵ*(*u*, *v*) is nonnegative.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: As we’ll see in a moment, preprocessing *G* to determine the new weight function
+    *ŵ* takes *O*(*VE*) time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Preserving shortest paths by reweighting**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following lemma shows how to reweight the edges to satisfy the first property
+    above. We use δ to denote shortest-path weights derived from weight function *w*
+    and ![art](images/Art_P738.jpg) to denote shortest-path weights derived from weight
+    function *ŵ*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Lemma 23.1 (Reweighting does not change shortest paths)***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Given a weighted, directed graph *G* = (*V*, *E*) with weight function *w*
+    : *E* → ℝ, let *h* : *V* → ℝ be any function mapping vertices to real numbers.
+    For each edge (*u*, *v*) ∈ *E*, define'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P739.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Let *p* = 〈*v*[0], *v*[1], … , *v[k]*〉 be any path from vertex *v*[0] to vertex
+    *v[k]*. Then *p* is a shortest path from *v*[0] to *v[k]* with weight function
+    *w* if and only if it is a shortest path with weight function *ŵ*. That is, *w*(*p*)
+    = δ(*v*[0], *v[k]*) if and only if ![art](images/Art_P740.jpg). Furthermore, *G*
+    has a negative-weight cycle using weight function *w* if and only if *G* has a
+    negative-weight cycle using weight function *ŵ*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   We start by showing that'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P741.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: We have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P742.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Therefore, any path *p* from *v*[0] to *v[k]* has *ŵ*(*p*) = *w*(*p*) + *h*(*v*[0])
+    − *h*(*v[k]*). Because *h*(*v*[0]) and *h*(*v[k]*) do not depend on the path,
+    if one path from *v*[0] to *v[k]* is shorter than another using weight function
+    *w*, then it is also shorter using *ŵ*. Thus, *w*(*p*) = δ(*v*[0], *v[k]*) if
+    and only if ![art](images/Art_P743.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finally, we show that *G* has a negative-weight cycle using weight function
+    *w* if and only if *G* has a negative-weight cycle using weight function *ŵ*.
+    Consider any cycle *c* = 〈*v*[0], *v*[1], … , *v[k]*〉, where *v*[0] = *v[k]*.
+    By equation (23.11),
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *ŵ*(*c*) | = | *w*(*c*) + *h*(*v*[0]) + *h*(*v[k]*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *w*(*c*), |'
+  prefs: []
+  type: TYPE_TB
+- en: and thus *c* has negative weight using *w* if and only if it has negative weight
+    using *ŵ*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Producing nonnegative weights by reweighting**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our next goal is to ensure that the second property holds: *ŵ*(*u*, *v*) must
+    be nonnegative for all edges (*u*, *v*) = *E*. Given a weighted, directed graph
+    *G* = (*V*, *E*) with weight function *w* : *E* → ℝ, we’ll see how to make a new
+    graph *G*′ = (*V*′, *E*′), where *V*′ = *V* ∪ {*s*} for some new vertex *s* ∉
+    *V* and *E*′ = *E* ∪ {(*s*, *v*) : *v* = *V* }. To incorporate the new vertex
+    *s*, extend the weight function *w* so that *w*(*s*, *v*) = 0 for all *v* ∈ *V*.
+    Since no edges enter *s*, no shortest paths in *G*′, other than those with source
+    *s*, contain *s*. Moreover, *G*′ has no negative-weight cycles if and only if
+    *G* has no negative-weight cycles. [Figure 23.6(a)](chapter023.xhtml#Fig_23-6)
+    shows the graph *G*′ corresponding to the graph *G* of [Figure 23.1](chapter023.xhtml#Fig_23-1).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now suppose that *G* and *G*′ have no negative-weight cycles. Define the function
+    *h*(*v*) = δ(*s*, *v*) for all *v* ∈ *V*′. By the triangle inequality (Lemma 22.10
+    on page 633), we have *h*(*v*) ≤ *h*(*u*) + *w*(*u*, *v*) for all edges (*u*,
+    *v*) ∈ *E*′. Thus, by defining reweighted edge weights *ŵ* according to equation
+    (23.10), we have *ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) ≥ 0, thereby
+    satisfying the second property. [Figure 23.6(b)](chapter023.xhtml#Fig_23-6) shows
+    the graph *G*′ from [Figure 23.6(a)](chapter023.xhtml#Fig_23-6) with reweighted
+    edges.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Computing all-pairs shortest paths**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Johnson’s algorithm to compute all-pairs shortest paths uses the Bellman-Ford
+    algorithm ([Section 22.1](chapter022.xhtml#Sec_22.1)) and Dijkstra’s algorithm
+    ([Section 22.3](chapter022.xhtml#Sec_22.3)) as subroutines. The pseudocode appears
+    in the procedure JOHNSON on page 666\. It assumes implicitly that the edges are
+    stored in adjacency lists. The algorithm returns the usual |*V*| × |*V*| matrix
+    *D* = (*d[ij]*), where *d[ij]* = δ(*i*, *j*), or it reports that the input graph
+    contains a negative-weight cycle. As is typical for an all-pairs shortest-paths
+    algorithm, it assumes that the vertices are numbered from 1 to |*V*|.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P744.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 23.6** Johnson’s all-pairs shortest-paths algorithm run on the graph
+    of [Figure 23.1](chapter023.xhtml#Fig_23-1). Vertex numbers appear outside the
+    vertices. **(a)** The graph *G*′ with the original weight function *w*. The new
+    vertex *s* is blue. Within each vertex *v* is *h*(*v*) = δ(*s*, *v*). **(b)**
+    After reweighting each edge (*u*, *v*) with weight function *ŵ*(*u*, *v*) = *w*(*u*,
+    *v*) + *h*(*u*) − *h*(*v*). **(c)–(g)** The result of running Dijkstra’s algorithm
+    on each vertex of *G* using weight function *ŵ*. In each part, the source vertex
+    *u* is blue, and blue edges belong to the shortest-paths tree computed by the
+    algorithm. Within each vertex *v* are the values ![art](images/Art_P745.jpg) and
+    δ(*u*, *v*), separated by a slash. The value *d[uv]* = δ(*u*, *v*) is equal to
+    ![art](images/Art_P746.jpg).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: JOHNSON(*G*, *w*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|   1 | compute *G*′, where *G*′.*V* = *G.V* ∪ {*s*}, |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | *G*′.*E* = *G.E* ∪ {(*s*, *v*) : *v* ∈ *G.V*}, and |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | *w*(*s*, *v*) = 0 for all *v* ∈ *G.V* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   2 | **if** BELLMAN-FORD(*G*′, *w*, *s*) == FALSE |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   3 | print “the input graph contains a negative-weight cycle” |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   4 | **else for** each vertex *v* ∈ *G*′.*V* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   5 | set *h*(*v*) to the value of δ(*s*, *v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | computed by the Bellman-Ford algorithm |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   6 | **for** each edge (*u*, *v*) ∈ *G*′.*E* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   7 | *ŵ*(*u*, *v*) = *w*(*u*, *v*) + *h*(*u*) − *h*(*v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   8 | let *D* = (*d[uv]*) be a new *n* × *n* matrix |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   9 | **for** each vertex *u* ∈ *G.V* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 10 | run DIJKSTRA(*G*, *ŵ*, *u*) to compute ![art](images/Art_P747.jpg) for
+    all *v* ∈ *G.V* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 11 | for each vertex *v* ∈ *G.V* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 12 | ![art](images/Art_P748.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 13 | **return** *D* |'
+  prefs: []
+  type: TYPE_TB
+- en: The JOHNSON procedure simply performs the actions specified earlier. Line 1
+    produces *G*′. Line 2 runs the Bellman-Ford algorithm on *G*′ with weight function
+    *w* and source vertex *s*. If *G*′, and hence *G*, contains a negative-weight
+    cycle, line 3 reports the problem. Lines 4–12 assume that *G*′ contains no negative-weight
+    cycles. Lines 4–5 set *h*(*v*) to the shortest-path weight δ(*s*, *v*) computed
+    by the Bellman-Ford algorithm for all *v* ∈ *V*′. Lines 6–7 compute the new weights
+    *ŵ*. For each pair of vertices *u*, *v* ∈ *V*, the **for** loop of lines 9–12
+    computes the shortest-path weight ![art](images/Art_P749.jpg) by calling Dijkstra’s
+    algorithm once from each vertex in *V*. Line 12 stores in matrix entry *d[uv]*
+    the correct shortest-path weight δ(*u*, *v*), calculated using equation (23.11).
+    Finally, line 13 returns the completed *D* matrix. [Figure 23.6](chapter023.xhtml#Fig_23-6)
+    depicts the execution of Johnson’s algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the min-priority queue in Dijkstra’s algorithm is implemented by a Fibonacci
+    heap, Johnson’s algorithm runs in *O*(*V*² lg *V* + *VE*) time. The simpler binary
+    min-heap implementation yields a running time of *O*(*VE* lg *V*), which is still
+    asymptotically faster than the Floyd-Warshall algorithm if the graph is sparse.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use Johnson’s algorithm to find the shortest paths between all pairs of vertices
+    in the graph of [Figure 23.2](chapter023.xhtml#Fig_23-2). Show the values of *h*
+    and *ŵ* computed by the algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What is the purpose of adding the new vertex *s* to *V*, yielding *V*′?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that *w*(*u*, *v*) ≥ 0 for all edges (*u*, *v*) ∈ *E*. What is the relationship
+    between the weight functions *w* and *ŵ*?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Professor Greenstreet claims that there is a simpler way to reweight edges
+    than the method used in Johnson’s algorithm. Letting *w** = min {*w*(*u*, *v*)
+    : (*u*, *v*) ∈ *E*}, just define *ŵ*(*u*, *v*) = *w*(*u*, *v*) − *w** for all
+    edges (*u*, *v*) ∈ *E*. What is wrong with the professor’s method of reweighting?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that if *G* contains a 0-weight cycle *c*, then *ŵ*(*u*, *v*) = 0 for every
+    edge (*u*, *v*) in *c*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23.3-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Professor Michener claims that there is no need to create a new source vertex
+    in line 1 of JOHNSON. He suggests using *G*′ = *G* instead and letting *s* be
+    any vertex. Give an example of a weighted, directed graph *G* for which incorporating
+    the professor’s idea into JOHNSON causes incorrect answers. Assume that ∞ − ∞
+    is undefined, and in particular, it is not 0\. Then show that if *G* is strongly
+    connected (every vertex is reachable from every other vertex), the results returned
+    by JOHNSON with the professor’s modification are correct.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Problems**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23-1     Transitive closure of a dynamic graph***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You wish to maintain the transitive closure of a directed graph *G* = (*V*,
+    *E*) as you insert edges into *E*. That is, after inserting an edge, you update
+    the transitive closure of the edges inserted so far. Start with *G* having no
+    edges initially, and represent the transitive closure by a boolean matrix.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Show how to update the transitive closure *G** = (*V*, *E**) of a
+    graph *G* = (*V*, *E*) in *O*(*V*²) time when a new edge is added to *G*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Give an example of a graph *G* and an edge *e* such that Ω(*V*²) time
+    is required to update the transitive closure after inserting *e* into *G*, no
+    matter what algorithm is used.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Give an algorithm for updating the transitive closure as edges are
+    inserted into the graph. For any sequence of *r* insertions, your algorithm should
+    run in time ![art](images/Art_P750.jpg), where *t[i]* is the time to update the
+    transitive closure upon inserting the *i*th edge. Prove that your algorithm attains
+    this time bound.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***23-2     Shortest paths in *ϵ*-dense graphs***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A graph *G* = (*V*, *E*) is ***ϵ-dense*** if |*E*| = Θ(*V*^(1+*ϵ*)) for some
+    constant in the range 0 < *ϵ* ≤ 1\. *d*-ary min-heaps (see Problem 6-2 on page
+    179) provide a way to match the running times of Fibonacci-heap-based shortest-path
+    algorithms on *ϵ*-dense graphs without using as complicated a data structure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** What are the asymptotic running times for the operations INSERT, EXTRACT-MIN,
+    and DECREASE-KEY, as a function of *d* and the number *n* of elements in a *d*-ary
+    min-heap? What are these running times if you choose *d* = Θ(*n^π*) for some constant
+    0 < *α* ≤ 1? Compare these running times to the amortized costs of these operations
+    for a Fibonacci heap.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Show how to compute shortest paths from a single source on an *ϵ*-dense
+    directed graph *G* = (*V*, *E*) with no negative-weight edges in *O*(*E*) time.
+    (*Hint:* Pick *d* as a function of *ϵ*.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Show how to solve the all-pairs shortest-paths problem on an *ϵ*-dense
+    directed graph *G* = (*V*, *E*) with no negative-weight edges in *O*(*VE*) time.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Show how to solve the all-pairs shortest-paths problem in *O*(*VE*)
+    time on an *ϵ*-dense directed graph *G* = (*V*, *E*) that may have negative-weight
+    edges but has no negative-weight cycles.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Chapter notes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Lawler [[276](bibliography001.xhtml#endnote_276)] has a good discussion of the
+    all-pairs shortest-paths problem. He attributes the matrix-multiplication algorithm
+    to the folklore. The Floyd-Warshall algorithm is due to Floyd [[144](bibliography001.xhtml#endnote_144)],
+    who based it on a theorem of Warshall [[450](bibliography001.xhtml#endnote_450)]
+    that describes how to compute the transitive closure of boolean matrices. Johnson’s
+    algorithm is taken from [[238](bibliography001.xhtml#endnote_238)].
+  prefs: []
+  type: TYPE_NORMAL
+- en: Several researchers have given improved algorithms for computing shortest paths
+    via matrix multiplication. Fredman [[153](bibliography001.xhtml#endnote_153)]
+    shows how to solve the all-pairs shortest paths problem using *O*(*V*^(5/2)) comparisons
+    between sums of edge weights and obtains an algorithm that runs in *O*(*V*³lg
+    lg *V*/lg *V*/^(1/3)) time, which is slightly better than the running time of
+    the Floyd-Warshall algorithm. This bound has been improved several times, and
+    the fastest algorithm is now by Williams [[457](bibliography001.xhtml#endnote_457)],
+    with a running time of ![art](images/Art_P751.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another line of research demonstrates how to apply algorithms for fast matrix
+    multiplication (see the chapter notes for [Chapter 4](chapter004.xhtml)) to the
+    all-pairs shortest paths problem. Let *O*(*n*^ω) be the running time of the fastest
+    algorithm for multiplying two *n* × *n* matrices. Galil and Margalit [[170](bibliography001.xhtml#endnote_170),
+    [171](bibliography001.xhtml#endnote_171)] and Seidel [[403](bibliography001.xhtml#endnote_403)]
+    designed algorithms that solve the all-pairs shortest paths problem in undirected,
+    unweighted graphs in (*V*^ω*p*(*V*)) time, where *p*(*n*) denotes a particular
+    function that is polylogarithmically bounded in *n*. In dense graphs, these algorithms
+    are faster than the *O*(*VE*) time needed to perform |*V*| breadth-first searches.
+    Several researchers have extended these results to give algorithms for solving
+    the all-pairs shortest paths problem in undirected graphs in which the edge weights
+    are integers in the range {1, 2, … , *W*}. The asymptotically fastest such algorithm,
+    by Shoshan and Zwick [[410](bibliography001.xhtml#endnote_410)], runs in *O*(*W
+    V*^ω*p*(*V W*)) time. In directed graphs, the best algorithm to date is due to
+    Zwick [[467](bibliography001.xhtml#endnote_467)] and runs in *Õ*(*W*^(1/(4−ω))*V*^(2+1/(4−ω)))
+    time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Karger, Koller, and Phillips [[244](bibliography001.xhtml#endnote_244)] and
+    independently McGeoch [[320](bibliography001.xhtml#endnote_320)] have given a
+    time bound that depends on *E**, the set of edges in *E* that participate in some
+    shortest path. Given a graph with nonnegative edge weights, their algorithms run
+    in *O*(*VE** + *V*² lg *V*) time and improve upon running Dijkstra’s algorithm
+    |*V*| times when |*E**| = *o*(*E*). Pettie [[355](bibliography001.xhtml#endnote_355)]
+    uses an approach based on component hierarchies to achieve a running time of *O*(*VE*
+    + *V*² lg lg *V*), and the same running time is also achieved by Hagerup [[205](bibliography001.xhtml#endnote_205)].
+  prefs: []
+  type: TYPE_NORMAL
+- en: Baswana, Hariharan, and Sen [[37](bibliography001.xhtml#endnote_37)] examined
+    decremental algorithms, which allow a sequence of intermixed edge deletions and
+    queries, for maintaining all-pairs shortest paths and transitive-closure information.
+    When a path exists, their randomized transitive-closure algorithm can fail to
+    report it with probability 1/*n^c* for an arbitrary *c* > 0\. The query times
+    are *O*(1) with high probability. For transitive closure, the amortized time for
+    each update is *O*(*V*^(4/3) lg^(1/3)*V*). By comparison, Problem 23-1, in which
+    edges are inserted, asks for an incremental algorithm. For all-pairs shortest
+    paths, the update times depend on the queries. For queries just giving the shortest-path
+    weights, the amortized time per update is *O*(*V*³/*E* lg²*V*). To report the
+    actual shortest path, the amortized update time is min ![art](images/Art_P752.jpg).
+    Demetrescu and Italiano [[111](bibliography001.xhtml#endnote_111)] showed how
+    to handle update and query operations when edges are both inserted and deleted,
+    as long as the range of edge weights is bounded.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Aho, Hopcroft, and Ullman [[5](bibliography001.xhtml#endnote_5)] defined an
+    algebraic structure known as a “closed semiring,” which serves as a general framework
+    for solving path problems in directed graphs. Both the Floyd-Warshall algorithm
+    and the transitive-closure algorithm from [Section 23.2](chapter023.xhtml#Sec_23.2)
+    are instantiations of an all-pairs algorithm based on closed semirings. Maggs
+    and Plotkin [[309](bibliography001.xhtml#endnote_309)] showed how to find minimum
+    spanning trees using a closed semiring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[¹](#footnote_ref_1) According to a report cited by U.S. Department of Transportation
+    Federal Highway Administration, “a reasonable ‘rule of thumb’ is one signalized
+    intersection per 1,000 population.”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[²](#footnote_ref_2) An algebraic ***semiring*** contains operations ⊕, which
+    is commutative with identity *I*[⊕], and ⊕, with identity *I*[⊕], where ⊕ distributes
+    over ⊕ on both the left and right, and where *I*[⊕]⊕*x* = *x*⊕*I*[⊕] = *I*[⊕]
+    for all *x*. Standard matrix multiplication, as in MATRIX-MULTIPLY, uses the semiring
+    with + for ⊕, ⊕ for ⊕, 0 for *I*[⊕], and 1 for *I*[⊕]. The procedure EXTEND-SHORTEST-PATHS
+    uses another semiring, known as the ***tropical semiring***, with min for ⊕, +
+    for ⊕, ∞ for *I*[⊕], and 0 for *I*[⊕].'
+  prefs: []
+  type: TYPE_NORMAL

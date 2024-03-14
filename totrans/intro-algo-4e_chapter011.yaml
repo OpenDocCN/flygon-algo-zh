@@ -1,0 +1,2186 @@
+- en: '[**11        Hash Tables**](toc.xhtml#chap-11)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many applications require a dynamic set that supports only the dictionary operations
+    INSERT, SEARCH, and DELETE. For example, a compiler that translates a programming
+    language maintains a symbol table, in which the keys of elements are arbitrary
+    character strings corresponding to identifiers in the language. A hash table is
+    an effective data structure for implementing dictionaries. Although searching
+    for an element in a hash table can take as long as searching for an element in
+    a linked list—Θ(*n*) time in the worst case—in practice, hashing performs extremely
+    well. Under reasonable assumptions, the average time to search for an element
+    in a hash table is *O*(1). Indeed, the built-in dictionaries of Python are implemented
+    with hash tables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A hash table generalizes the simpler notion of an ordinary array. Directly addressing
+    into an ordinary array takes advantage of the *O*(1) access time for any array
+    element. [Section 11.1](chapter011.xhtml#Sec_11.1) discusses direct addressing
+    in more detail. To use direct addressing, you must be able to allocate an array
+    that contains a position for every possible key.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When the number of keys actually stored is small relative to the total number
+    of possible keys, hash tables become an effective alternative to directly addressing
+    an array, since a hash table typically uses an array of size proportional to the
+    number of keys actually stored. Instead of using the key as an array index directly,
+    we *compute* the array index from the key. [Section 11.2](chapter011.xhtml#Sec_11.2)
+    presents the main ideas, focusing on “chaining” as a way to handle “collisions,”
+    in which more than one key maps to the same array index. [Section 11.3](chapter011.xhtml#Sec_11.3)
+    describes how to compute array indices from keys using hash functions. We present
+    and analyze several variations on the basic theme. [Section 11.4](chapter011.xhtml#Sec_11.4)
+    looks at “open addressing,” which is another way to deal with collisions. The
+    bottom line is that hashing is an extremely effective and practical technique:
+    the basic dictionary operations require only *O*(1) time on the average. [Section
+    11.5](chapter011.xhtml#Sec_11.5) discusses the hierarchical memory systems of
+    modern computer systems have and illustrates how to design hash tables that work
+    well in such systems.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**11.1    Direct-address tables**](toc.xhtml#Rh1-62)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Direct addressing is a simple technique that works well when the universe *U*
+    of keys is reasonably small. Suppose that an application needs a dynamic set in
+    which each element has a distinct key drawn from the universe *U* = {0, 1, …,
+    *m* − 1}, where *m* is not too large.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To represent the dynamic set, you can use an array, or ***direct-address table***,
+    denoted by *T*[0 : *m* − 1], in which each position, or ***slot***, corresponds
+    to a key in the universe *U*. [Figure 11.1](chapter011.xhtml#Fig_11-1) illustrates
+    this approach. Slot *k* points to an element in the set with key *k*. If the set
+    contains no element with key *k*, then *T*[*k*] = NIL.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The dictionary operations DIRECT-ADDRESS-SEARCH, DIRECT-ADDRESS-INSERT, and
+    DIRECT-ADDRESS-DELETE on the following page are trivial to implement. Each takes
+    only *O*(1) time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For some applications, the direct-address table itself can hold the elements
+    in the dynamic set. That is, rather than storing an element’s key and satellite
+    data in an object external to the direct-address table, with a pointer from a
+    slot in the table to the object, save space by storing the object directly in
+    the slot. To indicate an empty slot, use a special key. Then again, why store
+    the key of the object at all? The index of the object *is* its key! Of course,
+    then you’d need some way to tell whether slots are empty.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P378.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.1** How to implement a dynamic set by a direct-address table *T*.
+    Each key in the universe *U* = {0, 1, …, 9} corresponds to an index into the table.
+    The set *K* = {2, 3, 5, 8} of actual keys determines the slots in the table that
+    contain pointers to elements. The other slots, in blue, contain NIL.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: DIRECT-ADDRESS-SEARCH(*T*, *k*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **return** *T*[*k*] |'
+  prefs: []
+  type: TYPE_TB
+- en: DIRECT-ADDRESS-INSERT(*T*, *x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *T*[*x.key*] = *x* |'
+  prefs: []
+  type: TYPE_TB
+- en: DIRECT-ADDRESS-DELETE(*T*, *x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *T*[*x.key*] = NIL |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A dynamic set *S* is represented by a direct-address table *T* of length *m*.
+    Describe a procedure that finds the maximum element of *S*. What is the worst-case
+    performance of your procedure?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A ***bit vector*** is simply an array of bits (each either 0 or 1). A bit vector
+    of length *m* takes much less space than an array of *m* pointers. Describe how
+    to use a bit vector to represent a dynamic set of distinct elements drawn from
+    the set {0, 1, …, *m* − 1} and with no satellite data. Dictionary operations should
+    run in *O*(1) time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suggest how to implement a direct-address table in which the keys of stored
+    elements do not need to be distinct and the elements can have satellite data.
+    All three dictionary operations (INSERT, DELETE, and SEARCH) should run in *O*(1)
+    time. (Don’t forget that DELETE takes as an argument a pointer to an object to
+    be deleted, not a key.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.1-4***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that you want to implement a dictionary by using direct addressing on
+    a *huge* array. That is, if the array size is *m* and the dictionary contains
+    at most *n* elements at any one time, then *m* ≫ *n*. At the start, the array
+    entries may contain garbage, and initializing the entire array is impractical
+    because of its size. Describe a scheme for implementing a direct-address dictionary
+    on a huge array. Each stored object should use *O*(1) space; the operations SEARCH,
+    INSERT, and DELETE should take *O*(1) time each; and initializing the data structure
+    should take *O*(1) time. (*Hint:* Use an additional array, treated somewhat like
+    a stack whose size is the number of keys actually stored in the dictionary, to
+    help determine whether a given entry in the huge array is valid or not.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**11.2    Hash tables**](toc.xhtml#Rh1-63)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The downside of direct addressing is apparent: if the universe *U* is large
+    or infinite, storing a table *T* of size |*U*| may be impractical, or even impossible,
+    given the memory available on a typical computer. Furthermore, the set *K* of
+    keys *actually stored* may be so small relative to *U* that most of the space
+    allocated for *T* would be wasted.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the set *K* of keys stored in a dictionary is much smaller than the universe
+    *U* of all possible keys, a hash table requires much less storage than a direct-address
+    table. Specifically, the storage requirement reduces to Θ(|*K*|) while maintaining
+    the benefit that searching for an element in the hash table still requires only
+    *O*(1) time. The catch is that this bound is for the *average-case time*,^([1](#footnote_1))
+    whereas for direct addressing it holds for the *worst-case time*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With direct addressing, an element with key *k* is stored in slot *k*, but
+    with hashing, we use a ***hash function*** *h* to compute the slot number from
+    the key *k*, so that the element goes into slot *h*(*k*). The hash function *h*
+    maps the universe *U* of keys into the slots of a ***hash table*** *T*[0 : *m*
+    − 1]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h* : *U* → {0, 1, …, *m* − 1},'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where the size *m* of the hash table is typically much less than |*U*|. We say
+    that an element with key *k* ***hashes*** to slot *h*(*k*), and we also say that
+    *h*(*k*) is the ***hash value*** of key *k*. [Figure 11.2](chapter011.xhtml#Fig_11-2)
+    illustrates the basic idea. The hash function reduces the range of array indices
+    and hence the size of the array. Instead of a size of |*U*|, the array can have
+    size *m*. An example of a simple, but not particularly good, hash function is
+    *h*(*k*) = *k* mod *m*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is one hitch, namely that two keys may hash to the same slot. We call
+    this situation a ***collision***. Fortunately, there are effective techniques
+    for resolving the conflict created by collisions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Of course, the ideal solution is to avoid collisions altogether. We might try
+    to achieve this goal by choosing a suitable hash function *h*. One idea is to
+    make *h* appear to be “random,” thus avoiding collisions or at least minimizing
+    their number. The very term “to hash,” evoking images of random mixing and chopping,
+    captures the spirit of this approach. (Of course, a hash function *h* must be
+    deterministic in that a given input *k* must always produce the same output *h*(*k*).)
+    Because |*U*| > *m*, however, there must be at least two keys that have the same
+    hash value, and avoiding collisions altogether is impossible. Thus, although a
+    well-designed, “random”-looking hash function can reduce the number of collisions,
+    we still need a method for resolving the collisions that do occur.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P379.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.2** Using a hash function *h* to map keys to hash-table slots.
+    Because keys *k*[2] and *k*[5] map to the same slot, they collide.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The remainder of this section first presents a definition of “independent uniform
+    hashing,” which captures the simplest notion of what it means for a hash function
+    to be “random.” It then presents and analyzes the simplest collision resolution
+    technique, called chaining. [Section 11.4](chapter011.xhtml#Sec_11.4) introduces
+    an alternative method for resolving collisions, called open addressing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Independent uniform hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An “ideal” hashing function *h* would have, for each possible input *k* in the
+    domain *U*, an output *h*(*k*) that is an element randomly and independently chosen
+    uniformly from the range {0, 1, …, *m* − 1}. Once a value *h*(*k*) is randomly
+    chosen, each subsequent call to *h* with the same input *k* yields the same output
+    *h*(*k*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We call such an ideal hash function an ***independent uniform hash function***.
+    Such a function is also often called a ***random oracle*** [43]. When hash tables
+    are implemented with an independent uniform hash function, we say we are using
+    ***independent uniform hashing***.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Independent uniform hashing is an ideal theoretical abstraction, but it is not
+    something that can reasonably be implemented in practice. Nonetheless, we’ll analyze
+    the efficiency of hashing under the assumption of independent uniform hashing
+    and then present ways of achieving useful practical approximations to this ideal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P380.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.3** Collision resolution by chaining. Each nonempty hash-table
+    slot *T*[*j*] points to a linked list of all the keys whose hash value is *j*.
+    For example, *h*(*k*[1]) = *h*(*k*[4]) and *h*(*k*[5]) = *h*(*k*[2]) = *h*(*k*[7]).
+    The list can be either singly or doubly linked. We show it as doubly linked because
+    deletion may be faster that way when the deletion procedure knows which list element
+    (not just which key) is to be deleted.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Collision resolution by chaining**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At a high level, you can think of hashing with chaining as a nonrecursive form
+    of divide-and-conquer: the input set of *n* elements is divided randomly into
+    *m* subsets, each of approximate size *n*/*m*. A hash function determines which
+    subset an element belongs to. Each subset is managed independently as a list.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 11.3](chapter011.xhtml#Fig_11-3) shows the idea behind ***chaining***:
+    each nonempty slot points to a linked list, and all the elements that hash to
+    the same slot go into that slot’s linked list. Slot *j* contains a pointer to
+    the head of the list of all stored elements with hash value *j*. If there are
+    no such elements, then slot *j* contains NIL.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: When collisions are resolved by chaining, the dictionary operations are straightforward
+    to implement. They appear on the next page and use the linked-list procedures
+    from [Section 10.2](chapter010.xhtml#Sec_10.2). The worst-case running time for
+    insertion is *O*(1). The insertion procedure is fast in part because it assumes
+    that the element *x* being inserted is not already present in the table. To enforce
+    this assumption, you can search (at additional cost) for an element whose key
+    is *x.key* before inserting. For searching, the worst-case running time is proportional
+    to the length of the list. (We’ll analyze this operation more closely below.)
+    Deletion takes *O*(1) time if the lists are doubly linked, as in [Figure 11.3](chapter011.xhtml#Fig_11-3).
+    (Since CHAINED-HASH-DELETE takes as input an element *x* and not its key *k*,
+    no search is needed. If the hash table supports deletion, then its linked lists
+    should be doubly linked in order to delete an item quickly. If the lists were
+    only singly linked, then by Exercise 10.2-1, deletion could take time proportional
+    to the length of the list. With singly linked lists, both deletion and searching
+    would have the same asymptotic running times.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: CHAINED-HASH-INSERT(*T*, *x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | LIST-PREPEND(*T*[*h*(*x.key*)], *x*) |'
+  prefs: []
+  type: TYPE_TB
+- en: CHAINED-HASH-SEARCH(*T*, *k*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **return** LIST-SEARCH(*T*[*h*(*k*)], *k*) |'
+  prefs: []
+  type: TYPE_TB
+- en: CHAINED-HASH-DELETE(*T*, *x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | LIST-DELETE(*T*[*h*(*x.key*)], *x*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Analysis of hashing with chaining**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: How well does hashing with chaining perform? In particular, how long does it
+    take to search for an element with a given key?
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given a hash table *T* with *m* slots that stores *n* elements, we define the
+    ***load factor*** *α* for *T* as *n*/*m*, that is, the average number of elements
+    stored in a chain. Our analysis will be in terms of *α*, which can be less than,
+    equal to, or greater than 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The worst-case behavior of hashing with chaining is terrible: all *n* keys
+    hash to the same slot, creating a list of length *n*. The worst-case time for
+    searching is thus Θ(*n*) plus the time to compute the hash function—no better
+    than using one linked list for all the elements. We clearly don’t use hash tables
+    for their worst-case performance.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The average-case performance of hashing depends on how well the hash function
+    *h* distributes the set of keys to be stored among the *m* slots, on the average
+    (meaning with respect to the distribution of keys to be hashed and with respect
+    to the choice of hash function, if this choice is randomized). [Section 11.3](chapter011.xhtml#Sec_11.3)
+    discusses these issues, but for now we assume that any given element is equally
+    likely to hash into any of the *m* slots. That is, the hash function is ***uniform***.
+    We further assume that where a given element hashes to is *independent* of where
+    any other elements hash to. In other words, we assume that we are using ***independent
+    uniform hashing***.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Because hashes of distinct keys are assumed to be independent, independent
+    uniform hashing is ***universal***: the chance that any two distinct keys *k*[1]
+    and *k*[2] collide is at most 1/*m*. Universality is important in our analysis
+    and also in the specification of universal families of hash functions, which we’ll
+    see in [Section 11.3.2](chapter011.xhtml#Sec_11.3.2).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For *j* = 0, 1, …, *m* − 1, denote the length of the list *T*[*j*] by *n[j]*,
+    so that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P381.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and the expected value of *n[j]* is E[*n[j]*] = *α* = *n*/*m*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We assume that *O*(1) time suffices to compute the hash value *h*(*k*), so
+    that the time required to search for an element with key *k* depends linearly
+    on the length *n*[*h*(*k*)] of the list *T*[*h*(*k*)]. Setting aside the *O*(1)
+    time required to compute the hash function and to access slot *h*(*k*), we’ll
+    consider the expected number of elements examined by the search algorithm, that
+    is, the number of elements in the list *T*[*h*(*k*)] that the algorithm checks
+    to see whether any have a key equal to *k*. We consider two cases. In the first,
+    the search is unsuccessful: no element in the table has key *k*. In the second,
+    the search successfully finds an element with key *k*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a hash table in which collisions are resolved by chaining, an unsuccessful
+    search takes Θ(1 + *α*) time on average, under the assumption of independent uniform
+    hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   Under the assumption of independent uniform hashing, any key
+    *k* not already stored in the table is equally likely to hash to any of the *m*
+    slots. The expected time to search unsuccessfully for a key *k* is the expected
+    time to search to the end of list *T*[*h*(*k*)], which has expected length E[*n*[*h*(*k*)]]
+    = *α*. Thus, the expected number of elements examined in an unsuccessful search
+    is *α*, and the total time required (including the time for computing *h*(*k*))
+    is Θ(1 + *α*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: The situation for a successful search is slightly different. An unsuccessful
+    search is equally likely to go to any slot of the hash table. A successful search,
+    however, cannot go to an empty slot, since it is for an element that is present
+    in one of the linked lists. We assume that the element searched for is equally
+    likely to be any one of the elements in the table, so the longer the list, the
+    more likely that the search is for one of its elements. Even so, the expected
+    search time still turns out to be Θ(1 + *α*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a hash table in which collisions are resolved by chaining, a successful search
+    takes Θ(1 + *α*) time on average, under the assumption of independent uniform
+    hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   We assume that the element being searched for is equally likely
+    to be any of the *n* elements stored in the table. The number of elements examined
+    during a successful search for an element *x* is 1 more than the number of elements
+    that appear before *x* in *x*’s list. Because new elements are placed at the front
+    of the list, elements before *x* in the list were all inserted after *x* was inserted.
+    Let *x[i]* denote the *i*th element inserted into the table, for *i* = 1, 2, …,
+    *n*, and let *k[i]* = *x[i].key*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our analysis uses indicator random variables extensively. For each slot *q*
+    in the table and for each pair of distinct keys *k[i]* and *k[j]*, we define the
+    indicator random variable
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*X[ijq]* = I {the search is for *x[i]*, *h*(*k[i]*) = *q*, and *h*(*k[j]*)
+    = *q*}.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: That is, *X[ijq]* = 1 when keys *k[i]* and *k[j]* collide at slot *q* and the
+    search is for element *x[i]*. Because Pr{the search is for *x[i]*} = 1/*n*, Pr{*h*(*k[i]*)
+    = *q*} = 1/*m*, Pr{*h*(*k[j]*) = *q*} = 1/*m*, and these events are all independent,
+    we have that Pr{*X[ijq]* = 1} = 1/*nm*². Lemma 5.1 on page 130 gives E[*X[ijq]*]
+    = 1/*nm*².
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next, we define, for each element *x[j]*, the indicator random variable
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *Y[j]* | = | I {*x[j]* appears in a list prior to the element being searched
+    for} |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | ![art](images/Art_P382.jpg), |'
+  prefs: []
+  type: TYPE_TB
+- en: since at most one of the *X[ijq]* equals 1, namely when the element *x[i]* being
+    searched for belongs to the same list as *x[j]* (pointed to by slot *q*), and
+    *i* < *j* (so that *x[i]* appears after *x[j]* in the list).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our final random variable is *Z*, which counts how many elements appear in
+    the list prior to the element being searched for:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P383.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Because we must count the element being searched for as well as all those preceding
+    it in its list, we wish to compute E[*Z* + 1]. Using linearity of expectation
+    (equation (C.24) on page 1192), we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P384.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Thus, the total time required for a successful search (including the time for
+    computing the hash function) is Θ(2 + *α/*2 − *α/*2*n*) = Θ(1 + *α*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: What does this analysis mean? If the number of elements in the table is at most
+    proportional to the number of hash-table slots, we have *n* = *O*(*m*) and, consequently,
+    *α* = *n*/*m* = *O*(*m*)/*m* = *O*(1). Thus, searching takes constant time on
+    average. Since insertion takes *O*(1) worst-case time and deletion takes *O*(1)
+    worst-case time when the lists are doubly linked (assuming that the list element
+    to be deleted is known, and not just its key), we can support all dictionary operations
+    in *O*(1) time on average.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The analysis in the preceding two theorems depends only on two essential properties
+    of independent uniform hashing: uniformity (each key is equally likely to hash
+    to any one of the *m* slots), and independence (so any two distinct keys collide
+    with probability 1/*m*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You use a hash function *h* to hash *n* distinct keys into an array *T* of
+    length *m*. Assuming independent uniform hashing, what is the expected number
+    of collisions? More precisely, what is the expected cardinality of {{*k*[1], *k*[2]}
+    : *k*[1] ≠ *k*[2] and *h*(*k*[1]) = *h*(*k*[2])}?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a hash table with 9 slots and the hash function *h*(*k*) = *k* mod
+    9\. Demonstrate what happens upon inserting the keys 5, 28, 19, 15, 20, 33, 12,
+    17, 10 with collisions resolved by chaining.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Professor Marley hypothesizes that he can obtain substantial performance gains
+    by modifying the chaining scheme to keep each list in sorted order. How does the
+    professor’s modification affect the running time for successful searches, unsuccessful
+    searches, insertions, and deletions?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Suggest how to allocate and deallocate storage for elements within the hash
+    table itself by creating a “free list”: a linked list of all the unused slots.
+    Assume that one slot can store a flag and either one element plus a pointer or
+    two pointers. All dictionary and free-list operations should run in *O*(1) expected
+    time. Does the free list need to be doubly linked, or does a singly linked free
+    list suffice?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You need to store a set of *n* keys in a hash table of size *m*. Show that if
+    the keys are drawn from a universe *U* with |*U*| > (*n* − 1)*m*, then *U* has
+    a subset of size *n* consisting of keys that all hash to the same slot, so that
+    the worst-case searching time for hashing with chaining is Θ(*n*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.2-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You have stored *n* keys in a hash table of size *m*, with collisions resolved
+    by chaining, and you know the length of each chain, including the length *L* of
+    the longest chain. Describe a procedure that selects a key uniformly at random
+    from among the keys in the hash table and returns it in expected time *O*(*L*
+    · (1 + 1/*α*)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**11.3    Hash functions**](toc.xhtml#Rh1-64)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For hashing to work well, it needs a good hash function. Along with being efficiently
+    computable, what properties does a good hash function have? How do you design
+    good hash functions?
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This section first attempts to answer these questions based on two ad hoc approaches
+    for creating hash functions: hashing by division and hashing by multiplication.
+    Although these methods work well for some sets of input keys, they are limited
+    because they try to provide a single fixed hash function that works well on any
+    data—an approach called ***static hashing***.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We then see that provably good average-case performance for *any* data can be
+    obtained by designing a suitable *family* of hash functions and choosing a hash
+    function at random from this family at runtime, independent of the data to be
+    hashed. The approach we examine is called random hashing. A particular kind of
+    random hashing, universal hashing, works well. As we saw with quicksort in [Chapter
+    7](chapter007.xhtml), randomization is a powerful algorithmic design tool.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**What makes a good hash function?**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A good hash function satisfies (approximately) the assumption of independent
+    uniform hashing: each key is equally likely to hash to any of the *m* slots, independently
+    of where any other keys have hashed to. What does “equally likely” mean here?
+    If the hash function is fixed, any probabilities would have to be based on the
+    probability distribution of the input keys.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unfortunately, you typically have no way to check this condition, unless you
+    happen to know the probability distribution from which the keys are drawn. Moreover,
+    the keys might not be drawn independently.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Occasionally you might know the distribution. For example, if you know that
+    the keys are random real numbers *k* independently and uniformly distributed in
+    the range 0 ≤ *k* < 1, then the hash function
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*(*k*) = ⌊*km*⌋'
+  prefs: []
+  type: TYPE_NORMAL
+- en: satisfies the condition of independent uniform hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A good static hashing approach derives the hash value in a way that you expect
+    to be independent of any patterns that might exist in the data. For example, the
+    “division method” (discussed in [Section 11.3.1](chapter011.xhtml#Sec_11.3.1))
+    computes the hash value as the remainder when the key is divided by a specified
+    prime number. This method may give good results, if you (somehow) choose a prime
+    number that is unrelated to any patterns in the distribution of keys.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Random hashing, described in [Section 11.3.2](chapter011.xhtml#Sec_11.3.2),
+    picks the hash function to be used at random from a suitable family of hashing
+    functions. This approach removes any need to know anything about the probability
+    distribution of the input keys, as the randomization necessary for good average-case
+    behavior then comes from the (known) random process used to pick the hash function
+    from the family of hash functions, rather than from the (unknown) process used
+    to create the input keys. We recommend that you use random hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Keys are integers, vectors, or strings**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In practice, a hash function is designed to handle keys that are one of the
+    following two types:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A short nonnegative integer that fits in a *w*-bit machine word. Typical values
+    for *w* would be 32 or 64.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A short vector of nonnegative integers, each of bounded size. For example, each
+    element might be an 8-bit byte, in which case the vector is often called a (byte)
+    string. The vector might be of variable length.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: To begin, we assume that keys are short nonnegative integers. Handling vector
+    keys is more complicated and discussed in [Sections 11.3.5](chapter011.xhtml#Sec_11.3.5)
+    and [11.5.2](chapter011.xhtml#Sec_11.5.2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.3.1    Static hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Static hashing uses a single, fixed hash function. The only randomization available
+    is through the (usually unknown) distribution of input keys. This section discusses
+    two standard approaches for static hashing: the division method and the multiplication
+    method. Although static hashing is no longer recommended, the multiplication method
+    also provides a good foundation for “nonstatic” hashing—better known as random
+    hashing—where the hash function is chosen at random from a suitable family of
+    hash functions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The division method**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***division method*** for creating hash functions maps a key *k* into one
+    of *m* slots by taking the remainder of *k* divided by *m*. That is, the hash
+    function is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*(*k*) = *k* mod *m*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, if the hash table has size *m* = 12 and the key is *k* = 100, then
+    *h*(*k*) = 4\. Since it requires only a single division operation, hashing by
+    division is quite fast.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The division method may work well when *m* is a prime not too close to an exact
+    power of 2\. There is no guarantee that this method provides good average-case
+    performance, however, and it may complicate applications since it constrains the
+    size of the hash tables to be prime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The multiplication method**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The general ***multiplication method*** for creating hash functions operates
+    in two steps. First, multiply the key *k* by a constant *A* in the range 0 < *A*
+    < 1 and extract the fractional part of *kA*. Then, multiply this value by *m*
+    and take the floor of the result. That is, the hash function is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*(*k*) = ⌊*m* (*kA* mod 1)⌋,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where “*kA* mod 1” means the fractional part of *kA*, that is, *kA* − ⌊*kA*⌋.
+    The general multiplication method has the advantage that the value of *m* is not
+    critical and you can choose it independently of how you choose the multiplicative
+    constant *A*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P385.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.4** The multiply-shift method to compute a hash function. The *w*-bit
+    representation of the key *k* is multiplied by the *w*-bit value *a* = *A* · 2*^w*.
+    The *ℓ* highest-order bits of the lower *w*-bit half of the product form the desired
+    hash value *h[a]*(*k*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The multiply-shift method**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In practice, the multiplication method is best in the special case where the
+    number *m* of hash-table slots is an exact power of 2, so that *m* = 2*^ℓ* for
+    some integer *ℓ*, where *ℓ* ≤ *w* and *w* is the number of bits in a machine word.
+    If you choose a fixed *w*-bit positive integer *a* = *A* 2*^w*, where 0 < *A*
+    < 1 as in the multiplication method so that *a* is in the range 0 < *a* < 2*^w*,
+    you can implement the function on most computers as follows. We assume that a
+    key *k* fits into a single *w*-bit word.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Referring to [Figure 11.4](chapter011.xhtml#Fig_11-4), first multiply *k* by
+    the *w*-bit integer *a*. The result is a 2*w*-bit value *r*[1]2*^w* + *r*[0],
+    where *r*[1] is the high-order *w*-bit word of the product and *r*[0] is the low-order
+    *w*-bit word of the product. The desired *ℓ*-bit hash value consists of the *ℓ*
+    most significant bits of *r*[0]. (Since *r*[1] is ignored, the hash function can
+    be implemented on a computer that produces only a *w*-bit product given two *w*-bit
+    inputs, that is, where the multiplication operation computes modulo 2*^w*.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: In other words, you define the hash function *h* = *h[a]*, where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P386.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'for a fixed nonzero *w*-bit value *a*. Since the product *ka* of two *w*-bit
+    words occupies 2*w* bits, taking this product modulo 2*^w* zeroes out the high-order
+    *w* bits (*r*[1]), leaving only the low-order *w* bits (*r*[0]). The ⋙ operator
+    performs a logical right shift by *w* − *ℓ* bits, shifting zeros into the vacated
+    positions on the left, so that the *ℓ* most significant bits of *r*[0] move into
+    the *ℓ* rightmost positions. (It’s the same as dividing by 2^(*w*−*ℓ*) and taking
+    the floor of the result.) The resulting value equals the *ℓ* most significant
+    bits of *r*[0]. The hash function *h[a]* can be implemented with three machine
+    instructions: multiplication, subtraction, and logical right shift.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As an example, suppose that *k* = 123456, *ℓ* = 14, *m* = 2^(14) = 16384, and
+    *w* = 32\. Suppose further that we choose *a* = 2654435769 (following a suggestion
+    of Knuth [[261](bibliography001.xhtml#endnote_261)]). Then *ka* = 327706022297664
+    = (76300 · 2^(32)) + 17612864, and so *r*[1] = 76300 and *r*[0] = 17612864\. The
+    14 most significant bits of *r*[0] yield the value *h[a]*(*k*) = 67.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Even though the multiply-shift method is fast, it doesn’t provide any guarantee
+    of good average-case performance. The universal hashing approach presented in
+    the next section provides such a guarantee. A simple randomized variant of the
+    multiply-shift method works well on the average, when the program begins by picking
+    *a* as a randomly chosen odd integer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.3.2    Random hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that a malicious adversary chooses the keys to be hashed by some fixed
+    hash function. Then the adversary can choose *n* keys that all hash to the same
+    slot, yielding an average retrieval time of Θ(*n*). Any static hash function is
+    vulnerable to such terrible worst-case behavior. The only effective way to improve
+    the situation is to choose the hash function *randomly* in a way that is *independent*
+    of the keys that are actually going to be stored. This approach is called ***random
+    hashing***. A special case of this approach, called ***universal hashing***, can
+    yield provably good performance on average when collisions are handled by chaining,
+    no matter which keys the adversary chooses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To use random hashing, at the beginning of program execution you select the
+    hash function at random from a suitable family of functions. As in the case of
+    quicksort, randomization guarantees that no single input always evokes worst-case
+    behavior. Because you randomly select the hash function, the algorithm can behave
+    differently on each execution, even for the same set of keys to be hashed, guaranteeing
+    good average-case performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let H be a finite family of hash functions that map a given universe *U* of
+    keys into the range {0, 1, …, *m* − 1}. Such a family is said to be ***universal***
+    if for each pair of distinct keys *k*[1], *k*[2] ∈ *U*, the number of hash functions
+    *h* ∈ H for which *h*(*k*[1]) = *h*(*k*[2]) is at most |H|/*m*. In other words,
+    with a hash function randomly chosen from H, the chance of a collision between
+    distinct keys *k*[1] and *k*[2] is no more than the chance 1/*m* of a collision
+    if *h*(*k*[1]) and *h*(*k*[2]) were randomly and independently chosen from the
+    set {0, 1, …, *m* − 1}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Independent uniform hashing is the same as picking a hash function uniformly
+    at random from a family of *m^n* hash functions, each member of that family mapping
+    the *n* keys to the *m* hash values in a different way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Every independent uniform random family of hash function is universal, but
+    the converse need not be true: consider the case where *U* = {0, 1, …, *m* − 1}
+    and the only hash function in the family is the identity function. The probability
+    that two distinct keys collide is zero, even though each key is hashes to a fixed
+    value.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following corollary to Theorem 11.2 on page 279 says that universal hashing
+    provides the desired payoff: it becomes impossible for an adversary to pick a
+    sequence of operations that forces the worst-case running time.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary 11.3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using universal hashing and collision resolution by chaining in an initially
+    empty table with *m* slots, it takes Θ(*s*) expected time to handle any sequence
+    of *s* INSERT, SEARCH, and DELETE operations containing *n* = *O*(*m*) INSERT
+    operations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   The INSERT and DELETE operations take constant time. Since the
+    number *n* of insertions is *O*(*m*), we have that *α* = *O*(1). Furthermore,
+    the expected time for each SEARCH operation is *O*(1), which can be seen by examining
+    the proof of Theorem 11.2\. That analysis depends only on collision probabilities,
+    which are 1/*m* for any pair *k*[1], *k*[2] of keys by the choice of an independent
+    uniform hash function in that theorem. Using a universal family of hash functions
+    here instead of using independent uniform hashing changes the probability of collision
+    from 1/*m* to at most 1/*m*. By linearity of expectation, therefore, the expected
+    time for the entire sequence of *s* operations is *O*(*s*). Since each operation
+    takes Ω(1) time, the Θ(*s*) bound follows.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.3.3    Achievable properties of random hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is a rich literature on the properties a family H of hash functions can
+    have, and how they relate to the efficiency of hashing. We summarize a few of
+    the most interesting ones here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let H be a family of hash functions, each with domain *U* and range {0, 1, …,
+    *m* − 1}, and let *h* be any hash function that is picked uniformly at random
+    from H. The probabilities mentioned are probabilities over the picks of *h*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The family H is ***uniform*** if for any key *k* in *U* and any slot *q* in
+    the range {0, 1, …, *m* − 1}, the probability that *h*(*k*) = *q* is 1/*m*.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The family H is ***universal*** if for any distinct keys *k*[1] and *k*[2] in
+    *U*, the probability that *h*(*k*[1]) = *h*(*k*[2]) is at most 1/*m*.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The family H of hash functions is ***ϵ-universal*** if for any distinct keys
+    *k*[1] and *k*[2] in *U*, the probability that *h*(*k*[1]) = *h*(*k*[2]) is at
+    most *ϵ*. Therefore, a universal family of hash functions is also 1/*m*-universal.^([2](#footnote_2))
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The family H is ***d-independent*** if for any distinct keys *k*[1], *k*[2],
+    …, *k[d]* in *U* and any slots *q*[1], *q*[2], …, *q[d]*, not necessarily distinct,
+    in {0, 1, …, *m* − 1} the probability that *h*(*k[i]*) = *q[i]* for *i* = 1, 2,
+    …, *d* is 1/*m^d*.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Universal hash-function families are of particular interest, as they are the
+    simplest type supporting provably efficient hash-table operations for any input
+    data set. Many other interesting and desirable properties, such as those noted
+    above, are also possible and allow for efficient specialized hash-table operations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.3.4    Designing a universal family of hash functions**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This section present two ways to design a universal (or *ϵ*-universal) family
+    of hash functions: one based on number theory and another based on a randomized
+    variant of the multiply-shift method presented in [Section 11.3.1](chapter011.xhtml#Sec_11.3.1).
+    The first method is a bit easier to prove universal, but the second method is
+    newer and faster in practice.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**A universal family of hash functions based on number theory**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can design a universal family of hash functions using a little number theory.
+    You may wish to refer to [Chapter 31](chapter031.xhtml) if you are unfamiliar
+    with basic concepts in number theory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Begin by choosing a prime number *p* large enough so that every possible key
+    *k* lies in the range 0 to *p* − 1, inclusive. We assume here that *p* has a “reasonable”
+    length. (See [Section 11.3.5](chapter011.xhtml#Sec_11.3.5) for a discussion of
+    methods for handling long input keys, such as variable-length strings.) Let ℤ*[p]*
+    denote the set {0, 1, …, *p* − 1}, and let ![art](images/Art_zpast.jpg) denote
+    the set {1, 2, …, *p* − 1}. Since *p* is prime, we can solve equations modulo
+    *p* with the methods given in [Chapter 31](chapter031.xhtml). Because the size
+    of the universe of keys is greater than the number of slots in the hash table
+    (otherwise, just use direct addressing), we have *p* > *m*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Given any ![art](images/Art_P387.jpg) and any *b* ∈ ℤ[*p*], define the hash
+    function *h[ab]* as a linear transformation followed by reductions modulo *p*
+    and then modulo *m*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P388.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For example, with *p* = 17 and *m* = 6, we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *h*[3,4](8) | = | ((3 · 8 + 4) mod 17) mod 6 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | (28 mod 17) mod 6 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 11 mod 6 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 5. |'
+  prefs: []
+  type: TYPE_TB
+- en: Given *p* and *m*, the family of all such hash functions is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P389.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Each hash function *h[ab]* maps ℤ*[p]* to ℤ*[m]*. This family of hash functions
+    has the nice property that the size *m* of the output range (which is the size
+    of the hash table) is arbitrary—it need not be prime. Since you can choose from
+    among *p* − 1 values for *a* and *p* values for *b*, the family *H[pm]* contains
+    *p*(*p* − 1) hash functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The family *H[pm]* of hash functions defined by equations (11.3) and (11.4)
+    is universal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   Consider two distinct keys *k*[1] and *k*[2] from ℤ*[p]*, so
+    that *k*[1] ≠ *k*[2]. For a given hash function *h[ab]*, let'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*r*[1] = (*ak*[1] + *b*) mod *p*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*r*[2] = (*ak*[2] + *b*) mod *p*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We first note that *r*[1] ≠ *r*[2]. Why? Since we have *r*[1] − *r*[2] = *a*(*k*[1]
+    − *k*[2]) (mod *p*), it follows that *r*[1] ≠ *r*[2] because *p* is prime and
+    both *a* and (*k*[1] − *k*[2]) are nonzero modulo *p*. By Theorem 31.6 on page
+    908, their product must also be nonzero modulo *p*. Therefore, when computing
+    any *h[ab]* ∈ *H[pm]*, distinct inputs *k*[1] and *k*[2] map to distinct values
+    *r*[1] and *r*[2] modulo *p*, and there are no collisions yet at the “mod *p*
+    level.” Moreover, each of the possible *p*(*p* − 1) choices for the pair (*a*,
+    *b*) with *a* ≠ 0 yields a *different* resulting pair (*r*[1], *r*[2]) with *r*[1]
+    ≠ *r*[2], since we can solve for *a* and *b* given *r*[1] and *r*[2]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*a* = ((*r* − *r*[2])((*k*[1] − *k*[2])^(−1) mod *p*)) mod *p*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*b* = (*r*[1] − *ak*[1]) mod *p*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where ((*k*[1] − *k*[2])^(−1) mod *p*) denotes the unique multiplicative inverse,
+    modulo *p*, of *k*[1] − *k*[2]. For each of the *p* possible values of *r*[1],
+    there are only *p* − 1 possible values of *r*[2] that do not equal *r*[1], making
+    only *p*(*p* − 1) possible pairs (*r*[1], *r*[2]) with *r*[1] ≠ *r*[2]. Therefore,
+    there is a one-to-one correspondence between pairs (*a*, *b*) with *a* ≠ 0 and
+    pairs (*r*[1], *r*[2]) with *r*[1] ≠ *r*[2]. Thus, for any given pair of distinct
+    inputs *k*[1] and *k*[2], if we pick (*a*, *b*) uniformly at random from ![art](images/Art_P390.jpg),
+    the resulting pair (*r*[1], *r*[2]) is equally likely to be any pair of distinct
+    values modulo *p*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Therefore, the probability that distinct keys *k*[1] and *k*[2] collide is equal
+    to the probability that *r*[1] = *r*[2] (mod *m*) when *r*[1] and *r*[2] are randomly
+    chosen as distinct values modulo *p*. For a given value of *r*[1], of the *p*
+    − 1 possible remaining values for *r*[2], the number of values *r*[2] such that
+    *r*[2] ≠ *r*[1] and *r*[2] = *r*[1] (mod *m*) is at most
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P391.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The probability that *r*[2] collides with *r*[1] when reduced modulo *m* is
+    at most ((*p* − 1)/*m*)/(*p* − 1) = 1/*m*, since *r*[2] is equally likely to be
+    any of the *p* − 1 values in *Z[p]* that are different from *r*[1], but at most
+    (*p* − 1)/*m* of those values are equivalent to *r*[1] modulo *m*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Therefore, for any pair of distinct values *k*[1], *k*[2] ∈ ℤ[*p*],
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr{*h[ab]*(*k*[1]) = *h[ab]*(*k*[2])} ≤ 1/*m*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: so that *H[pm]* is indeed universal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**A 2/*m*-universal family of hash functions based on the multiply-shift method**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We recommend that in practice you use the following hash-function family based
+    on the multiply-shift method. It is exceptionally efficient and (although we omit
+    the proof) provably 2/*m*-universal. Define H to be the family of multiply-shift
+    hash functions with odd constants *a*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P392.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Theorem 11.5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The family of hash functions H given by equation (11.5) is 2/*m*-universal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: That is, the probability that any two distinct keys collide is at most 2/*m*.
+    In many practical situations, the speed of computing the hash function more than
+    compensates for the higher upper bound on the probability that two distinct keys
+    collide when compared with a universal hash function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.3.5    Hashing long inputs such as vectors or strings**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sometimes hash function inputs are so long that they cannot be easily encoded
+    modulo a reasonably sized prime number *p* or encoded within a single word of,
+    say, 64 bits. As an example, consider the class of vectors, such as vectors of
+    8-bit bytes (which is how strings in many programming languages are stored). A
+    vector might have an arbitrary nonnegative length, in which case the length of
+    the input to the hash function may vary from input to input.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Number-theoretic approaches**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: One way to design good hash functions for variable-length inputs is to extend
+    the ideas used in [Section 11.3.4](chapter011.xhtml#Sec_11.3.4) to design universal
+    hash functions. Exercise 11.3-6 explores one such approach.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Cryptographic hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another way to design a good hash function for variable-length inputs is to
+    use a hash function designed for cryptographic applications. ***Cryptographic
+    hash functions*** are complex pseudorandom functions, designed for applications
+    requiring properties beyond those needed here, but are robust, widely implemented,
+    and usable as hash functions for hash tables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A cryptographic hash function takes as input an arbitrary byte string and returns
+    a fixed-length output. For example, the NIST standard deterministic cryptographic
+    hash function SHA-256 [[346](bibliography001.xhtml#endnote_346)] produces a 256-bit
+    (32-byte) output for any input.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some chip manufacturers include instructions in their CPU architectures to provide
+    fast implementations of some cryptographic functions. Of particular interest are
+    instructions that efficiently implement rounds of the Advanced Encryption Standard
+    (AES), the “AES-NI” instructions. These instructions execute in a few tens of
+    nanoseconds, which is generally fast enough for use with hash tables. A message
+    authentication code such as CBC-MAC based on AES and the use of the AES-NI instructions
+    could be a useful and efficient hash function. We don’t pursue the potential use
+    of specialized instruction sets further here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Cryptographic hash functions are useful because they provide a way of implementing
+    an approximate version of a random oracle. As noted earlier, a random oracle is
+    equivalent to an independent uniform hash function family. From a theoretical
+    point of view, a random oracle is an unachievable ideal: a deterministic function
+    that provides a randomly selected output for each input. Because it is deterministic,
+    it provides the same output if queried again for the same input. From a practical
+    point of view, constructions of hash function families based on cryptographic
+    hash functions are sensible substitutes for random oracles.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are many ways to use a cryptographic hash function as a hash function.
+    For example, we could define
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*(*k*) = SHA-256(*k*) mod *m*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To define a family of such hash functions one may prepend a “salt” string *a*
+    to the input before hashing it, as in
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h[a]*(*k*) = SHA-256(*a* ‖ *k*) mod *m*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where *a* ‖ *k* denotes the string formed by concatenating the strings *a* and
+    *k*. The literature on message authentication codes (MACs) provides additional
+    approaches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Cryptographic approaches to hash-function design are becoming more practical
+    as computers arrange their memories in hierarchies of differing capacities and
+    speeds. [Section 11.5](chapter011.xhtml#Sec_11.5) discusses one hash-function
+    design based on the RC6 encryption method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.3-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You wish to search a linked list of length *n*, where each element contains
+    a key *k* along with a hash value *h*(*k*). Each key is a long character string.
+    How might you take advantage of the hash values when searching the list for an
+    element with a given key?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.3-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You hash a string of *r* characters into *m* slots by treating it as a radix-128
+    number and then using the division method. You can represent the number *m* as
+    a 32-bit computer word, but the string of *r* characters, treated as a radix-128
+    number, takes many words. How can you apply the division method to compute the
+    hash value of the character string without using more than a constant number of
+    words of storage outside the string itself?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.3-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a version of the division method in which *h*(*k*) = *k* mod *m*, where
+    *m* = 2*^p* − 1 and *k* is a character string interpreted in radix 2*^p*. Show
+    that if string *x* can be converted to string *y* by permuting its characters,
+    then *x* and *y* hash to the same value. Give an example of an application in
+    which this property would be undesirable in a hash function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.3-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a hash table of size *m* = 1000 and a corresponding hash function *h*(*k*)
+    = ⌊*m* (*kA* mod 1)⌋ for ![art](images/Art_P393.jpg). Compute the locations to
+    which the keys 61, 62, 63, 64, and 65 are mapped.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.3-5***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that any *ϵ*-universal family H of hash functions from a finite set *U*
+    to a finite set *Q* has *ϵ* ≥ 1/|*Q*| − 1/|*U*|.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.3-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let *U* be the set of *d*-tuples of values drawn from ℤ*[p]*, and let *Q* =
+    ℤ*[p]*, where *p* is prime. Define the hash function *h[b]* : *U* → *Q* for *b*
+    ∈ ℤ*[p]* on an input *d*-tuple 〈*a*[0], *a*[1], …, *a*[*d*−1]〉 from *U* as'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P394.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'and let H = {*h[b]* : *b* ∈ ℤ[*p*]}. Argue that H is *ϵ*-universal for *ϵ*
+    = (*d* − 1)/*p*. (*Hint:* See Exercise 31.4-4.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**11.4    Open addressing**](toc.xhtml#Rh1-65)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This section describes open addressing, a method for collision resolution that,
+    unlike chaining, does not make use of storage outside of the hash table itself.
+    In ***open addressing***, all elements occupy the hash table itself. That is,
+    each table entry contains either an element of the dynamic set or NIL. No lists
+    or elements are stored outside the table, unlike in chaining. Thus, in open addressing,
+    the hash table can “fill up” so that no further insertions can be made. One consequence
+    is that the load factor *α* can never exceed 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Collisions are handled as follows: when a new element is to be inserted into
+    the table, it is placed in its “first-choice” location if possible. If that location
+    is already occupied, the new element is placed in its “second-choice” location.
+    The process continues until an empty slot is found in which to place the new element.
+    Different elements have different preference orders for the locations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To search for an element, systematically examine the preferred table slots for
+    that element, in order of decreasing preference, until either you find the desired
+    element or you find an empty slot and thus verify that the element is not in the
+    table.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Of course, you could use chaining and store the linked lists inside the hash
+    table, in the otherwise unused hash-table slots (see Exercise 11.2-4), but the
+    advantage of open addressing is that it avoids pointers altogether. Instead of
+    following pointers, you compute the sequence of slots to be examined. The memory
+    freed by not storing pointers provides the hash table with a larger number of
+    slots in the same amount of memory, potentially yielding fewer collisions and
+    faster retrieval.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To perform insertion using open addressing, successively examine, or ***probe***,
+    the hash table until you find an empty slot in which to put the key. Instead of
+    being fixed in the order 0, 1, …, *m* − 1 (which implies a Θ(*n*) search time),
+    the sequence of positions probed depends upon the key being inserted. To determine
+    which slots to probe, the hash function includes the probe number (starting from
+    0) as a second input. Thus, the hash function becomes
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h* : *U* × {0, 1, …, *m* − 1} → {0, 1, …, *m* − 1}.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Open addressing requires that for every key *k*, the ***probe sequence*** 〈*h*(*k*,
+    0), *h*(*k*, 1), …, *h*(*k*, *m* − 1)〉 be a permutation of 〈0, 1, …, *m* − 1〉,
+    so that every hash-table position is eventually considered as a slot for a new
+    key as the table fills up. The HASH-INSERT procedure on the following page assumes
+    that the elements in the hash table *T* are keys with no satellite information:
+    the key *k* is identical to the element containing key *k*. Each slot contains
+    either a key or NIL (if the slot is empty). The HASH-INSERT procedure takes as
+    input a hash table *T* and a key *k* that is assumed to be not already present
+    in the hash table. It either returns the slot number where it stores key *k* or
+    flags an error because the hash table is already full.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: HASH-INSERT(*T*, *k*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *i* = 0 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **repeat** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | *q* = *h*(*k*, *i*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **if** *T*[*q*] == NIL |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | *T*[*q*] = *k* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | **return** *q* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | **else** *i* = *i* + 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 8 | **until** *i* == *m* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 9 | **error** “hash table overflow” |'
+  prefs: []
+  type: TYPE_TB
+- en: HASH-SEARCH(*T*, *k*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *i* = 0 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **repeat** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | *q* = *h*(*k*, *i*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **if** *T*[*q*] == *k* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | **return** *q* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | *i* = *i* + 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | **until** *T*[*q*] == NIL or *i* == *m* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 8 | **return** NIL |'
+  prefs: []
+  type: TYPE_TB
+- en: The algorithm for searching for key *k* probes the same sequence of slots that
+    the insertion algorithm examined when key *k* was inserted. Therefore, the search
+    can terminate (unsuccessfully) when it finds an empty slot, since *k* would have
+    been inserted there and not later in its probe sequence. The procedure HASH-SEARCH
+    takes as input a hash table *T* and a key *k*, returning *q* if it finds that
+    slot *q* contains key *k*, or NIL if key *k* is not present in table *T*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Deletion from an open-address hash table is tricky. When you delete a key from
+    slot *q*, it would be a mistake to mark that slot as empty by simply storing NIL
+    in it. If you did, you might be unable to retrieve any key *k* for which slot
+    *q* was probed and found occupied when *k* was inserted. One way to solve this
+    problem is by marking the slot, storing in it the special value DELETED instead
+    of NIL. The HASH-INSERT procedure then has to treat such a slot as empty so that
+    it can insert a new key there. The HASH-SEARCH procedure passes over DELETED values
+    while searching, since slots containing DELETED were filled when the key being
+    searched for was inserted. Using the special value DELETED, however, means that
+    search times no longer depend on the load factor *α*, and for this reason chaining
+    is frequently selected as a collision resolution technique when keys must be deleted.
+    There is a simple special case of open addressing, linear probing, that avoids
+    the need to mark slots with DELETED. [Section 11.5.1](chapter011.xhtml#Sec_11.5.1)
+    shows how to delete from a hash table when using linear probing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In our analysis, we assume ***independent uniform permutation hashing*** (also
+    confusingly known as ***uniform hashing*** in the literature): the probe sequence
+    of each key is equally likely to be any of the *m*! permutations of 〈0, 1, …,
+    *m* − 1〉. Independent uniform permutation hashing generalizes the notion of independent
+    uniform hashing defined earlier to a hash function that produces not just a single
+    slot number, but a whole probe sequence. True independent uniform permutation
+    hashing is difficult to implement, however, and in practice suitable approximations
+    (such as double hashing, defined below) are used.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll examine both double hashing and its special case, linear probing. These
+    techniques guarantee that 〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*, *m* − 1)〉 is
+    a permutation of 〈0, 1, …, *m* − 1〉 for each key *k*. (Recall that the second
+    parameter to the hash function *h* is the probe number.) Neither double hashing
+    nor linear probing meets the assumption of independent uniform permutation hashing,
+    however. Double hashing cannot generate more than *m*² different probe sequences
+    (instead of the *m*! that independent uniform permutation hashing requires). Nonetheless,
+    double hashing has a large number of possible probe sequences and, as you might
+    expect, seems to give good results. Linear probing is even more restricted, capable
+    of generating only *m* different probe sequences.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Double hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Double hashing offers one of the best methods available for open addressing
+    because the permutations produced have many of the characteristics of randomly
+    chosen permutations. ***Double hashing*** uses a hash function of the form
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*(*k*, *i*) = (*h*[1](*k*) + *ih*[2](*k*)) mod *m*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where both *h*[1] and *h*[2] are ***auxiliary hash functions***. The initial
+    probe goes to position *T*[*h*[1](*k*)], and successive probe positions are offset
+    from previous positions by the amount *h*[2](*k*), modulo *m*. Thus, the probe
+    sequence here depends in two ways upon the key *k*, since the initial probe position
+    *h*[1](*k*), the step size *h*[2](*k*), or both, may vary. [Figure 11.5](chapter011.xhtml#Fig_11-5)
+    gives an example of insertion by double hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order for the entire hash table to be searched, the value *h*[2](*k*) must
+    be relatively prime to the hash-table size *m*. (See Exercise 11.4-5.) A convenient
+    way to ensure this condition is to let *m* be an exact power of 2 and to design
+    *h*[2] so that it always produces an odd number. Another way is to let *m* be
+    prime and to design *h*[2] so that it always returns a positive integer less than
+    *m*. For example, you could choose *m* prime and let
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P395.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.5** Insertion by double hashing. The hash table has size 13 with
+    *h*[1](*k*) = *k* mod 13 and *h*[2](*k*) = 1 + (*k* mod 11). Since 14 = 1 (mod
+    13) and 14 = 3 (mod 11), the key 14 goes into empty slot 9, after slots 1 and
+    5 are examined and found to be occupied.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*[1](*k*) = *k* mod *m*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*[2](*k*) = 1 + (*k* mod *m*′),'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where *m*′ is chosen to be slightly less than *m* (say, *m* − 1). For example,
+    if *k* = 123456, *m* = 701, and *m*′ = 700, then *h*[1](*k*) = 80 and *h*[2](*k*)
+    = 257, so that the first probe goes to position 80, and successive probes examine
+    every 257th slot (modulo *m*) until the key has been found or every slot has been
+    examined.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although values of *m* other than primes or exact powers of 2 can in principle
+    be used with double hashing, in practice it becomes more difficult to efficiently
+    generate *h*[2](*k*) (other than choosing *h*[2](*k*) = 1, which gives linear
+    probing) in a way that ensures that it is relatively prime to *m*, in part because
+    the relative density *ϕ*(*m*)/*m* of such numbers for general *m* may be small
+    (see equation (31.25) on page 921).
+  prefs: []
+  type: TYPE_NORMAL
+- en: When *m* is prime or an exact power of 2, double hashing produces Θ(*m*²) probe
+    sequences, since each possible (*h*[1](*k*), *h*[2](*k*)) pair yields a distinct
+    probe sequence. As a result, for such values of *m*, double hashing appears to
+    perform close to the “ideal” scheme of independent uniform permutation hashing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Linear probing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Linear probing***, a special case of double hashing, is the simplest open-addressing
+    approach to resolving collisions. As with double hashing, an auxiliary hash function
+    *h*[1] determines the first probe position *h*[1](*k*) for inserting an element.
+    If slot *T*[*h*[1](*k*)] is already occupied, probe the next position *T*[*h*[1](*k*)
+    + 1]. Keep going as necessary, on up to slot *T*[*m* − 1], and then wrap around
+    to slots *T*[0], *T*[1], and so on, but never going past slot *T*[*h*[1](*k*)
+    − 1]. To view linear probing as a special case of double hashing, just set the
+    double-hashing step function *h*[2] to be fixed at 1: *h*[2](*k*) = 1 for all
+    *k*. That is, the hash function is'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P396.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for *i* = 0, 1, …, *m* − 1\. The value of *h*[1](*k*) determines the entire
+    probe sequence, and so assuming that *h*[1](*k*) can take on any value in {0,
+    1, …, *m* − 1}, linear probing allows only *m* distinct probe sequences.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll revisit linear probing in [Section 11.5.1](chapter011.xhtml#Sec_11.5.1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Analysis of open-address hashing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As in our analysis of chaining in [Section 11.2](chapter011.xhtml#Sec_11.2),
+    we analyze open addressing in terms of the load factor *α* = *n*/*m* of the hash
+    table. With open addressing, at most one element occupies each slot, and thus
+    *n* ≤ *m*, which implies *α* ≤ 1\. The analysis below requires *α* to be strictly
+    less than 1, and so we assume that at least one slot is empty. Because deleting
+    from an open-address hash table does not really free up a slot, we assume as well
+    that no deletions occur.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the hash function, we assume independent uniform permutation hashing. In
+    this idealized scheme, the probe sequence 〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*,
+    *m* − 1)〉 used to insert or search for each key *k* is equally likely to be any
+    permutation of 〈0, 1, …, *m* − 1〉. Of course, any given key has a unique fixed
+    probe sequence associated with it. What we mean here is that, considering the
+    probability distribution on the space of keys and the operation of the hash function
+    on the keys, each possible probe sequence is equally likely.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We now analyze the expected number of probes for hashing with open addressing
+    under the assumption of independent uniform permutation hashing, beginning with
+    the expected number of probes made in an unsuccessful search (assuming, as stated
+    above, that *α* < 1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The bound proven, of 1/(1 − *α*) = 1 + *α* + *α*² + *α*³ + ⋯, has an intuitive
+    interpretation. The first probe always occurs. With probability approximately
+    *α*, the first probe finds an occupied slot, so that a second probe happens. With
+    probability approximately *α*², the first two slots are occupied so that a third
+    probe ensues, and so on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given an open-address hash table with load factor *α* = *n*/*m* < 1, the expected
+    number of probes in an unsuccessful search is at most 1/(1 − *α*), assuming independent
+    uniform permutation hashing and no deletions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   In an unsuccessful search, every probe but the last accesses
+    an occupied slot that does not contain the desired key, and the last slot probed
+    is empty. Let the random variable *X* denote the number of probes made in an unsuccessful
+    search, and define the event *A[i]*, for *i* = 1, 2, …, as the event that an *i*th
+    probe occurs and it is to an occupied slot. Then the event {*X* ≥ *i*} is the
+    intersection of events *A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]. We bound Pr{*X* ≥ *i*}
+    by bounding Pr{*A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]}. By Exercise C.2-5 on page 1190,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Pr{*A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]} | = | Pr{*A*[1]} · Pr{*A*[2] &#124;
+    *A*[1]} · Pr {*A*[3] &#124; *A*[1] ⋂ *A*[2]} ⋯ |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  |  | Pr{*A*[*i*−1] &#124; *A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−2]}. |'
+  prefs: []
+  type: TYPE_TB
+- en: Since there are *n* elements and *m* slots, Pr{*A*[1]} = *n*/*m*. For *j* >
+    1, the probability that there is a *j*th probe and it is to an occupied slot,
+    given that the first *j* − 1 probes were to occupied slots, is (*n* − *j* + 1)/(*m*
+    − *j* + 1). This probability follows because the *j*th probe would be finding
+    one of the remaining (*n* − (*j* − 1)) elements in one of the (*m* − (*j* − 1))
+    unexamined slots, and by the assumption of independent uniform permutation hashing,
+    the probability is the ratio of these quantities. Since *n* < *m* implies that
+    (*n* − *j*)/(*m* − *j*) ≤ *n*/*m* for all *j* in the range 0 ≤ *j* < *m*, it follows
+    that for all *i* in the range 1 ≤ *i* ≤ *m*, we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P397.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The product in the first line has *i* − 1 factors. When *i* = 1, the product
+    is 1, the identity for multiplication, and we get Pr{*X* ≥ 1} = 1, which makes
+    sense, since there must always be at least 1 probe. If each of the first *n* probes
+    is to an occupied slot, then all occupied slots have been probed. Then, the (*n*
+    + 1)st probe must be to an empty slot, which gives Pr{*X* ≥ *i*} = 0 for *i* >
+    *n* + 1\. Now, we use equation (C.28) on page 1193 to bound the expected number
+    of probes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P398.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: If *α* is a constant, Theorem 11.6 predicts that an unsuccessful search runs
+    in *O*(1) time. For example, if the hash table is half full, the average number
+    of probes in an unsuccessful search is at most 1/(1 − .5) = 2\. If it is 90% full,
+    the average number of probes is at most 1/(1 − .9) = 10.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Theorem 11.6 yields almost immediately how well the HASH-INSERT procedure performs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary 11.7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inserting an element into an open-address hash table with load factor *α*, where
+    *α* < 1, requires at most 1/(1 − *α*) probes on average, assuming independent
+    uniform permutation hashing and no deletions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   An element is inserted only if there is room in the table, and
+    thus *α* < 1\. Inserting a key requires an unsuccessful search followed by placing
+    the key into the first empty slot found. Thus, the expected number of probes is
+    at most 1/(1 − *α*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: It takes a little more work to compute the expected number of probes for a successful
+    search.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given an open-address hash table with load factor *α* < 1, the expected number
+    of probes in a successful search is at most
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P399.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: assuming independent uniform permutation hashing with no deletions and assuming
+    that each key in the table is equally likely to be searched for.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   A search for a key *k* reproduces the same probe sequence as
+    when the element with key *k* was inserted. If *k* was the (*i* + 1)st key inserted
+    into the hash table, then the load factor at the time it was inserted was *i*/*m*,
+    and so by Corollary 11.7, the expected number of probes made in a search for *k*
+    is at most 1/(1 − *i*/*m*) = *m*/(*m* − *i*). Averaging over all *n* keys in the
+    hash table gives us the expected number of probes in a successful search:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P400.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the hash table is half full, the expected number of probes in a successful
+    search is less than 1.387\. If the hash table is 90% full, the expected number
+    of probes is less than 2.559\. If *α* = 1, then in an unsuccessful search, all
+    *m* slots must be probed. Exercise 11.4-4 asks you to analyze a successful search
+    when *α* = 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.4-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider inserting the keys 10, 22, 31, 4, 15, 28, 17, 88, 59 into a hash table
+    of length *m* = 11 using open addressing. Illustrate the result of inserting these
+    keys using linear probing with *h*(*k*, *i*) = (*k* + *i*) mod *m* and using double
+    hashing with *h*[1](*k*) = *k* and *h*[2](*k*) = 1 + (*k* mod (*m* − 1)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.4-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Write pseudocode for HASH-DELETE that fills the deleted key’s slot with the
+    special value DELETED, and modify HASH-SEARCH and HASH-INSERT as needed to handle
+    DELETED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.4-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider an open-address hash table with independent uniform permutation hashing
+    and no deletions. Give upper bounds on the expected number of probes in an unsuccessful
+    search and on the expected number of probes in a successful search when the load
+    factor is 3/4 and when it is 7/8.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11.4-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that the expected number of probes required for a successful search when
+    *α* = 1 (that is, when *n* = *m*), is *H[m]*, the *m*th harmonic number.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.4-5***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that, with double hashing, if *m* and *h*[2](*k*) have greatest common
+    divisor *d* ≥ 1 for some key *k*, then an unsuccessful search for key *k* examines
+    (1/*d*)th of the hash table before returning to slot *h*[1](*k*). Thus, when *d*
+    = 1, so that *m* and *h*[2](*k*) are relatively prime, the search may examine
+    the entire hash table. (*Hint:* See [Chapter 31](chapter031.xhtml).)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.4-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider an open-address hash table with a load factor *α*. Approximate the
+    nonzero value *α* for which the expected number of probes in an unsuccessful search
+    equals twice the expected number of probes in a successful search. Use the upper
+    bounds given by Theorems 11.6 and 11.8 for these expected numbers of probes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**11.5    Practical considerations**](toc.xhtml#Rh1-66)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Efficient hash table algorithms are not only of theoretical interest, but also
+    of immense practical importance. Constant factors can matter. For this reason,
+    this section discusses two aspects of modern CPUs that are not included in the
+    standard RAM model presented in [Section 2.2](chapter002.xhtml#Sec_2.2):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Memory hierarchies:** The memory of modern CPUs has a number of levels, from
+    the fast registers, through one or more levels of ***cache memory***, to the main-memory
+    level. Each successive level stores more data than the previous level, but access
+    is slower. As a consequence, a complex computation (such as a complicated hash
+    function) that works entirely within the fast registers can take less time than
+    a single read operation from main memory. Furthermore, cache memory is organized
+    in ***cache blocks*** of (say) 64 bytes each, which are always fetched together
+    from main memory. There is a substantial benefit for ensuring that memory usage
+    is local: reusing the same cache block is much more efficient than fetching a
+    different cache block from main memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The standard RAM model measures efficiency of a hash-table operation by counting
+    the number of hash-table slots probed. In practice, this metric is only a crude
+    approximation to the truth, since once a cache block is in the cache, successive
+    probes to that cache block are much faster than probes that must access main memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Advanced instruction sets:** Modern CPUs may have sophisticated instruction
+    sets that implement advanced primitives useful for encryption or other forms of
+    cryptography. These instructions may be useful in the design of exceptionally
+    efficient hash functions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Section 11.5.1](chapter011.xhtml#Sec_11.5.1) discusses linear probing, which
+    becomes the collision-resolution method of choice in the presence of a memory
+    hierarchy. [Section 11.5.2](chapter011.xhtml#Sec_11.5.2) suggests how to construct
+    “advanced” hash functions based on cryptographic primitives, suitable for use
+    on computers with hierarchical memory models.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**11.5.1    Linear probing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Linear probing is often disparaged because of its poor performance in the standard
+    RAM model. But linear probing excels for hierarchical memory models, because successive
+    probes are usually to the same cache block of memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Deletion with linear probing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another reason why linear probing is often not used in practice is that deletion
+    seems complicated or impossible without using the special DELETED value. Yet we’ll
+    now see that deletion from a hash table based on linear probing is not all that
+    difficult, even without the DELETED marker. The deletion procedure works for linear
+    probing, but not for open-address probing in general, because with linear probing
+    keys all follow the same simple cyclic probing sequence (albeit with different
+    starting points).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The deletion procedure relies on an “inverse” function to the linear-probing
+    hash function *h*(*k*, *i*) = (*h*[1](*k*) + *i*) mod *m*, which maps a key *k*
+    and a probe number *i* to a slot number in the hash table. The inverse function
+    *g* maps a key *k* and a slot number *q*, where 0 ≤ *q* < *m*, to the probe number
+    that reaches slot *q*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*g*(*k*, *q*) = (*q* − *h*[1](*k*)) mod *m*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If *h*(*k*, *i*) = *q*, then *g*(*k*, *q*) = *i*, and so *h*(*k*, *g*(*k*, *q*))
+    = *q*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The procedure LINEAR-PROBING-HASH-DELETE on the facing page deletes the key
+    stored in position *q* from hash table *T*. [Figure 11.6](chapter011.xhtml#Fig_11-6)
+    shows how it works. The procedure first deletes the key in position *q* by setting
+    *T*[*q*] to NIL in line 2\. It then searches for a slot *q*′ (if any) that contains
+    a key that should be moved to the slot *q* just vacated by key *k*. Line 9 asks
+    the critical question: does the key *k*′ in slot *q*′ need to be moved to the
+    vacated slot *q* in order to preserve the accessibility of *k*′? If *g*(*k*′,
+    *q*) < *g*(*k*′, *q*′), then during the insertion of *k*′ into the table, slot
+    *q* was examined but found to be already occupied. But now slot *q*, where a search
+    will look for *k*′, is empty. In this case, key *k*′ moves to slot *q* in line
+    10, and the search continues, to see whether any later key also needs to be moved
+    to the slot *q*′ that was just freed up when *k*′ moved.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P401.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure 11.6** Deletion in a hash table that uses linear probing. The hash
+    table has size 10 with *h*[1](*k*) = *k* mod 10\. **(a)** The hash table after
+    inserting keys in the order 74, 43, 93, 18, 82, 38, 92\. **(b)** The hash table
+    after deleting the key 43 from slot 3\. Key 93 moves up to slot 3 to keep it accessible,
+    and then key 92 moves up to slot 5 just vacated by key 93\. No other keys need
+    to be moved.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: LINEAR-PROBING-HASH-DELETE(*T*, *q*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|   1 | **while** TRUE |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   2 | *T*[*q*] = NIL | **//** make slot *q* empty |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   3 | *q*′ = *q* | **//** starting point for search |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   4 | **repeat** |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   5 | *q*′ = (*q*′ + 1) mod *m* | **//** next slot number with linear probing
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   6 | *k*′ = *T*[*q*′] | **//** next key to try to move |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   7 | **if** *k*′ == NIL |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   8 | **return** | **//** return when an empty slot is found |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   9 | **until** *g*(*k*′, *q*) < *g*(*k*′, *q*′) | **//** was empty slot
+    *q* probed before *q*′? |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 10 | *T*[*q*] = *k*′ | **//** move *k*′ into slot *q* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 11 | *q* = *q*′ | **//** free up slot *q*′ |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Analysis of linear probing**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Linear probing is popular to implement, but it exhibits a phenomenon known as
+    ***primary clustering***. Long runs of occupied slots build up, increasing the
+    average search time. Clusters arise because an empty slot preceded by *i* full
+    slots gets filled next with probability (*i* + 1)/*m*. Long runs of occupied slots
+    tend to get longer, and the average search time increases.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the standard RAM model, primary clustering is a problem, and general double
+    hashing usually performs better than linear probing. By contrast, in a hierarchical
+    memory model, primary clustering is a beneficial property, as elements are often
+    stored together in the same cache block. Searching proceeds through one cache
+    block before advancing to search the next cache block. With linear probing, the
+    running time for a key *k* of HASH-INSERT, HASH-SEARCH, or LINEAR-PROBING-HASH-DELETE
+    is at most proportional to the distance from *h*[1](*k*) to the next empty slot.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following theorem is due to Pagh et al. [[351](bibliography001.xhtml#endnote_351)].
+    A more recent proof is given by Thorup [[438](bibliography001.xhtml#endnote_438)].
+    We omit the proof here. The need for 5-independence is by no means obvious; see
+    the cited proofs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem 11.9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If *h*[1] is 5-independent and *α* ≤ 2/3, then it takes expected constant time
+    to search for, insert, or delete a key in a hash table using linear probing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: (Indeed, the expected operation time is *O*(1/*ϵ* ²) for *α* = 1 − *ϵ*.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ **11.5.2 Hash functions for hierarchical memory models**
+  prefs: []
+  type: TYPE_NORMAL
+- en: This section illustrates an approach for designing efficient hash tables in
+    a modern computer system having a memory hierarchy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Because of the memory hierarchy, linear probing is a good choice for resolving
+    collisions, as probe sequences are sequential and tend to stay within cache blocks.
+    But linear probing is most efficient when the hash function is complex (for example,
+    5-independent as in Theorem 11.9). Fortunately, having a memory hierarchy means
+    that complex hash functions can be implemented efficiently.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As noted in [Section 11.3.5](chapter011.xhtml#Sec_11.3.5), one approach is to
+    use a cryptographic hash function such as SHA-256\. Such functions are complex
+    and sufficiently random for hash table applications. On machines with specialized
+    instructions, cryptographic functions can be quite efficient.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instead, we present here a simple hash function based only on addition, multiplication,
+    and swapping the halves of a word. This function can be implemented entirely within
+    the fast registers, and on a machine with a memory hierarchy, its latency is small
+    compared with the time taken to access a random slot of the hash table. It is
+    related to the RC6 encryption algorithm and can for practical purposes be considered
+    a “random oracle.”
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The wee hash function**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *w* denote the word size of the machine (e.g., *w* = 64), assumed to be
+    even, and let *a* and *b* be *w*-bit unsigned (nonnegative) integers such that
+    *a* is odd. Let swap(*x*) denote the *w*-bit result of swapping the two *w/*2-bit
+    halves of *w*-bit input *x*. That is,
+  prefs: []
+  type: TYPE_NORMAL
+- en: swap(*x*) = (*x* ⋙ (*w*/2)) + (*x* ⋘ (*w*/2))
+  prefs: []
+  type: TYPE_NORMAL
+- en: where “⋙” is “logical right shift” (as in equation (11.2)) and “⋘ is “left shift.”
+    Define
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*f[a]*(*k*) = swap((2*k*² + *ak*) mod 2*^w*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus, to compute *f[a]*(*k*), evaluate the quadratic function 2*k*² + *ak* modulo
+    2*^w* and then swap the left and right halves of the result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *r* denote a desired number of “rounds” for the computation of the hash
+    function. We’ll use *r* = 4, but the hash function is well defined for any nonnegative
+    *r*. Denote by ![art](images/Art_P402.jpg) the result of iterating *f[a]* a total
+    of *r* times (that is, *r* rounds) starting with input value *k*. For any odd
+    *a* and any *r* ≥ 0, the function ![art](images/far_1.jpg), although complicated,
+    is one-to-one (see Exercise 11.5-1). A cryptographer would view ![art](images/far_1.jpg)
+    as a simple block cipher operating on *w*-bit input blocks, with *r* rounds and
+    key *a*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We first define the wee hash function *h* for short inputs, where by “short”
+    we means “whose length *t* is at most *w*-bits,” so that the input fits within
+    one computer word. We would like inputs of different lengths to be hashed differently.
+    The ***wee hash function*** *h*[*a*,*b*,*t*,*r*](*k*) for parameters *a*, *b*,
+    and *r* on *t*-bit input *k* is defined as
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P403.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: That is, the hash value for *t*-bit input *k* is obtained by applying ![art](images/Art_P404.jpg)
+    to *k* + *b*, then taking the final result modulo *m*. Adding the value *b* provides
+    hash-dependent randomization of the input, in a way that ensures that for variable-length
+    inputs the 0-length input does not have a fixed hash value. Adding the value 2*t*
+    to *a* ensures that the hash function acts differently for inputs of different
+    lengths. (We use 2*t* rather than *t* to ensure that the key *a* + 2*t* is odd
+    if *a* is odd.) We call this hash function “wee” because it uses a tiny amount
+    of memory—more precisely, it can be implemented efficiently using only the computer’s
+    fast registers. (This hash function does not have a name in the literature; it
+    is a variant we developed for this textbook.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Speed of the wee hash function**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is surprising how much efficiency can be bought with locality. Experiments
+    (unpublished, by the authors) suggest that evaluating the wee hash function takes
+    less time than probing a *single* randomly chosen slot in a hash table. These
+    experiments were run on a laptop (2019 MacBook Pro) with *w* = 64 and *a* = 123\.
+    For large hash tables, evaluating the wee hash function was 2 to 10 times faster
+    than performing a single probe of the hash table.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The wee hash function for variable-length inputs**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sometimes inputs are long—more than one *w*-bit word in length—or have variable
+    length, as discussed in [Section 11.3.5](chapter011.xhtml#Sec_11.3.5). We can
+    extend the wee hash function, defined above for inputs that are at most single
+    *w*-bit word in length, to handle long or variable-length inputs. Here is one
+    method for doing so.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Suppose that an input *k* has length *t* (measured in bits). Break *k* into
+    a sequence 〈*k*[1], *k*[2], …, *k[u]*〉 of *w*-bit words, where *u* = ⌈*t*/*w*⌉,
+    *k*[1] contains the least-significant *w* bits of *k*, and *k[u]* contains the
+    most significant bits. If *t* is not a multiple of *w*, then *k[u]* contains fewer
+    than *w* bits, in which case, pad out the unused high-order bits of *k[u]* with
+    0-bits. Define the function chop to return a sequence of the *w*-bit words in
+    *k*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: chop(*k*) = 〈*k*[1], *k*[2], …, *k[u]*〉.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The most important property of the chop operation is that it is one-to-one,
+    given *t*: for any two *t*-bit keys *k* and *k*′, if *k* ≠ *k*′ then chop(*k*)
+    ≠ chop(*k*′), and *k* can be derived from chop(*k*) and *t*. The chop operation
+    also has the useful property that a single-word input key yields a single-word
+    output sequence: chop(*k*) = 〈*k*〉.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With the chop function in hand, we specify the wee hash function *h*[*a*,*b*,*t*,*r*](*k*)
+    for an input *k* of length *t* bits as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*h*[*a*,*b*,*t*,*r*](*k*) = WEE(*k*, *a*, *b*, *t*, *r*, *m*),'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where the procedure WEE defined on the facing page iterates through the elements
+    of the *w*-bit words returned by chop(*k*), applying ![art](images/far.jpg) to
+    the sum of the current word *k[i]* and the previously computed hash value so far,
+    finally returning the result obtained modulo *m*. This definition for variable-length
+    and long (multiple-word) inputs is a consistent extension of the definition in
+    equation (11.7) for short (single-word) inputs. For practical use, we recommend
+    that *a* be a randomly chosen odd *w*-bit word, *b* be a randomly chosen *w*-bit
+    word, and that *r* = 4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Note that the wee hash function is really a hash function family, with individual
+    hash functions determined by parameters *a*, *b*, *t*, *r*, and *m*. The (approximate)
+    5-independence of the wee hash function family for variable-length inputs can
+    be argued based on the assumption that the 1-word wee hash function is a random
+    oracle and on the security of the cipher-block-chaining message authentication
+    code (CBC-MAC), as studied by Bellare et al. [[42](bibliography001.xhtml#endnote_42)].
+    The case here is actually simpler than that studied in the literature, since if
+    two messages have different lengths *t* and *t*′, then their “keys” are different:
+    *a* + 2*t* ≠ *a* + 2*t*′. We omit the details.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: WEE(*k*, *a*, *b*, *t*, *r*, *m*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *u* = ⌈*t*/*w*⌉ |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | 〈*k*[1], *k*[2], …, *k[u]*〉 = chop(*k*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | *q* = *b* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **for** *i* = 1 **to** *u* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | ![art](images/Art_P405.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | **return** *q* mod *m* |'
+  prefs: []
+  type: TYPE_TB
+- en: This definition of a cryptographically inspired hash-function family is meant
+    to be realistic, yet only illustrative, and many variations and improvements are
+    possible. See the chapter notes for suggestions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In summary, we see that when the memory system is hierarchical, it becomes advantageous
+    to use linear probing (a special case of double hashing), since successive probes
+    tend to stay in the same cache block. Furthermore, hash functions that can be
+    implemented using only the computer’s fast registers are exceptionally efficient,
+    so they can be quite complex and even cryptographically inspired, providing the
+    high degree of independence needed for linear probing to work most efficiently.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.5-1***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Complete the argument that for any odd positive integer *a* and any integer
+    *r* ≥ 0, the function ![art](images/far_1.jpg) is one-to-one. Use a proof by contradiction
+    and make use of the fact that the function *f[a]* works modulo 2*^w*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.5-2***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Argue that a random oracle is 5-independent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***11.5-3***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider what happens to the value ![art](images/fark.jpg) as we flip a single
+    bit *k[i]* of the input value *k*, for various values of *r*. Let ![art](images/Art_P406.jpg)
+    and ![art](images/Art_P407.jpg) define the bit values *k[i]* in the input (with
+    *k*[0] the least-significant bit) and the bit values *b[j]* in *g[a]*(*k*) = (2*k*²
+    + *ak*) mod 2*^w* (where *g[a]*(*k*) is the value that, when its halves are swapped,
+    becomes *f[a]*(*k*)). Suppose that flipping a single bit *k[i]* of the input *k*
+    may cause any bit *b[j]* of *g[a]*(*k*) to flip, for *j* ≥ *i*. What is the least
+    value of *r* for which flipping the value of any single bit *k[i]* may cause *any*
+    bit of the output ![art](images/fark.jpg) to flip? Explain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Problems**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11-1     Longest-probe bound for hashing***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose you are using an open-addressed hash table of size *m* to store *n*
+    ≤ *m*/2 items.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Assuming independent uniform permutation hashing, show that for *i*
+    = 1, 2, …, *n*, the probability is at most 2^(−*p*) that the *i*th insertion requires
+    strictly more than *p* probes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Show that for *i* = 1, 2, …, *n*, the probability is *O*(1/*n*²) that
+    the *i*th insertion requires more than 2 lg *n* probes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let the random variable *X[i]* denote the number of probes required by the
+    *i*th insertion. You have shown in part (b) that Pr{*X[i]* > 2 lg *n*} = *O*(1/*n*²).
+    Let the random variable *X* = max {*X[i]* : 1 ≤ *i* ≤ *n*} denote the maximum
+    number of probes required by any of the *n* insertions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Show that Pr{*X* > 2 lg *n*} = *O*(1/*n*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Show that the expected length E[*X*] of the longest probe sequence
+    is *O*(lg *n*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11-2     Searching a static set***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You are asked to implement a searchable set of *n* elements in which the keys
+    are numbers. The set is static (no INSERT or DELETE operations), and the only
+    operation required is SEARCH. You are given an arbitrary amount of time to preprocess
+    the *n* elements so that SEARCH operations run quickly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Show how to implement SEARCH in *O*(lg *n*) worst-case time using
+    no extra storage beyond what is needed to store the elements of the set themselves.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Consider implementing the set by open-address hashing on *m* slots,
+    and assume independent uniform permutation hashing. What is the minimum amount
+    of extra storage *m* − *n* required to make the average performance of an unsuccessful
+    SEARCH operation be at least as good as the bound in part (a)? Your answer should
+    be an asymptotic bound on *m* − *n* in terms of *n*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11-3     Slot-size bound for chaining***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given a hash table with *n* slots, with collisions resolved by chaining, suppose
+    that *n* keys are inserted into the table. Each key is equally likely to be hashed
+    to each slot. Let *M* be the maximum number of keys in any slot after all the
+    keys have been inserted. Your mission is to prove an *O*(lg *n* / lg lg *n*) upper
+    bound on E[*M*], the expected value of *M*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Argue that the probability *Q[k]* that exactly *k* keys hash to a
+    particular slot is given by'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P408.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***b.*** Let *P[k]* be the probability that *M* = *k*, that is, the probability
+    that the slot containing the most keys contains *k* keys. Show that *P[k]* ≤ *nQ[k]*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Show that *Q[k]* < *e^k*/*k^k*. *Hint:* Use Stirling’s approximation,
+    equation (3.25) on page 67.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Show that there exists a constant *c* > 1 such that ![art](images/Art_P409.jpg)
+    for *k*[0] = *c* lg *n* / lg lg *n*. Conclude that *P[k]* < 1/*n*² for *k* ≥ *k*[0]
+    = *c* lg *n* / lg lg *n*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***e.*** Argue that'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P410.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Conclude that E[*M*] = *O*(lg *n* / lg lg *n*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***11-4     Hashing and authentication***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let H be a family of hash functions in which each hash function *h* ∈ H maps
+    the universe *U* of keys to {0, 1, …, *m* − 1}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Show that if the family H of hash functions is 2-independent, then
+    it is universal.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Suppose that the universe *U* is the set of *n*-tuples of values drawn
+    from ℤ[*p*] = {0, 1, …, *p* − 1}, where *p* is prime. Consider an element *x*
+    = 〈*x*[0], *x*[1], …, *x*[*n*−1]〉 ∈ *U*. For any *n*-tuple *a* = 〈*a*[0], *a*[1],
+    …, *a*[*n*−1]〉 ∈ *U*, define the hash function *h[a]* by'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P411.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Let H = {*h[a]* : *a* ∈ *U*}. Show that H is universal, but not 2-independent.
+    (*Hint:* Find a key for which all hash functions in H produce the same value.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Suppose that we modify H slightly from part (b): for any *a* ∈ *U*
+    and for any *b* ∈ ℤ*[p]*, define'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P412.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and ![art](images/Art_P413.jpg). Argue that H′ is 2-independent. (*Hint:* Consider
+    fixed *n*-tuples *x* ∈ *U* and *y* ∈ *U*, with *x[i]* ≠ *y[i]* for some *i*. What
+    happens to ![art](images/Art_P414.jpg) and ![art](images/Art_P415.jpg) as *a[i]*
+    and *b* range over ℤ*[p]*?)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Alice and Bob secretly agree on a hash function *h* from a 2-independent
+    family H of hash functions. Each *h* ∈ H maps from a universe of keys *U* to ℤ*[p]*,
+    where *p* is prime. Later, Alice sends a message *m* to Bob over the internet,
+    where *m* ∈ *U*. She authenticates this message to Bob by also sending an authentication
+    tag *t* = *h*(*m*), and Bob checks that the pair (*m*, *t*) he receives indeed
+    satisfies *t* = *h*(*m*). Suppose that an adversary intercepts (*m*, *t*) en route
+    and tries to fool Bob by replacing the pair (*m*, *t*) with a different pair (*m*′,
+    *t*′). Argue that the probability that the adversary succeeds in fooling Bob into
+    accepting (*m*′, *t*′) is at most 1/*p*, no matter how much computing power the
+    adversary has, even if the adversary knows the family H of hash functions used.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Chapter notes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The books by Knuth [[261](bibliography001.xhtml#endnote_261)] and Gonnet and
+    Baeza-Yates [[193](bibliography001.xhtml#endnote_193)] are excellent references
+    for the analysis of hashing algorithms. Knuth credits H. P. Luhn (1953) for inventing
+    hash tables, along with the chaining method for resolving collisions. At about
+    the same time, G. M. Amdahl originated the idea of open addressing. The notion
+    of a random oracle was introduced by Bellare et al. [[43](bibliography001.xhtml#endnote_43)].
+    Carter and Wegman [[80](bibliography001.xhtml#endnote_80)] introduced the notion
+    of universal families of hash functions in 1979.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dietzfelbinger et al. [[113](bibliography001.xhtml#endnote_113)] invented the
+    multiply-shift hash function and gave a proof of Theorem 11.5\. Thorup [[437](bibliography001.xhtml#endnote_437)]
+    provides extensions and additional analysis. Thorup [[438](bibliography001.xhtml#endnote_438)]
+    gives a simple proof that linear probing with 5-independent hashing takes constant
+    expected time per operation. Thorup also describes the method for deletion in
+    a hash table using linear probing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Fredman, Komlós, and Szemerédi [[154](bibliography001.xhtml#endnote_154)] developed
+    a perfect hashing scheme for static sets—“perfect” because all collisions are
+    avoided. An extension of their method to dynamic sets, handling insertions and
+    deletions in amortized expected time *O*(1), has been given by Dietzfelbinger
+    et al. [[114](bibliography001.xhtml#endnote_114)].
+  prefs: []
+  type: TYPE_NORMAL
+- en: The wee hash function is based on the RC6 encryption algorithm [[379](bibliography001.xhtml#endnote_379)].
+    Leiserson et al. [[292](bibliography001.xhtml#endnote_292)] propose an “RC6MIX”
+    function that is essentially the same as the wee hash function. They give experimental
+    evidence that it has good randomness, and they also give a “DOTMIX” function for
+    dealing with variable-length inputs. Bellare et al. [[42](bibliography001.xhtml#endnote_42)]
+    provide an analysis of the security of the cipher-block-chaining message authentication
+    code. This analysis implies that the wee hash function has the desired pseudorandomness
+    properties.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[¹](#footnote_ref_1) The definition of “average-case” requires care—are we
+    assuming an input distribution over the keys, or are we randomizing the choice
+    of hash function itself? We’ll consider both approaches, but with an emphasis
+    on the use of a randomly chosen hash function.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[²](#footnote_ref_2) In the literature, a (*c*/*m*)-universal hash function
+    is sometimes called *c*-universal or *c*-approximately universal. We’ll stick
+    with the notation (*c*/*m*)-universal.'
+  prefs: []
+  type: TYPE_NORMAL

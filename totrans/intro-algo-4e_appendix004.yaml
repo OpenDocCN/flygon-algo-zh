@@ -1,0 +1,728 @@
+- en: '[**D Matrices**](toc.xhtml#app-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Matrices arise in numerous applications, including, but by no means limited
+    to, scientific computing. If you have seen matrices before, much of the material
+    in this appendix will be familiar to you, but some of it might be new. [Section
+    D.1](appendix004.xhtml#Sec_D.1) covers basic matrix definitions and operations,
+    and [Section D.2](appendix004.xhtml#Sec_D.2) presents some basic matrix properties.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**D.1 Matrices and matrix operations**](toc.xhtml#Rh1-232)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This section reviews some basic concepts of matrix theory and some fundamental
+    properties of matrices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Matrices and vectors**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A ***matrix*** is a rectangular array of numbers. For example,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1768.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is a 2 × 3 matrix *A* = (*a[ij]*), where for *i* = 1, 2 and *j* = 1, 2, 3, the
+    element of the matrix in row *i* and column *j* is denoted by *a[ij]*. By convention,
+    uppercase letters denote matrices and corresponding subscripted lowercase letters
+    denote their elements. We denote the set of all *m* × *n* matrices with real-valued
+    entries by ℝ^(*m*×*n*) and, in general, the set of *m* × *n* matrices with entries
+    drawn from a set *S* by *S*^(*m*×*n*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***transpose*** of a matrix *A* is the matrix *A*^T obtained by exchanging
+    the rows and columns of *A*. For the matrix *A* of equation (D.1),
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1769.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: A ***vector*** is a one-dimensional array of numbers. For example,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1770.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'is a vector of size 3\. We sometimes call a vector of length *n* an ***n-vector***.
+    By convention, lowercase letters denote vectors, and the *i*th element of a size-*n*
+    vector *x* is denoted by *x[i]*, for *i* = 1, 2, … , *n*. We take the standard
+    form of a vector to be as a ***column vector*** equivalent to an *n* × 1 matrix,
+    whereas the corresponding ***row vector*** is obtained by taking the transpose:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*x*^T = ( 2 3 5 ).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***unit vector*** *e[i]* is the vector whose *i*th element is 1 and all
+    of whose other elements are 0\. Usually, the context makes the size of a unit
+    vector clear.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A ***zero matrix*** is a matrix all of whose entries are 0\. Such a matrix is
+    often denoted 0, since the ambiguity between the number 0 and a matrix of 0s can
+    usually be resolved from context. If a matrix of 0s is intended, then the size
+    of the matrix also needs to be derived from the context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Square matrices**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Square*** *n* × *n* matrices arise frequently. Several special cases of
+    square matrices are of particular interest:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '1\. A ***diagonal matrix*** has *a[ij]* = 0 whenever *i* ≠ *j*. Because all
+    of the off-diagonal elements are 0, a succinct way to specify the matrix lists
+    only the elements along the diagonal:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1771.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '2\. The *n* × *n* ***identity matrix*** *I[n]* is a diagonal matrix with 1s
+    along the diagonal:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1772.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: When *I* appears without a subscript, its size derives from the context. The
+    *i*th column of an identity matrix is the unit vector *e[i]*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '3\. A ***tridiagonal matrix*** *T* is one for which *t[ij]* = 0 if |*i* − *j*
+    | > 1\. Nonzero entries appear only on the main diagonal, immediately above the
+    main diagonal (*t*[*i,i*+1] for *i* = 1, 2, … , *n* − 1), or immediately below
+    the main diagonal (*t*[*i*+1,*i*] for *i* = 1, 2, … , *n* − 1):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1773.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '4\. An ***upper-triangular matrix*** *U* is one for which *u[ij]* = 0 if *i*
+    > *j*. All entries below the diagonal are 0:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1774.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: An upper-triangular matrix is ***unit upper-triangular*** if it has all 1s along
+    the diagonal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '5\. A ***lower-triangular matrix*** *L* is one for which *l[ij]* = 0 if *i*
+    < *j*. All entries above the diagonal are 0:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1775.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: A lower-triangular matrix is ***unit lower-triangular*** if it has all 1s along
+    the diagonal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6\. A ***permutation matrix*** *P* has exactly one 1 in each row or column,
+    and 0s elsewhere. An example of a permutation matrix is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1776.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Such a matrix is called a permutation matrix because multiplying a vector *x*
+    by a permutation matrix has the effect of permuting (rearranging) the elements
+    of *x*. Exercise D.1-4 explores additional properties of permutation matrices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7\. A ***symmetric matrix*** *A* satisfies the condition *A* = *A*^T. For example,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1777.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is a symmetric matrix.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Basic matrix operations**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The elements of a matrix or vector are ***scalar numbers*** from a number system,
+    such as the real numbers, the complex numbers, or integers modulo a prime. The
+    number system defines how to add and multiply scalars. These definitions extend
+    to encompass addition and multiplication of matrices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We define ***matrix addition*** as follows. If *A* = (*a[ij]*) and *B* = (*b[ij]*)
+    are *m* × *n* matrices, then their matrix sum *C* = (*c[ij]*) = *A* + *B* is the
+    *m* × *n* matrix defined by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*c[ij]* = *a[ij]* + *b[ij]*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'for *i* = 1, 2, … , *m* and *j* = 1, 2, … , *n*. That is, matrix addition is
+    performed componentwise. A zero matrix is the identity for matrix addition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*A* + 0 = *A* = 0 + *A*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If is *λ* a scalar number and *A* = (*a[ij]*) is a matrix, then *λA* = (*λa[ij]*)
+    is the ***scalar multiple*** of *A* obtained by multiplying each of its elements
+    by *λ*. As a special case, we define the ***negative*** of a matrix *A* = (*a[ij]*)
+    to be −1 · *A* = −*A*, so that the *ij*th entry of −*A* is −*a[ij]*. Thus,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*A* + (−*A*) = 0 = (−*A*) + *A*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The negative of a matrix defines ***matrix subtraction***: *A* − *B* = *A*
+    + (−*B*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We define ***matrix multiplication*** as follows. Start with two matrices *A*
+    and *B* that are ***compatible*** in the sense that the number of columns of *A*
+    equals the number of rows of *B*. (In general, an expression containing a matrix
+    product *AB* is always assumed to imply that matrices *A* and *B* are compatible.)
+    If *A* = (*a[ik]*) is a *p* × *q* matrix and *B* = (*b[kj]*) is a *q* × *r* matrix,
+    then their matrix product *C* = *AB* is the *p* × *r* matrix *C* = (*c[ij]*),
+    where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1778.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for *i* = 1, 2, … , *m* and *j* = 1, 2, … , *p*. The procedure RECTANGULAR-MATRIX-MULTIPLY
+    on page 374 implements matrix multiplication in the straightforward manner based
+    on equation (D.2), assuming that *C* is initialized to 0, using *pqr* multiplications
+    and *p*(*q* − 1)*r* additions for a running time of Θ(*pqr*). If the matrices
+    are *n*×*n* square matrices, so that *n* = *p* = *q* = *r*, the pseudocode reduces
+    to MATRIX-MULTIPLY on page 81, whose running time is Θ(*n*³). ([Section 4.2](chapter004.xhtml#Sec_4.2)
+    describes an asymptotically faster Θ(*n*^(lg7))-time algorithm due to V. Strassen.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Matrices have many (but not all) of the algebraic properties typical of numbers.
+    Identity matrices are identities for matrix multiplication:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*I[m]A* = *AI[n]* = *A*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'for any *m* × *n* matrix *A*. Multiplying by a zero matrix gives a zero matrix:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*A* · 0 = 0.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Matrix multiplication is associative:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*A*(*BC*) = (*AB*)*C*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'for compatible matrices *A*, *B*, and *C*. Matrix multiplication distributes
+    over addition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *A*(*B* + *C*) | = | *AB* + *AC*, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| (*B* + *C*)*D* | = | *BD* + *CD*. |'
+  prefs: []
+  type: TYPE_TB
+- en: For *n* > 1, multiplication of *n* × *n* matrices is not commutative. For example,
+    if ![art](images/Art_P1779.jpg) and ![art](images/Art_P1780.jpg), then ![art](images/Art_P1781.jpg)
+    and ![art](images/Art_P1782.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We define matrix-vector products or vector-vector products as if the vector
+    were the equivalent *n* × 1 matrix (or a 1 × *n* matrix, in the case of a row
+    vector). Thus, if *A* is an *m* × *n* matrix and *x* is an *n*-vector, then *Ax*
+    is an *m*-vector. If *x* and *y* are *n*-vectors, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1783.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'is a scalar number (actually a 1 × 1 matrix) called the ***inner product***
+    of *x* and *y*. We also use the notation 〈*x*, *y*〉 to denote *x*^T*y*. The inner-product
+    operator is commutative: 〈*x*, *y*〉 = 〈*y*, *x*〉. The matrix *xy*^T is an *n*
+    × *n* matrix *Z* called the ***outer product*** of *x* and *y*, where *z[ij]*
+    = *x[i]y[j]*. The ***(euclidean) norm*** ∥*x*∥ of an *n*-vector *x* is defined
+    by'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1784.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Thus, the norm of *x* is its length in *n*-dimensional euclidean space. A useful
+    fact, which follows from the equality
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1785.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is that for any real number *a* and *n*-vector *x*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1786.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that if *A* and *B* are symmetric *n* × *n* matrices, then so are *A* +
+    *B* and *A* − *B*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that (*AB*)^T = *B*^T*A*^T and that *A*^T*A* is always a symmetric matrix.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that the product of two lower-triangular matrices is lower-triangular.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.1-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that if *P* is an *n* × *n* permutation matrix and *A* is an *n* × *n*
+    matrix, then the matrix product *PA* is *A* with its rows permuted, and the matrix
+    product *AP* is *A* with its columns permuted. Prove that the product of two permutation
+    matrices is a permutation matrix.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**D.2 Basic matrix properties**](toc.xhtml#Rh1-233)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We now define some basic properties pertaining to matrices: inverses, linear
+    dependence and independence, rank, and determinants. We also define the class
+    of positive-definite matrices.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Matrix inverses, ranks, and determinants**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***inverse*** of an *n* × *n* matrix *A* is the *n* × *n* matrix, denoted
+    *A*^(−1) (if it exists), such that *AA*^(−1) = *I[n]* = *A*^(−1)*A*. For example,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1787.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Many nonzero *n* × *n* matrices do not have inverses. A matrix without an inverse
+    is called ***noninvertible***, or ***singular***. An example of a nonzero singular
+    matrix is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1788.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: If a matrix has an inverse, it is called ***invertible***, or ***nonsingular***.
+    Matrix inverses, when they exist, are unique. (See Exercise D.2-1.) If *A* and
+    *B* are nonsingular *n* × *n* matrices, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: (*BA*)^(−1) = *A*^(−1)*B*^(−1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The inverse operation commutes with the transpose operation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: (*A*^(−1))^T = (*A*^T)^(−1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The vectors *x*[1], *x*[2], … , *x[n]* are ***linearly dependent*** if there
+    exist coefficients *c*[1], *c*[2], … , *c[n]*, not all of which are 0, such that
+    *c*[1]*x*[1] + *c*[2]*x*[2] + ⋯ + *c[n]x[n]* = 0\. The row vectors *x*[1] = (
+    1 2 3 ), *x*[2] = ( 2 6 4 ), and *x*[3] = ( 4 11 9 ) are linearly dependent, for
+    example, since 2*x*[1]+3*x*[2]−2*x*[3] = 0\. If vectors are not linearly dependent,
+    they are ***linearly independent***. For example, the columns of an identity matrix
+    are linearly independent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***column rank*** of a nonzero *m* × *n* matrix *A* is the size of the largest
+    set of linearly independent columns of *A*. Similarly, the ***row rank*** of *A*
+    is the size of the largest set of linearly independent rows of *A*. A fundamental
+    property of any matrix *A* is that its row rank always equals its column rank,
+    so that we can simply refer to the ***rank*** of *A*. The rank of an *m* × *n*
+    matrix is an integer between 0 and min {*m*, *n*}, inclusive. (The rank of a zero
+    matrix is 0, and the rank of an *n* × *n* identity matrix is *n*.) An alternate,
+    but equivalent and often more useful, definition is that the rank of a nonzero
+    *m*×*n* matrix *A* is the smallest number *r* such that there exist matrices *B*
+    and *C* of respective sizes *m* × *r* and *r* × *n* such that *A* = *BC*. A square
+    *n* × *n* matrix has ***full rank*** if its rank is *n*. An *m* × *n* matrix has
+    ***full column rank*** if its rank is *n*. The following theorem gives a fundamental
+    property of ranks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem D.1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A square matrix has full rank if and only if it is nonsingular.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: A ***null vector*** for a matrix *A* is a nonzero vector *x* such that *Ax*
+    = 0\. The following theorem (whose proof is left as Exercise D.2-7) and its corollary
+    relate the notions of column rank and singularity to null vectors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem D.2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A matrix has full column rank if and only if it does not have a null vector.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary D.3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A square matrix is singular if and only if it has a null vector.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: The *ij*th ***minor*** of an *n*×*n* matrix *A*, for *n* > 1, is the (*n*−1)×(*n*−1)
+    matrix *A*[[*ij*]] obtained by deleting the *i*th row and *j*th column of *A*.
+    The ***determinant*** of an *n*×*n* matrix *A* is defined recursively in terms
+    of its minors by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1789.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The term (−1)^(*i*+*j*) det(*A*[[*ij*]]) is known as the ***cofactor*** of the
+    element *a[ij]*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following theorems, whose proofs are omitted, express fundamental properties
+    of the determinant.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem D.4 (Determinant properties)***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The determinant of a square matrix *A* has the following properties:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If any row or any column of *A* is zero, then det(*A*) = 0.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The determinant of *A* is multiplied by *λ* if the entries of any one row (or
+    any one column) of *A* are all multiplied by *λ*.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The determinant of *A* is unchanged if the entries in one row (respectively,
+    column) are added to those in another row (respectively, column).
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The determinant of *A* equals the determinant of *A*^T.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The determinant of *A* is multiplied by −1 if any two rows (or any two columns)
+    are exchanged.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Also, for any square matrices *A* and *B*, we have det(*AB*) = det(*A*) det(*B*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem D.5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An *n* × *n* matrix *A* is singular if and only if det(*A*) = 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Positive-definite matrices**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Positive-definite matrices play an important role in many applications. An *n*
+    × *n* matrix *A* is ***positive-definite*** if *x*^T*Ax* > 0 for all *n*-vectors
+    *x* ≠ 0\. For example, the identity matrix is positive-definite, since if *x*
+    = ( *x*[1] *x*[2] ⋯ *x[n]*)^T is a nonzero vector, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1790.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Matrices that arise in applications are often positive-definite due to the following
+    theorem.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem D.6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For any matrix *A* with full column rank, the matrix *A*^T*A* is positive-definite.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   We must show that *x*^T(*A*^T*A*)*x* > 0 for any nonzero vector
+    *x*. For any vector *x*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *x*^T(*A*^T*A*)*x* | = | (*Ax*)^T(*Ax*) | (by Exercise D.1-2) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | ∥*Ax*∥². |  |'
+  prefs: []
+  type: TYPE_TB
+- en: The value ∥*Ax*∥² is just the sum of the squares of the elements of the vector
+    *Ax*. Therefore, ∥*Ax*∥² ≥ 0\. We’ll show by contradiction that ∥*Ax*∥² > 0\.
+    Suppose that ∥*Ax*∥² = 0\. Then, every element of *Ax* is 0, which is to say *Ax*
+    = 0\. Since *A* has full column rank, Theorem D.2 says that *x* = 0, which contradicts
+    the requirement that *x* is nonzero. Hence, *A*^T*A* is positive-definite.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Section 28.3](chapter028.xhtml#Sec_28.3) explores other properties of positive-definite
+    matrices. [Section 33.3](chapter033.xhtml#Sec_33.3) uses a similar condition,
+    known as positive-semidefinite. An *n* × *n* matrix *A* is ***positive-semidefinite***
+    if *x*^T*Ax* ≥ 0 for all *n*-vectors *x* ≠ 0.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that matrix inverses are unique, that is, if *B* and *C* are inverses
+    of *A*, then *B* = *C*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that the determinant of a lower-triangular or upper-triangular matrix
+    is equal to the product of its diagonal elements. Prove that the inverse of a
+    lower-triangular matrix, if it exists, is lower-triangular.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that if *P* is a permutation matrix, then *P* is invertible, its inverse
+    is *P*^T, and *P*^T is a permutation matrix.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *A* and *B* be *n* × *n* matrices such that *AB* = *I*. Prove that if *A*′
+    is obtained from *A* by adding row *j* into row *i*, where *i* ≠ *j*, then subtracting
+    column *i* from column *j* of *B* yields the inverse *B*′ of *A*′.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *A* be a nonsingular *n* × *n* matrix with complex entries. Show that every
+    entry of *A*^(−1) is real if and only if every entry of *A* is real.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that if *A* is a nonsingular, symmetric, *n* × *n* matrix, then *A*^(−1)
+    is symmetric. Show that if *B* is an arbitrary *m* × *n* matrix, then the *m*
+    × *m* matrix given by the product *BAB*^T is symmetric.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove Theorem D.2\. That is, show that a matrix *A* has full column rank if
+    and only if *Ax* = 0 implies *x* = 0\. (*Hint:* Express the linear dependence
+    of one column on the others as a matrix-vector equation.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D.2-8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that for any two compatible matrices *A* and *B*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: rank(*AB*) ≤ min {rank(*A*), rank(*B*)},
+  prefs: []
+  type: TYPE_NORMAL
+- en: where equality holds if either *A* or *B* is a nonsingular square matrix. (*Hint:*
+    Use the alternate definition of the rank of a matrix.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Problems**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D-1 Vandermonde matrix***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given numbers *x*[0], *x*[1], … , *x*[*n*−1], prove that the determinant of
+    the ***Vandermonde matrix***
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1791.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1792.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: (*Hint:* Multiply column *i* by −*x*[0] and add it to column *i* + 1 for *i*
+    = *n* − 1, *n* − 2, … , 1, and then use induction.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***D-2 Permutations defined by matrix-vector multiplication over GF*.(*2*)**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: One class of permutations of the integers in the set *S[n]* = {0, 1, 2, … ,
+    2*^n* − 1} is defined by matrix multiplication over *GF*(2), the Galois field
+    of two elements. For each integer *x* ∈ *S[n]*, we view its binary representation
+    as an *n*-bit vector
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1793.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'where ![art](images/Art_P1794.jpg). If *A* is an *n* × *n* matrix in which
+    each entry is either 0 or 1, then we can define a permutation mapping each value
+    *x* ∈ *S[n]* to the number whose binary representation is the matrix-vector product
+    *Ax*. All this arithmetic is performed over ***GF*(2)**: all values are either
+    0 or 1, and with one exception, the usual rules of addition and multiplication
+    apply. The exception is that 1 + 1 = 0\. You can think of arithmetic over *GF*(2)
+    as being just like regular integer arithmetic, except that you use only the least-significant
+    bit.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As an example, for *S*[2] = {0, 1, 2, 3}, the matrix
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1795.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'defines the following permutation *π[A]*: *π[A]*(0) = 0, *π[A]*(1) = 3, *π[A]*(2)
+    = 2, *π[A]*(3) = 1\. To see why *π[A]*(3) = 1, observe that, working in *GF*(2),'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1796.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is the binary representation of 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the remainder of this problem, we’ll work over *GF*(2), and all matrix and
+    vector entries will be 0 or 1\. Define the ***rank*** of a 0-1 matrix (a matrix
+    for which each entry is either 0 or 1) over *GF*(2) the same as for a regular
+    matrix, but with all arithmetic that determines linear independence performed
+    over *GF*(2). We define the ***range*** of an *n* × *n* 0-1 matrix *A* by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*R*(*A*) = {*y* : *y* = *Ax* for some *x* ∈ *S[n]*},'
+  prefs: []
+  type: TYPE_NORMAL
+- en: so that *R*(*A*) is the set of numbers in *S[n]* that are produced by multiplying
+    each value *x* ∈ *S[n]* by *A*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** If *r* is the rank of matrix *A*, prove that |*R*(*A*)| = 2*^r*. Conclude
+    that *A* defines a permutation on *S[n]* only if *A* has full rank.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For a given *n* × *n* matrix *A* and a given value *y* ∈ *R*(*A*), we define
+    the ***preimage*** of *y* by
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*P* (*A*, *y*) = {*x* : *Ax* = *y*},'
+  prefs: []
+  type: TYPE_NORMAL
+- en: so that *P*(*A*, *y*) is the set of values in *S[n]* that map to *y* when multiplied
+    by *A*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** If *r* is the rank of *n* × *n* matrix *A* and *y* ∈ *R*(*A*), prove
+    that |*P*(*A*, *y*)| = 2^(*n*−*r*).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let 0 ≤ *m* ≤ *n*, and suppose that we partition the set *S[n]* into blocks
+    of consecutive numbers, where the *i*th block consists of the 2^(*m*) numbers
+    *i*2^(*m*), *i*2^(*m*) + 1, *i*2^(*m*) +2, … , (*i* +1)2*^m* −1\. For any subset
+    *S* ⊆ *S[n]*, define *B*(*S*, *m*) to be the set of size-2*^m* blocks of *S[n]*
+    containing some element of *S*. As an example, when *n* = 3, *m* = 1, and *S*
+    = {1, 4, 5}, then *B*(*S*, *m*) consists of blocks 0 (since 1 is in the 0th block)
+    and 2 (since both 4 and 5 belong to block 2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Let *r* be the rank of the lower left (*n* − *m*) × *m* submatrix
+    of *A*, that is, the matrix formed by taking the intersection of the bottom *n*
+    − *m* rows and the leftmost *m* columns of *A*. Let *S* be any size-2*^m* block
+    of *S[n]*, and let *S*′ = {*y* : *y* = *Ax* for some *x* ∈ *S*}. Prove that |*B*(*S*′,
+    *m*)| = 2*^r* and that for each block in *B*(*S*′, *m*), exactly 2^(*m*−*r*) numbers
+    in *S* map to that block.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Because multiplying the zero vector by any matrix yields a zero vector, the
+    set of permutations of *S[n]* defined by multiplying by *n* × *n* 0-1 matrices
+    with full rank over *GF*(2) cannot include all permutations of *S[n]*. Let’s extend
+    the class of permutations defined by matrix-vector multiplication to include an
+    additive term, so that *x* ∈ *S[n]* maps to *Ax* + *c*, where *c* is an *n*-bit
+    vector and addition is performed over *GF*(2). For example, when
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1797.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1798.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'we get the following permutation *π[A,c]*: *π[A,c]*(0) = 2, *π[A,c]*(1) = 1,
+    *π[A,c]*(2) = 0, *π[A,c]*(3) = 3\. We call any permutation that maps *x* ∈ *S[n]*
+    to *Ax* + *c*, for some *n* × *n* 0-1 matrix *A* with full rank and some *n*-bit
+    vector *c*, a ***linear permutation***.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Use a counting argument to show that the number of linear permutations
+    of *S[n]* is much less than the number of permutations of *S[n]*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***e.*** Give an example of a value of *n* and a permutation of *S[n]* that
+    cannot be achieved by any linear permutation. (*Hint:* For a given permutation,
+    think about how multiplying a matrix by a unit vector relates to the columns of
+    the matrix.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Appendix notes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Linear-algebra textbooks provide plenty of background information on matrices.
+    The books by Strang [[422](bibliography001.xhtml#endnote_422), [423](bibliography001.xhtml#endnote_423)]
+    are particularly good.
+  prefs: []
+  type: TYPE_NORMAL

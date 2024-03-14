@@ -1,0 +1,1931 @@
+- en: '[**C Counting and Probability**](toc.xhtml#app-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This appendix reviews elementary combinatorics and probability theory. If you
+    have a good background in these areas, you may want to skim the beginning of this
+    appendix lightly and concentrate on the later sections. Most of this book’s chapters
+    do not require probability, but for some chapters it is essential.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Section C.1](appendix003.xhtml#Sec_C.1) reviews elementary results in counting
+    theory, including standard formulas for counting permutations and combinations.
+    The axioms of probability and basic facts concerning probability distributions
+    form [Section C.2](appendix003.xhtml#Sec_C.2). Random variables are introduced
+    in [Section C.3](appendix003.xhtml#Sec_C.3), along with the properties of expectation
+    and variance. [Section C.4](appendix003.xhtml#Sec_C.4) investigates the geometric
+    and binomial distributions that arise from studying Bernoulli trials. The study
+    of the binomial distribution continues in [Section C.5](appendix003.xhtml#Sec_C.5),
+    an advanced discussion of the “tails” of the distribution.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**C.1 Counting**](toc.xhtml#Rh1-225)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Counting theory tries to answer the question “How many?” without actually enumerating
+    all the choices. For example, you might ask, “How many different *n*-bit numbers
+    are there?” or “How many orderings of *n* distinct elements are there?” This section
+    reviews the elements of counting theory. Since some of the material assumes a
+    basic understanding of sets, you might wish to start by reviewing the material
+    in [Section B.1](appendix002.xhtml#Sec_B.1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Rules of sum and product**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can sometimes express a set of items that we wish to count as a union of
+    disjoint sets or as a Cartesian product of sets.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***rule of sum*** says that the number of ways to choose one element from
+    one of two *disjoint* sets is the sum of the cardinalities of the sets. That is,
+    if *A* and *B* are two finite sets with no members in common, then |*A* ∪ *B*|
+    = |*A*| + |*B*|, which follows from equation (B.3) on page 1156\. For example,
+    if each position on a car’s license plate is a letter or a digit, then the number
+    of possibilities for each position is 26 + 10 = 36, since there are 26 choices
+    if it is a letter and 10 choices if it is a digit.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ***rule of product*** says that the number of ways to choose an ordered
+    pair is the number of ways to choose the first element times the number of ways
+    to choose the second element. That is, if *A* and *B* are two finite sets, then
+    |*A* × *B*| = |*A*|·|*B*|, which is simply equation (B.4) on page 1157\. For example,
+    if an ice-cream parlor offers 28 flavors of ice cream and four toppings, the number
+    of possible sundaes with one scoop of ice cream and one topping is 28 · 4 = 112.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Strings**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***string*** over a finite set *S* is a sequence of elements of *S*. For
+    example, there are eight binary strings of length 3:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 000, 001, 010, 011, 100, 101, 110, 111.
+  prefs: []
+  type: TYPE_NORMAL
+- en: (Here we use the shorthand of omitting the angle brackets when denoting a sequence.)
+    We sometimes call a string of length *k* a ***k-string***. A ***substring*** *s*′
+    of a string *s* is an ordered sequence of consecutive elements of *s*. A ***k-substring***
+    of a string is a substring of length *k*. For example, 010 is a 3-substring of
+    01101001 (the 3-substring that begins in position 4), but 111 is not a substring
+    of 01101001.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can view a *k*-string over a set *S* as an element of the Cartesian product
+    *S^k* of *k*-tuples, which means that there are |*S*|*^k* strings of length *k*.
+    For example, the number of binary *k*-strings is 2*^k*. Intuitively, to construct
+    a *k*-string over an *n*-set, there are *n* ways to pick the first element; for
+    each of these choices, there are *n* ways to pick the second element; and so forth
+    *k* times. This construction leads to the *k*-fold product ![art](images/Art_P1636.jpg)
+    as the number of *k*-strings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Permutations**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***permutation*** of a finite set *S* is an ordered sequence of all the elements
+    of *S*, with each element appearing exactly once. For example, if *S* = {*a*,
+    *b*, *c*}, then *S* has 6 permutations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*abc*, *acb*, *bac*, *bca*, *cab*, *cba*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: (Again, we use the shorthand of omitting the angle brackets when denoting a
+    sequence.) There are *n*! permutations of a set of *n* elements, since there are
+    *n* ways to choose the first element of the sequence, *n* − 1 ways for the second
+    element, *n* − 2 ways for the third, and so on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***k-permutation*** of *S* is an ordered sequence of *k* elements of *S*,
+    with no element appearing more than once in the sequence. (Thus, an ordinary permutation
+    is an *n*-permutation of an *n*-set.) Here are the 2-permutations of the set {*a*,
+    *b*, *c*, *d*}:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*ab*, *ac*, *ad*, *ba*, *bc*, *bd*, *ca*, *cb*, *cd*, *da*, *db*, *dc*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The number of *k*-permutations of an *n*-set is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1637.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since there are *n* ways to choose the first element, *n* − 1 ways to choose
+    the second element, and so on, until *k* elements are chosen, with the last element
+    chosen from the remaining *n* − *k* + 1 elements. For the above example, with
+    *n* = 4 and *k* = 2, the formula (C.1) evaluates to 4!/2! = 12, matching the number
+    of 2-permutations listed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Combinations**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***k-combination*** of an *n*-set *S* is simply a *k*-subset of *S*. For
+    example, the 4-set {*a, b, c, d*} has six 2-combinations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*ab*, *ac*, *ad*, *bc*, *bd*, *cd*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: (Here we use the shorthand of omitting the braces around each subset.) To construct
+    a *k*-combination of an *n*-set, choose *k* distinct (different) elements from
+    the *n*-set. The order of selecting the elements does not matter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can express the number of *k*-combinations of an *n*-set in terms of the
+    number of *k*-permutations of an *n*-set. Every *k*-combination has exactly *k*!
+    permutations of its elements, each of which is a distinct *k*-permutation of the
+    *n*-set. Thus the number of *k*-combinations of an *n*-set is the number of *k*-permutations
+    divided by *k*!. From equation (C.1), this quantity is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1638.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For *k* = 0, this formula tells us that the number of ways to choose 0 elements
+    from an *n*-set is 1 (not 0), since 0! = 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Binomial coefficients**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The notation ![art](images/Art_P1639.jpg) (read “*n* choose *k*”) denotes the
+    number of *k*-combinations of an *n*-set. Equation (C.2) gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1640.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'This formula is symmetric in *k* and *n* − *k*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1641.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'These numbers are also known as ***binomial coefficients***, due to their appearance
+    in the ***binomial theorem***:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1642.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'where *n* ∈ ℕ and *x*, *y* ∈ ℝ. The right-hand side of equation (C.4) is called
+    the ***binomial expansion*** of the left-hand side. A special case of the binomial
+    theorem occurs when *x* = *y* = 1:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1643.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'This formula corresponds to counting the 2*^n* binary *n*-strings by the number
+    of 1s they contain: ![art](images/Art_P1644.jpg) binary *n*-strings contain exactly
+    *k* 1s, since there are ![art](images/Art_P1645.jpg) ways to choose *k* out of
+    the *n* positions in which to place the 1s.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many identities involve binomial coefficients. The exercises at the end of this
+    section give you the opportunity to prove a few.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Binomial bounds**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You sometimes need to bound the size of a binomial coefficient. For 1 ≤ *k*
+    ≤ *n*, we have the lower bound
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1646.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Taking advantage of the inequality *k*! ≥ (*k*/*e*)*^k* derived from Stirling’s
+    approximation (3.25) on page 67, we obtain the upper bounds
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1647.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For all integers *k* such that 0 ≤ *k* ≤ *n*, you can use induction (see Exercise
+    C.1-12) to prove the bound
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1648.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: where for convenience we assume that 0⁰ = 1\. For *k* = *λn*, where 0 ≤ *λ*
+    ≤ 1, we can rewrite this bound as
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1649.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: where
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1650.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is the ***(binary) entropy function*** and where, for convenience, we assume
+    that 0 lg 0 = 0, so that *H*(0) = *H*(1) = 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: How many *k*-substrings does an *n*-string have? (Consider identical *k*-substrings
+    at different positions to be different.) How many substrings does an *n*-string
+    have in total?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An *n*-input, *m*-output ***boolean function*** is a function from {0, 1}*^n*
+    to {0, 1}*^m*. How many *n*-input, 1-output boolean functions are there? How many
+    *n*-input, *m*-output boolean functions are there?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In how many ways can *n* professors sit around a circular conference table?
+    Consider two seatings to be the same if one can be rotated to form the other.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In how many ways is it possible to choose three distinct numbers from the set
+    {1, 2, … , 99} so that their sum is even?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove the identity
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1651.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for 0 < *k* ≤ *n*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove the identity
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1652.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for 0 ≤ *k* < *n*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To choose *k* objects from *n*, you can make one of the objects distinguished
+    and consider whether the distinguished object is chosen. Use this approach to
+    prove that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1653.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***C.1-8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using the result of Exercise C.1-7, make a table for *n* = 0, 1, … , 6 and 0
+    ≤ *k* ≤ *n* of the binomial coefficients ![art](images/Art_P1654.jpg) with ![art](images/Art_P1655.jpg)
+    at the top, ![art](images/Art_P1656.jpg) and ![art](images/Art_P1657.jpg) on the
+    next line, then ![art](images/Art_P1658.jpg), ![art](images/Art_P1659.jpg), and
+    ![art](images/Art_P1660.jpg), and so forth. Such a table of binomial coefficients
+    is called ***Pascal’s triangle***.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.1-9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1661.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***C.1-10***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that for any integers *n* ≥ 0 and 0 ≤ *k* ≤ *n*, the expression ![art](images/Art_P1662.jpg)
+    achieves its maximum value when *k* = ⌊*n*/2⌋ or *k* = ⌈*n*/2⌉.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.1-11***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Argue that for any integers *n* ≥ 0, *j* ≥ 0, *k* ≥ 0, and *j* + *k* ≤ *n*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1663.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Provide both an algebraic proof and an argument based on a method for choosing
+    *j* + *k* items out of *n*. Give an example in which equality does not hold.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.1-12***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use induction on all integers *k* such that 0 ≤ *k* ≤ *n*/2 to prove inequality
+    (C.7), and use equation (C.3) to extend it to all integers *k* such that 0 ≤ *k*
+    ≤ *n*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.1-13***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use Stirling’s approximation to prove that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1664.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.1-14***
+  prefs: []
+  type: TYPE_NORMAL
+- en: By differentiating the entropy function *H*(*λ*), show that it achieves its
+    maximum value at *λ* = 1/2\. What is *H*(1/2)?
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.1-15***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that for any integer *n* ≥ 0,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1665.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.1-16***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inequality (C.5) provides a lower bound on the binomial coefficient ![art](images/Art_P1666.jpg).
+    For small values of *k*, a stronger bound holds. Prove that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1667.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for ![art](images/Art_P1668.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**C.2 Probability**](toc.xhtml#Rh1-226)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Probability is an essential tool for the design and analysis of probabilistic
+    and randomized algorithms. This section reviews basic probability theory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We define probability in terms of a ***sample space*** *S*, which is a set
+    whose elements are called ***outcomes*** or ***elementary events***. Think of
+    each outcome as a possible result of an experiment. For the experiment of flipping
+    two distinguishable coins, with each individual flip resulting in a head (H) or
+    a tail (T), you can view the sample space *S* as consisting of the set of all
+    possible 2-strings over {H, T}:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*S* = {HH, HT, TH, TT}.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An ***event*** is a subset^([1](#footnote_1)) of the sample space *S*. For example,
+    in the experiment of flipping two coins, the event of obtaining one head and one
+    tail is {HT, TH}. The event *S* is called the ***certain event***, and the event
+    ∅ is called the ***null event***. We say that two events *A* and *B* are ***mutually
+    exclusive*** if *A* ∩ *B* = ∅. An outcome *s* also defines the event {*s*}, which
+    we sometimes write as just *s*. By definition, all outcomes are mutually exclusive.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Axioms of probability**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***probability distribution*** Pr {} on a sample space *S* is a mapping from
+    events of *S* to real numbers satisfying the following ***probability axioms***:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*A*} ≥ 0 for any event *A*.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Pr {*S*} = 1.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Pr {*A* ∪ *B*} = Pr {*A*} + Pr {*B*} for any two mutually exclusive events *A*
+    and *B*. More generally, for any sequence of events *A*[1], *A*[2], … (finite
+    or countably infinite) that are pairwise mutually exclusive,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1669.jpg)'
+  prefs:
+  - PREF_IND
+  type: TYPE_IMG
+- en: 'We call Pr {*A*} the ***probability*** of the event *A*. Axiom 2 is simply
+    a normalization requirement: there is really nothing fundamental about choosing
+    1 as the probability of the certain event, except that it is natural and convenient.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Several results follow immediately from these axioms and basic set theory (see
+    [Section B.1](appendix002.xhtml#Sec_B.1)). The null event ∅ has probability Pr
+    {∅} = 0\. If *A* ⊆ *B*, then Pr {*A*} ≤ Pr {*B*}. Using *Ā* to denote the event
+    *S* − *A* (the ***complement*** of *A*), we have Pr {*Ā*} = 1 − Pr {*A*}. For
+    any two events *A* and *B*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1670.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: In our coin-flipping example, suppose that each of the four outcomes has probability
+    1/4\. Then the probability of getting at least one head is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Pr {HH, HT, TH} | = | Pr {HH} + Pr {HT} + Pr {TH} |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 3/4. |'
+  prefs: []
+  type: TYPE_TB
+- en: Another way to obtain the same result is to observe that since the probability
+    of getting strictly less than one head is Pr {TT} = 1/4, the probability of getting
+    at least one head is 1 − 1/4 = 3/4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Discrete probability distributions**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A probability distribution is ***discrete*** if it is defined over a finite
+    or countably infinite sample space. Let *S* be the sample space. Then for any
+    event *A*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1671.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since outcomes, specifically those in *A*, are mutually exclusive. If *S* is
+    finite and every outcome *s* ∈ *S* has probability Pr {*s*} = 1/|*S*|, then we
+    have the ***uniform probability distribution*** on *S*. In such a case the experiment
+    is often described as “picking an element of *S* at random.”
+  prefs: []
+  type: TYPE_NORMAL
+- en: As an example, consider the process of flipping a ***fair coin***, one for which
+    the probability of obtaining a head is the same as the probability of obtaining
+    a tail, that is, 1/2\. Flipping the coin *n* times gives the uniform probability
+    distribution defined on the sample space *S* = {H, T}*^n*, a set of size 2*^n*.
+    We can represent each outcome in *S* as a string of length *n* over {H, T}, with
+    each string occurring with probability 1/2*^n*. The event *A* = {exactly *k* heads
+    and exactly *n* − *k* tails occur} is a subset of *S* of size ![art](images/Art_P1672.jpg),
+    since ![art](images/Art_P1673.jpg) strings of length *n* over {H, T} contain exactly
+    *k*H’s. The probability of event *A* is thus ![art](images/Art_P1674.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Continuous uniform probability distribution**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The continuous uniform probability distribution is an example of a probability
+    distribution in which not all subsets of the sample space are considered to be
+    events. The continuous uniform probability distribution is defined over a closed
+    interval [*a*, *b*] of the reals, where *a* < *b*. The intuition is that each
+    point in the interval [*a*, *b*] should be “equally likely.” Because there are
+    an uncountable number of points, however, if all points had the same finite, positive
+    probability, axioms 2 and 3 would not be simultaneously satisfied. For this reason,
+    we’d like to associate a probability only with *some* of the subsets of *S* in
+    such a way that the axioms are satisfied for these events.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For any closed interval [*c*, *d*], where *a* ≤ *c* ≤ *d* ≤ *b*, the ***continuous
+    uniform probability distribution*** defines the probability of the event [*c*,
+    *d*] to be
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1675.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Letting *c* = *d* gives that the probability of a single point is 0\. Removing
+    the endpoints [*c*, *c*] and [*d*, *d*] of an interval [*c*, *d*] results in the
+    open interval (*c*, *d*). Since [*c*, *d*] = [*c*, *c*] ∪ (*c*, *d*) ∪ [*d*, *d*],
+    axiom 3 gives Pr {[*c*, *d*]} = Pr {(*c*, *d*)}. Generally, the set of events
+    for the continuous uniform probability distribution contains any subset of the
+    sample space [*a*, *b*] that can be obtained by a finite or countable union of
+    open and closed intervals, as well as certain more complicated sets.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Conditional probability and independence**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sometimes you have some prior partial knowledge about the outcome of an experiment.
+    For example, suppose that a friend has flipped two fair coins and has told you
+    that at least one of the coins showed a head. What is the probability that both
+    coins are heads? The information given eliminates the possibility of two tails.
+    The three remaining outcomes are equally likely, and so you infer that each occurs
+    with probability 1/3\. Since only one of these outcomes shows two heads, the answer
+    is 1/3.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conditional probability formalizes the notion of having prior partial knowledge
+    of the outcome of an experiment. The ***conditional probability*** of an event
+    *A* given that another event *B* occurs is defined to be
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1676.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: whenever Pr {*B*} ≠ 0\. (Read “Pr {*A* | *B*}” as “the probability of *A* given
+    *B*.”) The idea behind equation (C.16) is that since we are given that event *B*
+    occurs, the event that *A* also occurs is *A* ∩ *B*. That is, *A* ∩ *B* is the
+    set of outcomes in which both *A* and *B* occur. Because the outcome is one of
+    the elementary events in *B*, we normalize the probabilities of all the elementary
+    events in *B* by dividing them by Pr {*B*}, so that they sum to 1\. The conditional
+    probability of *A* given *B* is, therefore, the ratio of the probability of event
+    *A* ∩ *B* to the probability of event *B*. In the example above, *A* is the event
+    that both coins are heads, and *B* is the event that at least one coin is a head.
+    Thus, Pr {*A* | *B*} = (1/4)/(3/4) = 1/3.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Two events are ***independent*** if
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1677.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is equivalent, if Pr {*B*} ≠ 0, to the condition
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*A* | *B*} = Pr {*A*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, suppose that you flip two fair coins and that the outcomes are
+    independent. Then the probability of two heads is (1/2)(1/2) = 1/4\. Now suppose
+    that one event is that the first coin comes up heads and the other event is that
+    the coins come up differently. Each of these events occurs with probability 1/2,
+    and the probability that both events occur is 1/4\. Thus, according to the definition
+    of independence, the events are independent—even though you might think that both
+    events depend on the first coin. Finally, suppose that the coins are welded together
+    so that they both fall heads or both fall tails and that the two possibilities
+    are equally likely. Then the probability that each coin comes up heads is 1/2,
+    but the probability that they both come up heads is 1/2 ≠ (1/2)(1/2). Consequently,
+    the event that one comes up heads and the event that the other comes up heads
+    are not independent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A collection *A*[1], *A*[2], … , *A[n]* of events is said to be ***pairwise
+    independent*** if
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*A[i]* ∩ *A[j]* } = Pr {*A[i]*} Pr {*A[j]*}
+  prefs: []
+  type: TYPE_NORMAL
+- en: for all 1 ≤ *i* < *j* ≤ *n*. We say that the events of the collection are ***(mutually)
+    independent*** if every *k*-subset ![art](images/Art_P1678.jpg) of the collection,
+    where 2 ≤ *k* ≤ *n* and 1 ≤ *i*[1] < *i*[2] < ⋯ < *i[k]* ≤ *n*, satisfies
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1679.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For example, suppose that you flip two fair coins. Let *A*[1] be the event that
+    the first coin is heads, let *A*[2] be the event that the second coin is heads,
+    and let *A*[3] be the event that the two coins are different. Then,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Pr {*A*[1]} | = | 1/2, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[2]} | = | 1/2, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[3]} | = | 1/2, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[1] ∩ *A*[2]} | = | 1/4, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[1] ∩ *A*[3]} | = | 1/4, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[2] ∩ *A*[3]} | = | 1/4, |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pr {*A*[1] ∩ *A*[2] ∩ *A*[3]} | = | 0. |'
+  prefs: []
+  type: TYPE_TB
+- en: Since for 1 ≤ *i* < *j* ≤ 3, we have Pr {*A[i]* ∩ *A[j]* } = Pr {*A[i]*} Pr
+    {*A[j]*} = 1/4, the events *A*[1], *A*[2], and *A*[3] are pairwise independent.
+    The events are not mutually independent, however, because Pr {*A*[1] ∩ *A*[2]
+    ∩ *A*[3]} = 0 and Pr {*A*[1]} Pr {*A*[2]} Pr {*A*[3]} = 1/8 ≠ 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Bayes’s theorem**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the definition (C.16) of conditional probability and the commutative law
+    *A* ∩ *B* = *B* ∩ *A*, it follows that for two events *A* and *B*, each with nonzero
+    probability,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1680.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Solving for Pr {*A* | *B*}, we obtain
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1681.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is known as ***Bayes’s theorem***. The denominator Pr {*B*} is a normalizing
+    constant, which we can reformulate as follows. Since *B* = (*B* ∩ *A*) ∪ (*B*
+    ∩ *Ā*), and since *B* ∩ *A* and *B* ∩ *Ā* are mutually exclusive events,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Pr {*B*} | = | Pr {*B* ∩ *A*} + Pr {*B* ∩ *Ā*} |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | Pr {*A*} Pr {*B* &#124; *A*} + Pr {*Ā*} Pr {*B* &#124; *Ā*}. |'
+  prefs: []
+  type: TYPE_TB
+- en: 'Substituting into equation (C.19) produces an equivalent form of Bayes’s theorem:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1682.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Bayes’s theorem can simplify the computing of conditional probabilities. For
+    example, suppose that you have a fair coin and a biased coin that always comes
+    up heads. Run an experiment consisting of three independent events: choose one
+    of the two coins at random, flip that coin once, and then flip it again. Suppose
+    that the coin you have chosen comes up heads both times. What is the probability
+    that it’s the biased coin?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bayes’s theorem solves this problem. Let *A* be the event that you choose the
+    biased coin, and let *B* be the event that the chosen coin comes up heads both
+    times. We wish to determine Pr {*A* | *B*}, knowing that Pr {*A*} = 1/2, Pr {*B*
+    | *A*} = 1, Pr {*Ā*} = 1/2, and Pr {*B* | *Ā* = 1/4\. Thus we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1683.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Professor Rosencrantz flips a fair coin twice. Professor Guildenstern flips
+    a fair coin once. What is the probability that Professor Rosencrantz obtains strictly
+    more heads than Professor Guildenstern?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Prove ***Boole’s inequality***: For any finite or countably infinite sequence
+    of events *A*[1], *A*[2], …,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1684.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***C.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You shuffle a deck of 10 cards, each bearing a distinct number from 1 to 10,
+    in order to mix the cards thoroughly. You then remove three cards, one at a time,
+    from the deck. What is the probability that the three cards you select are in
+    sorted (increasing) order?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*A* | *B*} + Pr {*Ā* | *B*} = 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that for any collection of events *A*[1], *A*[2], … , *A[n]*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1685.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.2-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show how to construct a set of *n* events that are pairwise independent but
+    such that no subset of *k* > 2 of them is mutually independent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.2-7***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Two events *A* and *B* are ***conditionally independent***, given *C*, if
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*A* ∩ *B* | *C*} = Pr {*A* | *C*} · Pr {*B* | *C*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Give a simple but nontrivial example of two events that are not independent
+    but are conditionally independent given a third event.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.2-8***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Professor Gore teaches a music class on rhythm in which three students—Jeff,
+    Tim, and Carmine—are in danger of failing. Professor Gore tells the three that
+    one of them will pass the course and the other two will fail. Carmine asks Professor
+    Gore privately which of Jeff and Tim will fail, arguing that since he already
+    knows at least one of them will fail, the professor won’t be revealing any information
+    about Carmine’s outcome. In a breach of privacy law, Professor Gore tells Carmine
+    that Jeff will fail. Carmine feels somewhat relieved now, figuring that either
+    he or Tim will pass, so that his probability of passing is now 1/2\. Is Carmine
+    correct, or is his chance of passing still 1/3? Explain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**C.3 Discrete random variables**](toc.xhtml#Rh1-227)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A ***(discrete) random variable*** *X* is a function from a finite or countably
+    infinite sample space *S* to the real numbers. It associates a real number with
+    each possible outcome of an experiment, which allows us to work with the probability
+    distribution induced on the resulting set of numbers. Random variables can also
+    be defined for uncountably infinite sample spaces, but they raise technical issues
+    that are unnecessary to address for our purposes. Therefore we’ll assume that
+    random variables are discrete.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For a random variable *X* and a real number *x*, we define the event *X* =
+    *x* to be {*s* ∈ *S* : *X*(*s*) = *x*}, and thus'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1686.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The function
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*f*(*x*) = Pr {*X* = *x*}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: is the ***probability density function*** of the random variable *X*. From the
+    probability axioms, Pr {*X* = *x*} ≥ 0 and ∑*[x]* Pr {*X* = *x*} = 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As an example, consider the experiment of rolling a pair of ordinary, 6-sided
+    dice. There are 36 possible outcomes in the sample space. Assume that the probability
+    distribution is uniform, so that each outcome *s* ∈ *S* is equally likely: Pr
+    {*s*} = 1/36\. Define the random variable *X* to be the *maximum* of the two values
+    showing on the dice. We have Pr {*X* = 3} = 5/36, since *X* assigns a value of
+    3 to 5 of the 36 possible outcomes, namely, (1, 3), (2, 3), (3, 3), (3, 2), and
+    (3, 1).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can define several random variables on the same sample space. If *X* and
+    *Y* are random variables, the function
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*f*(*x*, *y*) = Pr {*X* = *x* and *Y* = *y*}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: is the ***joint probability density function*** of *X* and *Y*. For a fixed
+    value *y*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1687.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and similarly, for a fixed value *x*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1688.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Using the definition (C.16) of conditional probability on page 1187, we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1689.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: We define two random variables *X* and *Y* to be ***independent*** if for all
+    *x* and *y*, the events *X* = *x* and *Y* = *y* are independent or, equivalently,
+    if for all *x* and *y*, we have Pr {*X* = *x* and *Y* = *y*} = Pr {*X* = *x*}
+    Pr {*Y* = *y*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given a set of random variables defined over the same sample space, we can define
+    new random variables as sums, products, or other functions of the original variables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Expected value of a random variable**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The simplest, and often the most useful, summary of the distribution of a random
+    variable is the “average” of the values it takes on. The ***expected value***
+    (or, synonymously, ***expectation*** or ***mean***) of a discrete random variable
+    *X* is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1690.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is well defined if the sum is finite or converges absolutely. Sometimes
+    the expectation of *X* is denoted by *μ[X]* or, when the random variable is apparent
+    from context, simply by *μ*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a game in which you flip two fair coins. You earn $3 for each head
+    but lose $2 for each tail. The expected value of the random variable *X* representing
+    your earnings is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| E[*X*] | = | 6 · Pr {2 H’s} + 1 · Pr {1 H, 1 T} − 4 · Pr {2 T’s} |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 6 · (1/4) + 1 · (1/2) − 4 · (1/4) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 1. |'
+  prefs: []
+  type: TYPE_TB
+- en: '***Linearity of expectation*** says that the expectation of the sum of two
+    random variables is the sum of their expectations, that is,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1691.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: whenever E[*X*] and E[*Y*] are defined. Linearity of expectation applies to
+    a broad range of situations, holding even when *X* and *Y* are not independent.
+    It also extends to finite and absolutely convergent summations of expectations.
+    Linearity of expectation is the key property that enables us to perform probabilistic
+    analyses by using indicator random variables (see [Section 5.2](chapter005.xhtml#Sec_5.2)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: If *X* is any random variable, any function *g*(*x*) defines a new random variable
+    *g*(*X*). If the expectation of *g*(*X*) is defined, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1692.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Letting *g*(*x*) = *ax*, we have for any constant *a*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1693.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Consequently, expectations are linear: for any two random variables *X* and
+    *Y* and any constant *a*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1694.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: When two random variables *X* and *Y* are independent and each has a defined
+    expectation,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1695.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: In general, when *n* random variables *X*[1], *X*[2], … , *X[n]* are mutually
+    independent,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1696.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'When a random variable *X* takes on values from the set of natural numbers
+    ℕ = {0, 1, 2, …}, we have a nice formula for its expectation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1697.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since each term Pr {*X* ≥ *i*} is added in *i* times and subtracted out *i*
+    − 1 times (except Pr {*X* ≥ 0}, which is added in 0 times and not subtracted out
+    at all).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A function *f*(*x*) is ***convex*** if
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1698.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for all *x* and *y* and for all 0 ≤ *λ* ≤ 1\. ***Jensen’s inequality*** says
+    that when a convex function *f*(*x*) is applied to a random variable *X*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1699.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: provided that the expectations exist and are finite.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Variance and standard deviation**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The expected value of a random variable does not express how “spread out” the
+    variable’s values are. For example, consider random variables *X* and *Y* for
+    which Pr {*X* = 1/4} = Pr {*X* = 3/4} = 1/2 and Pr {*Y* = 0} = Pr {*Y* = 1} =
+    1/2\. Then both E[*X*] and E[*Y*] are 1/2, yet the actual values taken on by *Y*
+    are further from the mean than the actual values taken on by *X*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The notion of variance mathematically expresses how far from the mean a random
+    variable’s values are likely to be. The ***variance*** of a random variable *X*
+    with mean E[*X*] is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1700.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'To justify the equation E[E²[*X*]] = E²[*X*], note that because E[*X*] is a
+    real number and not a random variable, so is E²[*X*]. The equation E[*X*E[*X*]]
+    = E²[*X*] follows from equation (C.25), with *a* = E[*X*]. Rewriting equation
+    (C.31) yields an expression for the expectation of the square of a random variable:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1701.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The variance of a random variable *X* and the variance of *aX* are related
+    (see Exercise C.3-10):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Var[*aX*] = *a*²Var[*X*].
+  prefs: []
+  type: TYPE_NORMAL
+- en: When *X* and *Y* are independent random variables,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Var[*X* + *Y*] = Var[*X*] + Var[*Y*].
+  prefs: []
+  type: TYPE_NORMAL
+- en: In general, if *n* random variables *X*[1], *X*[2], … , *X[n]* are pairwise
+    independent, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1702.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The ***standard deviation*** of a random variable *X* is the nonnegative square
+    root of the variance of *X*. The standard deviation of a random variable *X* is
+    sometimes denoted *σ[X]* or simply *σ* when the random variable *X* is understood
+    from context. With this notation, the variance of *X* is denoted *σ*².
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You roll two ordinary, 6-sided dice. What is the expectation of the sum of the
+    two values showing? What is the expectation of the maximum of the two values showing?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'An array *A*[1 : *n*] contains *n* distinct numbers that are randomly ordered,
+    with each permutation of the *n* numbers being equally likely. What is the expectation
+    of the index of the maximum element in the array? What is the expectation of the
+    index of the minimum element in the array?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A carnival game consists of three dice in a cage. A player can bet a dollar
+    on any of the numbers 1 through 6\. The cage is shaken, and the payoff is as follows.
+    If the player’s number doesn’t appear on any of the dice, the player loses the
+    dollar. Otherwise, if the player’s number appears on exactly *k* of the three
+    dice, for *k* = 1, 2, 3, the player keeps the dollar and wins *k* more dollars.
+    What is the expected gain from playing the carnival game once?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Argue that if *X* and *Y* are nonnegative random variables, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: E[max {*X*, *Y*}] ≤ E[*X*] + E[*Y*].
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.3-5***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *X* and *Y* be independent random variables. Prove that *f*(*X*) and *g*(*Y*)
+    are independent for any choice of functions *f* and *g*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.3-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let *X* be a nonnegative random variable, and suppose that E[*X*] is well defined.
+    Prove ***Markov’s inequality***:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1703.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for all *t* > 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.3-7***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *S* be a sample space, and let *X* and *X*′ be random variables such that
+    *X*(*s*) ≥ *X*′(*s*) for all *s* ∈ *S*. Prove that for any real constant *t*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*X* ≥ *t*} ≥ Pr {*X*′ ≥ *t*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Which is larger: the expectation of the square of a random variable, or the
+    square of its expectation?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that for any random variable *X* that takes on only the values 0 and 1,
+    we have Var[*X*] = E[*X*] E [1 − *X*].
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.3-10***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that Var[*aX*] = *a*²Var[*X*] from the definition (C.31) of variance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**C.4 The geometric and binomial distributions**](toc.xhtml#Rh1-228)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A ***Bernoulli trial*** is an experiment with only two possible outcomes: ***success***,
+    which occurs with probability *p*, and ***failure***, which occurs with probability
+    *q* = 1 − *p*. A coin flip serves as an example where, depending on your point
+    of view, heads equates to success and tails to failure. When we speak of ***Bernoulli
+    trials*** collectively, we mean that the trials are mutually independent and,
+    unless we specifically say otherwise, that each has the same probability *p* for
+    success. Two important distributions arise from Bernoulli trials: the geometric
+    distribution and the binomial distribution.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The geometric distribution**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of Bernoulli trials, each with a probability *p* of success
+    and a probability *q* = 1 − *p* of failure. How many trials occur before a success?
+    Define the random variable *X* to be the number of trials needed to obtain a success.
+    Then *X* has values in the range {1, 2, …}, and for *k* ≥ 1,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1704.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure C.1** A geometric distribution with probability *p* = 1/3 of success
+    and a probability *q* = 1 − *p* of failure. The expectation of the distribution
+    is 1/*p* = 3.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1705.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since *k* − 1 failures occur before the first success. A probability distribution
+    satisfying equation (C.35) is said to be a ***geometric distribution***. [Figure
+    C.1](#Fig_C-1) illustrates such a distribution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Assuming that *q* < 1, we can calculate the expectation of a geometric distribution:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1706.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Thus, on average, it takes 1/*p* trials before a success occurs, an intuitive
+    result. As Exercise C.4-3 asks you to show, the variance is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1707.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: As an example, suppose that you repeatedly roll two dice until you obtain either
+    a seven or an eleven. Of the 36 possible outcomes, 6 yield a seven and 2 yield
+    an eleven. Thus, the probability of success is *p* = 8/36 = 2/9, and you’d have
+    to roll 1/*p* = 9/2 = 4.5 times on average to obtain a seven or eleven.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**The binomial distribution**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: How many successes occur during *n* Bernoulli trials, where a success occurs
+    with probability *p* and a failure with probability *q* = 1 − *p*? Define the
+    random variable *X* to be the number of successes in *n* trials. Then *X* has
+    values in the range {0, 1, … , *n*}, and for *k* = 0, 1, … , *n*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1708.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since there are ![art](images/Art_P1709.jpg) ways to pick which *k* of the *n*
+    trials are successes, and the probability that each occurs is *p*^(*k*)*q*^(*n*−*k*).
+    A probability distribution satisfying equation (C.38) is said to be a ***binomial
+    distribution***. For convenience, we define the family of binomial distributions
+    using the notation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1710.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '[Figure C.2](#Fig_C-2) illustrates a binomial distribution. The name “binomial”
+    comes from the right-hand side of equation (C.38) being the *k*th term of the
+    expansion of (*p* +*q*)*^n*. Consequently, since *p* + *q* = 1, equation (C.4)
+    on page 1181 gives'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1711.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: as axiom 2 of the probability axioms requires.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can compute the expectation of a random variable having a binomial distribution
+    from equations (C.9) and (C.40). Let *X* be a random variable that follows the
+    binomial distribution *b*(*k*; *n*, *p*), and let *q* = 1 − *p*. The definition
+    of expectation gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1712.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure C.2** The binomial distribution *b*(*k*; 15, 1/3) resulting from *n*
+    = 15 Bernoulli trials, each with probability *p* = 1/3 of success. The expectation
+    of the distribution is *np* = 5.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1713.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Linearity of expectation produces the same result with substantially less algebra.
+    Let *X[i]* be the random variable describing the number of successes in the *i*th
+    trial. Then E[*X[i]*] = *p* · 1 + *q* · 0 = *p*, and the expected number of successes
+    for *n* trials is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1714.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: We can use the same approach to calculate the variance of the distribution.
+    By equation (C.31), ![art](images/Art_P1715.jpg). Since *X[i]* takes on only the
+    values 0 and 1, we have ![art](images/Art_P1716.jpg), which implies ![art](images/Art_P1717.jpg).
+    Hence,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1718.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: To compute the variance of *X*, we take advantage of the independence of the
+    *n* trials. By equation (C.33), we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1719.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'As [Figure C.2](#Fig_C-2) shows, the binomial distribution *b*(*k*; *n*, *p*)
+    increases with *k* until it reaches the mean *np*, and then it decreases. To prove
+    that the distribution always behaves in this manner, examine the ratio of successive
+    terms:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1720.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'This ratio is greater than 1 precisely when (*n* + 1)*p* − *k* is positive.
+    Consequently, *b*(*k*; *n*, *p*) > *b*(*k* − 1; *n*, *p*) for *k* < (*n* + 1)*p*
+    (the distribution increases), and *b*(*k*; *n*, *p*) < *b*(*k* − 1; *n*, *p*)
+    for *k* > (*n* + 1)*p* (the distribution decreases). If (*n* + 1)*p* is an integer,
+    then for *k* = (*n* + 1)*p*, the ratio *b*(*k*; *n*, *p*)/*b*(*k* − 1; *n*, *p*)
+    equals 1, so that *b*(*k*; *n*, *p*) = *b*(*k* − 1; *n*, *p*). In this case, the
+    distribution has two maxima: at *k* = (*n*+1)*p* and at *k*−1 = (*n*+1)*p*−1 =
+    *np*−*q*. Otherwise, it attains a maximum at the unique integer *k* that lies
+    in the range *np* − *q* < *k* < (*n* + 1)*p*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following lemma provides an upper bound on the binomial distribution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Lemma C.1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *n* ≥ 0, let 0 < *p* < 1, let *q* = 1 − *p*, and let 0 ≤ *k* ≤ *n*. Then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1721.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Proof***   We have'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1722.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.4-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Verify axiom 2 of the probability axioms for the geometric distribution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.4-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: How many times on average do you need to flip six fair coins before obtaining
+    three heads and three tails?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.4-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that the variance of the geometric distribution is *q*/*p*². (*Hint:* Use
+    Exercise A.1-6 on page 1144.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.4-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that *b*(*k*; *n*, *p*) = *b*(*n* − *k*; *n*, *q*), where *q* = 1 − *p*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C.4-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that the value of the maximum of the binomial distribution *b*(*k*; *n*,
+    *p*) is approximately ![art](images/Art_P1723.jpg), where *q* = 1 − *p*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.4-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that the probability of no successes in *n* Bernoulli trials, each with
+    probability *p* = 1/*n* of success, is approximately 1/*e*. Show that the probability
+    of exactly one success is also approximately 1/*e*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.4-7***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Professor Rosencrantz flips a fair coin *n* times, and so does Professor Guildenstern.
+    Show that the probability that they get the same number of heads is ![art](images/Art_P1724.jpg).
+    (*Hint:* For Professor Rosencrantz, call a head a success, and for Professor Guildenstern,
+    call a tail a success.) Use your argument to verify the identity
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1725.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.4-8***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that for 0 ≤ *k* ≤ *n*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*b*(*k*; *n*, 1/2) ≤ 2^(*n H*(*k*/*n*)−*n*),'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where *H*(*x*) is the entropy function (C.8) on page 1182.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.4-9***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider *n* Bernoulli trials, where for *i* = 1, 2, … , *n*, the *i*th trial
+    has probability *p[i]* of success, and let *X* be the random variable denoting
+    the total number of successes. Let *p* ≥ *p[i]* for all *i* = 1, 2, … , *n*. Prove
+    that for 1 ≤ *k* ≤ *n*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1726.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.4-10***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *X* be the random variable for the total number of successes in a set *A*
+    of *n* Bernoulli trials, where the *i*th trial has a probability *p[i]* of success,
+    and let *X*′ be the random variable for the total number of successes in a second
+    set *A*′ of *n* Bernoulli trials, where the *i*th trial has a probability ![art](images/Art_P1727.jpg)
+    of success. Prove that for 0 ≤ *k* ≤ *n*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pr {*X*′ ≥ *k*} ≥ Pr {*X* ≥ *k*}.
+  prefs: []
+  type: TYPE_NORMAL
+- en: (*Hint:* Show how to obtain the Bernoulli trials in *A*′ by an experiment involving
+    the trials of *A*, and use the result of Exercise C.3-7.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[★ **C.5 The tails of the binomial distribution**](toc.xhtml#Rh1-229)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The probability of having at least, or at most, *k* successes in *n* Bernoulli
+    trials, each with probability *p* of success, is often of more interest than the
+    probability of having exactly *k* successes. In this section, we investigate the
+    ***tails*** of the binomial distribution: the two regions of the distribution
+    *b*(*k*; *n*, *p*) that are far from the mean *np*. We’ll prove several important
+    bounds on (the sum of all terms in) a tail.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We first provide a bound on the right tail of the distribution *b*(*k*; *n*,
+    *p*). To determine bounds on the left tail, simply invert the roles of successes
+    and failures.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem C.2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p*. Let *X* be the random variable denoting the total number of successes. Then
+    for 0 ≤ *k* ≤ *n*, the probability of at least *k* successes is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1728.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Proof***   For *S* ⊆ {1, 2, … , *n*}, let *A[S]* denote the event that the
+    *i*th trial is a success for every *i* ∈ *S*. Since Pr {*A[S]*} = *p^k*, where
+    |*S*| = *k*, we have'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1729.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following corollary restates the theorem for the left tail of the binomial
+    distribution. In general, we’ll leave it to you to adapt the proofs from one tail
+    to the other.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary C.3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p*. If *X* is the random variable denoting the total number of successes, then
+    for 0 ≤ *k* ≤ *n*, the probability of at most *k* successes is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1730.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our next bound concerns the left tail of the binomial distribution. Its corollary
+    shows that, far from the mean, the left tail diminishes exponentially.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem C.4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p* and failure with probability *q* = 1 − *p*. Let *X* be the random variable
+    denoting the total number of successes. Then for 0 < *k* < *np*, the probability
+    of fewer than *k* successes is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1731.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Proof***   We bound the series ![art](images/Art_P1732.jpg) by a geometric
+    series using the technique from [Section A.2](appendix001.xhtml#Sec_A.2), page
+    1147\. For *i* = 1, 2, … , *k*, equation (C.45) gives'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1733.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: If we let
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1734.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: it follows that
+  prefs: []
+  type: TYPE_NORMAL
+- en: b(*i* − 1; *n*, *p*) < *xb*(*i*; *n*, *p*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: for 0 < *i* ≤ *k*. Iteratively applying this inequality *k* − *i* times gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*b*(*i*; *n*, *p*) < *x*^(*k*−*i*) *b*(*k*; *n*, *p*)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: for 0 ≤ *i* < *k*, and hence
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1735.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary C.5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p* and failure with probability *q* = 1 − *p*. Then for 0 < *k* ≤ *np*/2, the
+    probability of fewer than *k* successes is less than half the probability of fewer
+    than *k* + 1 successes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Proof***   Because *k* ≤ *np*/2, we have'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1736.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since *q* ≤ 1\. Letting *X* be the random variable denoting the number of successes,
+    Theorem C.4 and inequality (C.46) imply that the probability of fewer than *k*
+    successes is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1737.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Thus we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1738.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since ![art](images/Art_P1739.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bounds on the right tail follow similarly. Exercise C.5-2 asks you to prove
+    them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary C.6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p*. Let *X* be the random variable denoting the total number of successes. Then
+    for *np* < *k* < *n*, the probability of more than *k* successes is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1740.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary C.7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where success occurs with probability
+    *p* and failure with probability *q* = 1 − *p*. Then for (*np* + *n*)/2 < *k*
+    < *n*, the probability of more than *k* successes is less than half the probability
+    of more than *k* − 1 successes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: The next theorem considers *n* Bernoulli trials, each with a probability *p[i]*
+    of success, for *i* = 1, 2, … , *n*. As the subsequent corollary shows, we can
+    use the theorem to provide a bound on the right tail of the binomial distribution
+    by setting *p[i]* = *p* for each trial.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Theorem C.8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where in the *i*th trial, for *i*
+    = 1, 2, … , *n*, success occurs with probability *p[i]* and failure occurs with
+    probability *q[i]* = 1 − *p[i]*. Let *X* be the random variable describing the
+    total number of successes, and let *μ* = E[*X*]. Then for *r* > *μ*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1741.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Proof***   Since for any *α* > 0, the function *e^(αx)* strictly increases
+    in *x*,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1742.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: where we will determine *α* later. Using Markov’s inequality (C.34), we obtain
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1743.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The bulk of the proof consists of bounding E[*e*^(*α*(*X*−*μ*))] and substituting
+    a suitable value for *α* in inequality (C.48). First, we evaluate E[*e*^(*α*(*X*−*μ*))].
+    Using the technique of indicator random variables (see [Section 5.2](chapter005.xhtml#Sec_5.2)),
+    let *X[i]* = I {the *i*th Bernoulli trial is a success} for *i* = 1, 2, … , *n*.
+    That is, *X[i]* is the random variable that is 1 if the *i*th Bernoulli trial
+    is a success and 0 if it is a failure. Thus, we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1744.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: and by linearity of expectation,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1745.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which implies
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1746.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: To evaluate E[*e*^(*α*(*X*−*μ*))], we substitute for *X* − *μ*, obtaining
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1747.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which follows from equation (C.27), since the mutual independence of the random
+    variables *X[i]* implies the mutual independence of the random variables ![art](images/Art_P1748.jpg)
+    (see Exercise C.3-5). By the definition of expectation,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1749.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'where exp(*x*) denotes the exponential function: exp(*x*) = *e^x*. (Inequality
+    (C.49) follows from the inequalities *α* > 0, *q[i]* ≤ 1, ![art](images/Art_P1750.jpg),
+    and ![art](images/Art_P1751.jpg). The last line follows from inequality (3.14)
+    on page 66.) Consequently,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1752.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since ![art](images/Art_P1753.jpg). Therefore, from equation (C.47) and inequalities
+    (C.48) and (C.50), it follows that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1754.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Choosing *α* = ln(*r*/*μ*) (see Exercise C.5-7), we obtain
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1755.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: When applied to Bernoulli trials in which each trial has the same probability
+    of success, Theorem C.8 yields the following corollary bounding the right tail
+    of a binomial distribution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Corollary C.9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where in each trial success occurs
+    with probability *p* and failure occurs with probability *q* = 1 − *p*. Then for
+    *r* > *np*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1756.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '***Proof***   By equation (C.41), we have *μ* = E[*X*] = *np*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-1***
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Which is more likely: getting exactly *n* heads in 2*n* flips of a fair coin,
+    or *n* heads in *n* flips of a fair coin?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-2***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove Corollaries C.6 and C.7.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-3***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1757.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for all *a* > 0 and all *k* such that 0 < *k* < *na*/(*a* + 1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-4***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that if 0 < *k* < *np*, where 0 < *p* < 1 and *q* = 1 − *p*, then
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1758.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: ★ ***C.5-5***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use Theorem C.8 to show that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1759.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for *r* > *n* − *μ*. Similarly, use Corollary C.9 to show that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1760.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for *r* > *n* − *np*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-6***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider a sequence of *n* Bernoulli trials, where in the *i*th trial, for *i*
+    = 1, 2, … , *n*, success occurs with probability *p[i]* and failure occurs with
+    probability *q[i]* = 1 − *p[i]*. Let *X* be the random variable describing the
+    total number of successes, and let *μ* = E[*X*]. Show that for *r* ≥ 0,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1761.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: (*Hint:* Prove that ![art](images/Art_P1762.jpg). Then follow the outline of
+    the proof of Theorem C.8, using this inequality in place of inequality (C.49).)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***C.5-7***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that choosing *α* = ln(*r*/*μ*) minimizes the right-hand side of inequality
+    (C.51).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Problems**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C-1 The Monty Hall problem***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Imagine that you are a contestant in the 1960s game show *Let’s Make a Deal*,
+    hosted by emcee Monty Hall. A valuable prize is hidden behind one of three doors
+    and comparatively worthless prizes behind the other two doors. You will win the
+    valuable prize, typically an automobile or other expensive product, if you select
+    the correct door. After you have picked one door, but before the door has been
+    opened, Monty, who knows which door hides the automobile, directs his assistant
+    Carol Merrill to open one of the other doors, revealing a goat (not a valuable
+    prize). He asks whether you would like to stick with your current choice or to
+    switch to the other closed door. What should you do to maximize your chances of
+    winning the automobile and not the other goat?
+  prefs: []
+  type: TYPE_NORMAL
+- en: The answer to this question—stick or switch?—has been heavily debated, in part
+    because the problem setup is ambiguous. We’ll explore different subtle assumptions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Suppose that your first pick is random, with probability 1/3 of choosing
+    the right door. Moreover, you know that Monty always gives every contestant (and
+    will give you) the opportunity to switch. Prove that it is better to switch than
+    stick. What is your probability of winning the automobile?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This answer is the one typically given, even though the original statement of
+    the problem rarely mentions the assumption that Monty *always* offers the contestant
+    the opportunity to switch. But, as the remainder of this problem will elucidate,
+    your best strategy may be different if this unstated assumption does not hold.
+    In fact, in the real game show, after a contestant picked a door, Monty sometimes
+    simply asked Carol to open the door that the contestant had chosen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s model the interactions between you and Monty as a probabilistic experiment,
+    where you both employ randomized strategies. Specifically, after you pick a door,
+    Monty offers you the opportunity to switch with probability *p*[right] if you
+    picked the right door and with probability *p*[wrong] if you picked the wrong
+    door. Given the opportunity to switch, you randomly choose to switch with probability
+    *p*[switch]. For example, if Monty always offers you the opportunity to switch,
+    then his strategy is given by *p*[right] = *p*[wrong] = 1\. If you always switch,
+    then your strategy is given by *p*[switch] = 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The game can now be viewed as an experiment consisting of five steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1\. You pick a door at random, choosing the automobile (right) with probability
+    1/3 or a goat (wrong) with probability 2/3.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2\. Carol opens one of the two closed doors, revealing a goat.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3\. Monty offers you the opportunity to switch with probability *p*[right] if
+    your choice is right and with probability *p*[wrong] if your choice is wrong.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4\. If Monty makes you an offer in step 3, you switch with probability *p*[switch].
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5\. Carol opens the door you’ve chosen, revealing either an automobile (you
+    win) or a goat (you lose).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s now analyze this game and understand how the choices of *p*[right], *p*[wrong],
+    and *p*[switch] influence the probability of winning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** What are the six outcomes in the sample space for this game? Which
+    outcomes correspond to you winning the automobile? What are the probabilities
+    in terms of *p*[right], *p*[wrong], and *p*[switch] of each outcome? Organize
+    your answers into a table.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Use the results of your table (or other means) to prove that the probability
+    of winning the automobile is'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1763.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Suppose that Monty knows the probability *p*[switch] that you switch, and his
+    goal is to minimize your chance of winning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** If *p*[switch] > 0 (you switch with a positive probability), what
+    is Monty’s best strategy, that is, his best choice for *p*[right] and *p*[wrong]?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***e.*** If *p*[switch] = 0 (you always stick), argue that all of Monty’s possible
+    strategies are optimal for him.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suppose that now Monty’s strategy is fixed, with particular values for *p*[right]
+    and *p*[wrong].
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***f.*** If you know *p*[right] and *p*[wrong], what is your best strategy
+    for choosing your probability *p*[switch] of switching as a function of *p*[right]
+    and *p*[wrong]?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***g.*** If you don’t know *p*[right] and *p*[wrong], what choice of *p*[switch]
+    maximizes the minimum probability of winning over all the choices of *p*[right]
+    and *p*[wrong]?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s return to the original problem as stated, where Monty has given you the
+    option of switching, but you have no knowledge of Monty’s possible motivations
+    or strategies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***h.*** Argue that the conditional probability of winning the automobile given
+    that Monty offers you the opportunity to switch is'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1764.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Explain why *p*[right] + 2*p*[wrong] ≠ 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***i.*** What is the value of expression (C.52) when *p*[switch] = 1/2? Show
+    that choosing *p*[switch] < 1/2 or *p*[switch] > 1/2 allows Monty to select values
+    for *p*[right] and *p*[wrong] that yield a lower value for expression (C.52) than
+    choosing *p*[switch] = 1/2.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***j.*** Suppose that you don’t know Monty’s strategy. Explain why choosing
+    to switch with probability 1/2 is a good strategy for the original problem as
+    stated. Summarize what you have learned overall from this problem.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***C-2 Balls and bins***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This problem investigates the effect of various assumptions on the number of
+    ways of placing *n* balls into *b* distinct bins.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** Suppose that the *n* balls are distinct and that their order within
+    a bin does not matter. Argue that the number of ways of placing the balls in the
+    bins is *b^n*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** Suppose that the balls are distinct and that the balls in each bin
+    are ordered. Prove that there are exactly (*b* + *n* − 1)!/(*b* − 1)! ways to
+    place the balls in the bins. (*Hint:* Consider the number of ways of arranging
+    *n* distinct balls and *b* − 1 indistinguishable sticks in a row.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** Suppose that the balls are identical, and hence their order within
+    a bin does not matter. Show that the number of ways of placing the balls in the
+    bins is ![art](images/Art_P1765.jpg). (*Hint:* Of the arrangements in part (b),
+    how many are repeated if the balls are made identical?)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** Suppose that the balls are identical and that no bin may contain more
+    than one ball, so that *n* ≤ *b*. Show that the number of ways of placing the
+    balls is ![art](images/Art_P1766.jpg).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***e.*** Suppose that the balls are identical and that no bin may be left empty.
+    Assuming that *n* ≥ *b*, show that the number of ways of placing the balls is
+    ![art](images/Art_P1767.jpg).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Appendix notes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first general methods for solving probability problems were discussed in
+    a famous correspondence between B. Pascal and P. de Fermat, which began in 1654,
+    and in a book by C. Huygens in 1657\. Rigorous probability theory began with the
+    work of J. Bernoulli in 1713 and A. De Moivre in 1730\. Further developments of
+    the theory were provided by P.-S. Laplace, S.-D. Poisson, and C. F. Gauss.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sums of random variables were originally studied by P. L. Chebyshev and A. A.
+    Markov. A. N. Kolmogorov axiomatized probability theory in 1933\. Chernoff [[91](bibliography001.xhtml#endnote_91)]
+    and Hoeffding [[222](bibliography001.xhtml#endnote_222)] provided bounds on the
+    tails of distributions. Seminal work in random combinatorial structures was done
+    by P. Erdős.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Knuth [[259](bibliography001.xhtml#endnote_259)] and Liu [[302](bibliography001.xhtml#endnote_302)]
+    are good references for elementary combinatorics and counting. Standard textbooks
+    such as Billingsley [[56](bibliography001.xhtml#endnote_56)], Chung [[93](bibliography001.xhtml#endnote_93)],
+    Drake [[125](bibliography001.xhtml#endnote_125)], Feller [[139](bibliography001.xhtml#endnote_139)],
+    and Rozanov [[390](bibliography001.xhtml#endnote_390)] offer comprehensive introductions
+    to probability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[¹](#footnote_ref_1) For a general probability distribution, there may be some
+    subsets of the sample space *S* that are not considered to be events. This situation
+    usually arises when the sample space is uncountably infinite. The main requirement
+    for what subsets are events is that the set of events of a sample space must be
+    closed under the operations of taking the complement of an event, forming the
+    union of a finite or countable number of events, and taking the intersection of
+    a finite or countable number of events. Most of the probability distributions
+    we see in this book are over finite or countable sample spaces, and we generally
+    consider all subsets of a sample space to be events. A notable exception is the
+    continuous uniform probability distribution, which we’ll see shortly.'
+  prefs: []
+  type: TYPE_NORMAL

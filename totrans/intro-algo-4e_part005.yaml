@@ -1,0 +1,114 @@
+- en: '[***Part V    Advanced Data Structures***](toc.xhtml#part-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**Introduction**](toc.xhtml#Rh1-100)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This part returns to studying data structures that support operations on dynamic
+    sets, but at a more advanced level than [Part III](part003.xhtml). One of the
+    chapters, for example, makes extensive use of the amortized analysis techniques
+    from [Chapter 16](chapter016.xhtml).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 17](chapter017.xhtml) shows how to augment red-black trees—adding
+    additional information in each node—to support dynamic-set operations in addition
+    to those covered in [Chapters 12](chapter012.xhtml) and [13](chapter013.xhtml).
+    The first example augments red-black trees to dynamically maintain order statistics
+    for a set of keys. Another example augments them in a different way to maintain
+    intervals of real numbers. [Chapter 17](chapter017.xhtml) includes a theorem giving
+    sufficient conditions for when a red-black tree can be augmented while maintaining
+    the *O*(lg *n*) running times for insertion and deletion.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 18](chapter018.xhtml) presents B-trees, which are balanced search
+    trees specifically designed to be stored on disks. Since disks operate much more
+    slowly than random-access memory, B-tree performance depends not only on how much
+    computing time the dynamic-set operations consume but also on how many disk accesses
+    they perform. For each B-tree operation, the number of disk accesses increases
+    with the height of the B-tree, but B-tree operations keep the height low.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 19](chapter019.xhtml) examines data structures for disjoint sets.
+    Starting with a universe of *n* elements, each initially in its own singleton
+    set, the operation UNION unites two sets. At all times, the *n* elements are partitioned
+    into disjoint sets, even as calls to the UNION operation change the members of
+    a set dynamically. The query FIND-SET identifies the unique set that contains
+    a given element at the moment. Representing each set as a simple rooted tree yields
+    surprisingly fast operations: a sequence of *m* operations runs in *O*(*mα*(*n*))
+    time, where *α*(*n*) is an incredibly slowly growing function—*α*(*n*) is at most
+    4 in any conceivable application. The amortized analysis that proves this time
+    bound is as complex as the data structure is simple.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The topics covered in this part are by no means the only examples of “advanced”
+    data structures. Other advanced data structures include the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***Fibonacci heaps*** [[156](bibliography001.xhtml#endnote_156)] implement
+    mergeable heaps (see Problem 10-2 on page 268) with the operations INSERT, MINIMUM,
+    and UNION taking only *O*(1) actual and amortized time, and the operations EXTRACT-MIN
+    and DELETE taking *O*(lg *n*) amortized time. The most significant advantage of
+    these data structures, however, is that DECREASE-KEY takes only *O*(1) amortized
+    time. ***Strict Fibonacci heaps*** [[73](bibliography001.xhtml#endnote_73)], developed
+    later, made all of these time bounds actual. Because the DECREASE-KEY operation
+    takes constant amortized time, (strict) Fibonacci heaps constitute key components
+    of some of the asymptotically fastest algorithms to date for graph problems.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '***Dynamic trees*** [[415](bibliography001.xhtml#endnote_415), [429](bibliography001.xhtml#endnote_429)]
+    maintain a forest of disjoint rooted trees. Each edge in each tree has a real-valued
+    cost. Dynamic trees support queries to find parents, roots, edge costs, and the
+    minimum edge cost on a simple path from a node up to a root. Trees may be manipulated
+    by cutting edges, updating all edge costs on a simple path from a node up to a
+    root, linking a root into another tree, and making a node the root of the tree
+    it appears in. One implementation of dynamic trees gives an *O*(lg *n*) amortized
+    time bound for each operation, while a more complicated implementation yields
+    *O*(lg *n*) worst-case time bounds. Dynamic trees are used in some of the asymptotically
+    fastest network-flow algorithms.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '***Splay trees*** [[418](bibliography001.xhtml#endnote_418), [429](bibliography001.xhtml#endnote_429)]
+    are a form of binary search tree on which the standard search-tree operations
+    run in *O*(lg *n*) amortized time. One application of splay trees simplifies dynamic
+    trees.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '***Persistent*** data structures allow queries, and sometimes updates as well,
+    on past versions of a data structure. For example, linked data structures can
+    be made persistent with only a small time and space cost [[126](bibliography001.xhtml#endnote_126)].
+    Problem 13-1 gives a simple example of a persistent dynamic set.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Several data structures allow a faster implementation of dictionary operations
+    (INSERT, DELETE, and SEARCH) for a restricted universe of keys. By taking advantage
+    of these restrictions, they are able to achieve better worst-case asymptotic running
+    times than comparison-based data structures. If the keys are unique integers drawn
+    from the set {0, 1, 2, … , *u* − 1}, where *u* is an exact power of 2, then a
+    recursive data structure known as a ***van Emde Boas tree*** [[440](bibliography001.xhtml#endnote_440),
+    [441](bibliography001.xhtml#endnote_441)] supports each of the operations SEARCH,
+    INSERT, DELETE, MINIMUM, MAXIMUM, SUCCESSOR, and PREDECESSOR in *O*(lg lg *u*)
+    time. ***Fusion trees*** [[157](bibliography001.xhtml#endnote_157)] were the first
+    data structure to allow faster dictionary operations when the universe is restricted
+    to integers, implementing these operations in *O*(lg *n*/lg lg *n*) time. Several
+    subsequent data structures, including ***exponential search trees*** [[17](bibliography001.xhtml#endnote_17)],
+    have also given improved bounds on some or all of the dictionary operations and
+    are mentioned in the chapter notes throughout this book.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '***Dynamic graph data structures*** support various queries while allowing
+    the structure of a graph to change through operations that insert or delete vertices
+    or edges. Examples of the queries that they support include vertex connectivity
+    [[214](bibliography001.xhtml#endnote_214)], edge connectivity, minimum spanning
+    trees [[213](bibliography001.xhtml#endnote_213)], biconnectivity, and transitive
+    closure [[212](bibliography001.xhtml#endnote_212)].'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Chapter notes throughout this book mention additional data structures.
+  prefs: []
+  type: TYPE_NORMAL

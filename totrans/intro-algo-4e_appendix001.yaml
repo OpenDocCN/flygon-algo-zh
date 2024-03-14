@@ -1,0 +1,580 @@
+- en: '[**A Summations**](toc.xhtml#app-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: When an algorithm contains an iterative control construct such as a **while**
+    or **for** loop, you can express its running time as the sum of the times spent
+    on each execution of the body of the loop. For example, [Section 2.2](chapter002.xhtml#Sec_2.2)
+    argued that the *i* th iteration of insertion sort took time proportional to *i*
+    in the worst case. Adding up the time spent on each iteration produced the summation
+    (or series) ![art](images/Art_P1525.jpg). Evaluating this summation resulted in
+    a bound of Θ(*n*²) on the worst-case running time of the algorithm. This example
+    illustrates why you should know how to manipulate and bound summations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Section A.1](appendix001.xhtml#Sec_A.1) lists several basic formulas involving
+    summations. [Section A.2](appendix001.xhtml#Sec_A.2) offers useful techniques
+    for bounding summations. The formulas in [Section A.1](appendix001.xhtml#Sec_A.1)
+    appear without proof, though proofs for some of them appear in [Section A.2](appendix001.xhtml#Sec_A.2)
+    to illustrate the methods of that section. You can find most of the other proofs
+    in any calculus text.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**A.1 Summation formulas and properties**](toc.xhtml#Rh1-214)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given a sequence *a*[1], *a*[2], … , *a[n]* of numbers, where *n* is a nonnegative
+    integer, the finite sum *a*[1] + *a*[2] + … + *a[n]* can be expressed as ![art](images/Art_P1526.jpg).
+    If *n* = 0, the value of the summation is defined to be 0\. The value of a finite
+    series is always well defined, and the order in which its terms are added does
+    not matter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Given an infinite sequence *a*[1], *a*[2], … of numbers, we can write their
+    infinite sum *a*[1] + *a*[2] + … as ![art](images/Art_P1527.jpg), which means
+    ![art](images/Art_P1528.jpg). If the limit does not exist, the series ***diverges***,
+    and otherwise, it ***converges***. The terms of a convergent series cannot always
+    be added in any order. You can, however, rearrange the terms of an ***absolutely
+    convergent series***, that is, a series ![art](images/Art_P1529.jpg) for which
+    the series ![art](images/Art_P1530.jpg) also converges.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Linearity**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For any real number *c* and any finite sequences *a*[1], *a*[2], … , *a[n]*
+    and *b*[1], *b*[2], … , *b[n]*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1531.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The linearity property also applies to infinite convergent series.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The linearity property applies to summations incorporating asymptotic notation.
+    For example,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1532.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: In this equation, the Θ-notation on the left-hand side applies to the variable
+    *k*, but on the right-hand side, it applies to *n*. Such manipulations also apply
+    to infinite convergent series.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Arithmetic series**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The summation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1533.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is an ***arithmetic series*** and has the value
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1534.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'A ***general arithmetic series*** includes an additive constant *a* ≥ 0 and
+    a constant coefficient *b* > 0 in each term, but has the same total asymptotically:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1535.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Sums of squares and cubes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following formulas apply to summations of squares and cubes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1536.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Geometric series**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For real *x* ≠ 1, the summation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1537.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: is a ***geometric series*** and has the value
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1538.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The infinite decreasing geometric series occurs when the summation is infinite
+    and |*x*| < 1:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1539.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: If we assume that 0⁰ = 1, these formulas apply even when *x* = 0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Harmonic series**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For positive integers *n*, the *n*th ***harmonic number*** is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1540.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Inequalities (A.20) and (A.21) on page 1150 provide the stronger bounds
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1541.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Integrating and differentiating series**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integrating or differentiating the formulas above yields additional formulas.
+    For example, differentiating both sides of the infinite geometric series (A.7)
+    and multiplying by *x* gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1542.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Telescoping series**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For any sequence *a*[0], *a*[1], … , *a[n]*,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1543.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since each of the terms *a*[1], *a*[2], … , *a*[*n*−1] is added in exactly once
+    and subtracted out exactly once. We say that the sum ***telescopes***. Similarly,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1544.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: As an example of a telescoping sum, consider the series
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1545.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Rewriting each term as
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1546.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1547.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Reindexing summations**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A series can sometimes be simplified by changing its index, often reversing
+    the order of summation. Consider the series ![art](images/Art_P1548.jpg). Because
+    the terms in this summation are *a[n]*, *a*[*n*−1], … , *a*[0], we can reverse
+    the order of indices by letting *j* = *n* − *k* and rewrite this summation as
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1549.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Generally, if the summation index appears in the body of the sum with a minus
+    sign, it’s worth thinking about reindexing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As an example, consider the summation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1550.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The index *k* appears with a negative sign in 1/(*n* − *k* + 1). And indeed,
+    we can simplify this summation, this time setting *j* = *n* − *k* + 1, yielding
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1551.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is just the harmonic series (A.8).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Products**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The finite product *a*[1]*a*[2] … *a[n]* can be expressed as
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1552.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: If *n* = 0, the value of the product is defined to be 1\. You can convert a
+    formula with a product to a formula with a summation by using the identity
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1553.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that ![art](images/Art_P1554.jpg) by using the linearity property of summations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Find a simple formula for ![art](images/Art_P1555.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interpret the decimal number 111,111,111 in light of equation (A.6).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Evaluate the infinite series ![art](images/Art_P1556.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let *c* ≥ 0 be a constant. Show that ![art](images/Art_P1557.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that ![art](images/Art_P1558.jpg) for |*x*| < 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.1-7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prove that ![art](images/Art_P1559.jpg). (*Hint:* Show the asymptotic upper
+    and lower bounds separately.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***A.1-8***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that ![art](images/Art_P1560.jpg) by manipulating the harmonic series.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***A.1-9***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that ![art](images/Art_P1561.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***A.1-10***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Evaluate the sum ![art](images/Art_P1562.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***A.1-11***
+  prefs: []
+  type: TYPE_NORMAL
+- en: Evaluate the product ![art](images/Art_P1563.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**A.2 Bounding summations**](toc.xhtml#Rh1-215)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can choose from several techniques to bound the summations that describe
+    the running times of algorithms. Here are some of the most frequently used methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Mathematical induction**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The most basic way to evaluate a series is to use mathematical induction. As
+    an example, let’s prove that the arithmetic series ![art](images/Art_P1564.jpg)
+    evaluates to *n*(*n* + 1)/2\. For *n* = 1, we have that *n*(*n* + 1)/2 = 1 · 2/2
+    = 1, which equals ![art](images/Art_P1565.jpg). With the inductive assumption
+    that it holds for *n*, we prove that it holds for *n* + 1\. We have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1566.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: You don’t always need to guess the exact value of a summation in order to use
+    mathematical induction. Instead, you can use induction to prove an upper or lower
+    bound on a summation. As an example, let’s prove the asymptotic upper bound ![art](images/Art_P1567.jpg).
+    More specifically, we’ll prove that ![art](images/Art_P1568.jpg) for some constant
+    *c*. For the initial condition *n* = 0, we have ![art](images/Art_P1569.jpg) as
+    long as *c* ≥ 1\. Assuming that the bound holds for *n*, we prove that it holds
+    for *n* + 1\. We have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1570.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: as long as (1/3 + 1/*c*) ≤ 1 or, equivalently, *c* ≥ 3/2\. Thus, ![art](images/Art_P1571.jpg),
+    as we wished to show.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You need to take care when using asymptotic notation to prove bounds by induction.
+    Consider the following fallacious proof that ![art](images/Art_P1572.jpg). Certainly,
+    ![art](images/Art_P1573.jpg). Assuming that the bound holds for *n*, we now prove
+    it for *n* + 1:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1574.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The bug in the argument is that the “constant” hidden by the “big-oh” grows
+    with *n* and thus is not constant. We have not shown that the same constant works
+    for *all n*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Bounding the terms**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can sometimes obtain a good upper bound on a series by bounding each term
+    of the series, and it often suffices to use the largest term to bound the others.
+    For example, a quick upper bound on the arithmetic series (A.1) is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1575.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'In general, for a series ![art](images/Art_P1576.jpg), if we let *a*[max] =
+    max {*a[k]* : 1 ≤ *k* ≤ *n*}, then'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1578.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The technique of bounding each term in a series by the largest term is a weak
+    method when the series can in fact be bounded by a geometric series. Given the
+    series ![art](images/Art_P1579.jpg), suppose that *a*[*k*+1]/*a[k]* ≤ *r* for
+    all *k* ≥ 0, where 0 < *r* < 1 is a constant. You can bound the sum by an infinite
+    decreasing geometric series, since *a*[*k*] ≤ *a*[0]*r^k*, and thus
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1580.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: You can apply this method to bound the summation ![art](images/Art_P1581.jpg).
+    In order to start the summation at *k* = 0, rewrite it as ![art](images/Art_P1582.jpg).
+    The first term (*a*[0]) is 1/3, and the ratio (*r*) of consecutive terms is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1583.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: for all *k* ≥ 0\. Thus, we have
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1584.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: A common bug in applying this method is to show that the ratio of consecutive
+    terms is less than 1 and then to assume that the summation is bounded by a geometric
+    series. An example is the infinite harmonic series, which diverges since
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1585.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The ratio of the (*k*+1)st and *k*th terms in this series is *k*/(*k*+1) < 1,
+    but the series is not bounded by a decreasing geometric series. To bound a series
+    by a geometric series, you need to show that there is an *r* < 1, which is a *constant*,
+    such that the ratio of all pairs of consecutive terms never exceeds *r*. In the
+    harmonic series, no such *r* exists because the ratio becomes arbitrarily close
+    to 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Splitting summations**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: One way to obtain bounds on a difficult summation is to express the series as
+    the sum of two or more series by partitioning the range of the index and then
+    to bound each of the resulting series. For example, let’s find a lower bound on
+    the arithmetic series ![art](images/Art_P1586.jpg), which we have already seen
+    has an upper bound of *n*². You might attempt to bound each term in the summation
+    by the smallest term, but since that term is 1, you would get a lower bound of
+    *n* for the summation—far off from the upper bound of *n*².
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can obtain a better lower bound by first splitting the summation. Assume
+    for convenience that *n* is even, so that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1587.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: which is an asymptotically tight bound, since ![art](images/Art_P1588.jpg).
+  prefs: []
+  type: TYPE_NORMAL
+- en: For a summation arising from the analysis of an algorithm, you can sometimes
+    split the summation and ignore a constant number of the initial terms. Generally,
+    this technique applies when each term *a[k]* in a summation ![art](images/Art_P1589.jpg)
+    is independent of *n*. Then for any constant *k*[0] > 0, you can write
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1590.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: since the initial terms of the summation are all constant and there are a constant
+    number of them. You can then use other methods to bound ![art](images/Art_P1591.jpg).
+    This technique applies to infinite summations as well. For example, let’s find
+    an asymptotic upper bound on ![art](images/Art_P1592.jpg). The ratio of consecutive
+    terms is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1593.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: if *k* ≥ 3\. Thus, you can split the summation into
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1594.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The technique of splitting summations can help determine asymptotic bounds
+    in much more difficult situations. For example, here is one way to obtain a bound
+    of *O*(lg *n*) on the harmonic series (A.9):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1595.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The idea is to split the range 1 to *n* into ⌊lg *n*⌋ + 1 pieces and upper-bound
+    the contribution of each piece by 1\. For *i* = 0, 1, … , ⌊lg *n*⌋, the *i*th
+    piece consists of the terms starting at 1/2^(*i*) and going up to but not including
+    1/2^(*i*+1). The last piece might contain terms not in the original harmonic series,
+    giving
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1596.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Approximation by integrals**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When a summation has the form ![art](images/Art_P1597.jpg), where *f* (*k*)
+    is a monotonically increasing function, you can approximate it by integrals:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1598.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '[Figure A.1](#Fig_A-1) justifies this approximation. The summation is represented
+    as the area of the rectangles in the figure, and the integral is the blue region
+    under the curve. When *f* (*k*) is a monotonically decreasing function, you can
+    use a similar method to provide the bounds'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1599.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The integral approximation (A.19) can be used to prove the tight bounds in inequality
+    (A.10) for the *n*th harmonic number. The lower bound is
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1600.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: For the upper bound, the integral approximation gives
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1601.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Exercises**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that ![art](images/Art_P1602.jpg) is bounded above by a constant.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Find an asymptotic upper bound on the summation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](images/Art_P1603.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '![art](images/Art_P1604.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Figure A.1** Approximation of ![art](images/Art_P1605.jpg) by integrals.
+    The area of each rectangle is shown within the rectangle, and the total rectangle
+    area represents the value of the summation. The integral is represented by the
+    blue area under the curve. Comparing areas in **(a)** gives the lower bound ![art](images/Art_P1606.jpg).
+    Shifting the rectangles one unit to the right gives the upper bound ![art](images/Art_P1607.jpg)
+    in **(b)**.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show that the *n*th harmonic number is Ω(lg *n*) by splitting the summation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Approximate ![art](images/Art_P1608.jpg) with an integral.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why can’t you use the integral approximation (A.19) directly on ![art](images/Art_P1609.jpg)
+    to obtain an upper bound on the *n*th harmonic number?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Problems**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***A-1 Bounding summations***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Give asymptotically tight bounds on the following summations. Assume that *r*
+    ≥ 0 and *s* ≥ 0 are constants.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** ![art](images/Art_P1610.jpg)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** ![art](images/Art_P1611.jpg)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** ![art](images/Art_P1612.jpg)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Appendix notes**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Knuth [[259](bibliography001.xhtml#endnote_259)] provides an excellent reference
+    for the material presented here. You can find basic properties of series in any
+    good calculus book, such as Apostol [[19](bibliography001.xhtml#endnote_19)] or
+    Thomas et al. [[433](bibliography001.xhtml#endnote_433)].
+  prefs: []
+  type: TYPE_NORMAL

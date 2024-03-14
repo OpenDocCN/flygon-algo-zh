@@ -1,0 +1,45 @@
+- en: '[***Part VIII    Appendix: Mathematical Background***](toc.xhtml#part-8)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[**Introduction**](toc.xhtml#Rh1-213)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: When you analyze algorithms, you often need to draw upon a body of mathematical
+    tools. Some of these tools are as simple as high-school algebra, but others may
+    be new to you. In [Part I](part001.xhtml), we saw how to manipulate asymptotic
+    notations and solve recurrences. This appendix comprises a compendium of several
+    other concepts and methods used in analyzing algorithms. As noted in the introduction
+    to [Part I](part001.xhtml), you may have seen much of the material in this appendix
+    before having read this book, although some of the specific notational conventions
+    appearing here might differ from those you have seen elsewhere. Hence, you should
+    treat this appendix as reference material. As in the rest of this book, however,
+    we have included exercises and problems, in order for you to improve your skills
+    in these areas.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Appendix A](appendix001.xhtml) offers methods for evaluating and bounding
+    summations, which occur frequently in the analysis of algorithms. Many of the
+    formulas here appear in any calculus text, but you will find it convenient to
+    have these methods compiled in one place.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Appendix B](appendix002.xhtml) contains basic definitions and notations for
+    sets, relations, functions, graphs, and trees. It also gives some basic properties
+    of these mathematical objects.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Appendix C](appendix003.xhtml) begins with elementary principles of counting:
+    permutations, combinations, and the like. The remainder contains definitions and
+    properties of basic probability. Most of the algorithms in this book require no
+    probability for their analysis, and thus you can easily omit the latter sections
+    of the chapter on a first reading, even without skimming them. Later, when you
+    encounter a probabilistic analysis that you want to understand better, you will
+    find [Appendix C](appendix003.xhtml) well organized for reference purposes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Appendix D](appendix004.xhtml) defines matrices, their operations, and some
+    of their basic properties. You have probably seen most of this material already
+    if you have taken a course in linear algebra. But you might find it helpful to
+    have one place to look for notations and definitions.'
+  prefs: []
+  type: TYPE_NORMAL
