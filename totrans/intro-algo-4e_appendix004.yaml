@@ -1,186 +1,283 @@
 - en: '[**D Matrices**](toc.xhtml#app-4)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**D 矩阵**](toc.xhtml#app-4)'
 - en: Matrices arise in numerous applications, including, but by no means limited
     to, scientific computing. If you have seen matrices before, much of the material
     in this appendix will be familiar to you, but some of it might be new. [Section
     D.1](appendix004.xhtml#Sec_D.1) covers basic matrix definitions and operations,
     and [Section D.2](appendix004.xhtml#Sec_D.2) presents some basic matrix properties.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵在许多应用中出现，包括但不限于科学计算。如果您之前见过矩阵，那么本附录中的大部分内容对您来说将是熟悉的，但其中一些内容可能是新的。[第D.1节](appendix004.xhtml#Sec_D.1)涵盖了基本矩阵定义和运算，而[第D.2节](appendix004.xhtml#Sec_D.2)介绍了一些基本矩阵性质。
 - en: '[**D.1 Matrices and matrix operations**](toc.xhtml#Rh1-232)'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**D.1 矩阵和矩阵运算**](toc.xhtml#Rh1-232)'
 - en: This section reviews some basic concepts of matrix theory and some fundamental
     properties of matrices.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节回顾了矩阵理论的一些基本概念和矩阵的一些基本性质。
 - en: '**Matrices and vectors**'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '**矩阵和向量**'
 - en: A ***matrix*** is a rectangular array of numbers. For example,
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***矩阵***是一个数字的矩形数组。例如，
 - en: '![art](images/Art_P1768.jpg)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1768.jpg)'
 - en: is a 2 × 3 matrix *A* = (*a[ij]*), where for *i* = 1, 2 and *j* = 1, 2, 3, the
     element of the matrix in row *i* and column *j* is denoted by *a[ij]*. By convention,
     uppercase letters denote matrices and corresponding subscripted lowercase letters
     denote their elements. We denote the set of all *m* × *n* matrices with real-valued
     entries by ℝ^(*m*×*n*) and, in general, the set of *m* × *n* matrices with entries
     drawn from a set *S* by *S*^(*m*×*n*).
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 是一个2 × 3矩阵*A* = (*a[ij]*)，其中对于*i* = 1, 2和*j* = 1, 2, 3，矩阵中第*i*行第*j*列的元素用*a[ij]*表示。按照惯例，大写字母表示矩阵，相应的带下标的小写字母表示它们的元素。我们用ℝ^(*m*×*n*)表示所有实值条目的*m*
+    × *n*矩阵的集合，并且一般来说，用*S*^(*m*×*n*)表示条目来自集合*S*的*m* × *n*矩阵的集合。
 - en: The ***transpose*** of a matrix *A* is the matrix *A*^T obtained by exchanging
     the rows and columns of *A*. For the matrix *A* of equation (D.1),
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵*A*的***转置***是通过交换矩阵*A*的行和列得到的矩阵*A*^T。对于方程(D.1)中的矩阵*A*，
 - en: '![art](images/Art_P1769.jpg)'
+  id: totrans-9
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1769.jpg)'
 - en: A ***vector*** is a one-dimensional array of numbers. For example,
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***向量*** 是一个数字的一维数组。例如，
 - en: '![art](images/Art_P1770.jpg)'
+  id: totrans-11
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1770.jpg)'
 - en: 'is a vector of size 3\. We sometimes call a vector of length *n* an ***n-vector***.
     By convention, lowercase letters denote vectors, and the *i*th element of a size-*n*
     vector *x* is denoted by *x[i]*, for *i* = 1, 2, … , *n*. We take the standard
     form of a vector to be as a ***column vector*** equivalent to an *n* × 1 matrix,
     whereas the corresponding ***row vector*** is obtained by taking the transpose:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 是一个大小为3的向量。我们有时将长度为*n*的向量称为***n-向量***。按照惯例，小写字母表示向量，大小为*n*的向量*x*的第*i*个元素用*x[i]*表示，其中*i*
+    = 1, 2, … , *n*。我们将向量的标准形式视为等同于*n* × 1矩阵的***列向量***，而相应的***行向量***通过取转置得到：
 - en: '*x*^T = ( 2 3 5 ).'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '*x*^T = ( 2 3 5 ).'
 - en: The ***unit vector*** *e[i]* is the vector whose *i*th element is 1 and all
     of whose other elements are 0\. Usually, the context makes the size of a unit
     vector clear.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '***单位向量*** *e[i]* 是其第*i*个元素为1且所有其他元素为0的向量。通常，上下文会明确单位向量的大小。'
 - en: A ***zero matrix*** is a matrix all of whose entries are 0\. Such a matrix is
     often denoted 0, since the ambiguity between the number 0 and a matrix of 0s can
     usually be resolved from context. If a matrix of 0s is intended, then the size
     of the matrix also needs to be derived from the context.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***零矩阵*** 是所有条目都为0的矩阵。这样的矩阵通常用0表示，因为通常可以从上下文中解决数字0和全为0的矩阵之间的歧义。如果意图是一个全为0的矩阵，则还需要从上下文中推导出矩阵的大小。
 - en: '**Square matrices**'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '**方阵**'
 - en: '***Square*** *n* × *n* matrices arise frequently. Several special cases of
     square matrices are of particular interest:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '***方阵*** *n* × *n* 矩阵经常出现。方阵的几个特殊情况特别重要：'
 - en: '1\. A ***diagonal matrix*** has *a[ij]* = 0 whenever *i* ≠ *j*. Because all
     of the off-diagonal elements are 0, a succinct way to specify the matrix lists
     only the elements along the diagonal:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 1\. 一个***对角矩阵*** 当*i* ≠ *j*时*a[ij]* = 0。因为所有非对角线元素为0，因此指定矩阵的简洁方式仅列出沿对角线的元素：
 - en: '![art](images/Art_P1771.jpg)'
+  id: totrans-19
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1771.jpg)'
 - en: '2\. The *n* × *n* ***identity matrix*** *I[n]* is a diagonal matrix with 1s
     along the diagonal:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 2\. *n* × *n* ***单位矩阵*** *I[n]* 是沿对角线为1的对角矩阵：
 - en: '![art](images/Art_P1772.jpg)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1772.jpg)'
 - en: When *I* appears without a subscript, its size derives from the context. The
     *i*th column of an identity matrix is the unit vector *e[i]*.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 当*I*没有下标时，其大小由上下文决定。单位矩阵的第*i*列是单位向量*e[i]*。
 - en: '3\. A ***tridiagonal matrix*** *T* is one for which *t[ij]* = 0 if |*i* − *j*
     | > 1\. Nonzero entries appear only on the main diagonal, immediately above the
     main diagonal (*t*[*i,i*+1] for *i* = 1, 2, … , *n* − 1), or immediately below
     the main diagonal (*t*[*i*+1,*i*] for *i* = 1, 2, … , *n* − 1):'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 3\. 一个***三对角矩阵*** *T* 是当|*i* − *j* | > 1时*t[ij]* = 0的矩阵。非零条目仅出现在主对角线上，主对角线上方（*t*[*i,i*+1]对于*i*
+    = 1, 2, … , *n* − 1），或主对角线下方（*t*[*i*+1,*i*]对于*i* = 1, 2, … , *n* − 1）：
 - en: '![art](images/Art_P1773.jpg)'
+  id: totrans-24
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1773.jpg)'
 - en: '4\. An ***upper-triangular matrix*** *U* is one for which *u[ij]* = 0 if *i*
     > *j*. All entries below the diagonal are 0:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 4\. 一个***上三角矩阵*** *U* 是当*i* > *j*时*u[ij]* = 0的矩阵。对角线以下的所有条目为0：
 - en: '![art](images/Art_P1774.jpg)'
+  id: totrans-26
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1774.jpg)'
 - en: An upper-triangular matrix is ***unit upper-triangular*** if it has all 1s along
     the diagonal.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果上三角矩阵沿对角线具有全部为1的元素，则称为***单位上三角矩阵***。
 - en: '5\. A ***lower-triangular matrix*** *L* is one for which *l[ij]* = 0 if *i*
     < *j*. All entries above the diagonal are 0:'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 5\. 一个***下三角矩阵*** *L* 是当*i* < *j*时*l[ij]* = 0的矩阵。对角线以上的所有条目为0：
 - en: '![art](images/Art_P1775.jpg)'
+  id: totrans-29
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1775.jpg)'
 - en: A lower-triangular matrix is ***unit lower-triangular*** if it has all 1s along
     the diagonal.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个下三角矩阵如果沿对角线具有全部为1的元素，则称为***单位下三角矩阵***。
 - en: 6\. A ***permutation matrix*** *P* has exactly one 1 in each row or column,
     and 0s elsewhere. An example of a permutation matrix is
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 6\. 一个***置换矩阵*** *P* 每行或每列恰好有一个1，其他位置为0。置换矩阵的一个示例是
 - en: '![art](images/Art_P1776.jpg)'
+  id: totrans-32
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1776.jpg)'
 - en: Such a matrix is called a permutation matrix because multiplying a vector *x*
     by a permutation matrix has the effect of permuting (rearranging) the elements
     of *x*. Exercise D.1-4 explores additional properties of permutation matrices.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样的矩阵称为置换矩阵，因为将向量*x*乘以置换矩阵的效果是对*x*的元素进行置换（重新排列）。练习D.1-4探讨了置换矩阵的其他性质。
 - en: 7\. A ***symmetric matrix*** *A* satisfies the condition *A* = *A*^T. For example,
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 7\. 一个***对称矩阵*** *A* 满足条件 *A* = *A*^T。例如，
 - en: '![art](images/Art_P1777.jpg)'
+  id: totrans-35
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1777.jpg)'
 - en: is a symmetric matrix.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 是一个对称矩阵。
 - en: '**Basic matrix operations**'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '**基本矩阵运算**'
 - en: The elements of a matrix or vector are ***scalar numbers*** from a number system,
     such as the real numbers, the complex numbers, or integers modulo a prime. The
     number system defines how to add and multiply scalars. These definitions extend
     to encompass addition and multiplication of matrices.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵或向量的元素是来自数字系统的***标量数***，例如实数、复数或模素数。数字系统定义了如何对标量进行加法和乘法。这些定义扩展到包括矩阵的加法和乘法。
 - en: We define ***matrix addition*** as follows. If *A* = (*a[ij]*) and *B* = (*b[ij]*)
     are *m* × *n* matrices, then their matrix sum *C* = (*c[ij]*) = *A* + *B* is the
     *m* × *n* matrix defined by
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们定义***矩阵加法***如下。如果*A* = (*a[ij]*)和*B* = (*b[ij]*)是*m* × *n*矩阵，那么它们的矩阵和*C* =
+    (*c[ij]*) = *A* + *B*是由下式定义的*m* × *n*矩阵
 - en: '*c[ij]* = *a[ij]* + *b[ij]*'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: '*c[ij]* = *a[ij]* + *b[ij]*'
 - en: 'for *i* = 1, 2, … , *m* and *j* = 1, 2, … , *n*. That is, matrix addition is
     performed componentwise. A zero matrix is the identity for matrix addition:'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*i* = 1, 2, … , *m*和*j* = 1, 2, … , *n*。也就是说，矩阵加法是逐分量执行的。零矩阵是矩阵加法的单位元：
 - en: '*A* + 0 = *A* = 0 + *A*.'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A* + 0 = *A* = 0 + *A*.'
 - en: If is *λ* a scalar number and *A* = (*a[ij]*) is a matrix, then *λA* = (*λa[ij]*)
     is the ***scalar multiple*** of *A* obtained by multiplying each of its elements
     by *λ*. As a special case, we define the ***negative*** of a matrix *A* = (*a[ij]*)
     to be −1 · *A* = −*A*, so that the *ij*th entry of −*A* is −*a[ij]*. Thus,
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*λ*是一个标量数，*A* = (*a[ij]*)是一个矩阵，那么*λA* = (*λa[ij]*)是通过将其每个元素乘以*λ*获得的矩阵的***标量倍数***。作为一个特例，我们定义矩阵*A*
+    = (*a[ij]*)的***负***为−1 · *A* = −*A*，因此−*A*的*ij*项为−*a[ij]*。因此，
 - en: '*A* + (−*A*) = 0 = (−*A*) + *A*.'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A* + (−*A*) = 0 = (−*A*) + *A*.'
 - en: 'The negative of a matrix defines ***matrix subtraction***: *A* − *B* = *A*
     + (−*B*).'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵的负定义了***矩阵减法***：*A* − *B* = *A* + (−*B*)。
 - en: We define ***matrix multiplication*** as follows. Start with two matrices *A*
     and *B* that are ***compatible*** in the sense that the number of columns of *A*
     equals the number of rows of *B*. (In general, an expression containing a matrix
@@ -188,11 +285,17 @@
     If *A* = (*a[ik]*) is a *p* × *q* matrix and *B* = (*b[kj]*) is a *q* × *r* matrix,
     then their matrix product *C* = *AB* is the *p* × *r* matrix *C* = (*c[ij]*),
     where
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们定义***矩阵乘法***如下。从两个矩阵*A*和*B*开始，这两个矩阵在列数等于*B*的行数的意义上是***兼容的***。（通常，包含矩阵乘积*AB*的表达式总是假定矩阵*A*和*B*是兼容的。）如果*A*
+    = (*a[ik]*)是一个*p* × *q*矩阵，*B* = (*b[kj]*)是一个*q* × *r*矩阵，那么它们的矩阵乘积*C* = *AB*是一个*p*
+    × *r*矩阵，其中
 - en: '![art](images/Art_P1778.jpg)'
+  id: totrans-47
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1778.jpg)'
 - en: for *i* = 1, 2, … , *m* and *j* = 1, 2, … , *p*. The procedure RECTANGULAR-MATRIX-MULTIPLY
     on page 374 implements matrix multiplication in the straightforward manner based
     on equation (D.2), assuming that *C* is initialized to 0, using *pqr* multiplications
@@ -200,146 +303,231 @@
     are *n*×*n* square matrices, so that *n* = *p* = *q* = *r*, the pseudocode reduces
     to MATRIX-MULTIPLY on page 81, whose running time is Θ(*n*³). ([Section 4.2](chapter004.xhtml#Sec_4.2)
     describes an asymptotically faster Θ(*n*^(lg7))-time algorithm due to V. Strassen.)
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*i* = 1, 2, … , *m*和*j* = 1, 2, … , *p*。第374页的RECTANGULAR-MATRIX-MULTIPLY过程根据方程(D.2)以直接的方式实现矩阵乘法，假设*C*初始化为0，使用*pqr*次乘法和*p*(*q*
+    − 1)*r*次加法，运行时间为Θ(*pqr*)。如果矩阵是*n*×*n*方阵，使得*n* = *p* = *q* = *r*，则伪代码简化为第81页的MATRIX-MULTIPLY，其运行时间为Θ(*n*³)。([第4.2节](chapter004.xhtml#Sec_4.2)描述了一个由V.
+    Strassen提出的渐进更快的Θ(*n*^(lg7))时间算法。)
 - en: 'Matrices have many (but not all) of the algebraic properties typical of numbers.
     Identity matrices are identities for matrix multiplication:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵具有许多（但不是全部）类似于数字的代数性质。单位矩阵是矩阵乘法的单位元：
 - en: '*I[m]A* = *AI[n]* = *A*'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: '*I[m]A* = *AI[n]* = *A*'
 - en: 'for any *m* × *n* matrix *A*. Multiplying by a zero matrix gives a zero matrix:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意*m* × *n*矩阵*A*。乘以零矩阵得到零矩阵：
 - en: '*A* · 0 = 0.'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A* · 0 = 0.'
 - en: 'Matrix multiplication is associative:'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵乘法是结合的：
 - en: '*A*(*BC*) = (*AB*)*C*'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A*(*BC*) = (*AB*)*C*'
 - en: 'for compatible matrices *A*, *B*, and *C*. Matrix multiplication distributes
     over addition:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于兼容的矩阵*A*、*B*和*C*。矩阵乘法分配于加法：
 - en: '| *A*(*B* + *C*) | = | *AB* + *AC*, |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '| *A*(*B* + *C*) | = | *AB* + *AC*, |'
 - en: '| (*B* + *C*)*D* | = | *BD* + *CD*. |'
+  id: totrans-57
   prefs: []
   type: TYPE_TB
+  zh: '| (*B* + *C*)*D* | = | *BD* + *CD*. |'
 - en: For *n* > 1, multiplication of *n* × *n* matrices is not commutative. For example,
     if ![art](images/Art_P1779.jpg) and ![art](images/Art_P1780.jpg), then ![art](images/Art_P1781.jpg)
     and ![art](images/Art_P1782.jpg).
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*n* > 1，*n* × *n*矩阵的乘法不是交换的。例如，如果![艺术](images/Art_P1779.jpg)和![艺术](images/Art_P1780.jpg)，那么![艺术](images/Art_P1781.jpg)和![艺术](images/Art_P1782.jpg)。
 - en: We define matrix-vector products or vector-vector products as if the vector
     were the equivalent *n* × 1 matrix (or a 1 × *n* matrix, in the case of a row
     vector). Thus, if *A* is an *m* × *n* matrix and *x* is an *n*-vector, then *Ax*
     is an *m*-vector. If *x* and *y* are *n*-vectors, then
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将矩阵-向量乘积或向量-向量乘积定义为如果向量等同于*n* × 1矩阵（或者在行向量的情况下为1 × *n*矩阵）。因此，如果*A*是一个*m* ×
+    *n*矩阵，*x*是一个*n*-向量，那么*Ax*就是一个*m*-向量。如果*x*和*y*是*n*-向量，那么
 - en: '![art](images/Art_P1783.jpg)'
+  id: totrans-60
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1783.jpg)'
 - en: 'is a scalar number (actually a 1 × 1 matrix) called the ***inner product***
     of *x* and *y*. We also use the notation 〈*x*, *y*〉 to denote *x*^T*y*. The inner-product
     operator is commutative: 〈*x*, *y*〉 = 〈*y*, *x*〉. The matrix *xy*^T is an *n*
     × *n* matrix *Z* called the ***outer product*** of *x* and *y*, where *z[ij]*
     = *x[i]y[j]*. The ***(euclidean) norm*** ∥*x*∥ of an *n*-vector *x* is defined
     by'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 是一个标量数（实际上是一个1 × 1矩阵），称为*x*和*y*的***内积***。我们还使用记号〈*x*, *y*〉表示*x*^T*y*。内积运算符是可交换的：〈*x*,
+    *y*〉 = 〈*y*, *x*〉。矩阵*xy*^T是一个*n* × *n*矩阵*Z*，称为*x*和*y*的***外积***，其中*z[ij]* = *x[i]y[j]*。*n*维向量*x*的***(欧几里得)范数***
+    ∥*x*∥的定义为
 - en: '![art](images/Art_P1784.jpg)'
+  id: totrans-62
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1784.jpg)'
 - en: Thus, the norm of *x* is its length in *n*-dimensional euclidean space. A useful
     fact, which follows from the equality
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，*x*的范数是它在*n*维欧几里得空间中的长度。一个有用的事实，根据等式
 - en: '![art](images/Art_P1785.jpg)'
+  id: totrans-64
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1785.jpg)'
 - en: is that for any real number *a* and *n*-vector *x*,
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意实���*a*和*n*维向量*x*，
 - en: '![art](images/Art_P1786.jpg)'
+  id: totrans-66
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1786.jpg)'
 - en: '**Exercises**'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***D.1-1***'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.1-1***'
 - en: Show that if *A* and *B* are symmetric *n* × *n* matrices, then so are *A* +
     *B* and *A* − *B*.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 表明如果*A*和*B*是对称的*n* × *n*矩阵，则*A* + *B*和*A* − *B*也是对称的。
 - en: '***D.1-2***'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.1-2***'
 - en: Prove that (*AB*)^T = *B*^T*A*^T and that *A*^T*A* is always a symmetric matrix.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明(*AB*)^T = *B*^T*A*^T以及*A*^T*A*始终是对称矩阵。
 - en: '***D.1-3***'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.1-3***'
 - en: Prove that the product of two lower-triangular matrices is lower-triangular.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明两个下三角矩阵的乘积仍为下三角矩阵。
 - en: '***D.1-4***'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.1-4***'
 - en: Prove that if *P* is an *n* × *n* permutation matrix and *A* is an *n* × *n*
     matrix, then the matrix product *PA* is *A* with its rows permuted, and the matrix
     product *AP* is *A* with its columns permuted. Prove that the product of two permutation
     matrices is a permutation matrix.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明如果*P*是一个*n* × *n*置换矩阵，*A*是一个*n* × *n*矩阵，则矩阵乘积*PA*是*A*的行置换，矩阵乘积*AP*是*A*的列置换。证明两个置换矩阵的乘积是一个置换矩阵。
 - en: '[**D.2 Basic matrix properties**](toc.xhtml#Rh1-233)'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**D.2 基本矩阵属性**](toc.xhtml#Rh1-233)'
 - en: 'We now define some basic properties pertaining to matrices: inverses, linear
     dependence and independence, rank, and determinants. We also define the class
     of positive-definite matrices.'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们定义一些关于矩阵的基本属性：逆、线性相关和无关、秩和行列式。我们还定义了正定矩阵类。
 - en: '**Matrix inverses, ranks, and determinants**'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: '**矩阵的逆、秩和行列式**'
 - en: The ***inverse*** of an *n* × *n* matrix *A* is the *n* × *n* matrix, denoted
     *A*^(−1) (if it exists), such that *AA*^(−1) = *I[n]* = *A*^(−1)*A*. For example,
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '*n* × *n*矩阵*A*的***逆***是一个*n* × *n*矩阵，记为*A*^(−1)（如果存在），满足*AA*^(−1) = *I[n]*
+    = *A*^(−1)*A*。例如，'
 - en: '![art](images/Art_P1787.jpg)'
+  id: totrans-80
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1787.jpg)'
 - en: Many nonzero *n* × *n* matrices do not have inverses. A matrix without an inverse
     is called ***noninvertible***, or ***singular***. An example of a nonzero singular
     matrix is
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多非零*n* × *n*矩阵没有逆。没有逆的矩阵称为***不可逆***或***奇异***。一个例子是
 - en: '![art](images/Art_P1788.jpg)'
+  id: totrans-82
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1788.jpg)'
 - en: If a matrix has an inverse, it is called ***invertible***, or ***nonsingular***.
     Matrix inverses, when they exist, are unique. (See Exercise D.2-1.) If *A* and
     *B* are nonsingular *n* × *n* matrices, then
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个矩阵有逆，那么它被称为***可逆***或***非奇异***。矩阵的逆，如果存在，是唯一的。（参见练习D.2-1。）如果*A*和*B*是非奇异的*n*
+    × *n*矩阵，则
 - en: (*BA*)^(−1) = *A*^(−1)*B*^(−1).
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: (*BA*)^(−1) = *A*^(−1)*B*^(−1)。
 - en: 'The inverse operation commutes with the transpose operation:'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 逆运算与转置运算可交换：
 - en: (*A*^(−1))^T = (*A*^T)^(−1).
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: (*A*^(−1))^T = (*A*^T)^(−1).
 - en: The vectors *x*[1], *x*[2], … , *x[n]* are ***linearly dependent*** if there
     exist coefficients *c*[1], *c*[2], … , *c[n]*, not all of which are 0, such that
     *c*[1]*x*[1] + *c*[2]*x*[2] + ⋯ + *c[n]x[n]* = 0\. The row vectors *x*[1] = (
@@ -347,8 +535,13 @@
     example, since 2*x*[1]+3*x*[2]−2*x*[3] = 0\. If vectors are not linearly dependent,
     they are ***linearly independent***. For example, the columns of an identity matrix
     are linearly independent.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果存在系数 *c*[1], *c*[2], … , *c[n]*，不全为0，使得 *c*[1]*x*[1] + *c*[2]*x*[2] + ⋯ +
+    *c[n]x[n]* = 0，那么向量 *x*[1], *x*[2], … , *x[n]* ***线性相关***。例如，行向量 *x*[1] = ( 1
+    2 3 )，*x*[2] = ( 2 6 4 )，和 *x*[3] = ( 4 11 9 ) 是线性相关的，因为 2*x*[1]+3*x*[2]−2*x*[3]
+    = 0。如果向量不是线性相关，则它们是***线性无关***的。例如，单位矩阵的列是线性无关的。
 - en: The ***column rank*** of a nonzero *m* × *n* matrix *A* is the size of the largest
     set of linearly independent columns of *A*. Similarly, the ***row rank*** of *A*
     is the size of the largest set of linearly independent rows of *A*. A fundamental
@@ -362,253 +555,396 @@
     *n* × *n* matrix has ***full rank*** if its rank is *n*. An *m* × *n* matrix has
     ***full column rank*** if its rank is *n*. The following theorem gives a fundamental
     property of ranks.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 非零*m* × *n*矩阵*A*的***列秩***是*A*的线性无关列的最大集合的大小。类似地，*A*的***行秩***是*A*的线性无关行的最大集合的大小。任何矩阵*A*的一个基本性质是，它的行秩总是等于列秩，因此我们可以简单地称为*A*的***秩***。一个*m*
+    × *n*矩阵的秩是一个介于0和min {*m*, *n*}之间的整数（零矩阵的秩为0，*n* × *n*单位矩阵的秩为*n*）。另一个等价但通常更有用的定义是，非零*m*×*n*矩阵*A*的秩是存在矩阵*B*和*C*，分别为*m*
+    × *r*和*r* × *n*的最小数*r*，使得*A* = *BC*。一个*n* × *n*方阵如果秩为*n*，则具有***满秩***。一个*m* × *n*矩阵如果秩为*n*，则具有***满列秩***。以下定理给出了秩的一个基本性质。
 - en: '***Theorem D.1***'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 D.1***'
 - en: A square matrix has full rank if and only if it is nonsingular.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个方阵具有满秩当且仅当它是非奇异的。
 - en: ▪
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: A ***null vector*** for a matrix *A* is a nonzero vector *x* such that *Ax*
     = 0\. The following theorem (whose proof is left as Exercise D.2-7) and its corollary
     relate the notions of column rank and singularity to null vectors.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于矩阵*A*，零向量是一个非零向量*x*，使得*Ax* = 0。以下定理（其证明留作练习D.2-7）及其推论将列秩和奇异性的概念与零向量联系起来。
 - en: '***Theorem D.2***'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理D.2***'
 - en: A matrix has full column rank if and only if it does not have a null vector.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个矩阵具有完整的列秩当且仅当它没有零向量。
 - en: ▪
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '***Corollary D.3***'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: '***推论D.3***'
 - en: A square matrix is singular if and only if it has a null vector.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 方阵是奇异的当且仅当它有一个零向量。
 - en: ▪
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: The *ij*th ***minor*** of an *n*×*n* matrix *A*, for *n* > 1, is the (*n*−1)×(*n*−1)
     matrix *A*[[*ij*]] obtained by deleting the *i*th row and *j*th column of *A*.
     The ***determinant*** of an *n*×*n* matrix *A* is defined recursively in terms
     of its minors by
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*n* > 1的*n*×*n*矩阵*A*，第*ij*个***子式***是通过删除*A*的第*i*行和第*j*列得到的(*n*−1)×(*n*−1)矩阵*A*[[*ij*]]。通过子式的递归定义，*n*×*n*矩阵*A*的***行列式***如下定义：
 - en: '![art](images/Art_P1789.jpg)'
+  id: totrans-100
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1789.jpg)'
 - en: The term (−1)^(*i*+*j*) det(*A*[[*ij*]]) is known as the ***cofactor*** of the
     element *a[ij]*.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 术语(−1)^(*i*+*j*) det(*A*[[*ij*]])被称为元素*a[ij]*的***余子式***。
 - en: The following theorems, whose proofs are omitted, express fundamental properties
     of the determinant.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下定理的证明被省略，表达了行列式的基本性质。
 - en: '***Theorem D.4 (Determinant properties)***'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理D.4（行列式性质）***'
 - en: 'The determinant of a square matrix *A* has the following properties:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 方阵*A*的行列式具有以下性质：
 - en: If any row or any column of *A* is zero, then det(*A*) = 0.
+  id: totrans-105
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*A*的任意一行或任意一列为零，则det(*A*) = 0。
 - en: The determinant of *A* is multiplied by *λ* if the entries of any one row (or
     any one column) of *A* are all multiplied by *λ*.
+  id: totrans-106
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*A*的任意一行（或任意一列）的元素都乘以*λ*，则*A*的行列式乘以*λ*。
 - en: The determinant of *A* is unchanged if the entries in one row (respectively,
     column) are added to those in another row (respectively, column).
+  id: totrans-107
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果一行（或一列）的元素加到另一行（或另一列）的元素中，则*A*的行列式保持不变。
 - en: The determinant of *A* equals the determinant of *A*^T.
+  id: totrans-108
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*A*的行列式等于*A*^T的行列式。'
 - en: The determinant of *A* is multiplied by −1 if any two rows (or any two columns)
     are exchanged.
+  id: totrans-109
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果交换任意两行（或任意两列），则*A*的行列式乘以−1。
 - en: Also, for any square matrices *A* and *B*, we have det(*AB*) = det(*A*) det(*B*).
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，对于任何方阵*A*和*B*，我们有det(*AB*) = det(*A*) det(*B*)。
 - en: ▪
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '***Theorem D.5***'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理D.5***'
 - en: An *n* × *n* matrix *A* is singular if and only if det(*A*) = 0.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个*n* × *n*矩阵*A*是奇异���当且仅当det(*A*) = 0。
 - en: ▪
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Positive-definite matrices**'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '**正定矩阵**'
 - en: Positive-definite matrices play an important role in many applications. An *n*
     × *n* matrix *A* is ***positive-definite*** if *x*^T*Ax* > 0 for all *n*-vectors
     *x* ≠ 0\. For example, the identity matrix is positive-definite, since if *x*
     = ( *x*[1] *x*[2] ⋯ *x[n]*)^T is a nonzero vector, then
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 正定矩阵在许多应用中起着重要作用。如果对于所有非零*n*维向量*x*，*x*^T*Ax* > 0，则*n* × *n*矩阵*A*是***正定的***。例如，单位矩阵是正定的，因为如果*x*
+    = ( *x*[1] *x*[2] ⋯ *x[n]*)^T是一个非零向量，则
 - en: '![art](images/Art_P1790.jpg)'
+  id: totrans-117
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1790.jpg)'
 - en: Matrices that arise in applications are often positive-definite due to the following
     theorem.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 在应用中出现的矩阵通常是正定的，这归因于以下定理。
 - en: '***Theorem D.6***'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理D.6***'
 - en: For any matrix *A* with full column rank, the matrix *A*^T*A* is positive-definite.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于具有完整列秩的任何矩阵*A*，矩阵*A*^T*A*是正定的。
 - en: '***Proof***   We must show that *x*^T(*A*^T*A*)*x* > 0 for any nonzero vector
     *x*. For any vector *x*,'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   我们必须证明对于任何非零向量*x*，*x*^T(*A*^T*A*)*x* > 0。对于任何向量*x*，'
 - en: '| *x*^T(*A*^T*A*)*x* | = | (*Ax*)^T(*Ax*) | (by Exercise D.1-2) |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '| *x*^T(*A*^T*A*)*x* | = | (*Ax*)^T(*Ax*) |（根据习题D.1-2）|'
 - en: '|  | = | ∥*Ax*∥². |  |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | ∥*Ax*∥²。 |  |'
 - en: The value ∥*Ax*∥² is just the sum of the squares of the elements of the vector
     *Ax*. Therefore, ∥*Ax*∥² ≥ 0\. We’ll show by contradiction that ∥*Ax*∥² > 0\.
     Suppose that ∥*Ax*∥² = 0\. Then, every element of *Ax* is 0, which is to say *Ax*
     = 0\. Since *A* has full column rank, Theorem D.2 says that *x* = 0, which contradicts
     the requirement that *x* is nonzero. Hence, *A*^T*A* is positive-definite.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: ∥*Ax*∥²的值就是向量*Ax*的元素平方和。因此，∥*Ax*∥² ≥ 0。我们通过反证法证明∥*Ax*∥² > 0。假设∥*Ax*∥² = 0。那么，*Ax*的每个元素都是0，即*Ax*
+    = 0。由于*A*具有完整的列秩，定理D.2表明*x* = 0，这与*x*非零的要求相矛盾。因此，*A*^T*A*是正定的。
 - en: ▪
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '[Section 28.3](chapter028.xhtml#Sec_28.3) explores other properties of positive-definite
     matrices. [Section 33.3](chapter033.xhtml#Sec_33.3) uses a similar condition,
     known as positive-semidefinite. An *n* × *n* matrix *A* is ***positive-semidefinite***
     if *x*^T*Ax* ≥ 0 for all *n*-vectors *x* ≠ 0.'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第28.3节](chapter028.xhtml#Sec_28.3)探讨正定矩阵的其他性质。[第33.3节](chapter033.xhtml#Sec_33.3)使用类似的条件，称为半正定。如果对于所有非零*n*维向量*x*，*x*^T*Ax*
+    ≥ 0，则*n* × *n*矩阵*A*是***半正定***的。'
 - en: '**Exercises**'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '**习题**'
 - en: '***D.2-1***'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-1***'
 - en: Prove that matrix inverses are unique, that is, if *B* and *C* are inverses
     of *A*, then *B* = *C*.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明矩阵的逆是唯一的，即，如果*B*和*C*是*A*的逆，则*B* = *C*。
 - en: '***D.2-2***'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-2***'
 - en: Prove that the determinant of a lower-triangular or upper-triangular matrix
     is equal to the product of its diagonal elements. Prove that the inverse of a
     lower-triangular matrix, if it exists, is lower-triangular.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明下三角或上三角矩阵的行列式等于其对角线元素的乘积。证明下三角矩阵的逆（如果存在）也是下三角的。
 - en: '***D.2-3***'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-3***'
 - en: Prove that if *P* is a permutation matrix, then *P* is invertible, its inverse
     is *P*^T, and *P*^T is a permutation matrix.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明如果*P*是一个置换矩阵，则*P*是可逆的，其逆矩阵是*P*^T，并且*P*^T是一个置换矩阵。
 - en: '***D.2-4***'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-4***'
 - en: Let *A* and *B* be *n* × *n* matrices such that *AB* = *I*. Prove that if *A*′
     is obtained from *A* by adding row *j* into row *i*, where *i* ≠ *j*, then subtracting
     column *i* from column *j* of *B* yields the inverse *B*′ of *A*′.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*A*和*B*是*n* × *n*矩阵，使得*AB* = *I*。证明如果从*A*中的第*j*行加到第*i*行得到*A*'，其中*i* ≠ *j*，那么从*B*中的第*i*列减去第*j*列得到*A*'的逆*B*'。
 - en: '***D.2-5***'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-5***'
 - en: Let *A* be a nonsingular *n* × *n* matrix with complex entries. Show that every
     entry of *A*^(−1) is real if and only if every entry of *A* is real.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*A*是一个具有复数元素的非奇异*n* × *n*矩阵。证明当且仅当*A*的每个元素都是实数时，*A*^(−1)的每个元素都是实数。
 - en: '***D.2-6***'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-6***'
 - en: Show that if *A* is a nonsingular, symmetric, *n* × *n* matrix, then *A*^(−1)
     is symmetric. Show that if *B* is an arbitrary *m* × *n* matrix, then the *m*
     × *m* matrix given by the product *BAB*^T is symmetric.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明如果*A*是一个非奇异、对称的*n* × *n*矩阵，那么*A*^(−1)也是对称的。证明如果*B*是一个任意的*m* × *n*矩阵，那么由乘积*BAB*^T给出的*m*
+    × *m*矩阵是对称的。
 - en: '***D.2-7***'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-7***'
 - en: Prove Theorem D.2\. That is, show that a matrix *A* has full column rank if
     and only if *Ax* = 0 implies *x* = 0\. (*Hint:* Express the linear dependence
     of one column on the others as a matrix-vector equation.)
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明定理D.2。即，证明矩阵*A*具有完整列秩当且仅当*Ax* = 0意味着*x* = 0。(*提示:* 将一列对其他列的线性相关性表达为矩阵-向量方程。)
 - en: '***D.2-8***'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D.2-8***'
 - en: Prove that for any two compatible matrices *A* and *B*,
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明对于任意两个兼容的矩阵*A*和*B*，
 - en: rank(*AB*) ≤ min {rank(*A*), rank(*B*)},
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: rank(*AB*) ≤ min {rank(*A*), rank(*B*)},
 - en: where equality holds if either *A* or *B* is a nonsingular square matrix. (*Hint:*
     Use the alternate definition of the rank of a matrix.)
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 当且仅当*A*或*B*是非奇异方阵时，等式成立。(*提示:* 使用矩阵秩的另一定义。)
 - en: '**Problems**'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***D-1 Vandermonde matrix***'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D-1 范德蒙矩阵***'
 - en: Given numbers *x*[0], *x*[1], … , *x*[*n*−1], prove that the determinant of
     the ***Vandermonde matrix***
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定数字*x*[0]，*x*[1]，…，*x*[*n*−1]，证明***范德蒙矩阵***的行列式
 - en: '![art](images/Art_P1791.jpg)'
+  id: totrans-149
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1791.jpg)'
 - en: is
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 是
 - en: '![art](images/Art_P1792.jpg)'
+  id: totrans-151
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1792.jpg)'
 - en: (*Hint:* Multiply column *i* by −*x*[0] and add it to column *i* + 1 for *i*
     = *n* − 1, *n* − 2, … , 1, and then use induction.)
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: (*提示:* 将第*i*列乘以−*x*[0]并加到第*i* + 1列，对于*i* = *n* − 1，*n* − 2，…，1，然后使用归纳法。)
 - en: '***D-2 Permutations defined by matrix-vector multiplication over GF*.(*2*)**'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: '***D-2 由GF*(2)上的矩阵-向量乘法定义的排列**'
 - en: One class of permutations of the integers in the set *S[n]* = {0, 1, 2, … ,
     2*^n* − 1} is defined by matrix multiplication over *GF*(2), the Galois field
     of two elements. For each integer *x* ∈ *S[n]*, we view its binary representation
     as an *n*-bit vector
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过在*GF*(2)上进行矩阵乘法，将整数集*S[n]* = {0, 1, 2, … , 2*^n* − 1}的一类排列定义为二进制表示，对于每个整数*x*
+    ∈ *S[n]*，我们将其二进制表示视为一个*n*位向量
 - en: '![art](images/Art_P1793.jpg)'
+  id: totrans-155
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1793.jpg)'
 - en: 'where ![art](images/Art_P1794.jpg). If *A* is an *n* × *n* matrix in which
     each entry is either 0 or 1, then we can define a permutation mapping each value
     *x* ∈ *S[n]* to the number whose binary representation is the matrix-vector product
@@ -617,57 +953,88 @@
     apply. The exception is that 1 + 1 = 0\. You can think of arithmetic over *GF*(2)
     as being just like regular integer arithmetic, except that you use only the least-significant
     bit.'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中 ![艺术](images/Art_P1794.jpg)。如果*A*是每个条目为0或1的*n* × *n*矩阵，则我们可以定义一个排列，将*S[n]*中的每个值*x*映射到其二进制表示为矩阵-向量乘积*Ax*的数字。所有这些算术都在***GF*(2)**上执行：所有值���是0或1，除了一个例外，通常的加法和乘法规则适用。例外是1
+    + 1 = 0。您可以将*GF*(2)上的算术视为与常规整数算术完全相同，只是您只使用最低有效位。
 - en: As an example, for *S*[2] = {0, 1, 2, 3}, the matrix
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，对于*S*[2] = {0, 1, 2, 3}，矩阵
 - en: '![art](images/Art_P1795.jpg)'
+  id: totrans-158
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1795.jpg)'
 - en: 'defines the following permutation *π[A]*: *π[A]*(0) = 0, *π[A]*(1) = 3, *π[A]*(2)
     = 2, *π[A]*(3) = 1\. To see why *π[A]*(3) = 1, observe that, working in *GF*(2),'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 定义以下排列*π[A]*：*π[A]*(0) = 0，*π[A]*(1) = 3，*π[A]*(2) = 2，*π[A]*(3) = 1。要看到为什么*π[A]*(3)
+    = 1，观察在*GF*(2)中进行操作，
 - en: '![art](images/Art_P1796.jpg)'
+  id: totrans-160
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1796.jpg)'
 - en: which is the binary representation of 1.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是1的二进制表示。
 - en: For the remainder of this problem, we’ll work over *GF*(2), and all matrix and
     vector entries will be 0 or 1\. Define the ***rank*** of a 0-1 matrix (a matrix
     for which each entry is either 0 or 1) over *GF*(2) the same as for a regular
     matrix, but with all arithmetic that determines linear independence performed
     over *GF*(2). We define the ***range*** of an *n* × *n* 0-1 matrix *A* by
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 在接下来的问题中，我们将在*GF*(2)上进行操作，所有矩阵和向量的条目将为0或1。将0-1矩阵（每个条目为0或1的矩阵）在*GF*(2)上的***秩***定义为与常规矩阵相同，但所有确定线性独立性的算术都在*GF*(2)上执行。我们通过以下方式定义*n*
+    × *n* 0-1矩阵*A*的***范围***：
 - en: '*R*(*A*) = {*y* : *y* = *Ax* for some *x* ∈ *S[n]*},'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: '*R*(*A*) = {*y* : *y* = *Ax*，对于某个*x* ∈ *S[n]*},'
 - en: so that *R*(*A*) is the set of numbers in *S[n]* that are produced by multiplying
     each value *x* ∈ *S[n]* by *A*.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 使得*R*(*A*)是通过将*S[n]*中的每个值*x*乘以*A*得到的数字集合。
 - en: '***a.*** If *r* is the rank of matrix *A*, prove that |*R*(*A*)| = 2*^r*. Conclude
     that *A* defines a permutation on *S[n]* only if *A* has full rank.'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 如果矩阵*A*的秩为*r*，证明|*R*(*A*)| = 2*^r*。得出结论，只有当*A*具有完整秩时，*A*才在*S[n]*上定义排列。'
 - en: For a given *n* × *n* matrix *A* and a given value *y* ∈ *R*(*A*), we define
     the ***preimage*** of *y* by
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于给定的*n* × *n*矩阵*A*和给定的值*y* ∈ *R*(*A*)，我们通过以下方式定义*y*的***原像***：
 - en: '*P* (*A*, *y*) = {*x* : *Ax* = *y*},'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '*P* (*A*, *y*) = {*x* : *Ax* = *y*},'
 - en: so that *P*(*A*, *y*) is the set of values in *S[n]* that map to *y* when multiplied
     by *A*.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 使得*P*(*A*, *y*)是通过*A*乘以*S[n]*中的每个值*x*得到*y*的值集合。
 - en: '***b.*** If *r* is the rank of *n* × *n* matrix *A* and *y* ∈ *R*(*A*), prove
     that |*P*(*A*, *y*)| = 2^(*n*−*r*).'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 如果*r*是*n* × *n*矩阵*A*的秩，且*y* ∈ *R*(*A*)，证明|*P*(*A*, *y*)| = 2^(*n*−*r*)。'
 - en: Let 0 ≤ *m* ≤ *n*, and suppose that we partition the set *S[n]* into blocks
     of consecutive numbers, where the *i*th block consists of the 2^(*m*) numbers
     *i*2^(*m*), *i*2^(*m*) + 1, *i*2^(*m*) +2, … , (*i* +1)2*^m* −1\. For any subset
@@ -675,54 +1042,81 @@
     containing some element of *S*. As an example, when *n* = 3, *m* = 1, and *S*
     = {1, 4, 5}, then *B*(*S*, *m*) consists of blocks 0 (since 1 is in the 0th block)
     and 2 (since both 4 and 5 belong to block 2).
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 令0 ≤ *m* ≤ *n*，并假设我们将集合*S[n]*分成连续数字的块，第*i*块由2^(*m*)个数字*i*2^(*m*), *i*2^(*m*)
+    + 1, *i*2^(*m*) +2, … , (*i* +1)2*^m* −1组成。对于任意子集*S* ⊆ *S[n]*，定义*B*(*S*, *m*)为包含*S*中某个元素的大小为2*^m*的块集合。例如，当*n*
+    = 3，*m* = 1，且*S* = {1, 4, 5}时，*B*(*S*, *m*)包括块0（因为1在第0块中）和块2（因为4和5都属于第2块）。
 - en: '***c.*** Let *r* be the rank of the lower left (*n* − *m*) × *m* submatrix
     of *A*, that is, the matrix formed by taking the intersection of the bottom *n*
     − *m* rows and the leftmost *m* columns of *A*. Let *S* be any size-2*^m* block
     of *S[n]*, and let *S*′ = {*y* : *y* = *Ax* for some *x* ∈ *S*}. Prove that |*B*(*S*′,
     *m*)| = 2*^r* and that for each block in *B*(*S*′, *m*), exactly 2^(*m*−*r*) numbers
     in *S* map to that block.'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 让*r*是*A*的左下角(*n* − *m*) × *m*子矩阵的秩，即由取底部*n* − *m*行和最左边*m*列形成的矩阵。让*S*是*S[n]*的任意大小为2*^m*的块，并且让*S*′
+    = {*y* : *y* = *Ax*，对于某个*x* ∈ *S*}。证明|*B*(*S*′, *m*)| = 2*^r*，并且对于*B*(*S*′, *m*)中的每个块，恰好有2^(*m*−*r*)个数字在*S*中映射到该块。'
 - en: Because multiplying the zero vector by any matrix yields a zero vector, the
     set of permutations of *S[n]* defined by multiplying by *n* × *n* 0-1 matrices
     with full rank over *GF*(2) cannot include all permutations of *S[n]*. Let’s extend
     the class of permutations defined by matrix-vector multiplication to include an
     additive term, so that *x* ∈ *S[n]* maps to *Ax* + *c*, where *c* is an *n*-bit
     vector and addition is performed over *GF*(2). For example, when
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为将零向量乘以任何矩阵都会得到零向量，由满秩*n* × *n* 0-1矩阵在*GF*(2)上定义的*S[n]*的排列集合不能包含*S[n]*的所有排列。让我们通过在矩阵-向量乘法中包含一个加法项来扩展由矩阵-向量乘法定义的排列类，以便*x*
+    ∈ *S[n]*映射到*Ax* + *c*，其中*c*是一个*n*-比特向量，加法在*GF*(2)上执行。例如，当
 - en: '![art](images/Art_P1797.jpg)'
+  id: totrans-173
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1797.jpg)'
 - en: and
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 和
 - en: '![art](images/Art_P1798.jpg)'
+  id: totrans-175
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P1798.jpg)'
 - en: 'we get the following permutation *π[A,c]*: *π[A,c]*(0) = 2, *π[A,c]*(1) = 1,
     *π[A,c]*(2) = 0, *π[A,c]*(3) = 3\. We call any permutation that maps *x* ∈ *S[n]*
     to *Ax* + *c*, for some *n* × *n* 0-1 matrix *A* with full rank and some *n*-bit
     vector *c*, a ***linear permutation***.'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们得到以下排列*π[A,c]*：*π[A,c]*(0) = 2，*π[A,c]*(1) = 1，*π[A,c]*(2) = 0，*π[A,c]*(3)
+    = 3。我们称任何将*x* ∈ *S[n]*映射到*Ax* + *c*，对于某个具有满秩的*n* × *n* 0-1矩阵*A和某个*n*-比特向量*c的排列为***线性排列***。
 - en: '***d.*** Use a counting argument to show that the number of linear permutations
     of *S[n]* is much less than the number of permutations of *S[n]*.'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 使用计数论证明*S[n]*的线性排列数量远小于*S[n]*的排列数量。'
 - en: '***e.*** Give an example of a value of *n* and a permutation of *S[n]* that
     cannot be achieved by any linear permutation. (*Hint:* For a given permutation,
     think about how multiplying a matrix by a unit vector relates to the columns of
     the matrix.)'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 给出一个*n*的值和一个*S[n]*的排列的例子，该排列不能通过任何线性排列实现。（提示：对于给定的排列，考虑如何将矩阵乘以单位向量与矩阵的列相关联。）'
 - en: '**Appendix notes**'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '**附录注释**'
 - en: Linear-algebra textbooks provide plenty of background information on matrices.
     The books by Strang [[422](bibliography001.xhtml#endnote_422), [423](bibliography001.xhtml#endnote_423)]
     are particularly good.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 线性代数教科书提供了关于矩阵的大量背景信息。Strang的书籍[[422](bibliography001.xhtml#endnote_422), [423](bibliography001.xhtml#endnote_423)]特别好。

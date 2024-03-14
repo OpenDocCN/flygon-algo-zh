@@ -1,6 +1,8 @@
 - en: '[**11        Hash Tables**](toc.xhtml#chap-11)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11        哈希表**](toc.xhtml#chap-11)'
 - en: Many applications require a dynamic set that supports only the dictionary operations
     INSERT, SEARCH, and DELETE. For example, a compiler that translates a programming
     language maintains a symbol table, in which the keys of elements are arbitrary
@@ -11,15 +13,19 @@
     well. Under reasonable assumptions, the average time to search for an element
     in a hash table is *O*(1). Indeed, the built-in dictionaries of Python are implemented
     with hash tables.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多应用程序需要支持仅支持字典操作INSERT、SEARCH和DELETE的动态集合。例如，翻译编程语言的编译器维护一个符号表，其中元素的键是与语言中标识符对应的任意字符字符串。哈希表是实现字典的有效数据结构。尽管在哈希表中搜索元素可能与在链表中搜索元素一样耗时—在最坏情况下为Θ(*n*)时间—但在实践中，哈希表的性能非常好。在合理的假设下，搜索哈希表中元素的平均时间为*O*(1)。事实上，Python的内置字典是用哈希表实现的。
 - en: A hash table generalizes the simpler notion of an ordinary array. Directly addressing
     into an ordinary array takes advantage of the *O*(1) access time for any array
     element. [Section 11.1](chapter011.xhtml#Sec_11.1) discusses direct addressing
     in more detail. To use direct addressing, you must be able to allocate an array
     that contains a position for every possible key.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希表概括了普通数组的简单概念。直接访问普通数组利用了任何数组元素的*O*(1)访问时间。[第11.1节](chapter011.xhtml#Sec_11.1)更详细地讨论了直接寻址。要使用直接寻址，您必须能够为每个可能的键分配一个位置的数组。
 - en: 'When the number of keys actually stored is small relative to the total number
     of possible keys, hash tables become an effective alternative to directly addressing
     an array, since a hash table typically uses an array of size proportional to the
@@ -35,29 +41,41 @@
     11.5](chapter011.xhtml#Sec_11.5) discusses the hierarchical memory systems of
     modern computer systems have and illustrates how to design hash tables that work
     well in such systems.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 当实际存储的键的数量相对于可能的键的总数很小时，哈希表成为直接寻址数组的有效替代方案，因为哈希表通常使用与实际存储的键数量成比例的数组。我们不直接使用键作为数组索引，而是*计算*数组索引从键中。[第11.2节](chapter011.xhtml#Sec_11.2)介绍了主要思想，重点是“链接”作为处理“冲突”的一种方式，其中一个以上的键映射到相同的数组索引。[第11.3节](chapter011.xhtml#Sec_11.3)描述了如何使用哈希函数从键计算数组索引。我们提出并分析了基本主题的几种变体。[第11.4节](chapter011.xhtml#Sec_11.4)看看“开放寻址”，这是另一种处理冲突的方法。最重要的是，哈希是一种极其有效和实用的技术：基本字典操作平均只需要*O*(1)时间。[第11.5节](chapter011.xhtml#Sec_11.5)讨论了现代计算机系统的分层存储系统，并说明了如何设计在这种系统中运行良好的哈希表。
 - en: '[**11.1    Direct-address tables**](toc.xhtml#Rh1-62)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11.1    直接寻址表**](toc.xhtml#Rh1-62)'
 - en: Direct addressing is a simple technique that works well when the universe *U*
     of keys is reasonably small. Suppose that an application needs a dynamic set in
     which each element has a distinct key drawn from the universe *U* = {0, 1, …,
     *m* − 1}, where *m* is not too large.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接寻址是一种简单的技术，当键的宇宙*U*相对较小时效果很好。假设一个应用程序需要一个动态集合，其中每个元素都有一个来自宇宙*U* = {0, 1, …,
+    *m* − 1}的不同键，其中*m*不是太大。
 - en: 'To represent the dynamic set, you can use an array, or ***direct-address table***,
     denoted by *T*[0 : *m* − 1], in which each position, or ***slot***, corresponds
     to a key in the universe *U*. [Figure 11.1](chapter011.xhtml#Fig_11-1) illustrates
     this approach. Slot *k* points to an element in the set with key *k*. If the set
     contains no element with key *k*, then *T*[*k*] = NIL.'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '要表示动态集合，您可以使用一个数组，或称为***直接寻址表***，表示为*T*[0 : *m* − 1]，其中每个位置，或***槽***，对应于宇宙*U*中的一个键。[图11.1](chapter011.xhtml#Fig_11-1)说明了这种方法。槽*k*指向具有键*k*的集合中的元素。如果集合中不包含键*k*的元素，则*T*[*k*]
+    = NIL。'
 - en: The dictionary operations DIRECT-ADDRESS-SEARCH, DIRECT-ADDRESS-INSERT, and
     DIRECT-ADDRESS-DELETE on the following page are trivial to implement. Each takes
     only *O*(1) time.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 字典操作DIRECT-ADDRESS-SEARCH、DIRECT-ADDRESS-INSERT和DIRECT-ADDRESS-DELETE在下一页上是很容易实现的。每个操作只需要*O*(1)时间。
 - en: For some applications, the direct-address table itself can hold the elements
     in the dynamic set. That is, rather than storing an element’s key and satellite
     data in an object external to the direct-address table, with a pointer from a
@@ -65,69 +83,105 @@
     the slot. To indicate an empty slot, use a special key. Then again, why store
     the key of the object at all? The index of the object *is* its key! Of course,
     then you’d need some way to tell whether slots are empty.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于一些应用程序，直接寻址表本身可以保存动态集合中的元素。也就是说，与其将元素的键和附加数据存储在直接寻址表外部的对象中，然后通过指向表中槽的指针保存对象，不如直接将对象存储在槽中。使用特殊键表示空槽。那么，为什么要存储对象的键呢？对象的索引*就是*它的键！当然，然后您需要一些方法来判断槽是否为空。
 - en: '![art](images/Art_P378.jpg)'
+  id: totrans-9
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P378.jpg)'
 - en: '**Figure 11.1** How to implement a dynamic set by a direct-address table *T*.
     Each key in the universe *U* = {0, 1, …, 9} corresponds to an index into the table.
     The set *K* = {2, 3, 5, 8} of actual keys determines the slots in the table that
     contain pointers to elements. The other slots, in blue, contain NIL.'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图11.1** 如何通过直接寻址表 *T* 实现动态集合。宇宙 *U* = {0, 1, …, 9} 中的每个键对应于表中的一个索引。实际键集合
+    *K* = {2, 3, 5, 8} 确定了包含指向元素的槽。其他槽，标记为蓝色，包含NIL。'
 - en: DIRECT-ADDRESS-SEARCH(*T*, *k*)
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接寻址搜索(*T*, *k*)
 - en: '| 1 | **return** *T*[*k*] |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **返回** *T*[*k*] |'
 - en: DIRECT-ADDRESS-INSERT(*T*, *x*)
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接寻址插入(*T*, *x*)
 - en: '| 1 | *T*[*x.key*] = *x* |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *T*[*x.key*] = *x* |'
 - en: DIRECT-ADDRESS-DELETE(*T*, *x*)
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接寻址删除(*T*, *x*)
 - en: '| 1 | *T*[*x.key*] = NIL |'
+  id: totrans-16
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *T*[*x.key*] = NIL |'
 - en: '**Exercises**'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***11.1-1***'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.1-1***'
 - en: A dynamic set *S* is represented by a direct-address table *T* of length *m*.
     Describe a procedure that finds the maximum element of *S*. What is the worst-case
     performance of your procedure?
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态集合 *S* 由长度为 *m* 的直接寻址表 *T* 表示。描述一个找到 *S* 最大元素的过程。您的过程的最坏情况性能是什么？
 - en: '***11.1-2***'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.1-2***'
 - en: A ***bit vector*** is simply an array of bits (each either 0 or 1). A bit vector
     of length *m* takes much less space than an array of *m* pointers. Describe how
     to use a bit vector to represent a dynamic set of distinct elements drawn from
     the set {0, 1, …, *m* − 1} and with no satellite data. Dictionary operations should
     run in *O*(1) time.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***位向量***简单地是一个位数组（每个位为0或1）。长度为 *m* 的位向量比 *m* 个指针的数组占用更少的空间。描述如何使用位向量来表示从集合
+    {0, 1, …, *m* − 1} 中抽取的不同元素的动态集合，且没有附加数据。字典操作应该在*O*(1)时间内运行。
 - en: '***11.1-3***'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.1-3***'
 - en: Suggest how to implement a direct-address table in which the keys of stored
     elements do not need to be distinct and the elements can have satellite data.
     All three dictionary operations (INSERT, DELETE, and SEARCH) should run in *O*(1)
     time. (Don’t forget that DELETE takes as an argument a pointer to an object to
     be deleted, not a key.)
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 建议如何实现一个直接寻址表，其中存储元素的键不需要是唯一的，元素可以有附加数据。所有三个字典操作（插入、删除和搜索）应该在*O*(1)时间内运行。（不要忘记，删除操作的参数是指向要删除的对象的指针，而不是键。）
 - en: ★ ***11.1-4***
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.1-4***
 - en: Suppose that you want to implement a dictionary by using direct addressing on
     a *huge* array. That is, if the array size is *m* and the dictionary contains
     at most *n* elements at any one time, then *m* ≫ *n*. At the start, the array
@@ -138,36 +192,52 @@
     should take *O*(1) time. (*Hint:* Use an additional array, treated somewhat like
     a stack whose size is the number of keys actually stored in the dictionary, to
     help determine whether a given entry in the huge array is valid or not.)
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设您想要通过在一个*巨大*数组上使用直接寻址来实现字典。也就是说，如果数组大小为 *m*，并且字典在任一时刻最多包含 *n* 个元素，则 *m* ≫
+    *n*。在开始时，数组条目可能包含垃圾，并且由于其大小，初始化整个数组是不切实际的。描述一种在巨大数组上实现直接寻址字典的方案。每个存储的对象应该使用*O*(1)空间；搜索、插入和删除操作应该每个都需要*O*(1)时间；初始化数据结构应该需要*O*(1)时间。（*提示：*使用一个额外的数组，类似于栈，其大小是实际存储在字典中的键的数量，以帮助确定给定的巨大数组条目是否有效。）
 - en: '[**11.2    Hash tables**](toc.xhtml#Rh1-63)'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11.2    哈希表**](toc.xhtml#Rh1-63)'
 - en: 'The downside of direct addressing is apparent: if the universe *U* is large
     or infinite, storing a table *T* of size |*U*| may be impractical, or even impossible,
     given the memory available on a typical computer. Furthermore, the set *K* of
     keys *actually stored* may be so small relative to *U* that most of the space
     allocated for *T* would be wasted.'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接寻址的缺点显而易见：如果宇宙 *U* 很大或无限大，那么存储大小为 |*U*| 的表 *T* 可能是不切实际的，甚至在典型计算机上可用的内存下是不可能的。此外，实际存储的键集合
+    *K* 相对于 *U* 可能非常小，导致为 *T* 分配的大部分空间都被浪费了。
 - en: When the set *K* of keys stored in a dictionary is much smaller than the universe
     *U* of all possible keys, a hash table requires much less storage than a direct-address
     table. Specifically, the storage requirement reduces to Θ(|*K*|) while maintaining
     the benefit that searching for an element in the hash table still requires only
     *O*(1) time. The catch is that this bound is for the *average-case time*,^([1](#footnote_1))
     whereas for direct addressing it holds for the *worst-case time*.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 当字典中存储的键集合 *K* 远小于所有可能键的宇宙 *U* 时，哈希表所需的存储空间远小于直接寻址表。具体而言，存储需求降低到 Θ(|*K*|)，同时仍保持在哈希表中搜索元素仅需要
+    *O*(1) 时间的好处。问题在于这个界限是针对*平均情况时间*的，而对于直接寻址，它适用于*最坏情况时间*。
 - en: 'With direct addressing, an element with key *k* is stored in slot *k*, but
     with hashing, we use a ***hash function*** *h* to compute the slot number from
     the key *k*, so that the element goes into slot *h*(*k*). The hash function *h*
     maps the universe *U* of keys into the slots of a ***hash table*** *T*[0 : *m*
     − 1]:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '使用直接寻址，具有键 *k* 的元素存储在槽 *k* 中，但是使用哈希时，我们使���一个***哈希函数*** *h* 来从键 *k* 计算槽号，以便元素进入槽
+    *h*(*k*)。哈希函数 *h* 将键的宇宙 *U* 映射到哈希表 *T*[0 : *m* − 1] 的槽：'
 - en: '*h* : *U* → {0, 1, …, *m* − 1},'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h* : *U* → {0, 1, …, *m* − 1},'
 - en: where the size *m* of the hash table is typically much less than |*U*|. We say
     that an element with key *k* ***hashes*** to slot *h*(*k*), and we also say that
     *h*(*k*) is the ***hash value*** of key *k*. [Figure 11.2](chapter011.xhtml#Fig_11-2)
@@ -175,13 +245,19 @@
     and hence the size of the array. Instead of a size of |*U*|, the array can have
     size *m*. An example of a simple, but not particularly good, hash function is
     *h*(*k*) = *k* mod *m*.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中哈希表的大小 *m* 通常远小于 |*U*|。我们说具有键 *k* 的元素***哈希到***槽 *h*(*k*)，我们也说 *h*(*k*) 是键
+    *k* 的***哈希值***。[图11.2](chapter011.xhtml#Fig_11-2) 说明了基本思想。哈希函数减少了数组索引的范围，从而减小了数组的大小。数组的大小可以是
+    *m*，而不是 |*U*|。一个简单但不是特别好的哈希函数的例子是 *h*(*k*) = *k* mod *m*。
 - en: There is one hitch, namely that two keys may hash to the same slot. We call
     this situation a ***collision***. Fortunately, there are effective techniques
     for resolving the conflict created by collisions.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 有一个问题，即两个键可能哈希到同一个槽。我们称这种情况为***碰撞***。幸运的是，有有效的技术来解决碰撞造成的冲突。
 - en: Of course, the ideal solution is to avoid collisions altogether. We might try
     to achieve this goal by choosing a suitable hash function *h*. One idea is to
     make *h* appear to be “random,” thus avoiding collisions or at least minimizing
@@ -192,71 +268,99 @@
     hash value, and avoiding collisions altogether is impossible. Thus, although a
     well-designed, “random”-looking hash function can reduce the number of collisions,
     we still need a method for resolving the collisions that do occur.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，理想的解决方案是完全避免碰撞。我们可以尝试通过选择合适的哈希函数*h*来实现这一目标。一个想法是使*h*看起来“随机”，从而避免碰撞或至少最小化其数量。术语“哈希”，唤起随机混合和切割的形象，捕捉了这种方法的精神。（当然，哈希函数*h*必须是确定性的，即给定输入*k*必须始终产生相同的输出*h*(*k*)。）然而，由于|*U*|
+    > *m*，至少会有两个具有相同哈希值的键，因此完全避免碰撞是不可能的。因此，尽管设计良好的“随机”外观的哈希函数可以减少碰撞的数量，但我们仍然需要一种方法来解决发生的碰撞。
 - en: '![art](images/Art_P379.jpg)'
+  id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P379.jpg)'
 - en: '**Figure 11.2** Using a hash function *h* to map keys to hash-table slots.
     Because keys *k*[2] and *k*[5] map to the same slot, they collide.'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图11.2** 使用哈希函数*h*将键映射到哈希表槽。因为键*k*[2]和*k*[5]映射到同一个槽，它们发生了碰撞。'
 - en: The remainder of this section first presents a definition of “independent uniform
     hashing,” which captures the simplest notion of what it means for a hash function
     to be “random.” It then presents and analyzes the simplest collision resolution
     technique, called chaining. [Section 11.4](chapter011.xhtml#Sec_11.4) introduces
     an alternative method for resolving collisions, called open addressing.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节的其余部分首先介绍了“独立均匀散列”的定义，这捕捉了哈希函数“随机”意味着什么的最简单概念。然后介绍并分析了最简单的冲突解决技术，称为链式。[第11.4节](chapter011.xhtml#Sec_11.4)介绍了一种解决冲突的替代方法，称为开放寻址。
 - en: '**Independent uniform hashing**'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '**独立均匀散列**'
 - en: An “ideal” hashing function *h* would have, for each possible input *k* in the
     domain *U*, an output *h*(*k*) that is an element randomly and independently chosen
     uniformly from the range {0, 1, …, *m* − 1}. Once a value *h*(*k*) is randomly
     chosen, each subsequent call to *h* with the same input *k* yields the same output
     *h*(*k*).
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: “理想”的哈希函数*h*对于域*U*中的每个可能输入*k*，都有一个输出*h*(*k*)，该输出是从范围{0, 1, …, *m* − 1}中随机且独立均匀选择的元素。一旦随机选择了值*h*(*k*)，每次使用相同输入*k*调用*h*都会产生相同的输出*h*(*k*)。
 - en: We call such an ideal hash function an ***independent uniform hash function***.
     Such a function is also often called a ***random oracle*** [43]. When hash tables
     are implemented with an independent uniform hash function, we say we are using
     ***independent uniform hashing***.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们称这样的理想哈希函数为***独立均匀哈希函数***。这样的函数通常也被称为***随机预言***[43]。当哈希表使用独立均匀哈希函数实现时，我们说我们正在使用***独立均匀散列***。
 - en: Independent uniform hashing is an ideal theoretical abstraction, but it is not
     something that can reasonably be implemented in practice. Nonetheless, we’ll analyze
     the efficiency of hashing under the assumption of independent uniform hashing
     and then present ways of achieving useful practical approximations to this ideal.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 独立均匀散列是一个理想的理论抽象，但在实践中无法合理实现。尽管如此，我们将在假设独立均匀散列的情况下分析散列的效率，然后提出实现这一理想的有用实际近似方法。
 - en: '![art](images/Art_P380.jpg)'
+  id: totrans-41
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P380.jpg)'
 - en: '**Figure 11.3** Collision resolution by chaining. Each nonempty hash-table
     slot *T*[*j*] points to a linked list of all the keys whose hash value is *j*.
     For example, *h*(*k*[1]) = *h*(*k*[4]) and *h*(*k*[5]) = *h*(*k*[2]) = *h*(*k*[7]).
     The list can be either singly or doubly linked. We show it as doubly linked because
     deletion may be faster that way when the deletion procedure knows which list element
     (not just which key) is to be deleted.'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图11.3** 链式冲突解决。每个非空哈希表槽*T*[*j*]指向一个链表，其中包含所有哈希值为*j*的键。例如，*h*(*k*[1]) = *h*(*k*[4])和*h*(*k*[5])
+    = *h*(*k*[2]) = *h*(*k*[7])。链表可以是单向的，也可以是双向的。我们展示为双向的，因为当删除过程知道要删除哪个列表元素（而不仅仅是哪个键）时，删除可能更快。'
 - en: '**Collision resolution by chaining**'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '**链式冲突解决**'
 - en: 'At a high level, you can think of hashing with chaining as a nonrecursive form
     of divide-and-conquer: the input set of *n* elements is divided randomly into
     *m* subsets, each of approximate size *n*/*m*. A hash function determines which
     subset an element belongs to. Each subset is managed independently as a list.'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 从高层次上看，你可以将链式哈希视为一种非递归的分治：*n*个元素的输入集随机分成大约大小为*n*/*m*的*m*个子集。哈希函数确定元素属于哪个子集。每个子集都作为一个列表独立管理。
 - en: '[Figure 11.3](chapter011.xhtml#Fig_11-3) shows the idea behind ***chaining***:
     each nonempty slot points to a linked list, and all the elements that hash to
     the same slot go into that slot’s linked list. Slot *j* contains a pointer to
     the head of the list of all stored elements with hash value *j*. If there are
     no such elements, then slot *j* contains NIL.'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图11.3](chapter011.xhtml#Fig_11-3)展示了***链式***的思想：每个非空槽指向一个链表，所有哈希到同一槽的元素都放入该槽的链表中。槽*j*包含指向具有哈希值*j*的所有存储元素链表的头指针。如果没有这样的元素，则槽*j*包含NIL。'
 - en: When collisions are resolved by chaining, the dictionary operations are straightforward
     to implement. They appear on the next page and use the linked-list procedures
     from [Section 10.2](chapter010.xhtml#Sec_10.2). The worst-case running time for
@@ -272,46 +376,69 @@
     only singly linked, then by Exercise 10.2-1, deletion could take time proportional
     to the length of the list. With singly linked lists, both deletion and searching
     would have the same asymptotic running times.)
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 当碰撞通过链接解决时，字典操作很容易实现。它们出现在下一页上，并使用来自[第10.2节](chapter010.xhtml#Sec_10.2)的链表程序。插入的最坏情况运行时间为*O*(1)。插入过程之所以快速，部分原因是它假设要插入的元素*x*尚未存在于表中。为了强制执行这一假设，您可以搜索（额外成本）一个键为*x.key*的元素再插入。对于搜索，最坏情况运行时间与列表长度成正比。（我们将在下面更仔细地分析这个操作。）如果列表是双向链接的，则删除需要*O*(1)时间，就像[图11.3](chapter011.xhtml#Fig_11-3)中那样。
+    （由于CHAINED-HASH-DELETE以元素*x*而不是其键*k*作为输入，因此不需要搜索。如果哈希表支持删除，则其链接列表应该是双向链接的，以便快速删除项目。如果列表只是单向链接的，那么根据练习10.2-1，删除可能需要与列表长度成正比的时间。对于单向链接列表，删除和搜索将具有相同的渐近运行时间。）
 - en: CHAINED-HASH-INSERT(*T*, *x*)
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: CHAINED-HASH-INSERT(*T*, *x*)
 - en: '| 1 | LIST-PREPEND(*T*[*h*(*x.key*)], *x*) |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | LIST-PREPEND(*T*[*h*(*x.key*)], *x*) |'
 - en: CHAINED-HASH-SEARCH(*T*, *k*)
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: CHAINED-HASH-SEARCH(*T*, *k*)
 - en: '| 1 | **return** LIST-SEARCH(*T*[*h*(*k*)], *k*) |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **返回** LIST-SEARCH(*T*[*h*(*k*)], *k*) |'
 - en: CHAINED-HASH-DELETE(*T*, *x*)
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: CHAINED-HASH-DELETE(*T*, *x*)
 - en: '| 1 | LIST-DELETE(*T*[*h*(*x.key*)], *x*) |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | LIST-DELETE(*T*[*h*(*x.key*)], *x*) |'
 - en: '**Analysis of hashing with chaining**'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '**链式哈希分析**'
 - en: How well does hashing with chaining perform? In particular, how long does it
     take to search for an element with a given key?
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希与链接的性能如何？特别是，搜索具有给定键的元素需要多长时间？
 - en: Given a hash table *T* with *m* slots that stores *n* elements, we define the
     ***load factor*** *α* for *T* as *n*/*m*, that is, the average number of elements
     stored in a chain. Our analysis will be in terms of *α*, which can be less than,
     equal to, or greater than 1.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个存储*n*个元素的*m*个槽的哈希表*T*，我们将*T*的***负载因子*** *α*定义为*T*的*n*/*m*，即链中存储的平均元素数量。我们的分析将根据*α*进行，*α*可以小于、等于或大于1。
 - en: 'The worst-case behavior of hashing with chaining is terrible: all *n* keys
     hash to the same slot, creating a list of length *n*. The worst-case time for
     searching is thus Θ(*n*) plus the time to compute the hash function—no better
     than using one linked list for all the elements. We clearly don’t use hash tables
     for their worst-case performance.'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希与链接的最坏情况行为很糟糕：所有*n*个键都哈希到同一个槽中，创建一个长度为*n*的列表。因此，搜索的最坏情况时间为Θ(*n*)加上计算哈希函数的时间——不比使用一个链表存储所有元素好。显然，我们不会因为哈希表的最坏情况性能而使用它们。
 - en: The average-case performance of hashing depends on how well the hash function
     *h* distributes the set of keys to be stored among the *m* slots, on the average
     (meaning with respect to the distribution of keys to be hashed and with respect
@@ -321,25 +448,35 @@
     We further assume that where a given element hashes to is *independent* of where
     any other elements hash to. In other words, we assume that we are using ***independent
     uniform hashing***.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希的平均情况性能取决于哈希函数*h*如何在*m*个槽中平均分布要存储的键集（这里的平均是指相对于要哈希的键的分布以及哈希函数的选择，如果这个选择是随机的）。[第11.3节](chapter011.xhtml#Sec_11.3)讨论了这些问题，但现在我们假设任何给定元素被哈希到任何一个*m*个槽中的概率是相等的。也就是说，哈希函数是***均匀的***。我们进一步假设给定元素哈希到哪里与其他元素哈希到哪里是*独立的*。换句话说，我们假设我们正在使用***独立均匀哈希***。
 - en: 'Because hashes of distinct keys are assumed to be independent, independent
     uniform hashing is ***universal***: the chance that any two distinct keys *k*[1]
     and *k*[2] collide is at most 1/*m*. Universality is important in our analysis
     and also in the specification of universal families of hash functions, which we’ll
     see in [Section 11.3.2](chapter011.xhtml#Sec_11.3.2).'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为不同键的哈希被假定为独立的，独立均匀哈希是***通用的***：任意两个不同键*k*[1]和*k*[2]发生碰撞的概率最多为1/*m*。通用性在我们的分析中很重要，也在哈希函数的通用族规范中很重要，我们将在[第11.3.2节](chapter011.xhtml#Sec_11.3.2)中看到。
 - en: For *j* = 0, 1, …, *m* − 1, denote the length of the list *T*[*j*] by *n[j]*,
     so that
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*j* = 0, 1, …, *m* − 1，将列表*T*[*j*]的长度表示为*n[j]*，使得
 - en: '![art](images/Art_P381.jpg)'
+  id: totrans-60
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P381.jpg)'
 - en: and the expected value of *n[j]* is E[*n[j]*] = *α* = *n*/*m*.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '*n[j]*的期望值为E[*n[j]*] = *α* = *n*/*m*。'
 - en: 'We assume that *O*(1) time suffices to compute the hash value *h*(*k*), so
     that the time required to search for an element with key *k* depends linearly
     on the length *n*[*h*(*k*)] of the list *T*[*h*(*k*)]. Setting aside the *O*(1)
@@ -349,16 +486,22 @@
     to see whether any have a key equal to *k*. We consider two cases. In the first,
     the search is unsuccessful: no element in the table has key *k*. In the second,
     the search successfully finds an element with key *k*.'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们假设计算哈希值*h*(*k*)的时间为*O*(1)，因此搜索具有键*k*的元素所需的时间与列表*T*[*h*(*k*)]的长度*n*[*h*(*k*)]线性相关。暂时不考虑计算哈希函数和访问槽*h*(*k*)所需的*O*(1)时间，我们将考虑搜索算法检查的元素的预期数量，即算法检查列表*T*[*h*(*k*)]中的元素，看看是否有任何一个键等于*k*。我们考虑两种情况。首先，搜索失败：表中没有具有键*k*的元素。其次，搜索成功找到具有键*k*的元素。
 - en: '***Theorem 11.1***'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理11.1***'
 - en: In a hash table in which collisions are resolved by chaining, an unsuccessful
     search takes Θ(1 + *α*) time on average, under the assumption of independent uniform
     hashing.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决冲突的哈希表中，假设独立均匀哈希的情况下，无法找到的搜索平均需要Θ(1 + *α*)时间。
 - en: '***Proof***   Under the assumption of independent uniform hashing, any key
     *k* not already stored in the table is equally likely to hash to any of the *m*
     slots. The expected time to search unsuccessfully for a key *k* is the expected
@@ -366,11 +509,16 @@
     = *α*. Thus, the expected number of elements examined in an unsuccessful search
     is *α*, and the total time required (including the time for computing *h*(*k*))
     is Θ(1 + *α*).'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 在独立均匀哈希的假设下，任何尚未存储在表中的键*k*等可能哈希到*m*个槽中的任何一个。搜索键*k*失败的预期时间是搜索到列表*T*[*h*(*k*)]��尾的预期时间，其预期长度为E[*n*[*h*(*k*)]]
+    = *α*。因此，无法找到的搜索中检查的元素的预期数量为*α*，总所需时间（包括计算*h*(*k*)的时间）为Θ(1 + *α*)。'
 - en: ▪
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: The situation for a successful search is slightly different. An unsuccessful
     search is equally likely to go to any slot of the hash table. A successful search,
     however, cannot go to an empty slot, since it is for an element that is present
@@ -378,16 +526,23 @@
     likely to be any one of the elements in the table, so the longer the list, the
     more likely that the search is for one of its elements. Even so, the expected
     search time still turns out to be Θ(1 + *α*).
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 成功搜索的情况略有不同。无法找到的搜索等可能去哈希表的任何槽。然而，成功搜索不能去空槽，因为它是对一个链表中存在的元素进行的搜索。我们假设搜索的元素等可能是表中的任何一个元素，因此列表越长，搜索是其中一个元素的可能性就越大。即便如此，预期搜索时间仍然是Θ(1
+    + *α*)。
 - en: '***Theorem 11.2***'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理11.2***'
 - en: In a hash table in which collisions are resolved by chaining, a successful search
     takes Θ(1 + *α*) time on average, under the assumption of independent uniform
     hashing.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决冲突的哈希表中，成功搜索平均需要Θ(1 + *α*)时间，假设独立均匀哈希。
 - en: '***Proof***   We assume that the element being searched for is equally likely
     to be any of the *n* elements stored in the table. The number of elements examined
     during a successful search for an element *x* is 1 more than the number of elements
@@ -395,61 +550,92 @@
     of the list, elements before *x* in the list were all inserted after *x* was inserted.
     Let *x[i]* denote the *i*th element inserted into the table, for *i* = 1, 2, …,
     *n*, and let *k[i]* = *x[i].key*.'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 我们假设被搜索的元素等可能是表中存储的*n*个元素中的任何一个。在成功搜索元素*x*时检查的元素数量比*x*之前出现在列表中的元素数量多1。因为新元素放在列表的前面，列表中*x*之前的元素都是在*x*插入之后插入的。设*x[i]*表示插入表中的第*i*个元素，对于*i*
+    = 1, 2, …, *n*，令*k[i]* = *x[i].key*。'
 - en: Our analysis uses indicator random variables extensively. For each slot *q*
     in the table and for each pair of distinct keys *k[i]* and *k[j]*, we define the
     indicator random variable
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的分析广泛使用指示器随机变量。对于表中的每个槽*q*和每对不同的键*k[i]*和*k[j]*，我们定义指示器随机变量
 - en: '*X[ijq]* = I {the search is for *x[i]*, *h*(*k[i]*) = *q*, and *h*(*k[j]*)
     = *q*}.'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '*X[ijq]* = I {搜索的是*x[i]*，*h*(*k[i]*) = *q*，且*h*(*k[j]*) = *q*}。'
 - en: That is, *X[ijq]* = 1 when keys *k[i]* and *k[j]* collide at slot *q* and the
     search is for element *x[i]*. Because Pr{the search is for *x[i]*} = 1/*n*, Pr{*h*(*k[i]*)
     = *q*} = 1/*m*, Pr{*h*(*k[j]*) = *q*} = 1/*m*, and these events are all independent,
     we have that Pr{*X[ijq]* = 1} = 1/*nm*². Lemma 5.1 on page 130 gives E[*X[ijq]*]
     = 1/*nm*².
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 也就是说，当键*k[i]*和*k[j]*在槽*q*处冲突且搜索的元素为*x[i]*时，*X[ijq]* = 1。因为Pr{搜索的是*x[i]*} = 1/*n*，Pr{*h*(*k[i]*)
+    = *q*} = 1/*m*，Pr{*h*(*k[j]*) = *q*} = 1/*m*，而且这些事件都是独立的，我们有Pr{*X[ijq]* = 1} =
+    1/*nm*²。第130页的引理5.1给出E[*X[ijq]*] = 1/*nm*²。
 - en: Next, we define, for each element *x[j]*, the indicator random variable
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们为每个元素*x[j]*定义指示器随机变量
 - en: '| *Y[j]* | = | I {*x[j]* appears in a list prior to the element being searched
     for} |'
+  id: totrans-75
   prefs: []
   type: TYPE_TB
+  zh: '| *Y[j]* | = | I {*x[j]* 出现在搜索元素之前的列表中} |'
 - en: '|  | = | ![art](images/Art_P382.jpg), |'
+  id: totrans-76
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | ![art](images/Art_P382.jpg), |'
 - en: since at most one of the *X[ijq]* equals 1, namely when the element *x[i]* being
     searched for belongs to the same list as *x[j]* (pointed to by slot *q*), and
     *i* < *j* (so that *x[i]* appears after *x[j]* in the list).
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为*X[ijq]*中最多只有一个等于1，即当被搜索的元素*x[i]*属于与*x[j]*相同的列表（由槽*q*指向），且*i* < *j*（使得*x[i]*在列表中出现在*x[j]*之后）时。
 - en: 'Our final random variable is *Z*, which counts how many elements appear in
     the list prior to the element being searched for:'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的最终随机变量是*Z*，它计算出在搜索元素之前列表中出现的元素数量：
 - en: '![art](images/Art_P383.jpg)'
+  id: totrans-79
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P383.jpg)'
 - en: Because we must count the element being searched for as well as all those preceding
     it in its list, we wish to compute E[*Z* + 1]. Using linearity of expectation
     (equation (C.24) on page 1192), we have
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为我们必须计算正在搜索的元素以及其列表中所有先前的元素，所以我们希望计算E[*Z* + 1]。使用期望的线性性（第1192页上的方程(C.24)），我们有
 - en: '![art](images/Art_P384.jpg)'
+  id: totrans-81
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P384.jpg)'
 - en: Thus, the total time required for a successful search (including the time for
     computing the hash function) is Θ(2 + *α/*2 − *α/*2*n*) = Θ(1 + *α*).
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，成功搜索所需的总时间（包括计算哈希函数的时间）为Θ(2 + *α/*2 − *α/*2*n*) = Θ(1 + *α*)。
 - en: ▪
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: What does this analysis mean? If the number of elements in the table is at most
     proportional to the number of hash-table slots, we have *n* = *O*(*m*) and, consequently,
     *α* = *n*/*m* = *O*(*m*)/*m* = *O*(1). Thus, searching takes constant time on
@@ -457,130 +643,185 @@
     worst-case time when the lists are doubly linked (assuming that the list element
     to be deleted is known, and not just its key), we can support all dictionary operations
     in *O*(1) time on average.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个分析意味着什么？如果表中的元素数量最多与哈希表插槽数量成比例，我们有*n* = *O*(*m*)，因此*α* = *n*/*m* = *O*(*m*)/*m*
+    = *O*(1)。因此，平均搜索时间为常数。由于插入在最坏情况下需要*O*(1)的时间，而删除在列表双向链接时也需要*O*(1)的最坏情况时间（假设已知要删除的列表元素，而不仅仅是其键），因此我们可以在平均*O*(1)时间内支持所有字典操作。
 - en: 'The analysis in the preceding two theorems depends only on two essential properties
     of independent uniform hashing: uniformity (each key is equally likely to hash
     to any one of the *m* slots), and independence (so any two distinct keys collide
     with probability 1/*m*).'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 在前两个定理的分析中，只依赖于独立均匀哈希的两个基本属性：均匀性（每个键等可能地哈希到*m*个插槽中的任何一个）和独立性（因此，任何两个不同的键与概率1/*m*发生碰撞）。
 - en: '**Exercises**'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***11.2-1***'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-1***'
 - en: 'You use a hash function *h* to hash *n* distinct keys into an array *T* of
     length *m*. Assuming independent uniform hashing, what is the expected number
     of collisions? More precisely, what is the expected cardinality of {{*k*[1], *k*[2]}
     : *k*[1] ≠ *k*[2] and *h*(*k*[1]) = *h*(*k*[2])}?'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 你使用哈希函数*h*将*n*个不同的键哈希到长度为*m*的数组*T*中。假设独立均匀哈希，预期碰撞次数是多少？更准确地说，期望的{{*k*[1]，*k*[2]}的基数：*k*[1]
+    ≠ *k*[2]且*h*(*k*[1]) = *h*(*k*[2])}是多少？
 - en: '***11.2-2***'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-2***'
 - en: Consider a hash table with 9 slots and the hash function *h*(*k*) = *k* mod
     9\. Demonstrate what happens upon inserting the keys 5, 28, 19, 15, 20, 33, 12,
     17, 10 with collisions resolved by chaining.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个具有9个插槽和哈希函数*h*(*k*) = *k* mod 9的哈希表。演示在插入键5、28、19、15、20、33、12、17、10时发生了什么，冲突通过链接解决。
 - en: '***11.2-3***'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-3***'
 - en: Professor Marley hypothesizes that he can obtain substantial performance gains
     by modifying the chaining scheme to keep each list in sorted order. How does the
     professor’s modification affect the running time for successful searches, unsuccessful
     searches, insertions, and deletions?
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 马利教授假设通过修改链接方案以保持每个列表按排序顺序排列，可以获得显著的性能提升。教授的修改如何影响成功搜索、失败搜索、插入和删除的运行时间？
 - en: '***11.2-4***'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-4***'
 - en: 'Suggest how to allocate and deallocate storage for elements within the hash
     table itself by creating a “free list”: a linked list of all the unused slots.
     Assume that one slot can store a flag and either one element plus a pointer or
     two pointers. All dictionary and free-list operations should run in *O*(1) expected
     time. Does the free list need to be doubly linked, or does a singly linked free
     list suffice?'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 建议如何通过创建“空闲列表”在哈希表内部分配和释放元素的存储：一个包含所有未使用插槽的链表。假设一个插槽可以存储一个标志和一个元素加一个指针或两个指针。所有字典和空闲列表操作应在*O*(1)的期望时间内运行。空闲列表是否需要双向链接，还是单向链接的空闲列表就足够了？
 - en: '***11.2-5***'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-5***'
 - en: You need to store a set of *n* keys in a hash table of size *m*. Show that if
     the keys are drawn from a universe *U* with |*U*| > (*n* − 1)*m*, then *U* has
     a subset of size *n* consisting of keys that all hash to the same slot, so that
     the worst-case searching time for hashing with chaining is Θ(*n*).
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 你需要在大小为*m*的哈希表中存储一组*n*个键。证明如果键来自具有|*U*| > (*n* − 1)*m*的宇宙*U*，那么*U*具有一个大小为*n*的子集，其中所有键都哈希到相同的插槽，因此哈希带链接的最坏情况搜索时间为Θ(*n*)。
 - en: '***11.2-6***'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.2-6***'
 - en: You have stored *n* keys in a hash table of size *m*, with collisions resolved
     by chaining, and you know the length of each chain, including the length *L* of
     the longest chain. Describe a procedure that selects a key uniformly at random
     from among the keys in the hash table and returns it in expected time *O*(*L*
     · (1 + 1/*α*)).
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 你已经在大小为*m*的哈希表中存储了*n*个键，通过链接解决冲突，并且知道每个链的长度，包括最长链的长度*L*。描述一种从哈希表中的键中均匀选择一个键并在期望时间*O*(*L*
+    · (1 + 1/*α*)内返回它的过程。
 - en: '[**11.3    Hash functions**](toc.xhtml#Rh1-64)'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11.3    哈希函数**](toc.xhtml#Rh1-64)'
 - en: For hashing to work well, it needs a good hash function. Along with being efficiently
     computable, what properties does a good hash function have? How do you design
     good hash functions?
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使哈希工作良好，需要一个好的哈希函数。除了高效计算外，好的哈希函数还具有哪些属性？如何设计好的哈希函数？
 - en: 'This section first attempts to answer these questions based on two ad hoc approaches
     for creating hash functions: hashing by division and hashing by multiplication.
     Although these methods work well for some sets of input keys, they are limited
     because they try to provide a single fixed hash function that works well on any
     data—an approach called ***static hashing***.'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节首先尝试根据两种自适应方法来回答这些问题：除法哈希和乘法哈希。尽管这些方法对某些输入键集合效果很好，但它们受限于它们试图提供一个在任何数据上都表现良好的单一固定哈希函数的方法，这种方法称为***静态哈希***。
 - en: We then see that provably good average-case performance for *any* data can be
     obtained by designing a suitable *family* of hash functions and choosing a hash
     function at random from this family at runtime, independent of the data to be
     hashed. The approach we examine is called random hashing. A particular kind of
     random hashing, universal hashing, works well. As we saw with quicksort in [Chapter
     7](chapter007.xhtml), randomization is a powerful algorithmic design tool.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后我们看到，通过设计适当的哈希函数*族*并在运行时从这个族中随机选择一个哈希函数，可以获得对*任何*数据的可证明良好的平均情况性能，而与要被哈希的���据无关。我们研究的方法称为随机哈希。一种特殊的随机哈希，称为通用哈希，效果很好。正如我们在[第7章](chapter007.xhtml)中看到的快速排序一样，随机化是一种强大的算法设计工具。
 - en: '**What makes a good hash function?**'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '**什么是好的哈希函数？**'
 - en: 'A good hash function satisfies (approximately) the assumption of independent
     uniform hashing: each key is equally likely to hash to any of the *m* slots, independently
     of where any other keys have hashed to. What does “equally likely” mean here?
     If the hash function is fixed, any probabilities would have to be based on the
     probability distribution of the input keys.'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个好的哈希函数（大致上）满足独立均匀哈希的假设：每个键被哈希到任意一个*m*个槽中的概率相等，与其他键哈希到的位置无关。这里的“相等概率”是什么意思？如果哈希函数固定，任何概率都必须基于输入键的概率分布。
 - en: Unfortunately, you typically have no way to check this condition, unless you
     happen to know the probability distribution from which the keys are drawn. Moreover,
     the keys might not be drawn independently.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，通常情况下你无法检查这个条件，除非你碰巧知道键是从哪个概率分布中抽取的。此外，键可能不是独立抽取的。
 - en: Occasionally you might know the distribution. For example, if you know that
     the keys are random real numbers *k* independently and uniformly distributed in
     the range 0 ≤ *k* < 1, then the hash function
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时你可能知道分布。例如，如果你知道键是独立且均匀分布在范围0 ≤ *k* < 1的随机实数*k*，那么哈希函数
 - en: '*h*(*k*) = ⌊*km*⌋'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*(*k*) = ⌊*km*⌋'
 - en: satisfies the condition of independent uniform hashing.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 满足独立均匀哈希条件。
 - en: A good static hashing approach derives the hash value in a way that you expect
     to be independent of any patterns that might exist in the data. For example, the
     “division method” (discussed in [Section 11.3.1](chapter011.xhtml#Sec_11.3.1))
     computes the hash value as the remainder when the key is divided by a specified
     prime number. This method may give good results, if you (somehow) choose a prime
     number that is unrelated to any patterns in the distribution of keys.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个好的静态哈希方法以一种你期望的方式派生哈希值，这种方式应该独立于数据中可能存在的任何模式。例如，“除法法”（在[第11.3.1节](chapter011.xhtml#Sec_11.3.1)中讨论）计算哈希值为键除以指定质数时的余数。如果你（某种方式）选择了一个与键的分布中的任何模式无关的质数，这种方法可能会产生良好的结果。
 - en: Random hashing, described in [Section 11.3.2](chapter011.xhtml#Sec_11.3.2),
     picks the hash function to be used at random from a suitable family of hashing
     functions. This approach removes any need to know anything about the probability
@@ -588,34 +829,48 @@
     behavior then comes from the (known) random process used to pick the hash function
     from the family of hash functions, rather than from the (unknown) process used
     to create the input keys. We recommend that you use random hashing.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 随机哈希，描述在[第11.3.2节](chapter011.xhtml#Sec_11.3.2)，从适当的哈希函数族中随机选择要使用的哈希函数。这种方法消除了对输入键概率分布的了解的需求，因为用于获得良好平均情况行为的随机化来自于用于从哈希函数族中随机选择哈希函数的（已知）随机过程，而不是来自于用于创建输入键的（未知）过程。我们建议您使用随机哈希。
 - en: '**Keys are integers, vectors, or strings**'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '**键是整数、向量或字符串**'
 - en: 'In practice, a hash function is designed to handle keys that are one of the
     following two types:'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实践中，哈希函数设计用于处理以下两种类型的键之一：
 - en: A short nonnegative integer that fits in a *w*-bit machine word. Typical values
     for *w* would be 32 or 64.
+  id: totrans-113
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 适合于*w*位机器字的短的非负整数。*w*的典型值为32或64。
 - en: A short vector of nonnegative integers, each of bounded size. For example, each
     element might be an 8-bit byte, in which case the vector is often called a (byte)
     string. The vector might be of variable length.
+  id: totrans-114
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 一组短的非负整数向量，每个元素的大小有限。例如，每个元素可能是一个8位字节，此时向量通常称为（字节）字符串。向量的长度可能是可变的。
 - en: To begin, we assume that keys are short nonnegative integers. Handling vector
     keys is more complicated and discussed in [Sections 11.3.5](chapter011.xhtml#Sec_11.3.5)
     and [11.5.2](chapter011.xhtml#Sec_11.5.2).
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们假设键是短的非负整数。处理向量键更为复杂，详见[第11.3.5节](chapter011.xhtml#Sec_11.3.5)和[11.5.2节](chapter011.xhtml#Sec_11.5.2)。
 - en: '**11.3.1    Static hashing**'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.3.1    静态哈希**'
 - en: 'Static hashing uses a single, fixed hash function. The only randomization available
     is through the (usually unknown) distribution of input keys. This section discusses
     two standard approaches for static hashing: the division method and the multiplication
@@ -623,60 +878,86 @@
     also provides a good foundation for “nonstatic” hashing—better known as random
     hashing—where the hash function is chosen at random from a suitable family of
     hash functions.'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 静态哈希使用单一固定的哈希函数。唯一的随机化是通过（通常未知的）输入键的分布。本节讨论了静态哈希的两种标准方法：除法法和乘法法。虽然不再推荐使用静态哈希，但乘法法也为“非静态”哈希提供了良好的基础，更为人熟知的是随机哈希，其中哈希函数从适当的哈希函数族中随机选择。
 - en: '**The division method**'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: '**除法法**'
 - en: The ***division method*** for creating hash functions maps a key *k* into one
     of *m* slots by taking the remainder of *k* divided by *m*. That is, the hash
     function is
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于创建哈希函数的***除法法***将键*k*映射到*m*个槽中的一个，方法是取*k*除以*m*的余数。也就是说，哈希函数是
 - en: '*h*(*k*) = *k* mod *m*.'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*(*k*) = *k* mod *m*.'
 - en: For example, if the hash table has size *m* = 12 and the key is *k* = 100, then
     *h*(*k*) = 4\. Since it requires only a single division operation, hashing by
     division is quite fast.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果哈希表的大小*m* = 12，键为*k* = 100，那么*h*(*k*) = 4。由于只需要一次除法操作，通过除法哈希非常快。
 - en: The division method may work well when *m* is a prime not too close to an exact
     power of 2\. There is no guarantee that this method provides good average-case
     performance, however, and it may complicate applications since it constrains the
     size of the hash tables to be prime.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 当*m*是一个不太接近2的幂的素数时，除法方法可能效果良好。然而，并没有保证这种方法提供良好的平均性能，而且可能会使应用程序复杂化，因为它限制了哈希表的大小必须是素数。
 - en: '**The multiplication method**'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '**乘法方法**'
 - en: The general ***multiplication method*** for creating hash functions operates
     in two steps. First, multiply the key *k* by a constant *A* in the range 0 < *A*
     < 1 and extract the fractional part of *kA*. Then, multiply this value by *m*
     and take the floor of the result. That is, the hash function is
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于创建哈希函数的一般***乘法方法***分为两步。首先，将键*k*乘以范围在0 < *A* < 1的常数*A*并提取*kA*的小数部分。然后，将这个值乘以*m*并取结果的底部。也就是说，哈希函数是
 - en: '*h*(*k*) = ⌊*m* (*kA* mod 1)⌋,'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*(*k*) = ⌊*m* (*kA* mod 1)⌋，'
 - en: where “*kA* mod 1” means the fractional part of *kA*, that is, *kA* − ⌊*kA*⌋.
     The general multiplication method has the advantage that the value of *m* is not
     critical and you can choose it independently of how you choose the multiplicative
     constant *A*.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中“*kA* mod 1”表示*kA*的小数部分，即*kA* − ⌊*kA*⌋。一般乘法方法的优点是*m*的值并不关键，你可以独立选择它，不受如何选择乘法常数*A*的影响。
 - en: '![art](images/Art_P385.jpg)'
+  id: totrans-127
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P385.jpg)'
 - en: '**Figure 11.4** The multiply-shift method to compute a hash function. The *w*-bit
     representation of the key *k* is multiplied by the *w*-bit value *a* = *A* · 2*^w*.
     The *ℓ* highest-order bits of the lower *w*-bit half of the product form the desired
     hash value *h[a]*(*k*).'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图11.4** 乘移位方法计算哈希函数。键*k*的*w*位表示乘以*w*位值*a* = *A* · 2*^w*。下半部分乘积的*ℓ*个最高位形成所需的哈希值*h[a]*(*k*)。'
 - en: '**The multiply-shift method**'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '**乘移位方法**'
 - en: In practice, the multiplication method is best in the special case where the
     number *m* of hash-table slots is an exact power of 2, so that *m* = 2*^ℓ* for
     some integer *ℓ*, where *ℓ* ≤ *w* and *w* is the number of bits in a machine word.
@@ -684,8 +965,11 @@
     < 1 as in the multiplication method so that *a* is in the range 0 < *a* < 2*^w*,
     you can implement the function on most computers as follows. We assume that a
     key *k* fits into a single *w*-bit word.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实践中，乘法方法在哈希表槽数*m*是2的幂的特殊情况下表现最佳，即*m* = 2*^ℓ*，其中*ℓ* ≤ *w*，*w*是机器字中的位数。如果选择一个固定的*w*位正整数*a*
+    = *A* 2*^w*，其中0 < *A* < 1，如乘法方法中所述，使得*a*在范围0 < *a* < 2*^w*，你可以在大多数计算机上实现函数如下。我们假设一个键*k*适合于单个*w*位字。
 - en: Referring to [Figure 11.4](chapter011.xhtml#Fig_11-4), first multiply *k* by
     the *w*-bit integer *a*. The result is a 2*w*-bit value *r*[1]2*^w* + *r*[0],
     where *r*[1] is the high-order *w*-bit word of the product and *r*[0] is the low-order
@@ -693,14 +977,21 @@
     most significant bits of *r*[0]. (Since *r*[1] is ignored, the hash function can
     be implemented on a computer that produces only a *w*-bit product given two *w*-bit
     inputs, that is, where the multiplication operation computes modulo 2*^w*.)
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 参考[图11.4](chapter011.xhtml#Fig_11-4)，首先将*k*乘以*w*位整数*a*。结果是一个2*w*位值*r*[1]2*^w*
+    + *r*[0]，其中*r*[1]是乘积的高阶*w*位字，*r*[0]是乘积的低阶*w*位字。所需的*ℓ*位哈希值由*r*[0]的*ℓ*个最高有效位组成。（由于*r*[1]被忽略，哈希函数可以在只产生两个*w*位输入的计算机上实现，即乘法运算对2*^w*取模。）
 - en: In other words, you define the hash function *h* = *h[a]*, where
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 换句话说，你定义哈希函数*h* = *h[a]*，其中
 - en: '![art](images/Art_P386.jpg)'
+  id: totrans-133
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P386.jpg)'
 - en: 'for a fixed nonzero *w*-bit value *a*. Since the product *ka* of two *w*-bit
     words occupies 2*w* bits, taking this product modulo 2*^w* zeroes out the high-order
     *w* bits (*r*[1]), leaving only the low-order *w* bits (*r*[0]). The ⋙ operator
@@ -710,25 +1001,36 @@
     the floor of the result.) The resulting value equals the *ℓ* most significant
     bits of *r*[0]. The hash function *h[a]* can be implemented with three machine
     instructions: multiplication, subtraction, and logical right shift.'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于一个固定的非零*w*位值*a*。由于两个*w*位字的乘积*ka*占据2*w*位，对这个乘积取模2*^w*会将高阶*w*位清零（*r*[1]），只留下低阶*w*位（*r*[0]）。⋙运算符执行逻辑右移*w*
+    − *ℓ*位，将0移入左侧的空位，使得*r*[0]的*ℓ*个最高有效位移入最右侧位置。（这等同于除以2^(*w*−*ℓ*)并取结果的底部。）结果值等于*r*[0]的*ℓ*个最高有效位。哈希函数*h[a]*可以用三条机器指令实现：乘法、减法和逻辑右移。
 - en: As an example, suppose that *k* = 123456, *ℓ* = 14, *m* = 2^(14) = 16384, and
     *w* = 32\. Suppose further that we choose *a* = 2654435769 (following a suggestion
     of Knuth [[261](bibliography001.xhtml#endnote_261)]). Then *ka* = 327706022297664
     = (76300 · 2^(32)) + 17612864, and so *r*[1] = 76300 and *r*[0] = 17612864\. The
     14 most significant bits of *r*[0] yield the value *h[a]*(*k*) = 67.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 举例，假设*k* = 123456，*ℓ* = 14，*m* = 2^(14) = 16384，*w* = 32。进一步假设我们选择*a* = 2654435769（根据Knuth的建议[[261](bibliography001.xhtml#endnote_261)]）。那么*ka*
+    = 327706022297664 = (76300 · 2^(32)) + 17612864，因此*r*[1] = 76300，*r*[0] = 17612864。*r*[0]的14个最高有效位产生值*h[a]*(*k*)
+    = 67。
 - en: Even though the multiply-shift method is fast, it doesn’t provide any guarantee
     of good average-case performance. The universal hashing approach presented in
     the next section provides such a guarantee. A simple randomized variant of the
     multiply-shift method works well on the average, when the program begins by picking
     *a* as a randomly chosen odd integer.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使乘移位方法很快，也不能保证良好的平均性能。下一节介绍的通用哈希方法提供了这样的保证。当程序以随机选择的奇整数*a*开始时，乘移位方法的简单随机变体在平均情况下表现良好。
 - en: '**11.3.2    Random hashing**'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.3.2    随机哈希**'
 - en: Suppose that a malicious adversary chooses the keys to be hashed by some fixed
     hash function. Then the adversary can choose *n* keys that all hash to the same
     slot, yielding an average retrieval time of Θ(*n*). Any static hash function is
@@ -738,16 +1040,21 @@
     hashing***. A special case of this approach, called ***universal hashing***, can
     yield provably good performance on average when collisions are handled by chaining,
     no matter which keys the adversary chooses.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设一个恶意对手选择由某个固定哈希函数进行哈希的键。然后对手可以选择*n*个键，使其全部哈希到同一个槽，导致平均检索时间为Θ(*n*)。任何静态哈希函数都容易受到这种可怕的最坏情况行为的影响。改善情况的唯一有效方法是以一种与实际要存储的键无关的方式*随机*选择哈希函数。这种方法称为***random
+    hashing***。这种方法的一个特例称为***universal hashing***，可以在处理冲突时通过链式解决，无论对手选择哪些键，都可以在平均情况下提供可证明的良好性能。
 - en: To use random hashing, at the beginning of program execution you select the
     hash function at random from a suitable family of functions. As in the case of
     quicksort, randomization guarantees that no single input always evokes worst-case
     behavior. Because you randomly select the hash function, the algorithm can behave
     differently on each execution, even for the same set of keys to be hashed, guaranteeing
     good average-case performance.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使用随机哈希，在程序执行开始时，您从适当的函数族中随机选择哈希函数。与快速排序的情况类似，随机化保证没有单个输入总是引发最坏情况行为。由于您随机选择哈希函数，即使对要进行哈希的相同键集合，算法在每次执行时的行为也可能不同，从而保证了良好的平均情况性能。
 - en: Let H be a finite family of hash functions that map a given universe *U* of
     keys into the range {0, 1, …, *m* − 1}. Such a family is said to be ***universal***
     if for each pair of distinct keys *k*[1], *k*[2] ∈ *U*, the number of hash functions
@@ -756,34 +1063,48 @@
     distinct keys *k*[1] and *k*[2] is no more than the chance 1/*m* of a collision
     if *h*(*k*[1]) and *h*(*k*[2]) were randomly and independently chosen from the
     set {0, 1, …, *m* − 1}.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*H*为一个有限的哈希函数族，将给定的键的宇宙*U*映射到范围{0, 1, …, *m* − 1}。如果对于*U*中的每对不同的键*k*[1]，*k*[2]，使得对于*H*中的哈希函数*h*，满足*h*(*k*[1])
+    = *h*(*k*[2])的数量最多为|*H*|/*m*，则称这样的族为***universal***。换句话说，从*H*中随机选择一个哈希函数，不同键*k*[1]和*k*[2]*发生碰撞的概率不超过1/*m*，如果*h*(*k*[1])和*h*(*k*[2])*是从集合{0,
+    1, …, *m* − 1}中随机且独立选择的。
 - en: Independent uniform hashing is the same as picking a hash function uniformly
     at random from a family of *m^n* hash functions, each member of that family mapping
     the *n* keys to the *m* hash values in a different way.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 独立均匀哈希与从包含*m^n*个哈希函数的族中随机选择一个哈希函数是相同的，该族中的每个成员以不同的方式将*n*个键映射到*m*个哈希值。
 - en: 'Every independent uniform random family of hash function is universal, but
     the converse need not be true: consider the case where *U* = {0, 1, …, *m* − 1}
     and the only hash function in the family is the identity function. The probability
     that two distinct keys collide is zero, even though each key is hashes to a fixed
     value.'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个独立均匀随机的哈希函数族都是universal的，但反之不一定成立：考虑*U* = {0, 1, …, *m* − 1}的情况，族中唯一的哈希函数是恒等函数。即使每个键都映射到一个固定值，两个不同键发生碰撞的概率为零。
 - en: 'The following corollary to Theorem 11.2 on page 279 says that universal hashing
     provides the desired payoff: it becomes impossible for an adversary to pick a
     sequence of operations that forces the worst-case running time.'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于第279页上定理11.2的以下推论表明，universal hashing提供了期望的回报：对于对手来说，无法选择一系列操作来强制最坏情况下的运行时间。
 - en: '***Corollary 11.3***'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: '***推论 11.3***'
 - en: Using universal hashing and collision resolution by chaining in an initially
     empty table with *m* slots, it takes Θ(*s*) expected time to handle any sequence
     of *s* INSERT, SEARCH, and DELETE operations containing *n* = *O*(*m*) INSERT
     operations.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用universal哈希和在初始空表中通过链式解决冲突，处理包含*n* = *O*(*m*)个插入操作的任意序列的*s*个插入、搜索和删除操作的期望时间为Θ(*s*)。
 - en: '***Proof***   The INSERT and DELETE operations take constant time. Since the
     number *n* of insertions is *O*(*m*), we have that *α* = *O*(1). Furthermore,
     the expected time for each SEARCH operation is *O*(1), which can be seen by examining
@@ -794,71 +1115,100 @@
     from 1/*m* to at most 1/*m*. By linearity of expectation, therefore, the expected
     time for the entire sequence of *s* operations is *O*(*s*). Since each operation
     takes Ω(1) time, the Θ(*s*) bound follows.'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   插入和删除操作需要常数时间。由于插入次数*n*为*O*(*m*)，我们有*α* = *O*(1)。此外，每个搜索操作的期望时间为*O*(1)，可以通过检查定理11.2的证明来看出。该分析仅取决于碰撞概率，根据该定理中独立均匀哈希函数的选择，任意键*k*[1]，*k*[2]的碰撞概率为1/*m*。在这里使用universal哈希函数族而不是使用独立均匀哈希会将碰撞概率从1/*m*改变为最多1/*m*。因此，根据期望的线性性，整个*s*个操作序列的期望时间为*O*(*s*)。由于每个操作需要Ω(1)时间，因此Θ(*s*)的界限成立。'
 - en: ▪
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**11.3.3    Achievable properties of random hashing**'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.3.3    随机哈希的可实现属性**'
 - en: There is a rich literature on the properties a family H of hash functions can
     have, and how they relate to the efficiency of hashing. We summarize a few of
     the most interesting ones here.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 有关哈希函数族*H*可能具有的属性以及它们与哈希效率的关系有丰富的文献。我们在这里总结了一些最有趣的内容。
 - en: Let H be a family of hash functions, each with domain *U* and range {0, 1, …,
     *m* − 1}, and let *h* be any hash function that is picked uniformly at random
     from H. The probabilities mentioned are probabilities over the picks of *h*.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*H*是一个哈希函数族，每个哈希函数的定义域为*U*，值域为{0, 1, …, *m* − 1}，*h*是从*H*中随机选择的任意哈希函数。所提到的概率是对*h*的选择的概率。
 - en: The family H is ***uniform*** if for any key *k* in *U* and any slot *q* in
     the range {0, 1, …, *m* − 1}, the probability that *h*(*k*) = *q* is 1/*m*.
+  id: totrans-151
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果对于*U*中的任意键*k*和范围{0, 1, …, *m* − 1}中的任意槽*q*，*h*(*k*) = *q*的概率为1/*m*，则哈希函数族*H*是***均匀***的。
 - en: The family H is ***universal*** if for any distinct keys *k*[1] and *k*[2] in
     *U*, the probability that *h*(*k*[1]) = *h*(*k*[2]) is at most 1/*m*.
+  id: totrans-152
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果对于*U*中的任意不同键*k*[1]和*k*[2]，*h*(*k*[1]) = *h*(*k*[2])的概率最多为1/*m*，则哈希函数族*H*是***通用***的。
 - en: The family H of hash functions is ***ϵ-universal*** if for any distinct keys
     *k*[1] and *k*[2] in *U*, the probability that *h*(*k*[1]) = *h*(*k*[2]) is at
     most *ϵ*. Therefore, a universal family of hash functions is also 1/*m*-universal.^([2](#footnote_2))
+  id: totrans-153
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果对于*U*中的任意不同键*k*[1]和*k*[2]，*h*(*k*[1]) = *h*(*k*[2])的概率最多为*ϵ*，那么哈希函数族*H*是***ϵ-通用***的。因此，通用哈希函数族也是1/*m*-通用的。^([2](#footnote_2))
 - en: The family H is ***d-independent*** if for any distinct keys *k*[1], *k*[2],
     …, *k[d]* in *U* and any slots *q*[1], *q*[2], …, *q[d]*, not necessarily distinct,
     in {0, 1, …, *m* − 1} the probability that *h*(*k[i]*) = *q[i]* for *i* = 1, 2,
     …, *d* is 1/*m^d*.
+  id: totrans-154
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果对于*U*中的任意不同键*k*[1]、*k*[2]、…、*k[d]*和任意槽*q*[1]、*q*[2]、…、*q[d]*（不一定不同）在{0, 1,
+    …, *m* − 1}中，*h*(*k[i]*) = *q[i]*对*i* = 1, 2, …, *d*的概率为1/*m^d*，则哈希函数族*H*是***d-独立***的。
 - en: Universal hash-function families are of particular interest, as they are the
     simplest type supporting provably efficient hash-table operations for any input
     data set. Many other interesting and desirable properties, such as those noted
     above, are also possible and allow for efficient specialized hash-table operations.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 通用哈希函数族特别引人关注，因为它们是支持对任何输入数据集进行高效哈希表操作的最简单类型。许多其他有趣和理想的特性，如上述所述，也是可能的，并且允许进行高效的专门哈希表操作。
 - en: '**11.3.4    Designing a universal family of hash functions**'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.3.4    设计一个通用的哈希函数族**'
 - en: 'This section present two ways to design a universal (or *ϵ*-universal) family
     of hash functions: one based on number theory and another based on a randomized
     variant of the multiply-shift method presented in [Section 11.3.1](chapter011.xhtml#Sec_11.3.1).
     The first method is a bit easier to prove universal, but the second method is
     newer and faster in practice.'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节介绍了两种设计通用（或*ϵ*-通用）哈希函数族的方法：一种基于数论，另一种基于[第11.3.1节](chapter011.xhtml#Sec_11.3.1)中介绍的随机化乘法位移方法的变体。第一种方法更容易证明是通用的，但第二种方法在实践中更快。
 - en: '**A universal family of hash functions based on number theory**'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: '**基于数论的通用哈希函数族**'
 - en: We can design a universal family of hash functions using a little number theory.
     You may wish to refer to [Chapter 31](chapter031.xhtml) if you are unfamiliar
     with basic concepts in number theory.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以利用一些数论知识设计一个通用的哈希函数族。如果对数论中的基本概念不熟悉，可以参考[第31章](chapter031.xhtml)。
 - en: Begin by choosing a prime number *p* large enough so that every possible key
     *k* lies in the range 0 to *p* − 1, inclusive. We assume here that *p* has a “reasonable”
     length. (See [Section 11.3.5](chapter011.xhtml#Sec_11.3.5) for a discussion of
@@ -868,61 +1218,96 @@
     *p* with the methods given in [Chapter 31](chapter031.xhtml). Because the size
     of the universe of keys is greater than the number of slots in the hash table
     (otherwise, just use direct addressing), we have *p* > *m*.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先选择一个足够大的质数*p*，使得每个可能的键*k*都在0到*p* − 1的范围内，包括*p*。我们假设这里的*p*有一个“合理”的长度。（有关处理长输入键的方法，如可变长度字符串的讨论，请参见[第11.3.5节](chapter011.xhtml#Sec_11.3.5)。）让ℤ*[p]*表示集合{0,
+    1, …, *p* − 1}，让![艺术](images/Art_zpast.jpg)表示集合{1, 2, …, *p* − 1}。由于*p*是质数，我们可以使用[第31章](chapter031.xhtml)中给出的方法在模*p*下解方程。由于键的宇宙大小大于哈希表中槽的数量（否则，只需使用直接寻址），我们有*p*
+    > *m*。
 - en: 'Given any ![art](images/Art_P387.jpg) and any *b* ∈ ℤ[*p*], define the hash
     function *h[ab]* as a linear transformation followed by reductions modulo *p*
     and then modulo *m*:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定任何![艺术](images/Art_P387.jpg)和任何*b* ∈ ℤ[*p*]，将哈希函数*h[ab]*定义为线性变换，然后通过模*p*和模*m*的减少：
 - en: '![art](images/Art_P388.jpg)'
+  id: totrans-162
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P388.jpg)'
 - en: For example, with *p* = 17 and *m* = 6, we have
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，当*p* = 17且*m* = 6时，我们有
 - en: '| *h*[3,4](8) | = | ((3 · 8 + 4) mod 17) mod 6 |'
+  id: totrans-164
   prefs: []
   type: TYPE_TB
+  zh: '| *h*[3,4](8) | = | ((3 · 8 + 4) mod 17) mod 6 |'
 - en: '|  | = | (28 mod 17) mod 6 |'
+  id: totrans-165
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | (28 mod 17) mod 6 |'
 - en: '|  | = | 11 mod 6 |'
+  id: totrans-166
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 11 mod 6 |'
 - en: '|  | = | 5. |'
+  id: totrans-167
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 5. |'
 - en: Given *p* and *m*, the family of all such hash functions is
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定*p*和*m*，所有这样的哈希函数族是
 - en: '![art](images/Art_P389.jpg)'
+  id: totrans-169
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P389.jpg)'
 - en: Each hash function *h[ab]* maps ℤ*[p]* to ℤ*[m]*. This family of hash functions
     has the nice property that the size *m* of the output range (which is the size
     of the hash table) is arbitrary—it need not be prime. Since you can choose from
     among *p* − 1 values for *a* and *p* values for *b*, the family *H[pm]* contains
     *p*(*p* − 1) hash functions.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个哈希函数*h[ab]*将ℤ*[p]*映射到ℤ*[m]*。这个哈希函数族具有一个很好的特性，即输出范围的大小*m*（也就是哈希表的大小）是任意的，不一定是质数。由于你可以从*p*
+    − 1个值中选择*a*和*p*个值中选择*b*，哈希函数族*H[pm]*包含*p*(*p* − 1)个哈希函数。
 - en: '***Theorem 11.4***'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理11.4***'
 - en: The family *H[pm]* of hash functions defined by equations (11.3) and (11.4)
     is universal.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 由方程(11.3)和(11.4)定义的哈希函数族*H[pm]*是通用的。
 - en: '***Proof***   Consider two distinct keys *k*[1] and *k*[2] from ℤ*[p]*, so
     that *k*[1] ≠ *k*[2]. For a given hash function *h[ab]*, let'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   考虑ℤ*[p]*中的两个不同键*k*[1]和*k*[2]，使得*k*[1] ≠ *k*[2]。对于给定的哈希函数*h[ab]*，令'
 - en: '*r*[1] = (*ak*[1] + *b*) mod *p*,'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '*r*[1] = (*ak*[1] + *b*) mod *p*，'
 - en: '*r*[2] = (*ak*[2] + *b*) mod *p*.'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: '*r*[2] = (*ak*[2] + *b*) mod *p*。'
 - en: 'We first note that *r*[1] ≠ *r*[2]. Why? Since we have *r*[1] − *r*[2] = *a*(*k*[1]
     − *k*[2]) (mod *p*), it follows that *r*[1] ≠ *r*[2] because *p* is prime and
     both *a* and (*k*[1] − *k*[2]) are nonzero modulo *p*. By Theorem 31.6 on page
@@ -932,14 +1317,23 @@
     level.” Moreover, each of the possible *p*(*p* − 1) choices for the pair (*a*,
     *b*) with *a* ≠ 0 yields a *different* resulting pair (*r*[1], *r*[2]) with *r*[1]
     ≠ *r*[2], since we can solve for *a* and *b* given *r*[1] and *r*[2]:'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先注意到*r*[1] ≠ *r*[2]。为什么？因为我们有*r*[1] − *r*[2] = *a*(*k*[1] − *k*[2]) (mod *p*)，由此可知*r*[1]
+    ≠ *r*[2]，因为*p*是质数，而*a*和(*k*[1] − *k*[2])在模*p*下都不为零。根据第908页的定理31.6，它们的乘积在模*p*下也必须不为零。因此，在计算任何*h[ab]*
+    ∈ *H[pm]*时，不同的输入*k*[1]和*k*[2]*映射到不同的值*r*[1]和*r*[2]*在模*p*下，而在“模*p*级别”上还没有碰撞。此外，对于每对(*a*,
+    *b*)，其中*a* ≠ 0的*p*(*p* − 1)种选择都会产生不同的结果对(*r*[1], *r*[2])*，其中*r*[1] ≠ *r*[2]，因为我们可以根据*r*[1]和*r*[2]*解出*a*和*b*：
 - en: '*a* = ((*r* − *r*[2])((*k*[1] − *k*[2])^(−1) mod *p*)) mod *p*,'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '*a* = ((*r* − *r*[2])((*k*[1] − *k*[2])^(−1) mod *p*)) mod *p*，'
 - en: '*b* = (*r*[1] − *ak*[1]) mod *p*,'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '*b* = (*r*[1] − *ak*[1]) mod *p*，'
 - en: where ((*k*[1] − *k*[2])^(−1) mod *p*) denotes the unique multiplicative inverse,
     modulo *p*, of *k*[1] − *k*[2]. For each of the *p* possible values of *r*[1],
     there are only *p* − 1 possible values of *r*[2] that do not equal *r*[1], making
@@ -949,98 +1343,147 @@
     inputs *k*[1] and *k*[2], if we pick (*a*, *b*) uniformly at random from ![art](images/Art_P390.jpg),
     the resulting pair (*r*[1], *r*[2]) is equally likely to be any pair of distinct
     values modulo *p*.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中((*k*[1] − *k*[2])^(−1) mod *p*)表示*k*[1] − *k*[2]*在模*p*下的唯一乘法逆元。对于每个*r*[1]的*p*个可能值，只有*p*
+    − 1个*r*[2]的可能值不等于*r*[1]，从而只有*p*(*p* − 1)个可能的对(*r*[1], *r*[2])*，其中*r*[1] ≠ *r*[2]。因此，对于每对不同的输入*k*[1]和*k*[2]*，如果我们从![art](images/Art_P390.jpg)*中随机选择(*a*,
+    *b*)，则得到的对(*r*[1], *r*[2])*在模*p*下是任意一对不同值的可能性相等。
 - en: Therefore, the probability that distinct keys *k*[1] and *k*[2] collide is equal
     to the probability that *r*[1] = *r*[2] (mod *m*) when *r*[1] and *r*[2] are randomly
     chosen as distinct values modulo *p*. For a given value of *r*[1], of the *p*
     − 1 possible remaining values for *r*[2], the number of values *r*[2] such that
     *r*[2] ≠ *r*[1] and *r*[2] = *r*[1] (mod *m*) is at most
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，不同键*k*[1]和*k*[2]*碰撞的概率等于*r*[1] = *r*[2]* (mod *m*)时的概率，其中*r*[1]*和*r*[2]*被随机选择为模*p*下的不同值。对于给定的*r*[1]*的值，对于*r*[2]*的*p*
+    − 1个可能剩余值，*r*[2]*的值不等于*r*[1]*且*r*[2]* = *r*[1]* (mod *m*)的值的数量最多为
 - en: '![art](images/Art_P391.jpg)'
+  id: totrans-181
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P391.jpg)'
 - en: The probability that *r*[2] collides with *r*[1] when reduced modulo *m* is
     at most ((*p* − 1)/*m*)/(*p* − 1) = 1/*m*, since *r*[2] is equally likely to be
     any of the *p* − 1 values in *Z[p]* that are different from *r*[1], but at most
     (*p* − 1)/*m* of those values are equivalent to *r*[1] modulo *m*.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 当*r*[2]*在模*m*下减少时，*r*[2]*与*r*[1]*碰撞的概率最多为((*p* − 1)/*m*)/(*p* − 1) = 1/*m*，因为*r*[2]*等可能地是与*r*[1]*不同的*Z[p]*中的*p*
+    − 1个值之一，但最多有(*p* − 1)/*m*个值等价于*r*[1]*模*m*。
 - en: Therefore, for any pair of distinct values *k*[1], *k*[2] ∈ ℤ[*p*],
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，对于任意一对不同值*k*[1]，*k*[2] ∈ ℤ[*p*]，
 - en: Pr{*h[ab]*(*k*[1]) = *h[ab]*(*k*[2])} ≤ 1/*m*,
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: Pr{*h[ab]*(*k*[1]) = *h[ab]*(*k*[2])} ≤ 1/*m*，
 - en: so that *H[pm]* is indeed universal.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此*H[pm]*确实是通用的。
 - en: ▪
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**A 2/*m*-universal family of hash functions based on the multiply-shift method**'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '**基于乘移位方法的2/*m*-通用哈希函数族**'
 - en: 'We recommend that in practice you use the following hash-function family based
     on the multiply-shift method. It is exceptionally efficient and (although we omit
     the proof) provably 2/*m*-universal. Define H to be the family of multiply-shift
     hash functions with odd constants *a*:'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们建议在实践中使用基于乘移位方法的以下哈希函数族。它异常高效，并且（尽管我们省略了证明）可以证明是2/*m*-通用的。定义H为具有奇数常数*a*的乘移位哈希函数族：
 - en: '![art](images/Art_P392.jpg)'
+  id: totrans-189
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P392.jpg)'
 - en: '***Theorem 11.5***'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理11.5***'
 - en: The family of hash functions H given by equation (11.5) is 2/*m*-universal.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 方程(11.5)给出的哈希函数族H是2/*m*-通用的。
 - en: ▪
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: That is, the probability that any two distinct keys collide is at most 2/*m*.
     In many practical situations, the speed of computing the hash function more than
     compensates for the higher upper bound on the probability that two distinct keys
     collide when compared with a universal hash function.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 换句话说，任意两个不同键碰撞的概率最多为2/*m*。在许多实际情况下，计算哈希函数的速度超过了两个不同键碰撞的概率的上限，与通用哈希函数相比。
 - en: '**11.3.5    Hashing long inputs such as vectors or strings**'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.3.5    处理长输入（如向量或字符串）的哈希**'
 - en: Sometimes hash function inputs are so long that they cannot be easily encoded
     modulo a reasonably sized prime number *p* or encoded within a single word of,
     say, 64 bits. As an example, consider the class of vectors, such as vectors of
     8-bit bytes (which is how strings in many programming languages are stored). A
     vector might have an arbitrary nonnegative length, in which case the length of
     the input to the hash function may vary from input to input.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时哈希函数的输入非常长，以至于无法轻松地编码为合理大小的质数*p*或在64位的单词内编码。例如，考虑向量类，例如8位字节的向量（许多编程语言中字符串的存储方式）。向量的长度可能是任意非负长度，因此哈希函数的输入长度可能因输入而异。
 - en: '**Number-theoretic approaches**'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: '**数论方法**'
 - en: One way to design good hash functions for variable-length inputs is to extend
     the ideas used in [Section 11.3.4](chapter011.xhtml#Sec_11.3.4) to design universal
     hash functions. Exercise 11.3-6 explores one such approach.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 设计用于可变长度输入的良好哈希函数的一种方法是扩展[第11.3.4节](chapter011.xhtml#Sec_11.3.4)中使用的思想，以设计通用哈希函数。练习11.3-6探讨了一种这样的方法。
 - en: '**Cryptographic hashing**'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '**加密哈希**'
 - en: Another way to design a good hash function for variable-length inputs is to
     use a hash function designed for cryptographic applications. ***Cryptographic
     hash functions*** are complex pseudorandom functions, designed for applications
     requiring properties beyond those needed here, but are robust, widely implemented,
     and usable as hash functions for hash tables.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 为变长输入设计一个良好的哈希函数的另一种方法是使用为加密应用设计的哈希函数。***密码哈希函数*** 是复杂的伪随机函数，设计用于需要超出此处所需属性的应用，但它们是强大的、广泛实现的，并可用作哈希表的哈希函数。
 - en: A cryptographic hash function takes as input an arbitrary byte string and returns
     a fixed-length output. For example, the NIST standard deterministic cryptographic
     hash function SHA-256 [[346](bibliography001.xhtml#endnote_346)] produces a 256-bit
     (32-byte) output for any input.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个密码哈希函数将任意字节字符串作为输入，并返回固定长度的输出。例如，NIST 标准确定性密码哈希函数 SHA-256 [[346](bibliography001.xhtml#endnote_346)]
+    为任何输入产生一个 256 位（32 字节）的输出。
 - en: Some chip manufacturers include instructions in their CPU architectures to provide
     fast implementations of some cryptographic functions. Of particular interest are
     instructions that efficiently implement rounds of the Advanced Encryption Standard
@@ -1049,8 +1492,11 @@
     authentication code such as CBC-MAC based on AES and the use of the AES-NI instructions
     could be a useful and efficient hash function. We don’t pursue the potential use
     of specialized instruction sets further here.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些芯片制造商在其 CPU 架构中包含指令，以提供一些加密函数的快速实现。特别感兴趣的是有效实现高级加密标准（AES）轮的指令，“AES-NI” 指令。这些指令执行速度在几十纳秒内，通常足够快以用于哈希表。基于
+    AES 和 AES-NI 指令的消息认证码，如基于 AES 的 CBC-MAC 和使用 AES-NI 指令，可能是一种有用且高效的哈希函数。我们在这里不进一步探讨专用指令集的潜在用途。
 - en: 'Cryptographic hash functions are useful because they provide a way of implementing
     an approximate version of a random oracle. As noted earlier, a random oracle is
     equivalent to an independent uniform hash function family. From a theoretical
@@ -1059,99 +1505,150 @@
     it provides the same output if queried again for the same input. From a practical
     point of view, constructions of hash function families based on cryptographic
     hash functions are sensible substitutes for random oracles.'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 密码哈希函数很有用，因为它们提供了实现随机神谕的近似版本的方法。正如前面所指出的，随机神谕等同于独立均匀哈希函数族。从理论角度看，随机神谕是一个无法实现的理想：一个确定性函数，为每个输入提供随机选择的输出。因为它是确定性的，如果再次查询相同的输入，它将提供相同的输出。从实际角度看，基于密码哈希函数构建哈希函数族是随机神谕的合理替代品。
 - en: There are many ways to use a cryptographic hash function as a hash function.
     For example, we could define
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 有许多方法可以使用密码哈希函数作为哈希函数。例如，我们可以定义
 - en: '*h*(*k*) = SHA-256(*k*) mod *m*.'
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*(*k*) = SHA-256(*k*) mod *m*。'
 - en: To define a family of such hash functions one may prepend a “salt” string *a*
     to the input before hashing it, as in
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 要定义这样的哈希函数族，可以在哈希输入之前添加“盐”字符串 *a*，如
 - en: '*h[a]*(*k*) = SHA-256(*a* ‖ *k*) mod *m*,'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h[a]*(*k*) = SHA-256(*a* ‖ *k*) mod *m*，'
 - en: where *a* ‖ *k* denotes the string formed by concatenating the strings *a* and
     *k*. The literature on message authentication codes (MACs) provides additional
     approaches.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中 *a* ‖ *k* 表示通过连接字符串 *a* 和 *k* 形成的字符串。消息认证码（MACs）的文献提供了额外的方法。
 - en: Cryptographic approaches to hash-function design are becoming more practical
     as computers arrange their memories in hierarchies of differing capacities and
     speeds. [Section 11.5](chapter011.xhtml#Sec_11.5) discusses one hash-function
     design based on the RC6 encryption method.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着计算机将其内存组织为不同容量和速度的层次结构，基于密码的哈希函数设计方法变得更加实用。[第 11.5 节](chapter011.xhtml#Sec_11.5)
+    讨论了一种基于 RC6 加密方法的哈希函数设计。
 - en: '**Exercises**'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***11.3-1***'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.3-1***'
 - en: You wish to search a linked list of length *n*, where each element contains
     a key *k* along with a hash value *h*(*k*). Each key is a long character string.
     How might you take advantage of the hash values when searching the list for an
     element with a given key?
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望搜索一个长度为 *n* 的链表，其中每个元素包含一个键 *k* 和一个哈希值 *h*(*k*)。每个键都是一个长字符字符串。在搜索具有给定键的元素时，您如何利用哈希值？
 - en: '***11.3-2***'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.3-2***'
 - en: You hash a string of *r* characters into *m* slots by treating it as a radix-128
     number and then using the division method. You can represent the number *m* as
     a 32-bit computer word, but the string of *r* characters, treated as a radix-128
     number, takes many words. How can you apply the division method to compute the
     hash value of the character string without using more than a constant number of
     words of storage outside the string itself?
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过将字符串视为基数-128数并使用除法方法，您可以将 *r* 个字符的字符串哈希到 *m* 个槽中。您可以将数字 *m* 表示为一个 32 位计算机字，但是将字符串
+    *r* 个字符视为基数-128数需要多个字。如何应用除法方法计算字符字符串的哈希值，而不使用超出字符串本身的常数字数的存储空间？
 - en: '***11.3-3***'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.3-3***'
 - en: Consider a version of the division method in which *h*(*k*) = *k* mod *m*, where
     *m* = 2*^p* − 1 and *k* is a character string interpreted in radix 2*^p*. Show
     that if string *x* can be converted to string *y* by permuting its characters,
     then *x* and *y* hash to the same value. Give an example of an application in
     which this property would be undesirable in a hash function.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一种除法方法的版本，其中 *h*(*k*) = *k* mod *m*，其中 *m* = 2*^p* − 1，*k* 是以基数 2*^p* 解释的字符字符串。证明如果字符串
+    *x* 可以通过对其字符进行排列转换为字符串 *y*，则 *x* 和 *y* 哈��到相同的值。给出一个在哈希函数中不希望具有此属性的应用示例。
 - en: '***11.3-4***'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.3-4***'
 - en: Consider a hash table of size *m* = 1000 and a corresponding hash function *h*(*k*)
     = ⌊*m* (*kA* mod 1)⌋ for ![art](images/Art_P393.jpg). Compute the locations to
     which the keys 61, 62, 63, 64, and 65 are mapped.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个大小为 *m* = 1000 的哈希表和相应的哈希函数 *h*(*k*) = ⌊*m* (*kA* mod 1)⌋ for ![art](images/Art_P393.jpg)。计算键
+    61、62、63、64 和 65 被映射到的位置。
 - en: ★ ***11.3-5***
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.3-5***
 - en: Show that any *ϵ*-universal family H of hash functions from a finite set *U*
     to a finite set *Q* has *ϵ* ≥ 1/|*Q*| − 1/|*U*|.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明任何从有限集*U*到有限集*Q*的哈希函数的*ϵ*-通用家族H都具有*ϵ* ≥ 1/|*Q*| − 1/|*U*|。
 - en: ★ ***11.3-6***
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.3-6***
 - en: 'Let *U* be the set of *d*-tuples of values drawn from ℤ*[p]*, and let *Q* =
     ℤ*[p]*, where *p* is prime. Define the hash function *h[b]* : *U* → *Q* for *b*
     ∈ ℤ*[p]* on an input *d*-tuple 〈*a*[0], *a*[1], …, *a*[*d*−1]〉 from *U* as'
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: '令*U*为从ℤ*[p]*中抽取的值的*d*元组的集合，令*Q* = ℤ*[p]*，其中*p*是素数。对于来自*U*的输入*d*元组〈*a*[0], *a*[1],
+    …, *a*[*d*−1]〉，定义哈希函数*h[b]* : *U* → *Q*，其中*b* ∈ ℤ*[p]*，如下所示'
 - en: '![art](images/Art_P394.jpg)'
+  id: totrans-222
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P394.jpg)'
 - en: 'and let H = {*h[b]* : *b* ∈ ℤ[*p*]}. Argue that H is *ϵ*-universal for *ϵ*
     = (*d* − 1)/*p*. (*Hint:* See Exercise 31.4-4.)'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: '让H = {*h[b]* : *b* ∈ ℤ[*p*]}。证明H对于*ϵ* = (*d* − 1)/*p*是*ϵ*-通用的。(*提示:* 参见练习31.4-4。)'
 - en: '[**11.4    Open addressing**](toc.xhtml#Rh1-65)'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11.4    开放寻址法**](toc.xhtml#Rh1-65)'
 - en: This section describes open addressing, a method for collision resolution that,
     unlike chaining, does not make use of storage outside of the hash table itself.
     In ***open addressing***, all elements occupy the hash table itself. That is,
@@ -1159,21 +1656,27 @@
     or elements are stored outside the table, unlike in chaining. Thus, in open addressing,
     the hash table can “fill up” so that no further insertions can be made. One consequence
     is that the load factor *α* can never exceed 1.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节描述了开放寻址法，这是一种冲突解决方法，与链接不同，它不使用哈希表之外的存储空间。在***开放寻址法***中，所有元素都占据哈希表本身。也就是说，每个表项要么包含动态集合的一个元素，要么是NIL。与链接不同，没有列表或元素存储在表外。因此，在开放寻址法中，哈希表可能“填满”，以至于无法进行进一步的插入。一个结果是负载因子*α*永远不会超过1。
 - en: 'Collisions are handled as follows: when a new element is to be inserted into
     the table, it is placed in its “first-choice” location if possible. If that location
     is already occupied, the new element is placed in its “second-choice” location.
     The process continues until an empty slot is found in which to place the new element.
     Different elements have different preference orders for the locations.'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 处理冲突的方法如下：当要将新元素插入表中时，如果可能，将其放在“首选”位置。如果该位置已被占用，则将新元素放在“次选”位置。该过程持续进行，直到找到一个空槽来放置新元素。不同的元素对于位置有不同的优先顺序。
 - en: To search for an element, systematically examine the preferred table slots for
     that element, in order of decreasing preference, until either you find the desired
     element or you find an empty slot and thus verify that the element is not in the
     table.
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 要搜索一个元素，有序地检查该元素的首选表槽，按照优先级递减的顺序，直到找到所需的元素或找到一个空槽，从而验证元素不在表中。
 - en: Of course, you could use chaining and store the linked lists inside the hash
     table, in the otherwise unused hash-table slots (see Exercise 11.2-4), but the
     advantage of open addressing is that it avoids pointers altogether. Instead of
@@ -1181,19 +1684,25 @@
     freed by not storing pointers provides the hash table with a larger number of
     slots in the same amount of memory, potentially yielding fewer collisions and
     faster retrieval.
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，你可以使用链接并将链表存储在哈希表内部，存储在未使用的哈希表槽中（参见练习11.2-4），但开放寻址的优势在于完全避免了指针。不需要跟随指针，而是计算要检查的槽位序列。通过不存储指针释���的内存提供了更多的槽位，从而在相同的内存量中提供了更少的冲突和更快的检索。
 - en: To perform insertion using open addressing, successively examine, or ***probe***,
     the hash table until you find an empty slot in which to put the key. Instead of
     being fixed in the order 0, 1, …, *m* − 1 (which implies a Θ(*n*) search time),
     the sequence of positions probed depends upon the key being inserted. To determine
     which slots to probe, the hash function includes the probe number (starting from
     0) as a second input. Thus, the hash function becomes
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用开放寻址法进行插入，连续地检查或***探测***哈希表，直到找到一个空槽来放置密钥。与顺序0, 1, …, *m* − 1（这意味着Θ(*n*)的搜索时间）不同，被探测的位置序列取决于要插入的密钥。为了确定要探测的槽位，哈希函数包括探测编号（从0开始）作为第二个输入。因此，哈希函数变为
 - en: '*h* : *U* × {0, 1, …, *m* − 1} → {0, 1, …, *m* − 1}.'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h* : *U* × {0, 1, …, *m* − 1} → {0, 1, …, *m* − 1}.'
 - en: 'Open addressing requires that for every key *k*, the ***probe sequence*** 〈*h*(*k*,
     0), *h*(*k*, 1), …, *h*(*k*, *m* − 1)〉 be a permutation of 〈0, 1, …, *m* − 1〉,
     so that every hash-table position is eventually considered as a slot for a new
@@ -1204,73 +1713,117 @@
     input a hash table *T* and a key *k* that is assumed to be not already present
     in the hash table. It either returns the slot number where it stores key *k* or
     flags an error because the hash table is already full.'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 开放寻址法要求对于每个密钥*k*，***探测序列*** 〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*, *m* − 1)〉是〈0,
+    1, …, *m* − 1〉的一个排列，以便在表填满时，每个哈希表位置最终被考虑为新密钥的槽位。以下一页的HASH-INSERT过程假定哈希表*T*中的元素是没有卫星信息的密钥：密钥*k*与包含密钥*k*的元素相同。每个槽位要么包含一个密钥，要么是NIL（如果槽位为空）。HASH-INSERT过程接受哈希表*T*和假定不在哈希表中的密钥*k*作为输入。它要么返回存储密钥*k*的槽位号，要么因为哈希表已满而标志错误。
 - en: HASH-INSERT(*T*, *k*)
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: HASH-INSERT(*T*, *k*)
 - en: '| 1 | *i* = 0 |'
+  id: totrans-233
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *i* = 0 |'
 - en: '| 2 | **repeat** |'
+  id: totrans-234
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **重复** |'
 - en: '| 3 | *q* = *h*(*k*, *i*) |'
+  id: totrans-235
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = *h*(*k*, *i*) |'
 - en: '| 4 | **if** *T*[*q*] == NIL |'
+  id: totrans-236
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **如果** *T*[*q*] == NIL |'
 - en: '| 5 | *T*[*q*] = *k* |'
+  id: totrans-237
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | *T*[*q*] = *k* |'
 - en: '| 6 | **return** *q* |'
+  id: totrans-238
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **返回** *q* |'
 - en: '| 7 | **else** *i* = *i* + 1 |'
+  id: totrans-239
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **否则** *i* = *i* + 1 |'
 - en: '| 8 | **until** *i* == *m* |'
+  id: totrans-240
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **直到** *i* == *m* |'
 - en: '| 9 | **error** “hash table overflow” |'
+  id: totrans-241
   prefs: []
   type: TYPE_TB
+  zh: '| 9 | **错误** “哈希表溢出” |'
 - en: HASH-SEARCH(*T*, *k*)
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: HASH-SEARCH(*T*, *k*)
 - en: '| 1 | *i* = 0 |'
+  id: totrans-243
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *i* = 0 |'
 - en: '| 2 | **repeat** |'
+  id: totrans-244
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **重复** |'
 - en: '| 3 | *q* = *h*(*k*, *i*) |'
+  id: totrans-245
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = *h*(*k*, *i*) |'
 - en: '| 4 | **if** *T*[*q*] == *k* |'
+  id: totrans-246
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **如果** *T*[*q*] == *k* |'
 - en: '| 5 | **return** *q* |'
+  id: totrans-247
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **返回** *q* |'
 - en: '| 6 | *i* = *i* + 1 |'
+  id: totrans-248
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *i* = *i* + 1 |'
 - en: '| 7 | **until** *T*[*q*] == NIL or *i* == *m* |'
+  id: totrans-249
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **直到** *T*[*q*] == NIL 或 *i* == *m* |'
 - en: '| 8 | **return** NIL |'
+  id: totrans-250
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **返回** NIL |'
 - en: The algorithm for searching for key *k* probes the same sequence of slots that
     the insertion algorithm examined when key *k* was inserted. Therefore, the search
     can terminate (unsuccessfully) when it finds an empty slot, since *k* would have
     been inserted there and not later in its probe sequence. The procedure HASH-SEARCH
     takes as input a hash table *T* and a key *k*, returning *q* if it finds that
     slot *q* contains key *k*, or NIL if key *k* is not present in table *T*.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 搜索键 *k* 的算法会探测与插入算法检查的相同序列的槽位。因此，当搜索发现一个空槽位时，搜索可以终止（失败），因为 *k* 应该已经被插入到那里，而不是在其探测序列的后面。HASH-SEARCH过程接受哈希表
+    *T* 和一个键 *k* 作为输入，如果发现槽位 *q* 包含键 *k*，则返回 *q*，如果键 *k* 不在表 *T* 中，则返回NIL。
 - en: Deletion from an open-address hash table is tricky. When you delete a key from
     slot *q*, it would be a mistake to mark that slot as empty by simply storing NIL
     in it. If you did, you might be unable to retrieve any key *k* for which slot
@@ -1285,8 +1838,12 @@
     There is a simple special case of open addressing, linear probing, that avoids
     the need to mark slots with DELETED. [Section 11.5.1](chapter011.xhtml#Sec_11.5.1)
     shows how to delete from a hash table when using linear probing.
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 从开放寻址哈希表中删除元素是棘手的。当你从槽位 *q* 中删除一个键时，简单地在其中存储NIL来标记该槽位为空是错误的。如果这样做，你可能无法检索到任何一个在插入键
+    *k* 时，槽位 *q* 被探测并发现被占用的键 *k*。解决这个问题的一种方法是标记该槽位，将特殊值DELETED存储在其中而不是NIL。然后，HASH-INSERT过程必须将这样的槽位视为空，以便可以在其中插入一个新的键。在搜索时，HASH-SEARCH过程会跳过包含DELETED值的槽位，因为在插入搜索的键时，这些槽位已经被填充。然而，使用特殊值DELETED意味着搜索时间不再取决于负载因子
+    *α*，因此当需要删除键时，链式解决冲突技术经常被选择。有一种简单的开放寻址的特殊情况，线性探测，它避免了需要用DELETED标记槽位的必要性。[第11.5.1节](chapter011.xhtml#Sec_11.5.1)展示了在使用线性探测时如何从哈希表中删除元素。
 - en: 'In our analysis, we assume ***independent uniform permutation hashing*** (also
     confusingly known as ***uniform hashing*** in the literature): the probe sequence
     of each key is equally likely to be any of the *m*! permutations of 〈0, 1, …,
@@ -1295,8 +1852,11 @@
     slot number, but a whole probe sequence. True independent uniform permutation
     hashing is difficult to implement, however, and in practice suitable approximations
     (such as double hashing, defined below) are used.'
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的分析中，我们假设***独立均匀排列哈希***（在文献中也混淆地称为***均匀哈希***）：每个键的探测序列等可能地是〈0, 1, …, *m*
+    − 1〉的 *m*! 排列之一。独立均匀排列哈希将早期定义的独立均匀哈希的概念推广到一个哈希函数，它不仅产生单个槽位号，而且产生整个探测序列。然而，真正的独立均匀排列哈希很难实现，在实践中使用合适的近似方法（如下面定义的双重散列）。
 - en: We’ll examine both double hashing and its special case, linear probing. These
     techniques guarantee that 〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*, *m* − 1)〉 is
     a permutation of 〈0, 1, …, *m* − 1〉 for each key *k*. (Recall that the second
@@ -1307,74 +1867,108 @@
     double hashing has a large number of possible probe sequences and, as you might
     expect, seems to give good results. Linear probing is even more restricted, capable
     of generating only *m* different probe sequences.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将同时研究双重散列和其特殊情况，线性探测。这些技术保证对于每个键 *k*，〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*,
+    *m* − 1)〉是〈0, 1, …, *m* − 1〉的一个排列。（回想一下，哈希函数 *h* 的第二个参数是探测次数。）然而，双重散列和线性探测都不符合独立均匀排列哈希的假设。双重散列不能生成超过
+    *m*² 不同的探测序列（而不是独立均匀排列哈希所需的 *m*!）。尽管如此，双重散列有大量可能的探测序列，并且正如你所期望的那样，似乎给出了良好的结果。线性探测更加受限，只能生成
+    *m* 种不同的探测序列。
 - en: '**Double hashing**'
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: '**双重散列**'
 - en: Double hashing offers one of the best methods available for open addressing
     because the permutations produced have many of the characteristics of randomly
     chosen permutations. ***Double hashing*** uses a hash function of the form
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: 双重散列是开放寻址中最好的方法之一，因为生成的排列具有许多类似随机选择排列的特征。***双重散列*** 使用形式为
 - en: '*h*(*k*, *i*) = (*h*[1](*k*) + *ih*[2](*k*)) mod *m*,'
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*(*k*, *i*) = (*h*[1](*k*) + *ih*[2](*k*)) mod *m*,'
 - en: where both *h*[1] and *h*[2] are ***auxiliary hash functions***. The initial
     probe goes to position *T*[*h*[1](*k*)], and successive probe positions are offset
     from previous positions by the amount *h*[2](*k*), modulo *m*. Thus, the probe
     sequence here depends in two ways upon the key *k*, since the initial probe position
     *h*[1](*k*), the step size *h*[2](*k*), or both, may vary. [Figure 11.5](chapter011.xhtml#Fig_11-5)
     gives an example of insertion by double hashing.
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中 *h*[1] 和 *h*[2] 都是***辅助哈希函数***。初始探测到位置 *T*[*h*[1](*k*)]，连续的探测位置从前一个位置偏移 *h*[2](*k*)
+    mod *m*。因此，这里的探测序列依赖于键 *k* 的两种方式，因为初始探测位置 *h*[1](*k*)，步长 *h*[2](*k*)，或两者都可能变化。[图11.5](chapter011.xhtml#Fig_11-5)给出了双重散列插入的示例。
 - en: In order for the entire hash table to be searched, the value *h*[2](*k*) must
     be relatively prime to the hash-table size *m*. (See Exercise 11.4-5.) A convenient
     way to ensure this condition is to let *m* be an exact power of 2 and to design
     *h*[2] so that it always produces an odd number. Another way is to let *m* be
     prime and to design *h*[2] so that it always returns a positive integer less than
     *m*. For example, you could choose *m* prime and let
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了搜索整个哈希表，值*h*[2](*k*)必须与哈希表大小*m*互质。（参见练习11.4-5。）确保这个条件的一个方便方法是让*m*成为2的幂，并设计*h*[2]以便它总是产生奇数。另一种方法是让*m*为质数，并设计*h*[2]以便它总是返回小于*m*的正整数。例如，您可以选择质数*m*并让
 - en: '![art](images/Art_P395.jpg)'
+  id: totrans-260
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P395.jpg)'
 - en: '**Figure 11.5** Insertion by double hashing. The hash table has size 13 with
     *h*[1](*k*) = *k* mod 13 and *h*[2](*k*) = 1 + (*k* mod 11). Since 14 = 1 (mod
     13) and 14 = 3 (mod 11), the key 14 goes into empty slot 9, after slots 1 and
     5 are examined and found to be occupied.'
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图11.5** 双重散列插入。哈希表大小为13，*h*[1](*k*) = *k* mod 13，*h*[2](*k*) = 1 + (*k* mod
+    11)。由于14 = 1 (mod 13)且14 = 3 (mod 11)，关键字14进入空槽9，之前检查槽1和槽5已被占用。'
 - en: '*h*[1](*k*) = *k* mod *m*,'
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*[1](*k*) = *k* mod *m*，'
 - en: '*h*[2](*k*) = 1 + (*k* mod *m*′),'
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*[2](*k*) = 1 + (*k* mod *m*′)，'
 - en: where *m*′ is chosen to be slightly less than *m* (say, *m* − 1). For example,
     if *k* = 123456, *m* = 701, and *m*′ = 700, then *h*[1](*k*) = 80 and *h*[2](*k*)
     = 257, so that the first probe goes to position 80, and successive probes examine
     every 257th slot (modulo *m*) until the key has been found or every slot has been
     examined.
+  id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中*m*′选择略小于*m*（比如，*m* − 1）。例如，如果*k* = 123456，*m* = 701，*m*′ = 700，则*h*[1](*k*)
+    = 80，*h*[2](*k*) = 257，因此第一个探测到位置80，连续的探测检查每257个槽（模*m*），直到找到关键字或检查了每个槽。
 - en: Although values of *m* other than primes or exact powers of 2 can in principle
     be used with double hashing, in practice it becomes more difficult to efficiently
     generate *h*[2](*k*) (other than choosing *h*[2](*k*) = 1, which gives linear
     probing) in a way that ensures that it is relatively prime to *m*, in part because
     the relative density *ϕ*(*m*)/*m* of such numbers for general *m* may be small
     (see equation (31.25) on page 921).
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管除了质数或2的幂之外的*m*值原则上可以与双重散列一起使用，但实际上要有效地生成*h*[2](*k*)（除了选择*h*[2](*k*) = 1（这会导致线性探测）之外）变得更加困难，因为相对密度*ϕ*(*m*)/*m*对于一般的*m*可能很小（参见第921页的方程式（31.25））。
 - en: When *m* is prime or an exact power of 2, double hashing produces Θ(*m*²) probe
     sequences, since each possible (*h*[1](*k*), *h*[2](*k*)) pair yields a distinct
     probe sequence. As a result, for such values of *m*, double hashing appears to
     perform close to the “ideal” scheme of independent uniform permutation hashing.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 当*m*是质数或2的幂时，双重散列产生Θ(*m*²)探测序列，因为每个可能的(*h*[1](*k*), *h*[2](*k*))对都产生一个不同的探测序列。因此，对于这些*m*值，双重散列似乎表现接近于独立均匀排列散列的“理想”方案。
 - en: '**Linear probing**'
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: '**线性探测**'
 - en: '***Linear probing***, a special case of double hashing, is the simplest open-addressing
     approach to resolving collisions. As with double hashing, an auxiliary hash function
     *h*[1] determines the first probe position *h*[1](*k*) for inserting an element.
@@ -1384,22 +1978,35 @@
     − 1]. To view linear probing as a special case of double hashing, just set the
     double-hashing step function *h*[2] to be fixed at 1: *h*[2](*k*) = 1 for all
     *k*. That is, the hash function is'
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: '***线性探测***，双重散列的特例，是解决冲突的最简单的开地址方法。与双重散列一样，辅助哈希函数*h*[1]确定插入元素的第一个探测位置*h*[1](*k*)。如果槽*T*[*h*[1](*k*)]已被占用，则探测下一个位置*T*[*h*[1](*k*)
+    + 1]。必要时继续，直到槽*T*[*m* − 1]，然后绕回到槽*T*[0]、*T*[1]等，但永远不要超过槽*T*[*h*[1](*k*) − 1]。将线性探测视为双重散列的特例，只需将双重散列步骤函数*h*[2]固定为1：*h*[2](*k*)
+    = 1对于所有*k*。也就是说，哈希函数为'
 - en: '![art](images/Art_P396.jpg)'
+  id: totrans-269
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P396.jpg)'
 - en: for *i* = 0, 1, …, *m* − 1\. The value of *h*[1](*k*) determines the entire
     probe sequence, and so assuming that *h*[1](*k*) can take on any value in {0,
     1, …, *m* − 1}, linear probing allows only *m* distinct probe sequences.
+  id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*i* = 0, 1, …, *m* − 1。*h*[1](*k*)的值确定整个探测序列，因此假设*h*[1](*k*)可以在{0, 1, …, *m*
+    − 1}中的任何值，线性探测只允许*m*个不同的探测序列。
 - en: We’ll revisit linear probing in [Section 11.5.1](chapter011.xhtml#Sec_11.5.1).
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在[第11.5.1节](chapter011.xhtml#Sec_11.5.1)中重新讨论线性探测。
 - en: '**Analysis of open-address hashing**'
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: '**开地址散列的分析**'
 - en: As in our analysis of chaining in [Section 11.2](chapter011.xhtml#Sec_11.2),
     we analyze open addressing in terms of the load factor *α* = *n*/*m* of the hash
     table. With open addressing, at most one element occupies each slot, and thus
@@ -1407,8 +2014,11 @@
     less than 1, and so we assume that at least one slot is empty. Because deleting
     from an open-address hash table does not really free up a slot, we assume as well
     that no deletions occur.
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像我们在[第11.2节](chapter011.xhtml#Sec_11.2)中对链接的分析一样，我们将开地址散列的分析转化为哈希表的负载因子*α*
+    = *n*/*m*。使用开地址法，每个槽最多只有一个元素，��此*n* ≤ *m*，这意味着*α* ≤ 1。以下分析要求*α*严格小于1，因此我们假设至少有一个槽为空。由于从开地址哈希表中删除并不真正释放槽，我们也假设没有删除发生。
 - en: For the hash function, we assume independent uniform permutation hashing. In
     this idealized scheme, the probe sequence 〈*h*(*k*, 0), *h*(*k*, 1), …, *h*(*k*,
     *m* − 1)〉 used to insert or search for each key *k* is equally likely to be any
@@ -1416,29 +2026,40 @@
     probe sequence associated with it. What we mean here is that, considering the
     probability distribution on the space of keys and the operation of the hash function
     on the keys, each possible probe sequence is equally likely.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于哈希函数，我们假设独立均匀排列哈希。在这种理想化的方案中，用于插入或搜索每个键*k*的探测序列 〈*h*(*k*, 0), *h*(*k*, 1),
+    …, *h*(*k*, *m* − 1)〉 被认为是 〈0, 1, …, *m* − 1〉 的任何排列同等可能。当然，任何给定的键都有一个与之关联的唯一固定的探测序列。这里我们的意思是，考虑到键空间上的概率分布和哈希函数对键的操作，每个可能的探测序列同等可能。
 - en: We now analyze the expected number of probes for hashing with open addressing
     under the assumption of independent uniform permutation hashing, beginning with
     the expected number of probes made in an unsuccessful search (assuming, as stated
     above, that *α* < 1).
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们分析在独立均匀排列哈希的假设下，使用开地址探测哈希时的期望探测次数，从不成功搜索的情况开始（假设，如上所述，*α* < 1）。
 - en: The bound proven, of 1/(1 − *α*) = 1 + *α* + *α*² + *α*³ + ⋯, has an intuitive
     interpretation. The first probe always occurs. With probability approximately
     *α*, the first probe finds an occupied slot, so that a second probe happens. With
     probability approximately *α*², the first two slots are occupied so that a third
     probe ensues, and so on.
+  id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: 所证明的界限，1/(1 − *α*) = 1 + *α* + *α*² + *α*³ + ⋯，有一个直观的解释。第一次探测总是发生。以大约*α*的概率，第一次探测找到一个占用的插槽，所以第二次探测发生。以大约*α*²的概率，前两个插槽都被占用，所以第三次探测发生，依此类推。
 - en: '***Theorem 11.6***'
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 11.6***'
 - en: Given an open-address hash table with load factor *α* = *n*/*m* < 1, the expected
     number of probes in an unsuccessful search is at most 1/(1 − *α*), assuming independent
     uniform permutation hashing and no deletions.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 在负载因子*α* = *n*/*m* < 1的开地址哈希表中，假设独立均匀排列哈希和没有删除，不成功搜索中的期望探测次数最多为1/(1 − *α*)。
 - en: '***Proof***   In an unsuccessful search, every probe but the last accesses
     an occupied slot that does not contain the desired key, and the last slot probed
     is empty. Let the random variable *X* denote the number of probes made in an unsuccessful
@@ -1446,15 +2067,24 @@
     probe occurs and it is to an occupied slot. Then the event {*X* ≥ *i*} is the
     intersection of events *A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]. We bound Pr{*X* ≥ *i*}
     by bounding Pr{*A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]}. By Exercise C.2-5 on page 1190,'
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   在不成功搜索中，除了最后一个探测访问一个不包含所需键的占用插槽外，每个探测都是如此。让随机变量*X*表示在不成功搜索中进行的探测次数，并定义事件*A[i]*，对于*i*
+    = 1, 2, …，表示第*i*次探测发生且是到一个占用插槽。那么事件{*X* ≥ *i*}是事件*A*[1] ⋂ *A*[2] ⋂ ��� ⋂ *A*[*i*−1]的交集。我们通过限制Pr{*A*[1]
+    ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]}来限制Pr{*X* ≥ *i*}。根据第1190页上的练习C.2-5，'
 - en: '| Pr{*A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]} | = | Pr{*A*[1]} · Pr{*A*[2] &#124;
     *A*[1]} · Pr {*A*[3] &#124; *A*[1] ⋂ *A*[2]} ⋯ |'
+  id: totrans-280
   prefs: []
   type: TYPE_TB
+  zh: '| Pr{*A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−1]} | = | Pr{*A*[1]} · Pr{*A*[2] &#124;
+    *A*[1]} · Pr {*A*[3] &#124; *A*[1] ⋂ *A*[2]} ⋯ |'
 - en: '|  |  | Pr{*A*[*i*−1] &#124; *A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−2]}. |'
+  id: totrans-281
   prefs: []
   type: TYPE_TB
+  zh: '|  |  | Pr{*A*[*i*−1] &#124; *A*[1] ⋂ *A*[2] ⋂ ⋯ ⋂ *A*[*i*−2]}. |'
 - en: Since there are *n* elements and *m* slots, Pr{*A*[1]} = *n*/*m*. For *j* >
     1, the probability that there is a *j*th probe and it is to an occupied slot,
     given that the first *j* − 1 probes were to occupied slots, is (*n* − *j* + 1)/(*m*
@@ -1464,11 +2094,18 @@
     the probability is the ratio of these quantities. Since *n* < *m* implies that
     (*n* − *j*)/(*m* − *j*) ≤ *n*/*m* for all *j* in the range 0 ≤ *j* < *m*, it follows
     that for all *i* in the range 1 ≤ *i* ≤ *m*, we have
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于有*n*个元素和*m*个插槽，Pr{*A*[1]} = *n*/*m*。对于*j* > 1，假设前*j* − 1次探测都是到占用的插槽，那么第*j*次探测到一个占用插槽的概率是(*n*
+    − *j* + 1)/(*m* − *j* + 1)。这个概率的推导是因为第*j*次探测会在剩余的(*n* − (*j* − 1))个元素中的一个和(*m*
+    − (*j* − 1))个未检查的插槽中找到，根据独立均匀排列哈希的假设，概率就是这些数量的比值。由于*n* < *m*意味着对于范围在0 ≤ *j* <
+    *m*的所有*j*，(*n* − *j*)/(*m* − *j*) ≤ *n*/*m*，因此对于范围在1 ≤ *i* ≤ *m*的所有*i*，我们有
 - en: '![art](images/Art_P397.jpg)'
+  id: totrans-283
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P397.jpg)'
 - en: 'The product in the first line has *i* − 1 factors. When *i* = 1, the product
     is 1, the identity for multiplication, and we get Pr{*X* ≥ 1} = 1, which makes
     sense, since there must always be at least 1 probe. If each of the first *n* probes
@@ -1476,143 +2113,217 @@
     + 1)st probe must be to an empty slot, which gives Pr{*X* ≥ *i*} = 0 for *i* >
     *n* + 1\. Now, we use equation (C.28) on page 1193 to bound the expected number
     of probes:'
+  id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一行的乘积有*i* − 1个因子。当*i* = 1时，乘积为1，乘法的单位元，我们得到Pr{*X* ≥ 1} = 1，这是有道理的，因为至少必须有1次探测。如果前*n*次探测都是到占用的插槽，那么所有占用的插槽都已经被探测过。然后，第(*n*
+    + 1)次探测必须是到一个空插槽，这导致Pr{*X* ≥ *i*} = 0对于*i* > *n* + 1。现在，我们使用第1193页上的方程(C.28)来限制期望的探测次数：
 - en: '![art](images/Art_P398.jpg)'
+  id: totrans-285
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P398.jpg)'
 - en: ▪
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: If *α* is a constant, Theorem 11.6 predicts that an unsuccessful search runs
     in *O*(1) time. For example, if the hash table is half full, the average number
     of probes in an unsuccessful search is at most 1/(1 − .5) = 2\. If it is 90% full,
     the average number of probes is at most 1/(1 − .9) = 10.
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*α*是一个常数，定理 11.6 预测不成功搜索的运行时间为*O*(1)。例如，如果哈希表是一半满的，不成功搜索中的平均探测次数最多为1/(1 −
+    .5) = 2。如果它是90%满的，平均探测次数最多为1/(1 − .9) = 10。
 - en: Theorem 11.6 yields almost immediately how well the HASH-INSERT procedure performs.
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: 定理 11.6 几乎立即揭示了 HASH-INSERT 过程的性能。
 - en: '***Corollary 11.7***'
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: '***推论 11.7***'
 - en: Inserting an element into an open-address hash table with load factor *α*, where
     *α* < 1, requires at most 1/(1 − *α*) probes on average, assuming independent
     uniform permutation hashing and no deletions.
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: 在负载因子*α* < 1的情况下，向负载因子为*α*的开地址哈希表中插入元素平均需要最多1/(1 − *α*)次探测，假设独立均匀排列哈希和没有删除。
 - en: '***Proof***   An element is inserted only if there is room in the table, and
     thus *α* < 1\. Inserting a key requires an unsuccessful search followed by placing
     the key into the first empty slot found. Thus, the expected number of probes is
     at most 1/(1 − *α*).'
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 仅当表中有空间时才插入元素，因此*α* < 1。插入一个键需要进行不成功搜索，然后将键放入找到的第一个空插槽中。因此，期望探测次数最多为1/(1
+    − *α*)。'
 - en: ▪
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: It takes a little more work to compute the expected number of probes for a successful
     search.
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算成功搜索的期望探测次数需要更多工作。
 - en: '***Theorem 11.8***'
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理11.8***'
 - en: Given an open-address hash table with load factor *α* < 1, the expected number
     of probes in a successful search is at most
+  id: totrans-295
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定负载因子*α* < 1的开放寻址哈希表，成功搜索的期望探测次数最多为
 - en: '![art](images/Art_P399.jpg)'
+  id: totrans-296
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P399.jpg)'
 - en: assuming independent uniform permutation hashing with no deletions and assuming
     that each key in the table is equally likely to be searched for.
+  id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设独立均匀排列哈希且没有删除，并假设表中的每个键被搜索的可能性相等。
 - en: '***Proof***   A search for a key *k* reproduces the same probe sequence as
     when the element with key *k* was inserted. If *k* was the (*i* + 1)st key inserted
     into the hash table, then the load factor at the time it was inserted was *i*/*m*,
     and so by Corollary 11.7, the expected number of probes made in a search for *k*
     is at most 1/(1 − *i*/*m*) = *m*/(*m* − *i*). Averaging over all *n* keys in the
     hash table gives us the expected number of probes in a successful search:'
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 搜索键*k*会重现插入键*k*时的相同探测序列。如果*k*是插入哈希表的第(*i* + 1)个键，则插入时的负载因子为*i*/*m*，因此根据推论11.7，搜索*k*的期望探测次数最多为1/(1
+    − *i*/*m*) = *m*/(*m* − *i*)。对哈希表中的所有*n*个键进行平均得到成功搜索的期望探测次数：'
 - en: '![art](images/Art_P400.jpg)'
+  id: totrans-299
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P400.jpg)'
 - en: ▪
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: If the hash table is half full, the expected number of probes in a successful
     search is less than 1.387\. If the hash table is 90% full, the expected number
     of probes is less than 2.559\. If *α* = 1, then in an unsuccessful search, all
     *m* slots must be probed. Exercise 11.4-4 asks you to analyze a successful search
     when *α* = 1.
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果哈希表填充率为一半，成功搜索的期望探测次数小于1.387。如果哈希表填充率为90%，期望探测次数小于2.559。如果*α* = 1，则在不成功搜索时，必须探测所有*m*个插槽。练习11.4-4要求你分析当*α*
+    = 1时的成功搜索。
 - en: '**Exercises**'
+  id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***11.4-1***'
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.4-1***'
 - en: Consider inserting the keys 10, 22, 31, 4, 15, 28, 17, 88, 59 into a hash table
     of length *m* = 11 using open addressing. Illustrate the result of inserting these
     keys using linear probing with *h*(*k*, *i*) = (*k* + *i*) mod *m* and using double
     hashing with *h*[1](*k*) = *k* and *h*[2](*k*) = 1 + (*k* mod (*m* − 1)).
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑将键10, 22, 31, 4, 15, 28, 17, 88, 59插入长度为*m* = 11的哈希表中，使用线性探测和双重哈希插入这些键，其中*h*(*k*,
+    *i*) = (*k* + *i*) mod *m*，*h*[1](*k*) = *k*，*h*[2](*k*) = 1 + (*k* mod (*m* −
+    1))。
 - en: '***11.4-2***'
+  id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.4-2***'
 - en: Write pseudocode for HASH-DELETE that fills the deleted key’s slot with the
     special value DELETED, and modify HASH-SEARCH and HASH-INSERT as needed to handle
     DELETED.
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写HASH-DELETE的伪代码，将删除的键的插槽填充为特殊值DELETED，并根据需要修改HASH-SEARCH和HASH-INSERT以处理DELETED。
 - en: '***11.4-3***'
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.4-3***'
 - en: Consider an open-address hash table with independent uniform permutation hashing
     and no deletions. Give upper bounds on the expected number of probes in an unsuccessful
     search and on the expected number of probes in a successful search when the load
     factor is 3/4 and when it is 7/8.
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个具有独立均匀排列哈希和无删除的开放寻址哈希表。给出当负载因子为3/4和7/8时，不成功搜索的期望探测次数的上界，以及成功搜索的期望探测次数的上界。
 - en: '***11.4-4***'
+  id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11.4-4***'
 - en: Show that the expected number of probes required for a successful search when
     *α* = 1 (that is, when *n* = *m*), is *H[m]*, the *m*th harmonic number.
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明当*α* = 1（即*n* = *m*）时，成功搜索所需的期望探测次数为*H[m]*，第*m*个调和数。
 - en: ★ ***11.4-5***
+  id: totrans-311
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.4-5***
 - en: Show that, with double hashing, if *m* and *h*[2](*k*) have greatest common
     divisor *d* ≥ 1 for some key *k*, then an unsuccessful search for key *k* examines
     (1/*d*)th of the hash table before returning to slot *h*[1](*k*). Thus, when *d*
     = 1, so that *m* and *h*[2](*k*) are relatively prime, the search may examine
     the entire hash table. (*Hint:* See [Chapter 31](chapter031.xhtml).)
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明，使用双重哈希，如果*m*和*h*[2](*k*)对于某个键*k*具有最大公约数*d* ≥ 1，则���键*k*的不成功搜索在返回到插槽*h*[1](*k*)之前检查了哈希表的(1/*d*)部分。因此，当*d*
+    = 1时，即*m*和*h*[2](*k*)互质时，搜索可能检查整个哈希表。(*提示:* 参见[第31章](chapter031.xhtml)。)
 - en: ★ ***11.4-6***
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.4-6***
 - en: Consider an open-address hash table with a load factor *α*. Approximate the
     nonzero value *α* for which the expected number of probes in an unsuccessful search
     equals twice the expected number of probes in a successful search. Use the upper
     bounds given by Theorems 11.6 and 11.8 for these expected numbers of probes.
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个具有负载因子*α*的开放寻址哈希表。近似非零值*α*，使得不成功搜索的期望探测次数等于成功搜索的期望探测次数的两倍。使用定理11.6和11.8给出的期望探测次数的上界。
 - en: '[**11.5    Practical considerations**](toc.xhtml#Rh1-66)'
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**11.5 实际考虑**](toc.xhtml#Rh1-66)'
 - en: 'Efficient hash table algorithms are not only of theoretical interest, but also
     of immense practical importance. Constant factors can matter. For this reason,
     this section discusses two aspects of modern CPUs that are not included in the
     standard RAM model presented in [Section 2.2](chapter002.xhtml#Sec_2.2):'
+  id: totrans-316
   prefs: []
   type: TYPE_NORMAL
+  zh: 高效的哈希表算法不仅具有理论意义，而且具有巨大的实际重要性。常数因子很重要。因此，本节讨论了现代CPU的两个方面，这些方面不包括在[第2.2节](chapter002.xhtml#Sec_2.2)中介绍的标准RAM模型中：
 - en: '**Memory hierarchies:** The memory of modern CPUs has a number of levels, from
     the fast registers, through one or more levels of ***cache memory***, to the main-memory
     level. Each successive level stores more data than the previous level, but access
@@ -1623,38 +2334,52 @@
     from main memory. There is a substantial benefit for ensuring that memory usage
     is local: reusing the same cache block is much more efficient than fetching a
     different cache block from main memory.'
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: '**内存层次结构：** 现代CPU的内存具有多个级别，从快速寄存器，通过一个或多个级别的***缓存内存***，到主存储器级别。每个后续级别存储的数据量比前一个级别更多，但访问速度更慢。因此，一个完全在快速寄存器中进行的复杂计算（如复杂的哈希函数）所需的时间可能比从主存储器中读取的单个操作所需的时间少。此外，缓存内存以每个（比如）64字节的***缓存块***组织，总是一起从主存储器中获取。确保内存使用是局部的有很大好处：重用相同的缓存块比从主存储器中获取不同的缓存块更有效率。'
 - en: The standard RAM model measures efficiency of a hash-table operation by counting
     the number of hash-table slots probed. In practice, this metric is only a crude
     approximation to the truth, since once a cache block is in the cache, successive
     probes to that cache block are much faster than probes that must access main memory.
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: 标准RAM模型通过计算探测的哈希表槽数量来衡量哈希表操作的效率。实际上，这个度量标准只是对真相的粗略近似，因为一旦缓存块在缓存中，对该缓存块的连续探测比必须访问主存储器的探测要快得多。
 - en: '**Advanced instruction sets:** Modern CPUs may have sophisticated instruction
     sets that implement advanced primitives useful for encryption or other forms of
     cryptography. These instructions may be useful in the design of exceptionally
     efficient hash functions.'
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: '**高级指令集：** 现代CPU可能具有实现加密或其他形式密码学有用的高级原语的复杂指令集。这些指令在设计非常高效的哈希函数时可能会很有用。'
 - en: '[Section 11.5.1](chapter011.xhtml#Sec_11.5.1) discusses linear probing, which
     becomes the collision-resolution method of choice in the presence of a memory
     hierarchy. [Section 11.5.2](chapter011.xhtml#Sec_11.5.2) suggests how to construct
     “advanced” hash functions based on cryptographic primitives, suitable for use
     on computers with hierarchical memory models.'
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第11.5.1节](chapter011.xhtml#Sec_11.5.1)讨论了线性探测，在存在内存层次结构时成为首选的冲突解决方法。[第11.5.2节](chapter011.xhtml#Sec_11.5.2)建议如何基于密码原语构建“高级”哈希函数，适用于具有分层内存模型的计算机。'
 - en: '**11.5.1    Linear probing**'
+  id: totrans-321
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11.5.1 线性探测**'
 - en: Linear probing is often disparaged because of its poor performance in the standard
     RAM model. But linear probing excels for hierarchical memory models, because successive
     probes are usually to the same cache block of memory.
+  id: totrans-322
   prefs: []
   type: TYPE_NORMAL
+  zh: 线性探测经常因在标准RAM模型中性能较差而受到贬低。但在内存层次结构中，线性探测表现出色，因为连续的探测通常是对同一缓存块的内存。
 - en: '**Deletion with linear probing**'
+  id: totrans-323
   prefs: []
   type: TYPE_NORMAL
+  zh: '**线性探测删除**'
 - en: Another reason why linear probing is often not used in practice is that deletion
     seems complicated or impossible without using the special DELETED value. Yet we’ll
     now see that deletion from a hash table based on linear probing is not all that
@@ -1662,22 +2387,31 @@
     probing, but not for open-address probing in general, because with linear probing
     keys all follow the same simple cyclic probing sequence (albeit with different
     starting points).
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
+  zh: 线性探测通常不被实际使用的另一个原因是，删除似乎很复杂或不可能，而不使用特殊的DELETED值。然而，我们现在将看到，即使没有DELETED标记，基于线性探测的哈希表的删除并不那么困难。删除过程适用于线性探测，但不适用于一般的开地址探测，因为使用线性探测，所有键都遵循相同的简单循环探测序列（尽管起始点不同）。
 - en: 'The deletion procedure relies on an “inverse” function to the linear-probing
     hash function *h*(*k*, *i*) = (*h*[1](*k*) + *i*) mod *m*, which maps a key *k*
     and a probe number *i* to a slot number in the hash table. The inverse function
     *g* maps a key *k* and a slot number *q*, where 0 ≤ *q* < *m*, to the probe number
     that reaches slot *q*:'
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: 删除过程依赖于线性探测哈希函数*h*(*k*, *i*) = (*h*[1](*k*) + *i*) mod *m*的“逆”函数，它将键*k*和探测号*i*映射到哈希表中的槽号。逆函数*g*将键*k*和槽号*q*（其中0
+    ≤ *q* < *m*）映射到到达槽*q*的探测号：
 - en: '*g*(*k*, *q*) = (*q* − *h*[1](*k*)) mod *m*.'
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
+  zh: '*g*(*k*, *q*) = (*q* − *h*[1](*k*)) mod *m*。'
 - en: If *h*(*k*, *i*) = *q*, then *g*(*k*, *q*) = *i*, and so *h*(*k*, *g*(*k*, *q*))
     = *q*.
+  id: totrans-327
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*h*(*k*, *i*) = *q*，那么*g*(*k*, *q*) = *i*，因此*h*(*k*, *g*(*k*, *q*)) = *q*。
 - en: 'The procedure LINEAR-PROBING-HASH-DELETE on the facing page deletes the key
     stored in position *q* from hash table *T*. [Figure 11.6](chapter011.xhtml#Fig_11-6)
     shows how it works. The procedure first deletes the key in position *q* by setting
@@ -1690,67 +2424,105 @@
     will look for *k*′, is empty. In this case, key *k*′ moves to slot *q* in line
     10, and the search continues, to see whether any later key also needs to be moved
     to the slot *q*′ that was just freed up when *k*′ moved.'
+  id: totrans-328
   prefs: []
   type: TYPE_NORMAL
+  zh: 本页上的LINEAR-PROBING-HASH-DELETE过程从哈希表*T*中删除存储在位置*q*中的键。[图11.6](chapter011.xhtml#Fig_11-6)展示了它的工作原理。该过程首先通过在第2行将*T*[*q*]设置为NIL来删除位置*q*中的键。然后搜索包含应移动到刚刚由键*k*空出的位置*q*的键的槽*q*′（如果有的话）。第9行提出了一个关键问题：键*q*′中的*k*′是否需要移动到空出的位置*q*以保持*k*′的可访问性？如果*g*(*k*′,
+    *q*) < *g*(*k*′, *q*′)，那么在将*k*′插入表中时，槽*q*已经被检查，但发现已经被占用。但现在，搜索将在空的槽*q*中寻找*k*′。在这种情况下，键*k*′在第10行移动到槽*q*，搜索继续，看看是否还有其他键需要移动到刚刚*k*′移动的槽*q*′。
 - en: '![art](images/Art_P401.jpg)'
+  id: totrans-329
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P401.jpg)'
 - en: '**Figure 11.6** Deletion in a hash table that uses linear probing. The hash
     table has size 10 with *h*[1](*k*) = *k* mod 10\. **(a)** The hash table after
     inserting keys in the order 74, 43, 93, 18, 82, 38, 92\. **(b)** The hash table
     after deleting the key 43 from slot 3\. Key 93 moves up to slot 3 to keep it accessible,
     and then key 92 moves up to slot 5 just vacated by key 93\. No other keys need
     to be moved.'
+  id: totrans-330
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 11.6** 使用线性探测的哈希表中的删除。哈希表大小为10，*h*[1](*k*) = *k* mod 10。**(a)** 在顺序插入键74、43、93、18、82、38、92后的哈希表。**(b)**
+    从槽3中删除键43后的哈希表。键93上移到槽3以保持可访问性，然后键92上移到刚刚被键93占据的槽5。不需要移动其他键。'
 - en: LINEAR-PROBING-HASH-DELETE(*T*, *q*)
+  id: totrans-331
   prefs: []
   type: TYPE_NORMAL
+  zh: 线性探测哈希删除(*T*, *q*)
 - en: '|   1 | **while** TRUE |  |'
+  id: totrans-332
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **当** TRUE **时** |  |'
 - en: '|   2 | *T*[*q*] = NIL | **//** make slot *q* empty |'
+  id: totrans-333
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *T*[*q*] = NIL | **//** 使槽*q*为空 |'
 - en: '|   3 | *q*′ = *q* | **//** starting point for search |'
+  id: totrans-334
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | *q*′ = *q* | **//** 搜索的起始点 |'
 - en: '|   4 | **repeat** |  |'
+  id: totrans-335
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | **重复** |  |'
 - en: '|   5 | *q*′ = (*q*′ + 1) mod *m* | **//** next slot number with linear probing
     |'
+  id: totrans-336
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | *q*′ = (*q*′ + 1) mod *m* | **//** 使用线性探测的下一个槽号 |'
 - en: '|   6 | *k*′ = *T*[*q*′] | **//** next key to try to move |'
+  id: totrans-337
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *k*′ = *T*[*q*′] | **//** 下一个要尝试移动的键 |'
 - en: '|   7 | **if** *k*′ == NIL |  |'
+  id: totrans-338
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **如果** *k*′ == NIL |  |'
 - en: '|   8 | **return** | **//** return when an empty slot is found |'
+  id: totrans-339
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **返回** | **//** 当找到一个空槽时返回 |'
 - en: '|   9 | **until** *g*(*k*′, *q*) < *g*(*k*′, *q*′) | **//** was empty slot
     *q* probed before *q*′? |'
+  id: totrans-340
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **直到** *g*(*k*′, *q*) < *g*(*k*′, *q*′) | **//** 空槽*q*之前是否探测过*q*′？
+    |'
 - en: '| 10 | *T*[*q*] = *k*′ | **//** move *k*′ into slot *q* |'
+  id: totrans-341
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *T*[*q*] = *k*′ | **//** 将*k*′移入槽*q* |'
 - en: '| 11 | *q* = *q*′ | **//** free up slot *q*′ |'
+  id: totrans-342
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *q* = *q*′ | **//** 释放槽*q*′ |'
 - en: '**Analysis of linear probing**'
+  id: totrans-343
   prefs: []
   type: TYPE_NORMAL
+  zh: '**线性探测的分析**'
 - en: Linear probing is popular to implement, but it exhibits a phenomenon known as
     ***primary clustering***. Long runs of occupied slots build up, increasing the
     average search time. Clusters arise because an empty slot preceded by *i* full
     slots gets filled next with probability (*i* + 1)/*m*. Long runs of occupied slots
     tend to get longer, and the average search time increases.
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
+  zh: 线性探测是一种流行的实现方式，但它表现出一种被称为***主要聚类***的现象。长时间占用的槽会增加，平均搜索时间会增加。聚类是因为空槽之前有*i*个满槽而导致下一个槽被填充的概率为(*i*
+    + 1)/*m*。长时间占用的槽往往会变得更长，平均搜索时间会增加。
 - en: In the standard RAM model, primary clustering is a problem, and general double
     hashing usually performs better than linear probing. By contrast, in a hierarchical
     memory model, primary clustering is a beneficial property, as elements are often
@@ -1758,78 +2530,113 @@
     block before advancing to search the next cache block. With linear probing, the
     running time for a key *k* of HASH-INSERT, HASH-SEARCH, or LINEAR-PROBING-HASH-DELETE
     is at most proportional to the distance from *h*[1](*k*) to the next empty slot.
+  id: totrans-345
   prefs: []
   type: TYPE_NORMAL
+  zh: 在标准RAM模型中，主要聚类是一个问题，通常一般双重散列的性能优于线性探测。相比之下，在分层内存模型中，主要聚类是一个有益的特性，因为元素通常存储在同一缓存块中。搜索在前进到下一个缓存块之前通过一个缓存块进行。使用线性探测，对于键*k*的HASH-INSERT、HASH-SEARCH或LINEAR-PROBING-HASH-DELETE的运行时间最多与从*h*[1](*k*)到下一个空槽的距离成比例。
 - en: The following theorem is due to Pagh et al. [[351](bibliography001.xhtml#endnote_351)].
     A more recent proof is given by Thorup [[438](bibliography001.xhtml#endnote_438)].
     We omit the proof here. The need for 5-independence is by no means obvious; see
     the cited proofs.
+  id: totrans-346
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的定理归功于Pagh等人[[351](bibliography001.xhtml#endnote_351)]。Thorup[[438](bibliography001.xhtml#endnote_438)]给出了一个更近期的证明。我们在这里省略了证明。需要5-独立性并不是显而易见的；请参阅引用的证明。
 - en: '***Theorem 11.9***'
+  id: totrans-347
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 11.9***'
 - en: If *h*[1] is 5-independent and *α* ≤ 2/3, then it takes expected constant time
     to search for, insert, or delete a key in a hash table using linear probing.
+  id: totrans-348
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*h*[1]是5-独立的且*α* ≤ 2/3，则使用线性探测在哈希表中搜索、插入或删除键的预期时间是常数时间。
 - en: ▪
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: (Indeed, the expected operation time is *O*(1/*ϵ* ²) for *α* = 1 − *ϵ*.)
+  id: totrans-350
   prefs: []
   type: TYPE_NORMAL
+  zh: (实际上，对于*α* = 1 − *ϵ*，预期操作时间为*O*(1/*ϵ* ²)。)
 - en: ★ **11.5.2 Hash functions for hierarchical memory models**
+  id: totrans-351
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ **11.5.2 用于分层内存模型的哈希函数**
 - en: This section illustrates an approach for designing efficient hash tables in
     a modern computer system having a memory hierarchy.
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节展示了在具有内存层次结构的现代计算机系统中设计高效哈希表的方法。
 - en: Because of the memory hierarchy, linear probing is a good choice for resolving
     collisions, as probe sequences are sequential and tend to stay within cache blocks.
     But linear probing is most efficient when the hash function is complex (for example,
     5-independent as in Theorem 11.9). Fortunately, having a memory hierarchy means
     that complex hash functions can be implemented efficiently.
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于内存层次结构，线性探测是解决冲突的一个很好的选择，因为探测序列是连续的并且倾向于保持在缓存块内。但是当哈希函数复杂时（例如，如定理11.9中的5-独立性），线性探测是最有效的。幸运的是，有了内存层次结构意味着复杂的哈希函数可以被高效实现。
 - en: As noted in [Section 11.3.5](chapter011.xhtml#Sec_11.3.5), one approach is to
     use a cryptographic hash function such as SHA-256\. Such functions are complex
     and sufficiently random for hash table applications. On machines with specialized
     instructions, cryptographic functions can be quite efficient.
+  id: totrans-354
   prefs: []
   type: TYPE_NORMAL
+  zh: 如[第11.3.5节](chapter011.xhtml#Sec_11.3.5)所述，一种方法是使用诸如SHA-256之类的加密哈希函数。这些函数对于哈希表应用来说既复杂又足够随机。在具有专用指令的机器上，加密函数可以非常高效。
 - en: Instead, we present here a simple hash function based only on addition, multiplication,
     and swapping the halves of a word. This function can be implemented entirely within
     the fast registers, and on a machine with a memory hierarchy, its latency is small
     compared with the time taken to access a random slot of the hash table. It is
     related to the RC6 encryption algorithm and can for practical purposes be considered
     a “random oracle.”
+  id: totrans-355
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，我们在这里提出了一种仅基于加法、乘法和交换字的一半的简单哈希函数。这个函数可以完全在快速寄存器中实现，在具有内存层次结构的机器上，与访问哈希表的随机槽所需的时间相比，其延迟很小。它与RC6加密算法有关，并且在实际目的上可以被视为“随机预言”。
 - en: '**The wee hash function**'
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
+  zh: '**微哈希函数**'
 - en: Let *w* denote the word size of the machine (e.g., *w* = 64), assumed to be
     even, and let *a* and *b* be *w*-bit unsigned (nonnegative) integers such that
     *a* is odd. Let swap(*x*) denote the *w*-bit result of swapping the two *w/*2-bit
     halves of *w*-bit input *x*. That is,
+  id: totrans-357
   prefs: []
   type: TYPE_NORMAL
+  zh: 让 *w* 表示机器的字大小（例如，*w* = 64），假定为偶数，并且让 *a* 和 *b* 为 *w* 比特无符号（非负）整数，其中 *a* 为奇数。让
+    swap(*x*) 表示交换 *w* 比特输入 *x* 的两个 *w*/2 比特部分的 *w* 比特结果。也就是说，
 - en: swap(*x*) = (*x* ⋙ (*w*/2)) + (*x* ⋘ (*w*/2))
+  id: totrans-358
   prefs: []
   type: TYPE_NORMAL
+  zh: swap(*x*) = (*x* ⋙ (*w*/2)) + (*x* ⋘ (*w*/2))
 - en: where “⋙” is “logical right shift” (as in equation (11.2)) and “⋘ is “left shift.”
     Define
+  id: totrans-359
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中“⋙”表示“逻辑右移”（如方程（11.2）中所示），“⋘”表示“左移”。定义
 - en: '*f[a]*(*k*) = swap((2*k*² + *ak*) mod 2*^w*).'
+  id: totrans-360
   prefs: []
   type: TYPE_NORMAL
+  zh: '*f[a]*(*k*) = swap((2*k*² + *ak*) mod 2*^w*).'
 - en: Thus, to compute *f[a]*(*k*), evaluate the quadratic function 2*k*² + *ak* modulo
     2*^w* and then swap the left and right halves of the result.
+  id: totrans-361
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，要计算 *f[a]*(*k*)，评估二次函数 2*k*² + *ak* 对 2*^w* 取模，然后交换结果的左右半部分。
 - en: Let *r* denote a desired number of “rounds” for the computation of the hash
     function. We’ll use *r* = 4, but the hash function is well defined for any nonnegative
     *r*. Denote by ![art](images/Art_P402.jpg) the result of iterating *f[a]* a total
@@ -1838,18 +2645,27 @@
     is one-to-one (see Exercise 11.5-1). A cryptographer would view ![art](images/far_1.jpg)
     as a simple block cipher operating on *w*-bit input blocks, with *r* rounds and
     key *a*.
+  id: totrans-362
   prefs: []
   type: TYPE_NORMAL
+  zh: 让 *r* 表示计算哈希函数“轮数”的期望值。我们将使用 *r* = 4，但哈希函数对于任何非负 *r* 都是明确定义的。用 ![art](images/Art_P402.jpg)
+    表示迭代 *f[a]* 共 *r* 次（即 *r* 轮）的结果（即从输入值 *k* 开始）。对于任何奇数 *a* 和任何 *r* ≥ 0，函数 ![art](images/far_1.jpg)，尽管复杂，是一对一的（参见练习
+    11.5-1）。密码学家会将 ![art](images/far_1.jpg) 视为在 *w* 比特输入块上运行的简单分组密码，具有 *r* 轮和密钥 *a*。
 - en: We first define the wee hash function *h* for short inputs, where by “short”
     we means “whose length *t* is at most *w*-bits,” so that the input fits within
     one computer word. We would like inputs of different lengths to be hashed differently.
     The ***wee hash function*** *h*[*a*,*b*,*t*,*r*](*k*) for parameters *a*, *b*,
     and *r* on *t*-bit input *k* is defined as
+  id: totrans-363
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先为短输入定义微型哈希函数 *h*，其中“短”意味着“其长度 *t* 最多为 *w* 比特”，以便输入适合一个计算机字。我们希望不同长度的输入被不同方式哈希。参数为
+    *a*、*b* 和 *r* 的 ***微型哈希函数*** *h*[*a*,*b*,*t*,*r*](*k*)，对于 *t* 比特输入 *k* 定义为
 - en: '![art](images/Art_P403.jpg)'
+  id: totrans-364
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P403.jpg)'
 - en: That is, the hash value for *t*-bit input *k* is obtained by applying ![art](images/Art_P404.jpg)
     to *k* + *b*, then taking the final result modulo *m*. Adding the value *b* provides
     hash-dependent randomization of the input, in a way that ensures that for variable-length
@@ -1860,29 +2676,43 @@
     of memory—more precisely, it can be implemented efficiently using only the computer’s
     fast registers. (This hash function does not have a name in the literature; it
     is a variant we developed for this textbook.)
+  id: totrans-365
   prefs: []
   type: TYPE_NORMAL
+  zh: 也就是说，对于 *t* 比特输入 *k* 的哈希值是通过将 ![art](images/Art_P404.jpg) 应用于 *k* + *b*，然后取最终结果对
+    *m* 取模得到的。添加值 *b* 提供了输入的哈希相关随机化，以确保对于可变长度输入，长度为 0 的输入没有固定的哈希值。将值 2*t* 添加到 *a*
+    确保哈希函数对不同长度的输入有不同的作用。 （我们使用 2*t* 而不是 *t* 是为了确保如果 *a* 是奇数，则密钥 *a* + 2*t* 是奇数。）我们将这个哈希函数称为“微型”，因为它使用了极少量的内存——更准确地说，它可以仅使用计算机的快速寄存器高效实现。（这个哈希函数在文献中没有名称；这是我们为本教材开发的一个变体。）
 - en: '**Speed of the wee hash function**'
+  id: totrans-366
   prefs: []
   type: TYPE_NORMAL
+  zh: '**微型哈希函数的速度**'
 - en: It is surprising how much efficiency can be bought with locality. Experiments
     (unpublished, by the authors) suggest that evaluating the wee hash function takes
     less time than probing a *single* randomly chosen slot in a hash table. These
     experiments were run on a laptop (2019 MacBook Pro) with *w* = 64 and *a* = 123\.
     For large hash tables, evaluating the wee hash function was 2 to 10 times faster
     than performing a single probe of the hash table.
+  id: totrans-367
   prefs: []
   type: TYPE_NORMAL
+  zh: 令人惊讶的是，通过局部性可以获得多少效率。实验（作者未发表）表明，评估微型哈希函数所需的时间比在哈希表中探测一个*单个*随机选择的插槽要少。这些实验是在一台笔记本电脑（2019款
+    MacBook Pro）上运行的，其中 *w* = 64，*a* = 123。对于大型哈希表，评估微型哈希函数比执行哈希表的单次探测快 2 到 10 倍。
 - en: '**The wee hash function for variable-length inputs**'
+  id: totrans-368
   prefs: []
   type: TYPE_NORMAL
+  zh: '**可变长度输入的微型哈希函数**'
 - en: Sometimes inputs are long—more than one *w*-bit word in length—or have variable
     length, as discussed in [Section 11.3.5](chapter011.xhtml#Sec_11.3.5). We can
     extend the wee hash function, defined above for inputs that are at most single
     *w*-bit word in length, to handle long or variable-length inputs. Here is one
     method for doing so.
+  id: totrans-369
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时输入很长——超过一个 *w* 比特字的长度——或者长度可变，如 [第 11.3.5 节](chapter011.xhtml#Sec_11.3.5)
+    中所讨论的。我们可以将上面定义的微型哈希函数扩展到处理长或可变长度的输入。以下是一种方法。
 - en: 'Suppose that an input *k* has length *t* (measured in bits). Break *k* into
     a sequence 〈*k*[1], *k*[2], …, *k[u]*〉 of *w*-bit words, where *u* = ⌈*t*/*w*⌉,
     *k*[1] contains the least-significant *w* bits of *k*, and *k[u]* contains the
@@ -1890,25 +2720,38 @@
     than *w* bits, in which case, pad out the unused high-order bits of *k[u]* with
     0-bits. Define the function chop to return a sequence of the *w*-bit words in
     *k*:'
+  id: totrans-370
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设输入 *k* 的长度为 *t*（以比特为单位）。将 *k* 分解为一个由 *w* 比特字组成的序列 〈*k*[1]，*k*[2]，…，*k[u]*〉，其中
+    *u* = ⌈*t*/*w*⌉，*k*[1] 包含 *k* 的最低有效 *w* 比特，*k[u]* 包含最高有效比特。如果 *t* 不是 *w* 的倍数，则
+    *k[u]* 包含少于 *w* 比特，此时，用 0 比特填充 *k[u]* 中未使用的高阶比特。定义函数 chop 返回 *k* 中的 *w* 比特字序列：
 - en: chop(*k*) = 〈*k*[1], *k*[2], …, *k[u]*〉.
+  id: totrans-371
   prefs: []
   type: TYPE_NORMAL
+  zh: chop(*k*) = 〈*k*[1]，*k*[2]，…，*k[u]*〉。
 - en: 'The most important property of the chop operation is that it is one-to-one,
     given *t*: for any two *t*-bit keys *k* and *k*′, if *k* ≠ *k*′ then chop(*k*)
     ≠ chop(*k*′), and *k* can be derived from chop(*k*) and *t*. The chop operation
     also has the useful property that a single-word input key yields a single-word
     output sequence: chop(*k*) = 〈*k*〉.'
+  id: totrans-372
   prefs: []
   type: TYPE_NORMAL
+  zh: chop操作最重要的特性是它是一对一的，给定*t*：对于任意两个*t*位密钥*k*和*k*′，如果*k* ≠ *k*′，则chop(*k*) ≠ chop(*k*′)，并且*k*可以从chop(*k*)和*t*中推导出来。chop操作还具有一个有用的特性，即单字输入密钥产生单字输出序列：chop(*k*)
+    = 〈*k*〉。
 - en: 'With the chop function in hand, we specify the wee hash function *h*[*a*,*b*,*t*,*r*](*k*)
     for an input *k* of length *t* bits as follows:'
+  id: totrans-373
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了chop函数，我们可以如下指定输入为*t*位的微型哈希函数*h*[*a*,*b*,*t*,*r*](*k*)：
 - en: '*h*[*a*,*b*,*t*,*r*](*k*) = WEE(*k*, *a*, *b*, *t*, *r*, *m*),'
+  id: totrans-374
   prefs: []
   type: TYPE_NORMAL
+  zh: '*h*[*a*,*b*,*t*,*r*](*k*) = WEE(*k*, *a*, *b*, *t*, *r*, *m*),'
 - en: where the procedure WEE defined on the facing page iterates through the elements
     of the *w*-bit words returned by chop(*k*), applying ![art](images/far.jpg) to
     the sum of the current word *k[i]* and the previously computed hash value so far,
@@ -1917,8 +2760,11 @@
     equation (11.7) for short (single-word) inputs. For practical use, we recommend
     that *a* be a randomly chosen odd *w*-bit word, *b* be a randomly chosen *w*-bit
     word, and that *r* = 4.
+  id: totrans-375
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，WEE程序在前���页定义的过程中遍历由chop(*k*)返回的*w*位字的元素，将![art](images/far.jpg)应用于当前字*k[i]*和到目前为止计算的哈希值的总和，最终返回取模*m*的结果。这个定义适用于可变长度和长（多字）输入，是方程式(11.7)中短（单字）输入定义的一致扩展。对于实际使用，我们建议*a*是随机选择的奇数*w*位字，*b*是随机选择的*w*位字，且*r*
+    = 4。
 - en: 'Note that the wee hash function is really a hash function family, with individual
     hash functions determined by parameters *a*, *b*, *t*, *r*, and *m*. The (approximate)
     5-independence of the wee hash function family for variable-length inputs can
@@ -1928,62 +2774,95 @@
     The case here is actually simpler than that studied in the literature, since if
     two messages have different lengths *t* and *t*′, then their “keys” are different:
     *a* + 2*t* ≠ *a* + 2*t*′. We omit the details.'
+  id: totrans-376
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，微型哈希函数实际上是一个哈希函数族，由参数*a*、*b*、*t*、*r*和*m*确定各个哈希函数。微型哈希函数族对于可变长度输入的（近似）5-独立性可以根据微型哈希函数是一个随机预言和密码块链接消息认证码（CBC-MAC）的安全性进行论证，这是由Bellare等人研究的[[42](bibliography001.xhtml#endnote_42)]。这里的情况实际上比文献中研究的情况更简单，因为如果两个消息的长度不同*t*和*t*′，那么它们的“密钥”也是不同的：*a*
+    + 2*t* ≠ *a* + 2*t*′。我们省略了细节。
 - en: WEE(*k*, *a*, *b*, *t*, *r*, *m*)
+  id: totrans-377
   prefs: []
   type: TYPE_NORMAL
+  zh: WEE(*k*, *a*, *b*, *t*, *r*, *m*)
 - en: '| 1 | *u* = ⌈*t*/*w*⌉ |'
+  id: totrans-378
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *u* = ⌈*t*/*w*⌉ |'
 - en: '| 2 | 〈*k*[1], *k*[2], …, *k[u]*〉 = chop(*k*) |'
+  id: totrans-379
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 〈*k*[1], *k*[2], …, *k[u]*〉 = chop(*k*) |'
 - en: '| 3 | *q* = *b* |'
+  id: totrans-380
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = *b* |'
 - en: '| 4 | **for** *i* = 1 **to** *u* |'
+  id: totrans-381
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **对于** *i* = 1 **到** *u* |'
 - en: '| 5 | ![art](images/Art_P405.jpg) |'
+  id: totrans-382
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | ![art](images/Art_P405.jpg) |'
 - en: '| 6 | **return** *q* mod *m* |'
+  id: totrans-383
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **返回** *q* mod *m* |'
 - en: This definition of a cryptographically inspired hash-function family is meant
     to be realistic, yet only illustrative, and many variations and improvements are
     possible. See the chapter notes for suggestions.
+  id: totrans-384
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个受密码学启发的哈希函数族的定义旨在是现实的，但仅具有说明性质，许多变体和改进是可能的。请参阅章节注释以获取建议。
 - en: In summary, we see that when the memory system is hierarchical, it becomes advantageous
     to use linear probing (a special case of double hashing), since successive probes
     tend to stay in the same cache block. Furthermore, hash functions that can be
     implemented using only the computer’s fast registers are exceptionally efficient,
     so they can be quite complex and even cryptographically inspired, providing the
     high degree of independence needed for linear probing to work most efficiently.
+  id: totrans-385
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，当存储系统是分层的时，使用线性探测（双重哈希的特例）变得有利，因为连续的探测往往会停留在同一个缓存块中。此外，只能使用计算机快速寄存器实现的哈希函数非常高效，因此它们可以非常复杂，甚至受到密码学启发，提供线性探测最高效率所需的高度独立性。
 - en: '**Exercises**'
+  id: totrans-386
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: ★ ***11.5-1***
+  id: totrans-387
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.5-1***
 - en: Complete the argument that for any odd positive integer *a* and any integer
     *r* ≥ 0, the function ![art](images/far_1.jpg) is one-to-one. Use a proof by contradiction
     and make use of the fact that the function *f[a]* works modulo 2*^w*.
+  id: totrans-388
   prefs: []
   type: TYPE_NORMAL
+  zh: 完成任意奇正整数*a*和任意整数*r* ≥ 0时，函数![art](images/far_1.jpg)是一对一的论证。使用反证法，并利用函数*f[a]*在模2*^w*下的工作事实。
 - en: ★ ***11.5-2***
+  id: totrans-389
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.5-2***
 - en: Argue that a random oracle is 5-independent.
+  id: totrans-390
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证随机预言是5-独立的。
 - en: ★ ***11.5-3***
+  id: totrans-391
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***11.5-3***
 - en: Consider what happens to the value ![art](images/fark.jpg) as we flip a single
     bit *k[i]* of the input value *k*, for various values of *r*. Let ![art](images/Art_P406.jpg)
     and ![art](images/Art_P407.jpg) define the bit values *k[i]* in the input (with
@@ -1993,136 +2872,208 @@
     may cause any bit *b[j]* of *g[a]*(*k*) to flip, for *j* ≥ *i*. What is the least
     value of *r* for which flipping the value of any single bit *k[i]* may cause *any*
     bit of the output ![art](images/fark.jpg) to flip? Explain.
+  id: totrans-392
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑当我们翻转输入值*k*的单个位*k[i]*时，值![art](images/fark.jpg)会发生什么变化，对于不同的*r*值。让![art](images/Art_P406.jpg)和![art](images/Art_P407.jpg)定义输入中的位值*k[i]*（其中*k*[0]是最低有效位）和*g[a]*(*k*)中的位值*b[j]*
+    = (2*k*² + *ak*) mod 2*^w*（其中*g[a]*(*k*)是当其两半交换时变为*f[a]*(*k*)的值）。假设翻转输入*k*的单个位*k[i]*可能导致*g[a]*(*k*)的任何位*b[j]*翻转，对于*j*
+    ≥ *i*。翻转任何单个位*k[i]*的值可能导致输出![art](images/fark.jpg)的任何位翻转的最小值*r*是多少？请解释。
 - en: '**Problems**'
+  id: totrans-393
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***11-1     Longest-probe bound for hashing***'
+  id: totrans-394
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11-1     哈希的最长探测界限***'
 - en: Suppose you are using an open-addressed hash table of size *m* to store *n*
     ≤ *m*/2 items.
+  id: totrans-395
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设您正在使用大小为*m*的开放寻址哈希表来存储*n* ≤ *m*/2个项目。
 - en: '***a.*** Assuming independent uniform permutation hashing, show that for *i*
     = 1, 2, …, *n*, the probability is at most 2^(−*p*) that the *i*th insertion requires
     strictly more than *p* probes.'
+  id: totrans-396
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 假设独立均匀排列散列，证明对于*i* = 1, 2, …, *n*，第*i*次插入需要严格多于*p*探测的概率最多为2^(−*p*)。'
 - en: '***b.*** Show that for *i* = 1, 2, …, *n*, the probability is *O*(1/*n*²) that
     the *i*th insertion requires more than 2 lg *n* probes.'
+  id: totrans-397
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明对于*i* = 1, 2, …, *n*，第*i*次插入需要超过2 lg *n*探测的概率是*O*(1/*n*²)。'
 - en: 'Let the random variable *X[i]* denote the number of probes required by the
     *i*th insertion. You have shown in part (b) that Pr{*X[i]* > 2 lg *n*} = *O*(1/*n*²).
     Let the random variable *X* = max {*X[i]* : 1 ≤ *i* ≤ *n*} denote the maximum
     number of probes required by any of the *n* insertions.'
+  id: totrans-398
   prefs: []
   type: TYPE_NORMAL
+  zh: '让随机变量*X[i]*表示第*i*次插入所需的探测次数。你已经在(b)部分中证明Pr{*X[i]* > 2 lg *n*} = *O*(1/*n*²)。让随机变量*X*
+    = max {*X[i]* : 1 ≤ *i* ≤ *n*}表示任何插入中所需的最大探测次数。'
 - en: '***c.*** Show that Pr{*X* > 2 lg *n*} = *O*(1/*n*).'
+  id: totrans-399
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明Pr{*X* > 2 lg *n*} = *O*(1/*n*)。'
 - en: '***d.*** Show that the expected length E[*X*] of the longest probe sequence
     is *O*(lg *n*).'
+  id: totrans-400
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明最长探测序列的期望长度E[*X*]是*O*(lg *n*)。'
 - en: '***11-2     Searching a static set***'
+  id: totrans-401
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11-2     搜索静态集合***'
 - en: You are asked to implement a searchable set of *n* elements in which the keys
     are numbers. The set is static (no INSERT or DELETE operations), and the only
     operation required is SEARCH. You are given an arbitrary amount of time to preprocess
     the *n* elements so that SEARCH operations run quickly.
+  id: totrans-402
   prefs: []
   type: TYPE_NORMAL
+  zh: 你被要求实现一个可搜索的包含*n*个元素的集合，其中键是数字。该集合是静态的（没有INSERT或DELETE操作），唯一需要的操作是SEARCH。你被给予任意数量的时间来预处理*n*个元素，以便SEARCH操作运行快速。
 - en: '***a.*** Show how to implement SEARCH in *O*(lg *n*) worst-case time using
     no extra storage beyond what is needed to store the elements of the set themselves.'
+  id: totrans-403
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 展示如何在*O*(lg *n*)的最坏情况时间内实现SEARCH，而不需要额外的存储空间，除了存储集合元素本身所需的空间。'
 - en: '***b.*** Consider implementing the set by open-address hashing on *m* slots,
     and assume independent uniform permutation hashing. What is the minimum amount
     of extra storage *m* − *n* required to make the average performance of an unsuccessful
     SEARCH operation be at least as good as the bound in part (a)? Your answer should
     be an asymptotic bound on *m* − *n* in terms of *n*.'
+  id: totrans-404
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 考虑在*m*个槽上通过开地址散列实现集合，并假设独立均匀排列散列。为了使不成功的搜索操作的平均性能至少与(a)部分中的界限一样好，需要额外的存储量*m*
+    − *n*的最小值是多少？你的答案应该是关于*n*的渐近界限的。'
 - en: '***11-3     Slot-size bound for chaining***'
+  id: totrans-405
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11-3     链式法的槽大小界限***'
 - en: Given a hash table with *n* slots, with collisions resolved by chaining, suppose
     that *n* keys are inserted into the table. Each key is equally likely to be hashed
     to each slot. Let *M* be the maximum number of keys in any slot after all the
     keys have been inserted. Your mission is to prove an *O*(lg *n* / lg lg *n*) upper
     bound on E[*M*], the expected value of *M*.
+  id: totrans-406
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个具有*n*个槽的哈希表，通过链接解决冲突，假设将*n*个键插入表中。每个键被等概率地散列到每个槽。让*M*是在所有键插入后任何槽中的最大键数。你的任务是证明E[*M*]的上界为*O*(lg
+    *n* / lg lg *n*)。
 - en: '***a.*** Argue that the probability *Q[k]* that exactly *k* keys hash to a
     particular slot is given by'
+  id: totrans-407
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 论证恰好*k*个键散列到特定槽的概率*Q[k]*由以下公式给出'
 - en: '![art](images/Art_P408.jpg)'
+  id: totrans-408
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P408.jpg)'
 - en: '***b.*** Let *P[k]* be the probability that *M* = *k*, that is, the probability
     that the slot containing the most keys contains *k* keys. Show that *P[k]* ≤ *nQ[k]*.'
+  id: totrans-409
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 让*P[k]*表示*M* = *k*的概率，即包含最多键的槽包含*k*个键的概率。证明*P[k]* ≤ *nQ[k]*。'
 - en: '***c.*** Show that *Q[k]* < *e^k*/*k^k*. *Hint:* Use Stirling’s approximation,
     equation (3.25) on page 67.'
+  id: totrans-410
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明*Q[k]* < *e^k*/*k^k*。*提示：*使用Stirling逼近，第67页的方程(3.25)。'
 - en: '***d.*** Show that there exists a constant *c* > 1 such that ![art](images/Art_P409.jpg)
     for *k*[0] = *c* lg *n* / lg lg *n*. Conclude that *P[k]* < 1/*n*² for *k* ≥ *k*[0]
     = *c* lg *n* / lg lg *n*.'
+  id: totrans-411
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明存在一个常数*c* > 1，使得![艺术](images/Art_P409.jpg)对于*k*[0] = *c* lg *n*
+    / lg lg *n*成立。得出结论，对于*k* ≥ *k*[0] = *c* lg *n* / lg lg *n*，*P[k]* < 1/*n*²。'
 - en: '***e.*** Argue that'
+  id: totrans-412
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 论证'
 - en: '![art](images/Art_P410.jpg)'
+  id: totrans-413
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P410.jpg)'
 - en: Conclude that E[*M*] = *O*(lg *n* / lg lg *n*).
+  id: totrans-414
   prefs: []
   type: TYPE_NORMAL
+  zh: 得出E[*M*] = *O*(lg *n* / lg lg *n*)。
 - en: '***11-4     Hashing and authentication***'
+  id: totrans-415
   prefs: []
   type: TYPE_NORMAL
+  zh: '***11-4     散列和认证***'
 - en: Let H be a family of hash functions in which each hash function *h* ∈ H maps
     the universe *U* of keys to {0, 1, …, *m* − 1}.
+  id: totrans-416
   prefs: []
   type: TYPE_NORMAL
+  zh: 让H是一个哈希函数族，其中每个哈希函数*h* ∈ H将键的宇宙*U*映射到{0, 1, …, *m* − 1}。
 - en: '***a.*** Show that if the family H of hash functions is 2-independent, then
     it is universal.'
+  id: totrans-417
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 证明如果哈希函数族H是2-独立的，则它是通用的。'
 - en: '***b.*** Suppose that the universe *U* is the set of *n*-tuples of values drawn
     from ℤ[*p*] = {0, 1, …, *p* − 1}, where *p* is prime. Consider an element *x*
     = 〈*x*[0], *x*[1], …, *x*[*n*−1]〉 ∈ *U*. For any *n*-tuple *a* = 〈*a*[0], *a*[1],
     …, *a*[*n*−1]〉 ∈ *U*, define the hash function *h[a]* by'
+  id: totrans-418
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 假设宇宙*U*是从素数*p* = {0, 1, …, *p* − 1}中抽取的值的*n*-元组集合。考虑一个元素*x* = 〈*x*[0],
+    *x*[1], …, *x*[*n*−1]〉 ∈ *U*。对于任意*a* = 〈*a*[0], *a*[1], …, *a*[*n*−1]〉 ∈ *U*，定义哈希函数*h[a]*为'
 - en: '![art](images/Art_P411.jpg)'
+  id: totrans-419
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P411.jpg)'
 - en: 'Let H = {*h[a]* : *a* ∈ *U*}. Show that H is universal, but not 2-independent.
     (*Hint:* Find a key for which all hash functions in H produce the same value.)'
+  id: totrans-420
   prefs: []
   type: TYPE_NORMAL
+  zh: '让H = {*h[a]* : *a* ∈ *U*}。证明H是通用的，但不是2-独立的。（*提示：*找到一个键，使得H中的所有哈希函数产生相同的值。）'
 - en: '***c.*** Suppose that we modify H slightly from part (b): for any *a* ∈ *U*
     and for any *b* ∈ ℤ*[p]*, define'
+  id: totrans-421
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 假设我们从(b)部分略微修改H：对于任意*a* ∈ *U*和任意*b* ∈ ℤ*[p]*，定义'
 - en: '![art](images/Art_P412.jpg)'
+  id: totrans-422
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P412.jpg)'
 - en: and ![art](images/Art_P413.jpg). Argue that H′ is 2-independent. (*Hint:* Consider
     fixed *n*-tuples *x* ∈ *U* and *y* ∈ *U*, with *x[i]* ≠ *y[i]* for some *i*. What
     happens to ![art](images/Art_P414.jpg) and ![art](images/Art_P415.jpg) as *a[i]*
     and *b* range over ℤ*[p]*?)
+  id: totrans-423
   prefs: []
   type: TYPE_NORMAL
+  zh: 和![艺术](images/Art_P413.jpg)。论证H′是2-独立的。（*提示：*考虑固定的*n*-元组*x* ∈ *U*和*y* ∈ *U*，对于某个*i*，*x[i]*
+    ≠ *y[i]*。当*a[i]*和*b*在ℤ*[p]*范围内变化时，![艺术](images/Art_P414.jpg)和![艺术](images/Art_P415.jpg)会发生什么？）
 - en: '***d.*** Alice and Bob secretly agree on a hash function *h* from a 2-independent
     family H of hash functions. Each *h* ∈ H maps from a universe of keys *U* to ℤ*[p]*,
     where *p* is prime. Later, Alice sends a message *m* to Bob over the internet,
@@ -2133,11 +3084,17 @@
     *t*′). Argue that the probability that the adversary succeeds in fooling Bob into
     accepting (*m*′, *t*′) is at most 1/*p*, no matter how much computing power the
     adversary has, even if the adversary knows the family H of hash functions used.'
+  id: totrans-424
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** Alice 和 Bob 秘密约定了一个来自哈希函数族H的2-独立哈希函数*h*。每个*h* ∈ H 将从键的宇宙*U*映射到ℤ*[p]*，其中*p*是质数。后来，Alice通过互联网向Bob发送了一条消息*m*，其中*m*
+    ∈ *U*。她通过发送一个认证标签*t* = *h*(*m*)来向Bob验证这条消息，并且Bob检查他收到的(*m*, *t*)对确实满足*t* = *h*(*m*)。假设一个对手在途中拦截了(*m*,
+    *t*)，并试图通过替换(*m*′, *t*′)这对不同的对来愚弄Bob。论证对手成功愚弄Bob接受(*m*′, *t*′)的概率最多为1/*p*，无论对手拥有多少计算能力，即使对手知道使用的哈希函数族H。'
 - en: '**Chapter notes**'
+  id: totrans-425
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: The books by Knuth [[261](bibliography001.xhtml#endnote_261)] and Gonnet and
     Baeza-Yates [[193](bibliography001.xhtml#endnote_193)] are excellent references
     for the analysis of hashing algorithms. Knuth credits H. P. Luhn (1953) for inventing
@@ -2146,23 +3103,35 @@
     of a random oracle was introduced by Bellare et al. [[43](bibliography001.xhtml#endnote_43)].
     Carter and Wegman [[80](bibliography001.xhtml#endnote_80)] introduced the notion
     of universal families of hash functions in 1979.
+  id: totrans-426
   prefs: []
   type: TYPE_NORMAL
+  zh: Knuth 的书籍[[261](bibliography001.xhtml#endnote_261)] 和 Gonnet 与 Baeza-Yates 的书籍[[193](bibliography001.xhtml#endnote_193)]
+    是哈希算法分析的优秀参考资料。Knuth 归功于 H. P. Luhn（1953）发明了哈希表，以及用于解决碰撞的链接方法。大约在同一时间，G. M. Amdahl
+    提出了开放寻址的概念。随机预言的概念是由 Bellare 等人[[43](bibliography001.xhtml#endnote_43)] 引入的。Carter
+    和 Wegman[[80](bibliography001.xhtml#endnote_80)] 在1979年提出了哈希函数的通用族概念。
 - en: Dietzfelbinger et al. [[113](bibliography001.xhtml#endnote_113)] invented the
     multiply-shift hash function and gave a proof of Theorem 11.5\. Thorup [[437](bibliography001.xhtml#endnote_437)]
     provides extensions and additional analysis. Thorup [[438](bibliography001.xhtml#endnote_438)]
     gives a simple proof that linear probing with 5-independent hashing takes constant
     expected time per operation. Thorup also describes the method for deletion in
     a hash table using linear probing.
+  id: totrans-427
   prefs: []
   type: TYPE_NORMAL
+  zh: Dietzfelbinger 等人[[113](bibliography001.xhtml#endnote_113)] 发明了乘-移位哈希函数，并给出了定理11.5的证明。Thorup[[437](bibliography001.xhtml#endnote_437)]
+    提供了扩展和额外的分析。Thorup[[438](bibliography001.xhtml#endnote_438)] 给出了一个简单的证明，即使用5-独立哈希的线性探测每次操作都需要恒定的期望时间。Thorup
+    还描述了使用线性探测在哈希表中进行删除的方法。
 - en: Fredman, Komlós, and Szemerédi [[154](bibliography001.xhtml#endnote_154)] developed
     a perfect hashing scheme for static sets—“perfect” because all collisions are
     avoided. An extension of their method to dynamic sets, handling insertions and
     deletions in amortized expected time *O*(1), has been given by Dietzfelbinger
     et al. [[114](bibliography001.xhtml#endnote_114)].
+  id: totrans-428
   prefs: []
   type: TYPE_NORMAL
+  zh: Fredman, Komlós, 和 Szemerédi [[154](bibliography001.xhtml#endnote_154)] 开发了一个用于静态集合的完美哈希方案——“完美”是因为所有碰撞都被避免了。Dietzfelbinger
+    等人给出了他们的方法的扩展，用于处理动态集合，处理插入和删除的摊销期望时间为*O*(1)。
 - en: The wee hash function is based on the RC6 encryption algorithm [[379](bibliography001.xhtml#endnote_379)].
     Leiserson et al. [[292](bibliography001.xhtml#endnote_292)] propose an “RC6MIX”
     function that is essentially the same as the wee hash function. They give experimental
@@ -2171,16 +3140,25 @@
     provide an analysis of the security of the cipher-block-chaining message authentication
     code. This analysis implies that the wee hash function has the desired pseudorandomness
     properties.
+  id: totrans-429
   prefs: []
   type: TYPE_NORMAL
+  zh: 小哈希函数基于 RC6 加密算法[[379](bibliography001.xhtml#endnote_379)]。Leiserson 等人[[292](bibliography001.xhtml#endnote_292)]
+    提出了一个名为“RC6MIX”的函数，与小哈希函数本质上相同。他们提供了良好随机性的实验证据，并提供了用于处理可变长度输入的“DOTMIX”函数。Bellare
+    等人[[42](bibliography001.xhtml#endnote_42)] 对密码块链消息认证码的安全性进行了分析。这个分析表明小哈希函数具有所需的伪随机性质。
 - en: '[¹](#footnote_ref_1) The definition of “average-case” requires care—are we
     assuming an input distribution over the keys, or are we randomizing the choice
     of hash function itself? We’ll consider both approaches, but with an emphasis
     on the use of a randomly chosen hash function.'
+  id: totrans-430
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) “平均情况” 的定义需要小心处理——我们是假设键上有一个输入分布，还是随机选择哈希函数本身？我们将考虑这两种方法，但重点放在使用随机选择的哈希函数上。'
 - en: '[²](#footnote_ref_2) In the literature, a (*c*/*m*)-universal hash function
     is sometimes called *c*-universal or *c*-approximately universal. We’ll stick
     with the notation (*c*/*m*)-universal.'
+  id: totrans-431
   prefs: []
   type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 在文献中，(*c*/*m*)-universal 哈希函数有时被称为*c*-universal或*c*-近似通用。我们将坚持使用(*c*/*m*)-universal
+    的符号表示。'

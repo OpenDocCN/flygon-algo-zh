@@ -1,29 +1,39 @@
 - en: '[**6          Heapsort**](toc.xhtml#chap-6)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6          堆排序**](toc.xhtml#chap-6)'
 - en: 'This chapter introduces another sorting algorithm: heapsort. Like merge sort,
     but unlike insertion sort, heapsort’s running time is *O*(*n* lg *n*). Like insertion
     sort, but unlike merge sort, heapsort sorts in place: only a constant number of
     array elements are stored outside the input array at any time. Thus, heapsort
     combines the better attributes of the two sorting algorithms we have already discussed.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了另一种排序算法：堆排序。与归并排序类似，但与插入排序不同，堆排序的运行时间为 *O*(*n* lg *n*)。与插入排序类似，但与归并排序不同，堆排序是原地排序：在任何时候只有常数个数组元素存储在输入数组之外。因此，堆排序结合了我们已经讨论过的两种排序算法的优点。
 - en: 'Heapsort also introduces another algorithm design technique: using a data structure,
     in this case one we call a “heap,” to manage information. Not only is the heap
     data structure useful for heapsort, but it also makes an efficient priority queue.
     The heap data structure will reappear in algorithms in later chapters.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆排序还引入了另一种算法设计技术：使用一种数据结构，即我们称之为“堆”的数据结构，来管理信息。堆数据结构不仅对堆排序有用，而且还可以构建一个高效的优先队列。堆数据结构将在后面章节的算法中再次出现。
 - en: The term “heap” was originally coined in the context of heapsort, but it has
     since come to refer to “garbage-collected storage,” such as the programming languages
     Java and Python provide. Please don’t be confused. The heap data structure is
     *not* garbage-collected storage. This book is consistent in using the term “heap”
     to refer to the data structure, not the storage class.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 术语“堆”最初是在堆排序的背景下创造的，但后来它已经指代“垃圾收集存储”，例如编程语言 Java 和 Python 提供的。请不要混淆。堆数据结构*不是*垃圾收集存储。本书在使用术语“堆”时一贯指的是数据结构，而不是存储类。
 - en: '[**6.1      Heaps**](toc.xhtml#Rh1-32)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6.1      堆**](toc.xhtml#Rh1-32)'
 - en: 'The ***(binary) heap*** data structure is an array object that we can view
     as a nearly complete binary tree (see [Section B.5.3](appendix002.xhtml#Sec_B.5.3)),
     as shown in [Figure 6.1](chapter006.xhtml#Fig_6-1). Each node of the tree corresponds
@@ -36,74 +46,115 @@
     = 0, then the heap is empty. The root of the tree is *A*[1], and given the index
     *i* of a node, there’s a simple way to compute the indices of its parent, left
     child, and right child with the one-line procedures PARENT, LEFT, and RIGHT.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '***(二叉) 堆*** 数据结构是一个数组对象，我们可以将其视为一个几乎完全填满的二叉树（见[第 B.5.3 节](appendix002.xhtml#Sec_B.5.3)），如[图
+    6.1](chapter006.xhtml#Fig_6-1)所示。树的每个节点对应数组的一个元素。树在所有级别上都是完全填充的，除了可能是最低级别，该级别从左侧填充到某一点。表示堆的数组
+    *A*[1 : *n*] 是一个带有属性 *A.heap-size* 的对象，该属性表示堆中存储在数组 *A* 中的元素数量。也就是说，尽管 *A*[1 :
+    *n*] 可能包含数字，但只有 *A*[1 : *A.heap-size*] 中的元素是堆的有效元素，其中 0 ≤ *A.heap-size* ≤ *n*。如果
+    *A.heap-size* = 0，则堆为空。树的根是 *A*[1]，给定节点的索引 *i*，有一种简单的方法来计算其父节点、左子节点和右子节点的索引，分别是
+    PARENT、LEFT 和 RIGHT 三个一行的过程。'
 - en: '![art](images/Art_P298.jpg)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P298.jpg)'
 - en: '**Figure 6.1** A max-heap viewed as **(a)** a binary tree and **(b)** an array.
     The number within the circle at each node in the tree is the value stored at that
     node. The number above a node is the corresponding index in the array. Above and
     below the array are lines showing parent-child relationships, with parents always
     to the left of their children. The tree has height 3, and the node at index 4
     (with value 8) has height 1.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 6.1** 一个最大堆视为 **(a)** 二叉树和 **(b)** 数组。树中每个节点内部的数字是存储在该节点的值。节点上方的数字是数组中对应的索引。数组上方和下方有显示父子关系的线，父节点始终位于其子节点的左侧。树的高度为
+    3，索引为 4 的节点（值为 8）的高度为 1。'
 - en: PARENT(*i*)
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: PARENT(*i*)
 - en: '| 1 | **return** ⌊*i*/2⌋ |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **return** ⌊*i*/2⌋ |'
 - en: LEFT(*i*)
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: LEFT(*i*)
 - en: '| 1 | **return** 2*i* |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **return** 2*i* |'
 - en: RIGHT(*i*)
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: RIGHT(*i*)
 - en: '| 1 | **return** 2*i* + 1 |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **return** 2*i* + 1 |'
 - en: On most computers, the LEFT procedure can compute 2*i* in one instruction by
     simply shifting the binary representation of *i* left by one bit position. Similarly,
     the RIGHT procedure can quickly compute 2*i* + 1 by shifting the binary representation
     of *i* left by one bit position and then adding 1\. The PARENT procedure can compute
     ⌊*i*/2⌋ by shifting *i* right one bit position. Good implementations of heapsort
     often implement these procedures as macros or inline procedures.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 在大多数计算机上，LEFT 过程可以通过将 *i* 的二进制表示向左移动一个位位置来在一条指令中计算出 2*i*。类似地，RIGHT 过程可以通过将 *i*
+    的二进制表示向左移动一个位位置，然后加 1 来快速计算出 2*i* + 1。PARENT 过程可以通过将 *i* 右移一个位位置来计算 ⌊*i*/2⌋。堆排序的良���实现通常将这些过程实现为宏或内联过程。
 - en: 'There are two kinds of binary heaps: max-heaps and min-heaps. In both kinds,
     the values in the nodes satisfy a ***heap property***, the specifics of which
     depend on the kind of heap. In a ***max-heap***, the ***max-heap property*** is
     that for every node *i* other than the root,'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 有两种二叉堆：最大堆和最小堆。在这两种堆中，节点中的值满足一个***堆属性***，具体取决于堆的类型。在***最大堆***中，***最大堆属性*** 是对于除根节点外的每个节点
+    *i*，
 - en: '*A*[PARENT(*i*)] ≥ *A*[*i*],'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A*[PARENT(*i*)] ≥ *A*[*i*],'
 - en: 'that is, the value of a node is at most the value of its parent. Thus, the
     largest element in a max-heap is stored at the root, and the subtree rooted at
     a node contains values no larger than that contained at the node itself. A ***min-heap***
     is organized in the opposite way: the ***min-heap property*** is that for every
     node *i* other than the root,'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 也就是说，节点的值最多等于其父节点的值。因此，在最大堆中，最大的元素存储在根节点，而以节点为根的子树包含的值不大于节点本身包含的值。***最小堆***则相反：***最小堆属性***
+    是对于除根节点外的每个节点 *i*，
 - en: '*A*[PARENT(*i*)] ≤ *A*[*i*].'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A*[PARENT(*i*)] ≤ *A*[*i*].'
 - en: The smallest element in a min-heap is at the root.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 最小堆中最小的元素位于根节点。
 - en: The heapsort algorithm uses max-heaps. Min-heaps commonly implement priority
     queues, which we discuss in [Section 6.5](chapter006.xhtml#Sec_6.5). We’ll be
     precise in specifying whether we need a max-heap or a min-heap for any particular
     application, and when properties apply to either max-heaps or min-heaps, we just
     use the term “heap.”
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆排序算法使用最大堆。最小堆通常用于实现优先队列，我们在[第6.5节](chapter006.xhtml#Sec_6.5)中讨论。我们将明确指定特定应用程序需要最大堆还是最小堆，并且当属性适用于最大堆或最小堆时，我们只使用术语“堆”。
 - en: Viewing a heap as a tree, we define the ***height*** of a node in a heap to
     be the number of edges on the longest simple downward path from the node to a
     leaf, and we define the height of the heap to be the height of its root. Since
@@ -112,88 +163,136 @@
     time at most proportional to the height of the tree and thus take *O*(lg *n*)
     time. The remainder of this chapter presents some basic procedures and shows how
     they are used in a sorting algorithm and a priority-queue data structure.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 将堆视为树时，我们定义堆中节点的***高度***为从节点到叶子的最长简单向下路径上的边数，并将堆的高度定义为其根的高度。由于*n*个元素的堆基于完全二叉树，其高度为Θ(lg
+    *n*)（参见练习6.1-2）。正如我们将看到的，堆上的基本操作的运行时间最多与树的高度成比例，因此需要*O*(lg *n*)时间。本章的其余部分介绍了一些基本过程，并展示了它们如何在排序算法和优先队列数据结构中使用。
 - en: The MAX-HEAPIFY procedure, which runs in *O*(lg *n*) time, is the key to maintaining
     the max-heap property.
+  id: totrans-22
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 运行时间为*O*(lg *n*)的MAX-HEAPIFY过程是维护最大堆属性的关键。
 - en: The BUILD-MAX-HEAP procedure, which runs in linear time, produces a max-heap
     from an unordered input array.
+  id: totrans-23
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 运行时间为线性的BUILD-MAX-HEAP过程可以从无序输入数组生成最大堆。
 - en: The HEAPSORT procedure, which runs in *O*(*n* lg *n*) time, sorts an array in
     place.
+  id: totrans-24
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 运行时间为*O*(*n* lg *n*)的HEAPSORT过程可以原地对数组进行排序。
 - en: The procedures MAX-HEAP-INSERT, MAX-HEAP-EXTRACT-MAX, MAX-HEAP-INCREASE-KEY,
     and MAX-HEAP-MAXIMUM allow the heap data structure to implement a priority queue.
     They run in *O*(lg *n*) time plus the time for mapping between objects being inserted
     into the priority queue and indices in the heap.
+  id: totrans-25
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: MAX-HEAP-INSERT、MAX-HEAP-EXTRACT-MAX、MAX-HEAP-INCREASE-KEY和MAX-HEAP-MAXIMUM过程允许堆数据结构实现优先队列。它们的运行时间为*O*(lg
+    *n*)加上将要插入优先队列的对象与堆中索引之间的映射时间。
 - en: '**Exercises**'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***6.1-1***'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-1***'
 - en: What are the minimum and maximum numbers of elements in a heap of height *h*?
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆的高度*h*中元素的最小和最大数量是多少？
 - en: '***6.1-2***'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-2***'
 - en: Show that an *n*-element heap has height ⌊lg *n*⌋.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明一个包含*n*个元素的堆的高度为⌊lg *n*⌋。
 - en: '***6.1-3***'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-3***'
 - en: Show that in any subtree of a max-heap, the root of the subtree contains the
     largest value occurring anywhere in that subtree.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在最大堆的任何子树中，子树的根包含该子树中任何位置出现的最大值。
 - en: '***6.1-4***'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-4***'
 - en: Where in a max-heap might the smallest element reside, assuming that all elements
     are distinct?
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最大堆中，假设所有元素都不同，最小的元素可能位于哪个位置？
 - en: '***6.1-5***'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-5***'
 - en: At which levels in a max-heap might the *k*th largest element reside, for 2
     ≤ *k* ≤ ⌊*n*/2⌋, assuming that all elements are distinct?
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最大堆中，假设所有元素都不同，第*k*大的元素可能位于哪些级别，其中2 ≤ *k* ≤ ⌊*n*/2⌋？
 - en: '***6.1-6***'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-6***'
 - en: Is an array that is in sorted order a min-heap?
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 排序顺序的数组是否为最小堆？
 - en: '***6.1-7***'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-7***'
 - en: Is the array with values 〈33, 19, 20, 15, 13, 10, 2, 13, 16, 12〉 a max-heap?
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 数组〈33, 19, 20, 15, 13, 10, 2, 13, 16, 12〉是否为最大堆？
 - en: '***6.1-8***'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.1-8***'
 - en: Show that, with the array representation for storing an *n*-element heap, the
     leaves are the nodes indexed by ⌊*n*/2⌋ + 1, ⌊*n*/2⌋ + 2, … , *n*.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明使用数组表示存储*n*个元素堆时，叶子节点的索引为⌊*n*/2⌋ + 1, ⌊*n*/2⌋ + 2, … , *n*。
 - en: '[**6.2      Maintaining the heap property**](toc.xhtml#Rh1-33)'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6.2      维护堆属性**](toc.xhtml#Rh1-33)'
 - en: The procedure MAX-HEAPIFY on the facing page maintains the max-heap property.
     Its inputs are an array *A* with the *heap-size* attribute and an index *i* into
     the array. When it is called, MAX-HEAPIFY assumes that the binary trees rooted
@@ -201,8 +300,10 @@
     than its children, thus violating the max-heap property. MAX-HEAPIFY lets the
     value at *A*[*i*] “float down” in the max-heap so that the subtree rooted at index
     *i* obeys the max-heap property.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 对面的MAX-HEAPIFY过程维护最大堆属性。其输入是具有*heap-size*属性和数组*A*中索引*i*的数组。当调用它时，MAX-HEAPIFY假设以LEFT(*i*)和RIGHT(*i*)为根的二叉树是最大堆，但*A*[*i*]可能小于其子节点，从而违反最大堆属性。MAX-HEAPIFY使得*A*[*i*]的值在最大堆中“下沉”，使得以索引*i*为根的子树遵循最大堆属性。
 - en: '[Figure 6.2](chapter006.xhtml#Fig_6-2) illustrates the action of MAX-HEAPIFY.
     Each step determines the largest of the elements *A*[*i*], *A*[LEFT(*i*)], and
     *A*[RIGHT(*i*)] and stores the index of the largest element in *largest*. If *A*[*i*]
@@ -213,11 +314,15 @@
     however, just had its value decreased, and thus the subtree rooted at *largest*
     might violate the max-heap property. Consequently, MAX-HEAPIFY calls itself recursively
     on that subtree.'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图6.2](chapter006.xhtml#Fig_6-2)说明了MAX-HEAPIFY的操作。每一步��定元素*A*[*i*]、*A*[LEFT(*i*)]和*A*[RIGHT(*i*)]中最大的元素，并将最大元素的索引存储在*largest*中。如果*A*[*i*]最大，则以节点*i*为根的子树已经是最大堆，不需要进行其他操作。否则，两个子节点中有一个包含最大元素。位置*i*和*largest*交换其内容，这导致节点*i*及其子节点满足最大堆属性。然而，索引为*largest*的节点刚刚减小了其值，因此以*largest*为根的子树可能违反最大堆属性。因此，MAX-HEAPIFY在该子树上递归调用自身。'
 - en: '![art](images/Art_P299.jpg)'
+  id: totrans-46
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P299.jpg)'
 - en: '**Figure 6.2** The action of MAX-HEAPIFY(*A*, 2), where *A.heap-size* = 10\.
     The node that potentially violates the max-heap property is shown in blue. **(a)**
     The initial configuration, with *A*[2] at node *i* = 2 violating the max-heap
@@ -227,41 +332,68 @@
     After *A*[4] and *A*[9] are swapped, as shown in **(c)**, node 4 is fixed up,
     and the recursive call MAX-HEAPIFY(*A*, 9) yields no further change to the data
     structure.'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图6.2** MAX-HEAPIFY(*A*, 2)的操作，其中*A.heap-size* = 10。潜在违反最大堆性质的节点显示为蓝色。**(a)**
+    初始配置，*A*[2]在节点*i* = 2处违反最大堆性质，因为它不比两个子节点大。通过用*A*[4]交换*A*[2]来恢复节点2的最大堆性质，**(b)**
+    中破坏了节点4的最大堆性质。递归调用MAX-HEAPIFY(*A*, 4)现在有*i* = 4。如**(c)**所示，交换*A*[4]和*A*[9]后，节点4被修复，递归调用MAX-HEAPIFY(*A*,
+    9)对数据结构没有进一步更改。'
 - en: MAX-HEAPIFY(*A*, *i*)
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAPIFY(*A*, *i*)
 - en: '|   1 | *l* = LEFT(*i*) |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | *l* = LEFT(*i*) |'
 - en: '|   2 | *r* = RIGHT(*i*) |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *r* = RIGHT(*i*) |'
 - en: '|   3 | **if** *l* ≤ *A.heap-size* and *A*[*l*] > *A*[*i*] |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **if** *l* ≤ *A.heap-size* and *A*[*l*] > *A*[*i*] |'
 - en: '|   4 | *largest* = *l* |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *largest* = *l* |'
 - en: '|   5 | **else** *largest* = *i* |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **else** *largest* = *i* |'
 - en: '|   6 | **if** *r* ≤ *A.heap-size* and *A*[*r*] > *A*[*largest*] |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **if** *r* ≤ *A.heap-size* and *A*[*r*] > *A*[*largest*] |'
 - en: '|   7 | *largest* = *r* |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *largest* = *r* |'
 - en: '|   8 | **if** *largest* ≠ *i* |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **if** *largest* ≠ *i* |'
 - en: '|   9 | exchange *A*[*i*] with *A*[*largest*] |'
+  id: totrans-57
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | 用*A*[*largest*]交换*A*[*i*] |'
 - en: '| 10 | MAX-HEAPIFY(*A*, *largest*) |'
+  id: totrans-58
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | MAX-HEAPIFY(*A*, *largest*) |'
 - en: To analyze MAX-HEAPIFY, let *T* (*n*) be the worst-case running time that the
     procedure takes on a subtree of size at most *n*. For a tree rooted at a given
     node *i*, the running time is the Θ(1) time to fix up the relationships among
@@ -270,116 +402,174 @@
     the recursive call occurs). The children’s subtrees each have size at most 2*n*/3
     (see Exercise 6.2-2), and therefore we can describe the running time of MAX-HEAPIFY
     by the recurrence
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 要分析MAX-HEAPIFY，让*T*(*n*)表示该过程在大小不超过*n*的子树上花费的最坏情况运行时间。对于以给定节点*i*为根的树，运行时间是Θ(1)时间来修复元素*A*[*i*]、*A*[LEFT(*i*)]和*A*[RIGHT(*i*)]之间的关系，再加上运行MAX-HEAPIFY在以节点*i*的一个子节点为根的子树上的时间（假设递归调用发生）。子节点的子树大小最多为2*n*/3（参见练习6.2-2），因此我们可以通过递归描述MAX-HEAPIFY的运行时间
 - en: '![art](images/Art_P300.jpg)'
+  id: totrans-60
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P300.jpg)'
 - en: The solution to this recurrence, by case 2 of the master theorem (Theorem 4.1
     on page 102), is *T* (*n*) = *O*(lg *n*). Alternatively, we can characterize the
     running time of MAX-HEAPIFY on a node of height *h* as *O*(*h*).
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据主定理的第2种情况（第102页的定理4.1），这个递归的解是*T*(*n*) = *O*(lg *n*)。或者，我们可以将节点高度为*h*的MAX-HEAPIFY的运行时间描述为*O*(*h*)。
 - en: '**Exercises**'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***6.2-1***'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-1***'
 - en: Using [Figure 6.2](chapter006.xhtml#Fig_6-2) as a model, illustrate the operation
     of MAX-HEAPIFY(*A*, 3) on the array *A* = 〈27, 17, 3, 16, 13, 10, 1, 5, 7, 12,
     4, 8, 9, 0〉.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图6.2](chapter006.xhtml#Fig_6-2)作为模型，说明MAX-HEAPIFY(*A*, 3)在数组*A* = 〈27, 17,
+    3, 16, 13, 10, 1, 5, 7, 12, 4, 8, 9, 0〉上的操作。
 - en: '***6.2-2***'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-2***'
 - en: Show that each child of the root of an *n*-node heap is the root of a subtree
     containing at most 2*n*/3 nodes. What is the smallest constant *α* such that each
     subtree has at most *α n* nodes? How does that affect the recurrence (6.1) and
     its solution?
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明*n*个节点堆的根的每个子节点都是包含最多2*n*/3个节点的子树的根。什么是最小常数*α*，使得每个子树最多有*α n*个节点？这如何影响递归（6.1）及其解决方案？
 - en: '***6.2-3***'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-3***'
 - en: Starting with the procedure MAX-HEAPIFY, write pseudocode for the procedure
     MIN-HEAPIFY(*A*, *i*), which performs the corresponding manipulation on a min-heap.
     How does the running time of MIN-HEAPIFY compare with that of MAX-HEAPIFY?
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 从MAX-HEAPIFY过程开始，为MIN-HEAPIFY(*A*, *i*)编写伪代码，该过程在最小堆上执行相应的操作。MIN-HEAPIFY的运行时间如何与MAX-HEAPIFY相比？
 - en: '***6.2-4***'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-4***'
 - en: What is the effect of calling MAX-HEAPIFY(*A*, *i*) when the element *A*[*i*]
     is larger than its children?
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 当元素*A*[*i*]大于其子节点时，调用MAX-HEAPIFY(*A*, *i*)的效果是什么？
 - en: '***6.2-5***'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-5***'
 - en: What is the effect of calling MAX-HEAPIFY(*A*, *i*) for *i* > *A.heap-size*/2?
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用MAX-HEAPIFY(*A*, *i*)对于*i* > *A.heap-size*/2的效果是什么？
 - en: '***6.2-6***'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-6***'
 - en: The code for MAX-HEAPIFY is quite efficient in terms of constant factors, except
     possibly for the recursive call in line 10, for which some compilers might produce
     inefficient code. Write an efficient MAX-HEAPIFY that uses an iterative control
     construct (a loop) instead of recursion.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAPIFY的代码在常数因子方面相当高效，除了第10行中的递归调用可能会导致一些编译器生成低效的代码。编写一个使用迭代控制结构（循环）而不是递归的高效MAX-HEAPIFY。
 - en: '***6.2-7***'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.2-7***'
 - en: Show that the worst-case running time of MAX-HEAPIFY on a heap of size *n* is
     Ω(lg *n*). (*Hint:* For a heap with *n* nodes, give node values that cause MAX-HEAPIFY
     to be called recursively at every node on a simple path from the root down to
     a leaf.)
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在大小为*n*的堆上，MAX-HEAPIFY的最坏情况运行时间是Ω(lg *n*)。(*提示:* 对于具有*n*个节点的堆，给出导致MAX-HEAPIFY在从根到叶子的简单路径上的每个节点上递归调用的节点值。)
 - en: '[**6.3      Building a heap**](toc.xhtml#Rh1-34)'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6.3      构建堆**](toc.xhtml#Rh1-34)'
 - en: 'The procedure BUILD-MAX-HEAP converts an array *A*[1 : *n*] into a max-heap
     by calling MAX-HEAPIFY in a bottom-up manner. Exercise 6.1-8 says that the elements
     in the subarray *A*[⌊*n*/2⌋ + 1 : *n*] are all leaves of the tree, and so each
     is a 1-element heap to begin with. BUILD-MAX-HEAP goes through the remaining nodes
     of the tree and runs MAX-HEAPIFY on each one. [Figure 6.3](chapter006.xhtml#Fig_6-3)
     shows an example of the action of BUILD-MAX-HEAP.'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 'BUILD-MAX-HEAP过程通过自底向上的方式调用MAX-HEAPIFY将数组*A*[1 : *n*]转换为最大堆。练习6.1-8说，子数组*A*[⌊*n*/2⌋
+    + 1 : *n*]中的元素都是树的叶子，因此每个元素一开始都是一个1元素堆。BUILD-MAX-HEAP遍历树的其余节点，并在每个节点上运行MAX-HEAPIFY。[图6.3](chapter006.xhtml#Fig_6-3)展示了BUILD-MAX-HEAP的操作示例。'
 - en: BUILD-MAX-HEAP(*A*, *n*)
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: BUILD-MAX-HEAP(*A*, *n*)
 - en: '| 1 | *A.heap-size* = *n* |'
+  id: totrans-80
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *A.heap-size* = *n* |'
 - en: '| 2 | **for** *i* = ⌊*n*/2⌋ **downto** 1 |'
+  id: totrans-81
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *i* = ⌊*n*/2⌋ **downto** 1 |'
 - en: '| 3 | MAX-HEAPIFY(*A*, *i*) |'
+  id: totrans-82
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | MAX-HEAPIFY(*A*, *i*) |'
 - en: 'To show why BUILD-MAX-HEAP works correctly, we use the following loop invariant:'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 要展示BUILD-MAX-HEAP为什么能够正确工作，我们使用以下循环不变式：
 - en: At the start of each iteration of the **for** loop of lines 2–3, each node *i*
     + 1, *i* + 2, … , *n* is the root of a max-heap.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 在第2-3行的**for**循环的每次迭代开始时，每个节点*i* + 1，*i* + 2，…，*n*都是一个最大堆的根。
 - en: We need to show that this invariant is true prior to the first loop iteration,
     that each iteration of the loop maintains the invariant, that the loop terminates,
     and that the invariant provides a useful property to show correctness when the
     loop terminates.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们需要展示这个不变式在第一次循环迭代之前是正确的，每次循环迭代都保持不变式，循环终止，并且不变式在循环终止时提供了一个有用的属性来展示正确性。
 - en: '**Initialization:** Prior to the first iteration of the loop, *i* = ⌊*n*/2⌋.
     Each node ⌊*n*/2⌋ + 1, ⌊*n*/2⌋ + 2, … , *n* is a leaf and is thus the root of
     a trivial max-heap.'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '**初始化：** 在循环的第一次迭代之前，*i* = ⌊*n*/2⌋。每个节点⌊*n*/2⌋ + 1，⌊*n*/2⌋ + 2，…，*n*都是一个叶子节点，因此是一个微不足道的最大堆的根。'
 - en: '**Maintenance:** To see that each iteration maintains the loop invariant, observe
     that the children of node *i* are numbered higher than *i*. By the loop invariant,
     therefore, they are both roots of max-heaps. This is precisely the condition required
@@ -387,11 +577,16 @@
     the MAX-HEAPIFY call preserves the property that nodes *i* + 1, *i* + 2, … , *n*
     are all roots of max-heaps. Decrementing *i* in the **for** loop update reestablishes
     the loop invariant for the next iteration.'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '**维护：** 要看到每次迭代都保持循环不变式，观察到节点*i*的子节点编号比*i*高。因此，根据循环不变式，它们都是最大堆的根。这正是调用MAX-HEAPIFY(*A*,
+    *i*)使节点*i*成为最大堆根所需的条件。此外，MAX-HEAPIFY调用保持了节点*i* + 1，*i* + 2，…，*n*都是最大堆的根的属性。在**for**循环更新中递减*i*重新建立了下一次迭代的循环不变式。'
 - en: '![art](images/Art_P301.jpg)'
+  id: totrans-88
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P301.jpg)'
 - en: '**Figure 6.3** The operation of BUILD-MAX-HEAP, showing the data structure
     before the call to MAX-HEAPIFY in line 3 of BUILD-MAX-HEAP. The node indexed by
     *i* in each iteration is shown in blue. **(a)** A 10-element input array *A* and
@@ -401,79 +596,123 @@
     of the **for** loop in BUILD-MAX-HEAP. Observe that whenever MAX-HEAPIFY is called
     on a node, the two subtrees of that node are both max-heaps. **(f)** The max-heap
     after BUILD-MAX-HEAP finishes.'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图6.3** BUILD-MAX-HEAP的操作，在BUILD-MAX-HEAP的第3行调用MAX-HEAPIFY之前显示数据结构。每次迭代中索引为*i*的节点显示为蓝色。**(a)**
+    一个包含10个元素的输入数组*A*及其表示的二叉树。在调用MAX-HEAPIFY(*A*, *i*)之前，循环索引*i*指的是节点5。**(b)** 结果的数据结构。下一次迭代的循环索引*i*指的是节点4。**(c)-(e)**
+    BUILD-MAX-HEAP中**for**循环的后续迭代。请注意，每当在一个节点上调用MAX-HEAPIFY时，该节点的两个子树都是最大堆。**(f)**
+    BUILD-MAX-HEAP完成后的最大堆。'
 - en: '**Termination:** The loop makes exactly ⌊*n*/2⌋ iterations, and so it terminates.
     At termination, *i* = 0\. By the loop invariant, each node 1, 2, … , *n* is the
     root of a max-heap. In particular, node 1 is.'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '**终止：** 循环恰好进行了⌊*n*/2⌋次迭代，因此终止。在终止时，*i* = 0。根据循环不变式，每个节点1, 2, …，*n*都是最大堆的根。特别地，节点1是。'
 - en: We can compute a simple upper bound on the running time of BUILD-MAX-HEAP as
     follows. Each call to MAX-HEAPIFY costs *O*(lg *n*) time, and BUILD-MAX-HEAP makes
     *O*(*n*) such calls. Thus, the running time is *O*(*n* lg *n*). This upper bound,
     though correct, is not as tight as it can be.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过以下方式计算BUILD-MAX-HEAP的运行时间的简单上界。每次调用MAX-HEAPIFY都需要*O*(lg *n*)的时间，并且BUILD-MAX-HEAP进行*O*(*n*)次这样的调用。因此，运行时间为*O*(*n*
+    lg *n*)。这个上界虽然正确，但并不是最紧密的。
 - en: We can derive a tighter asymptotic bound by observing that the time for MAX-HEAPIFY
     to run at a node varies with the height of the node in the tree, and that the
     heights of most nodes are small. Our tighter analysis relies on the properties
     that an *n*-element heap has height ⌊lg *n*⌋ (see Exercise 6.1-2) and at most
     ⌈*n*/2^(*h* + 1)⌉ nodes of any height *h* (see Exercise 6.3-4).
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过观察MAX-HEAPIFY在节点上运行的时间随着节点在树中的高度而变化，并且大多数节点的高度较��，我们可以得出更紧密的渐近界限。我们更严格的分析依赖于以下性质：一个*n*元素堆的高度为⌊lg
+    *n*⌋（参见练习6.1-2），任何高度*h*的节点最多有⌈*n*/2^(*h* + 1)⌉个节点（参见练习6.3-4）。
 - en: The time required by MAX-HEAPIFY when called on a node of height *h* is *O*(*h*).
     Letting *c* be the constant implicit in the asymptotic notation, we can express
     the total cost of BUILD-MAX-HEAP as being bounded from above by ![art](images/Art_P302.jpg).
     As Exercise 6.3-2 shows, we have ⌈*n*/2^(*h* + 1)⌉ ≥ 1/2 for 0 ≤ *h* ≤ ⌊lg *n*⌋.
     Since ⌈*x*⌉ ≤ 2*x* for any *x* ≥ 1/2, we have ⌈*n*/2^(*h* + 1)⌉ ≤ *n*/2*^h*. We
     thus obtain
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在高度为*h*的节点上调用MAX-HEAPIFY时，所需的时间为*O*(*h*)。让*c*是渐近符号中的常数，我们可以将BUILD-MAX-HEAP的总成本表示为上界![艺术](images/Art_P302.jpg)。正如练习6.3-2所示，对于0
+    ≤ *h* ≤ ⌊lg *n*⌋，我们有⌈*n*/2^(*h* + 1)⌉ ≥ 1/2。由于对于任何*x* ≥ 1/2，有⌈*x*⌉ ≤ 2*x*，因此我们有⌈*n*/2^(*h*
+    + 1)⌉ ≤ *n*/2*^h*。因此，我们得到
 - en: '![art](images/Art_P303.jpg)'
+  id: totrans-94
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P303.jpg)'
 - en: Hence, we can build a max-heap from an unordered array in linear time.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，我们可以在线性时间内从无序数组构建最大堆。
 - en: To build a min-heap, use the procedure BUILD-MIN-HEAP, which is the same as
     BUILD-MAX-HEAP but with the call to MAX-HEAPIFY in line 3 replaced by a call to
     MIN-HEAPIFY (see Exercise 6.2-3). BUILD-MIN-HEAP produces a min-heap from an unordered
     linear array in linear time.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 要构建一个最小堆，请使用BUILD-MIN-HEAP过程，它与BUILD-MAX-HEAP相同，但第3行调用MAX-HEAPIFY的地方替换为调用MIN-HEAPIFY（参见练习6.2-3）。BUILD-MIN-HEAP可以在线性时间内从无序线性数组构建最小堆。
 - en: '**Exercises**'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***6.3-1***'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.3-1***'
 - en: Using [Figure 6.3](chapter006.xhtml#Fig_6-3) as a model, illustrate the operation
     of BUILD-MAX-HEAP on the array *A* = 〈5, 3, 17, 10, 84, 19, 6, 22, 9〉.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图6.3](chapter006.xhtml#Fig_6-3)作为模型，说明在数组*A* = 〈5, 3, 17, 10, 84, 19, 6,
+    22, 9〉上BUILD-MAX-HEAP的操作。
 - en: '***6.3-2***'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.3-2***'
 - en: Show that ⌈*n*/2^(*h* + 1)⌉ ≥ 1/2 for 0 ≤ *h* ≤ ⌊lg *n*⌋.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明对于0 ≤ *h* ≤ ⌊lg *n*⌋，有⌈*n*/2^(*h* + 1)⌉ ≥ 1/2。
 - en: '***6.3-3***'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.3-3***'
 - en: Why does the loop index *i* in line 2 of BUILD-MAX-HEAP decrease from ⌊*n*/2⌋
     to 1 rather than increase from 1 to ⌊*n*/2⌋?
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么BUILD-MAX-HEAP中第2行的循环索引*i*从⌊*n*/2⌋减少到1，而不是从1增加到⌊*n*/2⌋？
 - en: '***6.3-4***'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.3-4***'
 - en: Show that there are at most ⌈*n*/2^(*h* + 1)⌉ nodes of height *h* in any *n*-element
     heap.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在任何 *n* 元素堆中，高度为 *h* 的节点最多有 ⌈*n*/2^(*h* + 1)⌉ 个。
 - en: '[**6.4      The heapsort algorithm**](toc.xhtml#Rh1-35)'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6.4      堆排序算法**](toc.xhtml#Rh1-35)'
 - en: 'The heapsort algorithm, given by the procedure HEAPSORT, starts by calling
     the BUILD-MAX-HEAP procedure to build a max-heap on the input array *A*[1 : *n*].
     Since the maximum element of the array is stored at the root *A*[1], HEAPSORT
@@ -485,92 +724,150 @@
     in *A*[1 : *n* – 1]. The HEAPSORT procedure then repeats this process for the
     max-heap of size *n* – 1 down to a heap of size 2\. (See Exercise 6.4-2 for a
     precise loop invariant.)'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 'HEAPSORT 算法由 HEAPSORT 过程给出，开始时调用 BUILD-MAX-HEAP 过程在输入数组 *A*[1 : *n*] 上构建一个最大堆。由于数组的最大元素存储在根
+    *A*[1] 处，HEAPSORT 可以通过将其与 *A*[*n*] 交换来将其放置在正确的最终位置。然后，如果过程从堆中丢弃节点 *n* —— 只需简单地减少
+    *A.heap-size* —— 根的子节点仍然是最大堆，但新的根元素可能违反最大堆属性。为了恢复最大堆属性，过程只需调用 MAX-HEAPIFY(*A*,
+    1)，这将在 *A*[1 : *n* – 1] 中留下一个最大堆。然后，HEAPSORT 过程将重复这个过程，从大小为 *n* 的最大堆到大小为 2 的堆。（参见练习
+    6.4-2 中的精确循环不变式。）'
 - en: HEAPSORT(*A*, *n*)
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: HEAPSORT(*A*, *n*)
 - en: '| 1 | BUILD-MAX-HEAP(*A*, *n*) |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | BUILD-MAX-HEAP(*A*, *n*) |'
 - en: '| 2 | **for** *i* = *n* **downto** 2 |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **对于** *i* = *n* **向下** 2 |'
 - en: '| 3 | exchange *A*[1] with *A*[*i*] |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | 交换 *A*[1] 与 *A*[*i*] |'
 - en: '| 4 | *A.heap-size* = *A.heap-size* – 1 |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *A.heap-size* = *A.heap-size* – 1 |'
 - en: '| 5 | MAX-HEAPIFY(*A*, 1) |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | MAX-HEAPIFY(*A*, 1) |'
 - en: '[Figure 6.4](chapter006.xhtml#Fig_6-4) shows an example of the operation of
     HEAPSORT after line 1 has built the initial max-heap. The figure shows the max-heap
     before the first iteration of the **for** loop of lines 2–5 and after each iteration.'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 6.4](chapter006.xhtml#Fig_6-4) 展示了在第 1 行构建初始最大堆后 HEAPSORT 操作的示例。该图显示了在行
+    2–5 的 **for** 循环的第一次迭代之前和每次迭代之后的最大堆。'
 - en: '![art](images/Art_P304.jpg)'
+  id: totrans-115
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P304.jpg)'
 - en: '**Figure 6.4** The operation of HEAPSORT. **(a)** The max-heap data structure
     just after BUILD-MAX-HEAP has built it in line 1\. **(b)–(j)** The max-heap just
     after each call of MAX-HEAPIFY in line 5, showing the value of *i* at that time.
     Only blue nodes remain in the heap. Tan nodes contain the largest values in the
     array, in sorted order. **(k)** The resulting sorted array *A*.'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 6.4** HEAPSORT 的操作。 **(a)** 在第 1 行构建完初始最大堆后的最大堆数据结构。 **(b)–(j)** 在第 5 行的每次调用
+    MAX-HEAPIFY 后的最大堆，显示该时刻的 *i* 的值。堆中仅保留蓝色节点。棕色节点包含数组中最大的值，按顺序排列。 **(k)** 结果排序后的数组
+    *A*。'
 - en: The HEAPSORT procedure takes *O*(*n* lg *n*) time, since the call to BUILD-MAX-HEAP
     takes *O*(*n*) time and each of the *n* – 1 calls to MAX-HEAPIFY takes *O*(lg
     *n*) time.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: HEAPSORT 过程需要 *O*(*n* lg *n*) 的时间，因为调用 BUILD-MAX-HEAP 需要 *O*(*n*) 的时间，而对 MAX-HEAPIFY
+    的 *n* – 1 次调用需要 *O*(lg *n*) 的时间。
 - en: '**Exercises**'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***6.4-1***'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.4-1***'
 - en: Using [Figure 6.4](chapter006.xhtml#Fig_6-4) as a model, illustrate the operation
     of HEAPSORT on the array *A* = 〈5, 13, 2, 25, 7, 17, 20, 8, 4〉.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图 6.4](chapter006.xhtml#Fig_6-4)作为模型，说明在数组 *A* = 〈5, 13, 2, 25, 7, 17, 20,
+    8, 4〉 上的 HEAPSORT 操作。
 - en: '***6.4-2***'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.4-2***'
 - en: 'Argue the correctness of HEAPSORT using the following loop invariant:'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证使用以下循环不变式证明 HEAPSORT 的正确性：
 - en: 'At the start of each iteration of the **for** loop of lines 2–5, the subarray
     *A*[1 : *i*] is a max-heap containing the *i* smallest elements of *A*[1 : *n*],
     and the subarray *A*[*i* + 1 : *n*] contains the *n* – *i* largest elements of
     *A*[1 : *n*], sorted.'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '在行 2–5 的 **for** 循环的每次迭代开始时，子数组 *A*[1 : *i*] 是包含 *A*[1 : *n*] 中 *i* 个最小元素的最大堆，而子数组
+    *A*[*i* + 1 : *n*] 包含 *A*[1 : *n*] 中 *n* – *i* 个最大元素，已排序。'
 - en: '***6.4-3***'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.4-3***'
 - en: What is the running time of HEAPSORT on an array *A* of length *n* that is already
     sorted in increasing order? How about if the array is already sorted in decreasing
     order?
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 在已按升序排列的长度为 *n* 的数组 *A* 上，HEAPSORT 的运行时间是多少？如果数组已按降序排列呢？
 - en: '***6.4-4***'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.4-4***'
 - en: Show that the worst-case running time of HEAPSORT is Ω(*n* lg *n*).
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明 HEAPSORT 的最坏情况运行时间为 Ω(*n* lg *n*)。
 - en: ★ ***6.4-5***
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***6.4-5***
 - en: Show that when all the elements of *A* are distinct, the best-case running time
     of HEAPSORT is Ω(*n* lg *n*).
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明当 *A* 的所有元素都不同时，HEAPSORT 的最佳情况运行时间为 Ω(*n* lg *n*)。
 - en: '[**6.5      Priority queues**](toc.xhtml#Rh1-36)'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**6.5      优先队列**](toc.xhtml#Rh1-36)'
 - en: 'In [Chapter 8](chapter008.xhtml), we will see that any comparison-based sorting
     algorithm requires Ω(*n* lg *n*) comparisons and hence Ω(*n* lg *n*) time. Therefore,
     heapsort is asymptotically optimal among comparison-based sorting algorithms.
@@ -581,35 +878,51 @@
     two forms: max-priority queues and min-priority queues. We’ll focus here on how
     to implement max-priority queues, which are in turn based on max-heaps. Exercise
     6.5-3 asks you to write the procedures for min-priority queues.'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[第 8 章](chapter008.xhtml)中，我们将看到任何基于比较的排序算法都需要 Ω(*n* lg *n*) 次比较，因此需要 Ω(*n*
+    lg *n*) 的时间。因此，堆排序在基于比较的排序算法中是渐进最优的。然而，在实践中，一个良好的快速排序实现，如[第 7 章](chapter007.xhtml)中介绍的，通常会胜过它。尽管如此，堆数据结构本身有许多用途。在本节中，我们介绍堆的最流行应用之一：作为高效的优先队列。与堆一样，优先队列有两种形式：最大优先队列和最小优先队列。我们将重点放在如何实现最大优先队列上，而最大优先队列又基于最大堆。练习
+    6.5-3 要求您编写最小优先队列的过程。
 - en: 'A ***priority queue*** is a data structure for maintaining a set *S* of elements,
     each with an associated value called a ***key***. A ***max-priority queue*** supports
     the following operations:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '***优先队列*** 是一种用于维护一组具有关联值（称为 ***键***）的元素的数据结构。***最大优先队列*** 支持以下操作：'
 - en: INSERT(*S*, *x*, *k*) inserts the element *x* with key *k* into the set *S*,
     which is equivalent to the operation *S* = *S* ⋃ {*x*}.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: INSERT(*S*, *x*, *k*)将具有关键字*k*的元素*x*插入到集合*S*中，这等效于操作*S* = *S* ⋃ {*x*}。
 - en: MAXIMUM(*S*) returns the element of *S* with the largest key.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: MAXIMUM(*S*)返回具有最大关键字的*S*中的元素。
 - en: EXTRACT-MAX(*S*) removes and returns the element of *S* with the largest key.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: EXTRACT-MAX(*S*)移除并返回*S*中具有最大关键字的元素。
 - en: INCREASE-KEY(*S*, *x*, *k*) increases the value of element *x*’s key to the
     new value *k*, which is assumed to be at least as large as *x*’s current key value.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: INCREASE-KEY(*S*, *x*, *k*)将元素*x*的关键字值增加到新值*k*，假定*k*至少与*x*的当前关键字值一样大。
 - en: Among their other applications, you can use max-priority queues to schedule
     jobs on a computer shared among multiple users. The max-priority queue keeps track
     of the jobs to be performed and their relative priorities. When a job is finished
     or interrupted, the scheduler selects the highest-priority job from among those
     pending by calling EXTRACT-MAX. The scheduler can add a new job to the queue at
     any time by calling INSERT.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了其他应用之外，您可以使用最大优先队列在多个用户共享的计算机上安排作业。最大优先队列跟踪要执行的作业及其相对优先级。当作业完成或中断时，调度程序通过调用EXTRACT-MAX从待处理作业中选择优先级最高的作业。调度程序可以随时通过调用INSERT向队列添加新作业。
 - en: Alternatively, a ***min-priority queue*** supports the operations INSERT, MINIMUM,
     EXTRACT-MIN, and DECREASE-KEY. A min-priority queue can be used in an event-driven
     simulator. The items in the queue are events to be simulated, each with an associated
@@ -620,16 +933,20 @@
     the simulator inserts them into the min-priority queue by calling INSERT. We’ll
     see other uses for min-priority queues, highlighting the DECREASE-KEY operation,
     in [Chapters 21](chapter021.xhtml) and [22](chapter022.xhtml).
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者，***最小优先队列***支持INSERT、MINIMUM、EXTRACT-MIN和DECREASE-KEY操作。最小优先队列可用于事件驱动模拟器。队列中的项目是要模拟的事件，每个事件都有一个作为其关键字的发生时间。事件必须按照发生时间的顺序进行模拟，因为事件的模拟可能导致将来模拟其他事件。模拟程序在每一步调用EXTRACT-MIN来选择下一个要模拟的事件。随着新事件的产生，模拟器通过调用INSERT将它们插入到最小优先队列中。我们将在[第21章](chapter021.xhtml)和[第22章](chapter022.xhtml)中看到最小优先队列的其他用途，重点介绍DECREASE-KEY操作。
 - en: When you use a heap to implement a priority queue within a given application,
     elements of the priority queue correspond to objects in the application. Each
     object contains a key. If the priority queue is implemented by a heap, you need
     to determine which application object corresponds to a given heap element, and
     vice versa. Because the heap elements are stored in an array, you need a way to
     map application objects to and from array indices.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 当您使用堆来实现给定应用程序中的优先队列时，优先队列的元素对应于应用程序中的对象。每个对象包含一个关键字。如果优先队列由堆实现，您需要确定哪个应用对象对应于给定堆元素，反之亦然。由于堆元素存储在数组中，您需要一种方法来映射应用对象到数组索引以及反之。
 - en: One way to map between application objects and heap elements uses ***handles***,
     which are additional information stored in the objects and heap elements that
     give enough information to perform the mapping. Handles are often implemented
@@ -645,8 +962,10 @@
     as only an opaque handle and the application maps this handle to an application
     object. Typically, the worst-case overhead for maintaining handles is *O*(1) per
     access.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 在应用对象和堆元素之间进行映射的一种方法使用***句柄***，句柄是存储在对象和堆元素中的附加信息，提供足够的信息来执行映射。句柄通常被实现为对周围代码不透明，从而在应用程序和优先队列之间保持抽象屏障。例如，应用对象中的句柄可能包含对堆数组中相应索引的引用。但由于只有优先队列的代码访问此索引，因此该索引完全对应用程序代码隐藏。由于堆元素在堆操作期间在数组中更改位置，因此优先队列的实际实现在重新定位堆元素时还必须更新相应句柄中的数组索引。反之，堆中的每个元素可能包含指向相应应用对象的指针，但堆元素仅将此指针视为不透明句柄，应用程序将此句柄映射到应用对象。通常，维护句柄的最坏情况开销为*O*(1)每次访问。
 - en: As an alternative to incorporating handles in application objects, you can store
     within the priority queue a mapping from application objects to array indices
     in the heap. The advantage of doing so is that the mapping is contained entirely
@@ -655,8 +974,11 @@
     mapping. One option for the mapping is a hash table (see [Chapter 11](chapter011.xhtml)).^([1](#footnote_1))
     The added expected time for a hash table to map an object to an array index is
     just *O*(1), though the worst-case time can be as bad as Θ(*n*).
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为在应用对象中包含句柄的替代方案，您可以在优先队列中存储从应用对象到堆中数组索引的映射。这样做的优点是映射完全包含在优先队列中，因此应用对象不需要进一步装饰。缺点在于建立和维护映射的额外成本。映射的一个选项是哈希表（参见[第11章](chapter011.xhtml)）。^([1](#footnote_1))
+    哈希表为将对象映射到数组索引添加的预期时间仅为*O*(1)，尽管最坏情况下的时间可能糟糕到Θ(*n*)。
 - en: Let’s see how to implement the operations of a max-priority queue using a max-heap.
     In the previous sections, we treated the array elements as the keys to be sorted,
     implicitly assuming that any satellite data moved with the corresponding keys.
@@ -665,8 +987,10 @@
     to the satellite data when sorting. We further assume that each such object has
     an attribute *key*, which determines where in the heap the object belongs. For
     a heap implemented by an array *A*, we refer to *A*[*i*].*key*.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们看看如何使用最大堆实现最大优先队列的操作。在之前的部分中���我们将数组元素视为要排序的键，隐含地假设任何与相应键一起移动的卫星数据。当堆实现优先队列时，我们将每个数组元素视为指向优先队列中对象的指针，使得对象类似于排序时的卫星数据。我们进一步假设每个这样的对象都有一个属性*key*，它确定了对象在堆中的位置。对于由数组*A*实现的堆，我们称*A*[*i*].*key*。
 - en: The procedure MAX-HEAP-MAXIMUM on the facing page implements the MAXIMUM operation
     in Θ(1) time, and MAX-HEAP-EXTRACT-MAX implements the operation EXTRACT-MAX. MAX-HEAP-EXTRACT-MAX
     is similar to the **for** loop body (lines 3–5) of the HEAPSORT procedure. We
@@ -677,8 +1001,11 @@
     *n*), since it performs only a constant amount of work on top of the *O*(lg *n*)
     time for MAX-HEAPIFY, plus whatever overhead is incurred within MAX-HEAPIFY for
     mapping priority-queue objects to array indices.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 过程MAX-HEAP-MAXIMUM在对面的页面实现了MAXIMUM操作，时间复杂度为Θ(1)，而MAX-HEAP-EXTRACT-MAX实现了EXTRACT-MAX操作。MAX-HEAP-EXTRACT-MAX类似于HEAPSORT过程中的**for**循环体（第3-5行）。我们隐含地假设MAX-HEAPIFY根据它们的*key*属性比较优先队列对象。我们还假设当MAX-HEAPIFY交换数组中的元素时，它是在交换指针，并且更新了对象和数组索引之间的映射。MAX-HEAP-EXTRACT-MAX的运行时间是*O*(lg
+    *n*)，因为它在*O*(lg *n*)的时间内只执行了恒定量的工作，再加上MAX-HEAPIFY中将优先队列对象映射到数组索引的任何开销。
 - en: The procedure MAX-HEAP-INCREASE-KEY on page 176 implements the INCREASE-KEY
     operation. It first verifies that the new key *k* will not cause the key in the
     object *x* to decrease, and if there is no problem, it gives *x* the new key value.
@@ -697,38 +1024,61 @@
     for mapping priority queue objects to array indices, the running time of MAX-HEAP-INCREASE-KEY
     on an *n*-element heap is *O*(lg *n*), since the path traced from the node updated
     in line 3 to the root has length *O*(lg *n*).
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 过程MAX-HEAP-INCREASE-KEY在第176页实现了INCREASE-KEY操作。它首先验证新键*k*不会导致对象*x*的键值减小，如果没有问题，就给*x*赋予新的键值。然后找到数组中对应于对象*x*的索引*i*，使得*A*[*i*]为*x*。因为增加*A*[*i*]的键可能违反最大堆的性质，所以该过程类似于第19页的INSERTION-SORT中插入循环（第5-7行），沿着从该节点向根的简单路径遍历，找到新增键的合适位置。当MAX-HEAP-INCREASE-KEY沿着这条路径遍历时，它反复比较元素的键和其父节点的键，如果元素的键更大，则交换指针并继续，如果元素的键更小，则终止，因为现在最大堆的性质成立。（参见练习6.5-7中的精确循环不变式。）与优先队列中使用时的MAX-HEAPIFY类似，MAX-HEAP-INCREASE-KEY在交换数组元素时更新了将对象映射到数组索引的信息。[图6.5](chapter006.xhtml#Fig_6-5)展示了MAX-HEAP-INCREASE-KEY操作的示例。除了将优先队列对象映射到数组索引的开销外，MAX-HEAP-INCREASE-KEY在*n*个元素的堆上的运行时间是*O*(lg
+    *n*)，因为从第3行更新的节点到根的路径长度为*O*(lg *n*)。
 - en: MAX-HEAP-MAXIMUM(*A*)
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAP-MAXIMUM(*A*)
 - en: '| 1 | **if** *A.heap-size* < 1 |'
+  id: totrans-146
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **if** *A.heap-size* < 1 |'
 - en: '| 2 | **error** “heap underflow” |'
+  id: totrans-147
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **error** “heap underflow” |'
 - en: '| 3 | **return** *A*[1] |'
+  id: totrans-148
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **return** *A*[1] |'
 - en: MAX-HEAP-EXTRACT-MAX(*A*)
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAP-EXTRACT-MAX(*A*)
 - en: '| 1 | *max* = MAX-HEAP-MAXIMUM(*A*) |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *max* = MAX-HEAP-MAXIMUM(*A*) |'
 - en: '| 2 | *A*[1] = *A*[*A.heap-size*] |'
+  id: totrans-151
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *A*[1] = *A*[*A.heap-size*] |'
 - en: '| 3 | *A.heap-size* = *A.heap-size* – 1 |'
+  id: totrans-152
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *A.heap-size* = *A.heap-size* – 1 |'
 - en: '| 4 | MAX-HEAPIFY(*A*, 1) |'
+  id: totrans-153
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | MAX-HEAPIFY(*A*, 1) |'
 - en: '| 5 | **return** *max* |'
+  id: totrans-154
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **return** *max* |'
 - en: The procedure MAX-HEAP-INSERT on the next page implements the INSERT operation.
     It takes as inputs the array *A* implementing the max-heap, the new object *x*
     to be inserted into the max-heap, and the size *n* of array *A*. The procedure
@@ -737,102 +1087,162 @@
     to set the key of this new element to its correct value and maintain the max-heap
     property. The running time of MAX-HEAP-INSERT on an *n*-element heap is *O*(lg
     *n*) plus the overhead for mapping priority queue objects to indices.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 过程MAX-HEAP-INSERT在下一页实现了INSERT操作。它的输入是实现最大堆的数组*A*，要插入最大堆的新对象*x*，以及数组*A*的大小*n*。该过程首先验证数组是否有空间容纳新元素。然后通过向树中添加一个键为-∞的新叶子节点来扩展最大堆。然后调用MAX-HEAP-INCREASE-KEY来设置这个新元素的键值，并维护最大堆的性质。在*n*个元素的堆上，MAX-HEAP-INSERT的运行时间是*O*(lg
+    *n*)，再加上将优先队列对象映射到索引的开销。
 - en: In summary, a heap can support any priority-queue operation on a set of size
     *n* in *O*(lg *n*) time, plus the overhead for mapping priority queue objects
     to array indices.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，堆可以在*O*(lg *n*)的时间内支持对大小为*n*的集合上的任何优先队列操作，再加上将优先队列对象映射到数组索引的开销。
 - en: MAX-HEAP-INCREASE-KEY(*A*, *x*, *k*)
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAP-INCREASE-KEY(*A*, *x*, *k*)
 - en: '| 1 | **if** *k* < *x.key* |'
+  id: totrans-158
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *k* < *x.key* |'
 - en: '| 2 | **error** “new key is smaller than current key” |'
+  id: totrans-159
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **错误** “新键值小于当前键值” |'
 - en: '| 3 | *x.key* = *k* |'
+  id: totrans-160
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *x.key* = *k* |'
 - en: '| 4 | find the index *i* in array *A* where object *x* occurs |'
+  id: totrans-161
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | 找到对象*x*在数组*A*中的索引*i* |'
 - en: '| 5 | **while** *i* > 1 and *A*[PARENT(*i*)].*key* < *A*[*i*].*key* |'
+  id: totrans-162
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **当** *i* > 1 **且** *A*[PARENT(*i*)].*key* < *A*[*i*].*key* **时** |'
 - en: '| 6 | exchange *A*[*i*] with *A*[PARENT(*i*)], updating the information that
     maps priority queue objects to array indices |'
+  id: totrans-163
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | 交换*A*[*i*]与*A*[PARENT(*i*)]，更新将优先队列对象映射到数组索引的信息 |'
 - en: '| 7 | *i* = PARENT(*i*) |'
+  id: totrans-164
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *i* = PARENT(*i*) |'
 - en: MAX-HEAP-INSERT(*A*, *x*, *n*)
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAP-INSERT(*A*, *x*, *n*)
 - en: '| 1 | **if** *A.heap-size* == *n* |'
+  id: totrans-166
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *A.heap-size* == *n* |'
 - en: '| 2 | **error** “heap overflow” |'
+  id: totrans-167
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **错误** “堆溢出” |'
 - en: '| 3 | *A.heap-size* = *A.heap-size* + 1 |'
+  id: totrans-168
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *A.heap-size* = *A.heap-size* + 1 |'
 - en: '| 4 | *k* = *x.key* |'
+  id: totrans-169
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *k* = *x.key* |'
 - en: '| 5 | *x.key* = –∞ |'
+  id: totrans-170
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | *x.key* = –∞ |'
 - en: '| 6 | *A*[*A.heap-size*] = *x* |'
+  id: totrans-171
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *A*[*A.heap-size*] = *x* |'
 - en: '| 7 | map *x* to index *heap-size* in the array |'
+  id: totrans-172
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | 在数组中将*x*映射到索引*heap-size* |'
 - en: '| 8 | MAX-HEAP-INCREASE-KEY(*A*, *x*, *k*) |'
+  id: totrans-173
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | MAX-HEAP-INCREASE-KEY(*A*, *x*, *k*) |'
 - en: '**Exercises**'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***6.5-1***'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-1***'
 - en: Suppose that the objects in a max-priority queue are just keys. Illustrate the
     operation of MAX-HEAP-EXTRACT-MAX on the heap *A* = 〈15, 13, 9, 5, 12, 8, 7, 4,
     0, 6, 2, 1〉.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设最大优先队列中的对象只是键。说明在堆*A* = 〈15, 13, 9, 5, 12, 8, 7, 4, 0, 6, 2, 1〉上MAX-HEAP-EXTRACT-MAX的操作。
 - en: '***6.5-2***'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-2***'
 - en: Suppose that the objects in a max-priority queue are just keys. Illustrate the
     operation of MAX-HEAP-INSERT(*A*, 10) on the heap *A* = 〈15, 13, 9, 5, 12, 8,
     7, 4, 0, 6, 2, 1〉.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设最大优先队列中的对象只是键。说明在堆*A* = 〈15, 13, 9, 5, 12, 8, 7, 4, 0, 6, 2, 1〉上MAX-HEAP-INSERT(*A*,
+    10)的操作。
 - en: '***6.5-3***'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-3***'
 - en: Write pseudocode to implement a min-priority queue with a min-heap by writing
     the procedures MIN-HEAP-MINIMUM, MIN-HEAP-EXTRACT-MIN, MIN-HEAP-DECREASE-KEY,
     and MIN-HEAP-INSERT.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写伪代码，通过编写MIN-HEAP-MINIMUM、MIN-HEAP-EXTRACT-MIN、MIN-HEAP-DECREASE-KEY和MIN-HEAP-INSERT过程，实现使用最小堆的最小优��队列。
 - en: '***6.5-4***'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-4***'
 - en: Write pseudocode for the procedure MAX-HEAP-DECREASE-KEY(*A*, *x*, *k*) in a
     max-heap. What is the running time of your procedure?
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写MAX-HEAP-DECREASE-KEY(*A*, *x*, *k*)在最大堆中的伪代码。你的过程的运行时间是多少？
 - en: '![art](images/Art_P305.jpg)'
+  id: totrans-183
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P305.jpg)'
 - en: '**Figure 6.5** The operation of MAX-HEAP-INCREASE-KEY. Only the key of each
     element in the priority queue is shown. The node indexed by *i* in each iteration
     is shown in blue. **(a)** The max-heap of [Figure 6.4(a)](chapter006.xhtml#Fig_6-4)
@@ -842,190 +1252,295 @@
     up to the parent. **(d)** The max-heap after one more iteration of the **while**
     loop. At this point, *A*[PARENT(*i*)] ≥ *A*[*i*]. The max-heap property now holds
     and the procedure terminates.'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图6.5** MAX-HEAP-INCREASE-KEY的操作。仅显示优先队列中每个元素的键。每次迭代中由*i*索引的节点以蓝色显示。**(a)**
+    [图6.4(a)](chapter006.xhtml#Fig_6-4)中的最大堆，*i*索引的节点即将增加其键值。**(b)** 该节点的键值增加到15。**(c)**
+    在第5-7行的**while**循环的一次迭代后，节点及其父节点交换了键值，索引*i*上移至父节点。**(d)** 经过另一次**while**循环迭代后的最大堆。此时，*A*[PARENT(*i*)]
+    ≥ *A*[*i*]。现在满足最大堆属性，过程终止。'
 - en: '***6.5-5***'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-5***'
 - en: Why does MAX-HEAP-INSERT bother setting the key of the inserted object to –∞
     in line 5 given that line 8 will set the object’s key to the desired value?
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么MAX-HEAP-INSERT在第5行设置插入对象的键为–∞，而第8行会将对象的键设置为所需值？
 - en: '***6.5-6***'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-6***'
 - en: Professor Uriah suggests replacing the **while** loop of lines 5–7 in MAX-HEAP-INCREASE-KEY
     by a call to MAX-HEAPIFY. Explain the flaw in the professor’s idea.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 乌里亚教授建议用MAX-HEAPIFY调用替换MAX-HEAP-INCREASE-KEY的第5-7行的**while**循环。解释教授这个想法的缺陷。
 - en: '***6.5-7***'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-7***'
 - en: 'Argue the correctness of MAX-HEAP-INCREASE-KEY using the following loop invariant:'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过以下循环不变式证明MAX-HEAP-INCREASE-KEY的正确性：
 - en: 'At the start of each iteration of the **while** loop of lines 5–7:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 在第5-7行的**while**循环的每次迭代开始时：
 - en: a. If both nodes PARENT(*i*) and LEFT(*i*) exist, then *A*[PARENT(*i*)].*key*
     ≥ *A*[LEFT(*i*)].*key*.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: a. 如果节点PARENT(*i*)和LEFT(*i*)都存在，则*A*[PARENT(*i*)].*key* ≥ *A*[LEFT(*i*)].*key*。
 - en: b. If both nodes PARENT(*i*) and RIGHT(*i*) exist, then *A*[PARENT(*i*)].*key*
     ≥ *A*[RIGHT(*i*)].*key*.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: b. 如果节点PARENT(*i*)和RIGHT(*i*)都存在，则*A*[PARENT(*i*)].*key* ≥ *A*[RIGHT(*i*)].*key*。
 - en: 'c. The subarray *A*[1 : *A.heap-size*] satisfies the max-heap property, except
     that there may be one violation, which is that *A*[*i*].*key* may be greater than
     *A*[PARENT(*i*)].*key*.'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 'c. 子数组*A*[1 : *A.heap-size*]满足最大堆属性，除了可能存在一个违反，即*A*[*i*].*key*可能大于*A*[PARENT(*i*)].*key*。'
 - en: 'You may assume that the subarray *A*[1 : *A.heap-size*] satisfies the max-heap
     property at the time MAX-HEAP-INCREASE-KEY is called.'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: '你可以假设在调用MAX-HEAP-INCREASE-KEY时，子数组*A*[1 : *A.heap-size*]满足最大堆属性。'
 - en: '***6.5-8***'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-8***'
 - en: Each exchange operation on line 6 of MAX-HEAP-INCREASE-KEY typically requires
     three assignments, not counting the updating of the mapping from objects to array
     indices. Show how to use the idea of the inner loop of INSERTION-SORT to reduce
     the three assignments to just one assignment.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: MAX-HEAP-INCREASE-KEY的第6行上的每次交换操作通常需要三次赋值，不包括更新对象到数组索引的映射。展示如何利用插入排序的内循环的思想将三次赋值减少到只有一次赋值。
 - en: '***6.5-9***'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-9***'
 - en: Show how to implement a first-in, first-out queue with a priority queue. Show
     how to implement a stack with a priority queue. (Queues and stacks are defined
     in [Section 10.1.3](chapter010.xhtml#Sec_10.1.3).)
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示如何使用优先队列实现先进先出队列。展示如何使用优先队列实现栈。（队列和栈在[第10.1.3节](chapter010.xhtml#Sec_10.1.3)中定义。）
 - en: '***6.5-10***'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-10***'
 - en: The operation MAX-HEAP-DELETE(*A*, *x*) deletes the object *x* from max-heap
     *A*. Give an implementation of MAX-HEAP-DELETE for an *n*-element max-heap that
     runs in *O*(lg *n*) time plus the overhead for mapping priority queue objects
     to array indices.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作 MAX-HEAP-DELETE(*A*, *x*) 从最大堆 *A* 中删除对象 *x*。给出一个在 *n* 元素最大堆中以 *O*(lg *n*)
+    时间运行的 MAX-HEAP-DELETE 实现，再加上将优先队列对象映射到数组索引的开销。
 - en: '***6.5-11***'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6.5-11***'
 - en: Give an *O*(*n* lg *k*)-time algorithm to merge *k* sorted lists into one sorted
     list, where *n* is the total number of elements in all the input lists. (*Hint:*
     Use a min-heap for *k*-way merging.)
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出一个 *O*(*n* lg *k*) 时间复杂度的算法，将 *k* 个排序列表合并成一个排序列表，其中 *n* 是所有输入列表中的元素总数。(*提示:*
+    使用一个 min-heap 进行 *k* 路合并。)
 - en: '**Problems**'
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***6-1     Building a heap using insertion***'
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6-1     使用插入构建堆***'
 - en: One way to build a heap is by repeatedly calling MAX-HEAP-INSERT to insert the
     elements into the heap. Consider the procedure BUILD-MAX-HEAP′ on the facing page.
     It assumes that the objects being inserted are just the heap elements.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 一种构建堆的方法是通过反复调用 MAX-HEAP-INSERT 将元素插入堆中。考虑页面上的 BUILD-MAX-HEAP′ 过程。它假设被插入的对象只是堆元素。
 - en: BUILD-MAX-HEAP′ (*A*, *n*)
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: BUILD-MAX-HEAP′ (*A*, *n*)
 - en: '| 1 | *A.heap-size* = 1 |'
+  id: totrans-208
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *A.heap-size* = 1 |'
 - en: '| 2 | **for** *i* = 2 **to** *n* |'
+  id: totrans-209
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *i* = 2 **to** *n* |'
 - en: '| 3 | MAX-HEAP-INSERT(*A*, *A*[*i*], *n*) |'
+  id: totrans-210
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | MAX-HEAP-INSERT(*A*, *A*[*i*], *n*) |'
 - en: '***a.*** Do the procedures BUILD-MAX-HEAP and BUILD-MAX-HEAP′ always create
     the same heap when run on the same input array? Prove that they do, or provide
     a counterexample.'
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 当在相同的输入数组上运行时，BUILD-MAX-HEAP 和 BUILD-MAX-HEAP′ 过程是否总是创建相同的堆？证明它们是，或提供一个反例。'
 - en: '***b.*** Show that in the worst case, BUILD-MAX-HEAP′ requires Θ(*n* lg *n*)
     time to build an *n*-element heap.'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明在最坏情况下，BUILD-MAX-HEAP′ 需要 Θ(*n* lg *n*) 时间来构建一个 *n* 元素堆。'
 - en: '***6-2     Analysis of d-ary heaps***'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6-2     d-ary 堆的分析***'
 - en: A ***d-ary heap*** is like a binary heap, but (with one possible exception)
     nonleaf nodes have *d* children instead of two children. In all parts of this
     problem, assume that the time to maintain the mapping between objects and heap
     elements is *O*(1) per operation.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个 ***d-ary 堆*** 类似于二叉堆，但（可能有一个例外）非叶节点有 *d* 个子节点而不是两个子节点。在这个问题的所有部分中，��设维护对象和堆元素之间映射的时间为每次操作
+    *O*(1)。
 - en: '***a.*** Describe how to represent a *d*-ary heap in an array.'
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 描述如何在数组中表示一个 *d*-ary 堆。'
 - en: '***b.*** Using Θ-notation, express the height of a *d*-ary heap of *n* elements
     in terms of *n* and *d*.'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 使用 Θ-符号，用 *n* 和 *d* 表示 *d*-ary 堆的 *n* 元素高度。'
 - en: '***c.*** Give an efficient implementation of EXTRACT-MAX in a *d*-ary max-heap.
     Analyze its running time in terms of *d* and *n*.'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 给出一个在 *d*-ary max-heap 中实现 EXTRACT-MAX 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。'
 - en: '***d.*** Give an efficient implementation of INCREASE-KEY in a *d*-ary max-heap.
     Analyze its running time in terms of *d* and *n*.'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 给出一个在 *d*-ary max-heap 中实现 INCREASE-KEY 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。'
 - en: '***e.*** Give an efficient implementation of INSERT in a *d*-ary max-heap.
     Analyze its running time in terms of *d* and *n*.'
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 给出一个在 *d*-ary max-heap 中实现 INSERT 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。'
 - en: '***6-3 Young tableaus***'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '***6-3 Young 表***'
 - en: An *m* × *n* ***Young tableau*** is an *m* × *n* matrix such that the entries
     of each row are in sorted order from left to right and the entries of each column
     are in sorted order from top to bottom. Some of the entries of a Young tableau
     may be ∞, which we treat as nonexistent elements. Thus, a Young tableau can be
     used to hold *r* ≤ *mn* finite numbers.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个 *m* × *n* ***Young 表*** 是一个 *m* × *n* 矩阵，使得每行的条目从左到右按顺序排列，每列的条目从上到下按顺序排列。Young
+    表的一些条目可能是 ∞，我们将其视为不存在的元素。因此，Young 表可以用来保存 *r* ≤ *mn* 个有限数字。
 - en: '***a.*** Draw a 4 × 4 Young tableau containing the elements {9, 16, 3, 2, 4,
     8, 5, 14, 12}.'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 绘制一个包含元素 {9, 16, 3, 2, 4, 8, 5, 14, 12} 的 4 × 4 Young 表。'
 - en: '***b.*** Argue that an *m* × *n* Young tableau *Y* is empty if *Y* [1, 1] =
     ∞. Argue that *Y* is full (contains *mn* elements) if *Y* [*m*, *n*] < ∞.'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 论证如果 *Y* [1, 1] = ∞，则 *m* × *n* Young 表 *Y* 为空。论证如果 *Y* [*m*, *n*]
+    < ∞，则 *Y* 是满的（包含 *mn* 个元素）。'
 - en: '***c.*** Give an algorithm to implement EXTRACT-MIN on a nonempty *m* × *n*
     Young tableau that runs in *O*(*m* + *n*) time. Your algorithm should use a recursive
     subroutine that solves an *m* × *n* problem by recursively solving either an (*m*
     – 1) × *n* or an *m* × (*n* – 1) subproblem. (*Hint:* Think about MAX-HEAPIFY.)
     Explain why your implementation of EXTRACT-MIN runs in *O*(*m* + *n*) time.'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 给出一个在非空 *m* × *n* Young 表中实现 EXTRACT-MIN 的算法，其运行时间为 *O*(*m* + *n*)。你的算法应该使用一个递归子程序，通过递归地解决一个
+    (*m* – 1) × *n* 或一个 *m* × (*n* – 1) 子问题来解决一个 *m* × *n* 问题。(*提示:* 考虑 MAX-HEAPIFY。)
+    解释为什么你的 EXTRACT-MIN 实现在 *O*(*m* + *n*) 时间内运行。'
 - en: '***d.*** Show how to insert a new element into a nonfull *m* × *n* Young tableau
     in *O*(*m* + *n*) time.'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 展示如何在一个非满的 *m* × *n* Young 表中以 *O*(*m* + *n*) 时间插入一个新元素。'
 - en: '***e.*** Using no other sorting method as a subroutine, show how to use an
     *n* × *n* Young tableau to sort *n*² numbers in *O*(*n*³) time.'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 不使用其他排序方法作为子程序，展示如何使用一个 *n* × *n* Young 表对 *n*² 个数字进行排序，时间复杂度为 *O*(*n*³)。'
 - en: '***f.*** Give an *O*(*m* + *n*)-time algorithm to determine whether a given
     number is stored in a given *m* × *n* Young tableau.'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 给出一个 *O*(*m* + *n*) 时间复杂度的算法，确定一个给定数字是否存储在一个给定的 *m* × *n* Young 表中。'
 - en: '**Chapter notes**'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: The heapsort algorithm was invented by Williams [[456](bibliography001.xhtml#endnote_456)],
     who also described how to implement a priority queue with a heap. The BUILD-MAX-HEAP
     procedure was suggested by Floyd [[145](bibliography001.xhtml#endnote_145)]. Schaffer
     and Sedgewick [[395](bibliography001.xhtml#endnote_395)] showed that in the best
     case, the number of times elements move in the heap during heapsort is approximately
     (*n*/2) lg *n* and that the average number of moves is approximately *n* lg *n*.
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆排序算法是由 Williams [[456](bibliography001.xhtml#endnote_456)] 发明的，他还描述了如何使用堆实现优先队列。BUILD-MAX-HEAP
+    过程是由 Floyd [[145](bibliography001.xhtml#endnote_145)] 建议的。Schaffer 和 Sedgewick
+    [[395](bibliography001.xhtml#endnote_395)] 表明，在最佳情况下，堆排序中元素移动的次数约为 (*n*/2) lg
+    *n*，平均移动次数约为 *n* lg *n*。
 - en: We use min-heaps to implement min-priority queues in [Chapters 15](chapter015.xhtml),
     [21](chapter021.xhtml), and [22](chapter022.xhtml). Other, more complicated, data
     structures give better time bounds for certain min-priority queue operations.
@@ -1038,16 +1553,27 @@
     *n* – 1} of nonnegative integers, van Emde Boas trees [[440](bibliography001.xhtml#endnote_440),
     [441](bibliography001.xhtml#endnote_441)] support the operations INSERT, DELETE,
     SEARCH, MINIMUM, MAXIMUM, PREDECESSOR, and SUCCESSOR in *O*(lg lg *n*) time.
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们在[第15章](chapter015.xhtml)、[第21章](chapter021.xhtml)和[第22章](chapter022.xhtml)中使用小根堆来实现最小优先队列。其他更复杂的数据结构为某些最小优先队列操作提供了更好的时间界限。Fredman和Tarjan
+    [[156](bibliography001.xhtml#endnote_156)] 开发了Fibonacci堆，支持INSERT和DECREASE-KEY的*O*(1)摊销时间（参见[第16章](chapter016.xhtml)）。也就是说，这些操作的平均最坏运行时间为*O*(1)。Brodal、Lagogiannis和Tarjan
+    [[73](bibliography001.xhtml#endnote_73)] 随后设计了严格的Fibonacci堆，使这些时间界限成为实际运行时间。如果键是唯一的，并且来自非负整数集合{0,
+    1, … , *n* – 1}，van Emde Boas树 [[440](bibliography001.xhtml#endnote_440), [441](bibliography001.xhtml#endnote_441)]
+    支持INSERT、DELETE、SEARCH、MINIMUM、MAXIMUM、PREDECESSOR和SUCCESSOR操作的*O*(lg lg *n*)时间。
 - en: If the data are *b*-bit integers, and the computer memory consists of addressable
     *b*-bit words, Fredman and Willard [[157](bibliography001.xhtml#endnote_157)]
     showed how to implement MINIMUM in *O*(1) time and INSERT and EXTRACT-MIN in ![art](images/Art_P306.jpg)
     time. Thorup [[436](bibliography001.xhtml#endnote_436)] has improved the ![art](images/Art_P307.jpg)
     bound to *O*(lg lg *n*) time by using randomized hashing, requiring only linear
     space.
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果数据是*b*位整数，并且计算机内存由可寻址的*b*位字组成，Fredman和Willard [[157](bibliography001.xhtml#endnote_157)]
+    展示了如何在*O*(1)时间内实现MINIMUM和在![art](images/Art_P306.jpg)时间内实现INSERT和EXTRACT-MIN。Thorup
+    [[436](bibliography001.xhtml#endnote_436)] 利用随机哈希改进了![art](images/Art_P307.jpg)的时间界限为*O*(lg
+    lg *n*)时间，仅需要线性空间。
 - en: An important special case of priority queues occurs when the sequence of EXTRACT-MIN
     operations is ***monotone***, that is, the values returned by successive EXTRACT-MIN
     operations are monotonically increasing over time. This case arises in several
@@ -1066,12 +1592,25 @@
     with the heap of Thorup mentioned earlier. Raman [[375](bibliography001.xhtml#endnote_375)]
     further improved these results to obtain a bound of *O*(min {lg^(1/4+*ϵ*) *C*,
     lg^(1/3+*ϵ*) *n*}), for any fixed *ϵ* > 0.
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 优先队列的一个重要特殊情况是当EXTRACT-MIN操作序列是***单调***时，即，连续的EXTRACT-MIN操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如Dijkstra的单源最短路径算法，我们在[第22章](chapter022.xhtml)中讨论，以及在离散事件模拟中。对于Dijkstra算法，实现DECREASE-KEY操作的效率特别重要。对于单调情况，如果数据是范围在1,
+    2, … , *C*的整数，Ahuja、Mehlhorn、Orlin和Tarjan [[8](bibliography001.xhtml#endnote_8)]
+    描述了如何使用称为基数堆的数据结构在*O*(lg *C*)摊销时间内实现EXTRACT-MIN和INSERT（[第16章](chapter016.xhtml)介绍了摊销分析），以及在*O*(1)时间内实现DECREASE-KEY。*O*(lg
+    *C*)界限可以通过将Fibonacci堆与基数堆结合使用改进为![art](images/Art_P308.jpg)。Cherkassky、Goldberg和Silverstein
+    [[90](bibliography001.xhtml#endnote_90)] 进一步将界限改进为*O*(lg^(1/3+*ϵ*) *C*)预期时间，通过将Denardo和Fox
+    [[112](bibliography001.xhtml#endnote_112)] 的多级桶结构与前面提到���Thorup的堆结合。Raman [[375](bibliography001.xhtml#endnote_375)]
+    进一步改进了这些结果，获得了一个*O*(min {lg^(1/4+*ϵ*) *C*, lg^(1/3+*ϵ*) *n*})的界限，对于任意固定的*ϵ* >
+    0。
 - en: Many other variants of heaps have been proposed. Brodal [[72](bibliography001.xhtml#endnote_72)]
     surveys some of these developments.
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 提出了许多其他变体的堆。Brodal [[72](bibliography001.xhtml#endnote_72)] 对其中一些发展进行了调查。
 - en: '[¹](#footnote_ref_1) In Python, dictionaries are implemented with hash tables.'
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 在Python中，字典是用哈希表实现的。'

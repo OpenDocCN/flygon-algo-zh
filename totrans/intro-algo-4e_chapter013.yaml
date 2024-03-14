@@ -1,6 +1,8 @@
 - en: '[**13        Red-Black Trees**](toc.xhtml#chap-13)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**13        红黑树**](toc.xhtml#chap-13)'
 - en: '[Chapter 12](chapter012.xhtml) showed that a binary search tree of height *h*
     can support any of the basic dynamic-set operations—such as SEARCH, PREDECESSOR,
     SUCCESSOR, MINIMUM, MAXIMUM, INSERT, and DELETE—in *O*(*h*) time. Thus, the set
@@ -9,63 +11,90 @@
     Red-black trees are one of many search-tree schemes that are “balanced” in order
     to guarantee that basic dynamic-set operations take *O*(lg *n*) time in the worst
     case.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第12章](chapter012.xhtml)表明，高度为*h*的二叉搜索树可以支持任何基本的动态集合操作——如搜索、前驱、后继、最小值、最大值、插入和删除——在*O*(*h*)时间内完成。因此，如果搜索树的高度较小，集合操作将很快。然而，如果高度较大，则集合操作可能与链表一样慢。红黑树是许多“平衡”的搜索树方案之一，以确保基本的��态集合操作在最坏情况下花费*O*(lg
+    *n*)时间。'
 - en: '[**13.1    Properties of red-black trees**](toc.xhtml#Rh1-74)'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**13.1    红黑树的性质**](toc.xhtml#Rh1-74)'
 - en: 'A ***red-black tree*** is a binary search tree with one extra bit of storage
     per node: its ***color***, which can be either RED or BLACK. By constraining the
     node colors on any simple path from the root to a leaf, red-black trees ensure
     that no such path is more than twice as long as any other, so that the tree is
     approximately ***balanced***. Indeed, as we’re about to see, the height of a red-black
     tree with *n* keys is at most 2 lg(*n* + 1), which is *O*(lg *n*).'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '***红黑树***是一种二叉搜索树，每个节点额外存储一位信息：它的***颜色***，可以是红色或黑色。通过约束从根到叶子的任意简单路径上的节点颜色，红黑树确保没有任何一条路径比其他路径长两倍以上，从而使树近似***平衡***。事实上，正如我们即将看到的，具有*n*个键的红黑树的高度最多为2
+    lg(*n* + 1)，即*O*(lg *n*)。'
 - en: Each node of the tree now contains the attributes *color*, *key*, *left*, *right*,
     and *p*. If a child or the parent of a node does not exist, the corresponding
     pointer attribute of the node contains the value NIL. Think of these NILs as pointers
     to leaves (external nodes) of the binary search tree and the normal, key-bearing
     nodes as internal nodes of the tree.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，树的每个节点包含*颜色*、*键*、*左子节点*、*右子节点*和*p*这些属性。如果一个节点的子节点或父节点不存在，则节点的相应指针属性包含值NIL。将这些NIL视为二叉搜索树的叶子节点（外部节点）的指针，将正常的、带有键的节点视为树的内部节点。
 - en: 'A red-black tree is a binary search tree that satisfies the following ***red-black
     properties***:'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 红黑树是一种满足以下***红黑性质***的二叉搜索树：
 - en: Every node is either red or black.
+  id: totrans-6
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每个节点要么是红色的，要么是黑色的。
 - en: The root is black.
+  id: totrans-7
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 根节点是黑色的。
 - en: Every leaf (NIL) is black.
+  id: totrans-8
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每个叶子节点（NIL）都是黑色的。
 - en: If a node is red, then both its children are black.
+  id: totrans-9
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果一个节点是红色的，则它的两个子节点都是黑色的。
 - en: For each node, all simple paths from the node to descendant leaves contain the
     same number of black nodes.
+  id: totrans-10
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对于每个节点，从节点到后代叶子的所有简单路径包含相同数量的黑色节点。
 - en: '[Figure 13.1(a)](chapter013.xhtml#Fig_13-1) shows an example of a red-black
     tree.'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 13.1(a)](chapter013.xhtml#Fig_13-1)展示了一个红黑树的示例。'
 - en: As a matter of convenience in dealing with boundary conditions in red-black
     tree code, we use a single sentinel to represent NIL (see page 262). For a red-black
     tree *T*, the sentinel *T.nil* is an object with the same attributes as an ordinary
     node in the tree. Its *color* attribute is BLACK, and its other attributes—*p*,
     *left*, *right*, and *key*—can take on arbitrary values. As [Figure 13.1(b)](chapter013.xhtml#Fig_13-1)
     shows, all pointers to NIL are replaced by pointers to the sentinel *T.nil*.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了方便处理红黑树代码中的边界条件，我们使用一个单一的哨兵来表示NIL（参见第262页）。对于红黑树*T*，哨兵*T.nil*是树中普通节点具有相同属性的对象。它的*颜色*属性是黑色，其它属性——*p*、*左子节点*、*右子节点*和*键*——可以取任意值。正如[图
+    13.1(b)](chapter013.xhtml#Fig_13-1)所示，所有指向NIL的指针都被替换为指向哨兵*T.nil*的指针。
 - en: Why use the sentinel? The sentinel makes it possible to treat a NIL child of
     a node *x* as an ordinary node whose parent is *x*. An alternative design would
     use a distinct sentinel node for each NIL in the tree, so that the parent of each
@@ -74,29 +103,41 @@
     parent. The values of the attributes *p*, *left*, *right*, and *key* of the sentinel
     are immaterial. The red-black tree procedures can place whatever values in the
     sentinel that yield simpler code.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么使用哨兵？哨兵使得可以将节点*x*的NIL子节点视为其父节点为*x*的普通节点。另一种设计会为树中的每个NIL使用一个独立的哨兵节点，以便每个NIL的父节点都有明确定义。然而，这种方法会浪费空间。相反，只需一个哨兵*T.nil*代表所有NIL——所有叶子和根节点的父节点。哨兵的*p*、*左子节点*、*右子节点*和*键*属性的值并不重要。红黑树的程序可以在哨兵中放置任何值，以简化代码。
 - en: We generally confine our interest to the internal nodes of a red-black tree,
     since they hold the key values. The remainder of this chapter omits the leaves
     in drawings of red-black trees, as shown in [Figure 13.1(c)](chapter013.xhtml#Fig_13-1).
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们通常只关注红黑树的内部节点，因为它们保存着关键值。本章的其余部分在红黑树的图示中省略了叶子节点，如[图 13.1(c)](chapter013.xhtml#Fig_13-1)所示。
 - en: We call the number of black nodes on any simple path from, but not including,
     a node *x* down to a leaf the ***black-height*** of the node, denoted bh(*x*).
     By property 5, the notion of black-height is well defined, since all descending
     simple paths from the node have the same number of black nodes. The black-height
     of a red-black tree is the black-height of its root.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将从节点*x*到叶子节点的简单路径上的黑色节点数目（不包括节点*x*）称为节点的***黑高度***，记为bh(*x*)。根据性质5，黑高度的概念是明确定义的，因为从节点出发的所有下降简单路径具有相同数量的黑色节点。红黑树的黑高度是其根节点的黑高度。
 - en: The following lemma shows why red-black trees make good search trees.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下引理说明了为什么红黑树是良好的搜索树。
 - en: '***Lemma 13.1***'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 13.1***'
 - en: A red-black tree with *n* internal nodes has height at most 2 lg(*n* + 1).
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个具有*n*个内部节点的红黑树的高度最多为2 lg(*n* + 1)。
 - en: '***Proof***   We start by showing that the subtree rooted at any node *x* contains
     at least 2^(bh(*x*)) − 1 internal nodes. We prove this claim by induction on the
     height of *x*. If the height of *x* is 0, then *x* must be a leaf (*T.nil*), and
@@ -111,11 +152,19 @@
     that each child has at least 2^(bh(*x*)−1) − 1 internal nodes. Thus, the subtree
     rooted at *x* contains at least (2^(bh(*x*)−1) − 1) + (2^(bh(*x*)−1) − 1) + 1
     = 2^(bh(*x*)) − 1 internal nodes, which proves the claim.'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 我们首先展示以任意节点*x*为根的子树包含至少2^(bh(*x*)) − 1个内部节点。我们通过对节点*x*的高度进行归纳来证明这一点。如果*x*的高度为0，则*x*必须是一个叶子节点（*T.nil*），并且以*x*为根的子树确实包含至少2^(bh(*x*))
+    − 1 = 2⁰ − 1 = 0个内部节点。对于归纳步骤，考虑一个高度为正且为内部节点的节点*x*。那么节点*x*有两个子节点，其中一个或两个可能是叶子节点。如果一个子节点是黑色，则它对*x*的黑高度有贡献，但对自身没有贡献。如果一个子节点是红色，则它对*x*的黑高度和自身的黑高度都没有贡献。因此，每个子节点的黑高度要么是bh(*x*)
+    − 1（如果是黑色），要么是bh(*x*)（如果是红色）。由于子节点的高度小于*x*本身的高度，我们可以应用归纳假设得出每个子节点至少包含2^(bh(*x*)−1)
+    − 1个内部节点。因此，以*x*为根的子树包含至少(2^(bh(*x*)−1) − 1) + (2^(bh(*x*)−1) − 1) + 1 = 2^(bh(*x*))
+    − 1个内部节点，这证明了这一点。'
 - en: '![art](images/Art_P432.jpg)'
+  id: totrans-20
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P432.jpg)'
 - en: '**Figure 13.1** A red-black tree. Every node in a red-black tree is either
     red or black, the children of a red node are both black, and every simple path
     from a node to a descendant leaf contains the same number of black nodes. **(a)**
@@ -125,24 +174,36 @@
     omitted. The root’s parent is also the sentinel. **(c)** The same red-black tree
     but with leaves and the root’s parent omitted entirely. The remainder of this
     chapter uses this drawing style.'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 13.1** 一棵红黑树。红黑树中的每个节点要么是红色，要么是黑色，红色节点的子节点都是黑色的，并且从一个节点到一个叶子节点的简单路径上包含相同数量的黑色节点。
+    **(a)** 每个叶子节点，用NIL表示，都是黑色的。每个非NIL节点都标有其黑高度，其中NIL的黑高度为0。 **(b)** 相同的红黑树，但每个NIL都被单个哨兵*T.nil*替换，哨兵始终为黑色，黑高度被省略。根节点的父节点也是哨兵。
+    **(c)** 相同的红黑树，但叶子节点和根节点的父节点完全省略。本章的其余部分将使用这种绘图风格。'
 - en: To complete the proof of the lemma, let *h* be the height of the tree. According
     to property 4, at least half the nodes on any simple path from the root to a leaf,
     not including the root, must be black. Consequently, the black-height of the root
     must be at least *h*/2, and thus,
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 要完成引理的证明，让*h*为树的高度。根据性质4，从根到叶子节点的任意简单路径上至少有一半的节点是黑色的。因此，根节点的黑高度至少为*h*/2，因此，
 - en: '*n* ≥ 2^(*h*/2) − 1.'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '*n* ≥ 2^(*h*/2) − 1。'
 - en: Moving the 1 to the left-hand side and taking logarithms on both sides yields
     lg(*n* + 1) ≥ *h*/2, or *h* ≤ 2 lg(*n* + 1).
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 将1移到左侧并在两侧取对数得到 lg(*n* + 1) ≥ *h*/2，或者 *h* ≤ 2 lg(*n* + 1)。
 - en: ▪
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: As an immediate consequence of this lemma, each of the dynamic-set operations
     SEARCH, MINIMUM, MAXIMUM, SUCCESSOR, and PREDECESSOR runs in *O*(lg *n*) time
     on a red-black tree, since each can run in *O*(*h*) time on a binary search tree
@@ -155,87 +216,133 @@
     They do not necessarily maintain the red-black properties, so you might not end
     up with a legal red-black tree. The remainder of this chapter shows how to insert
     into and delete from a red-black tree in *O*(lg *n*) time.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为这个引理的直接结果，红黑树上的每个动态集操作SEARCH、MINIMUM、MAXIMUM、SUCCESSOR和PREDECESSOR都可以在*O*(lg
+    *n*)时间内运行，因为在高度为*h*的二叉搜索树上，每个操作都可以在*O*(*h*)时间内运行（如[第12章](chapter012.xhtml)所示），而任何具有*n*个节点的红黑树都是高度为*O*(lg
+    *n*)的二叉搜索树。（当然，[第12章](chapter012.xhtml)中的算法中对NIL的引用必须替换为*T.nil*。）尽管从[第12章](chapter012.xhtml)中的TREE-INSERT和TREE-DELETE过程在给定红黑树作为输入时可以在*O*(lg
+    *n*)时间内运行，但你不能仅仅使用它们来实现动态集操作INSERT和DELETE。它们不一定保持红黑属性，因此最终可能不会得到合法的红黑树。本章的其余部分将展示如何在*O*(lg
+    *n*)时间内向红黑树插入和删除。
 - en: '**Exercises**'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***13.1-1***'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-1***'
 - en: In the style of [Figure 13.1(a)](chapter013.xhtml#Fig_13-1), draw the complete
     binary search tree of height 3 on the keys {1, 2, …, 15}. Add the NIL leaves and
     color the nodes in three different ways such that the black-heights of the resulting
     red-black trees are 2, 3, and 4.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 以[图 13.1(a)](chapter013.xhtml#Fig_13-1)的风格，绘制高度为3的完全二叉搜索树，关键字为{1, 2, …, 15}。添加NIL叶子节点，并以三种不同的方式着色节点，使得生成的红黑树的黑高度分别为2、3和4。
 - en: '***13.1-2***'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-2***'
 - en: Draw the red-black tree that results after TREE-INSERT is called on the tree
     in [Figure 13.1](chapter013.xhtml#Fig_13-1) with key 36\. If the inserted node
     is colored red, is the resulting tree a red-black tree? What if it is colored
     black?
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[图 13.1](chapter013.xhtml#Fig_13-1)中的树上调用TREE-INSERT后绘制的红黑树，关键字为36。如果插入的节点着色为红色，结果树是否为红黑树？如果着色为黑色呢？
 - en: '***13.1-3***'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-3***'
 - en: Define a ***relaxed red-black tree*** as a binary search tree that satisfies
     red-black properties 1, 3, 4, and 5, but whose root may be either red or black.
     Consider a relaxed red-black tree *T* whose root is red. If the root of *T* is
     changed to black but no other changes occur, is the resulting tree a red-black
     tree?
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 将***松弛红黑树***定义为满足红黑属性 1、3、4 和 5 的二叉搜索树，但其根节点可以是红色或黑色。考虑一个根节点为红色的松弛红黑树 *T*。如果将
+    *T* 的根节点更改为黑色，但不进行其他更改，结果的树是否仍然是红黑树？
 - en: '***13.1-4***'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-4***'
 - en: Suppose that every black node in a red-black tree “absorbs” all of its red children,
     so that the children of any red node become children of the black parent. (Ignore
     what happens to the keys.) What are the possible degrees of a black node after
     all its red children are absorbed? What can you say about the depths of the leaves
     of the resulting tree?
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设红黑树中的每个黑色节点“吸收”其所有红色子节点，使得任何红色节点的子节点成为黑色父节点的子节点。（忽略键的变化。）在所有红色子节点被吸收后，黑色节点的可能度是多少？关于结果树的叶子深度，你能说些什么？
 - en: '***13.1-5***'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-5***'
 - en: Show that the longest simple path from a node *x* in a red-black tree to a descendant
     leaf has length at most twice that of the shortest simple path from node *x* to
     a descendant leaf.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明红黑树中从节点 *x* 到后代叶子节点的最长简单路径长度最多是从节点 *x* 到后代叶子节点的最短简单路径长度的两倍。
 - en: '***13.1-6***'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-6***'
 - en: What is the largest possible number of internal nodes in a red-black tree with
     black-height *k*? What is the smallest possible number?
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 在具有黑高度 *k* 的红黑树中，内部节点的最大可能数量是多少？最小可能数量是多少？
 - en: '***13.1-7***'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-7***'
 - en: Describe a red-black tree on *n* keys that realizes the largest possible ratio
     of red internal nodes to black internal nodes. What is this ratio? What tree has
     the smallest possible ratio, and what is the ratio?
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 描述一个具有 *n* 个键的红黑树，实现红色内部节点与黑色内部节点之间最大可能比例。这个比例是多少？具有最小可能比例的树是什么，比例是多少？
 - en: '***13.1-8***'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.1-8***'
 - en: Argue that in a red-black tree, a red node cannot have exactly one non-NIL child.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证在红黑树中，红色节点不能恰好有一个非NIL孩子。
 - en: '[**13.2    Rotations**](toc.xhtml#Rh1-75)'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**13.2    旋转**](toc.xhtml#Rh1-75)'
 - en: The search-tree operations TREE-INSERT and TREE-DELETE, when run on a red-black
     tree with *n* keys, take *O*(lg *n*) time. Because they modify the tree, the result
     may violate the red-black properties enumerated in [Section 13.1](chapter013.xhtml#Sec_13.1).
     To restore these properties, colors and pointers within nodes need to change.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在具有 *n* 个键的红黑树上运行 TREE-INSERT 和 TREE-DELETE 操作时，需要 *O*(lg *n*) 的时间。因为它们修改了树，结果可能违反
+    [第 13.1 节](chapter013.xhtml#Sec_13.1) 中列举的红黑属性。为了恢复这些属性，节点内的颜色和指针需要更改。
 - en: 'The pointer structure changes through ***rotation***, which is a local operation
     in a search tree that preserves the binary-search-tree property. [Figure 13.2](chapter013.xhtml#Fig_13-2)
     shows the two kinds of rotations: left rotations and right rotations. Let’s look
@@ -245,19 +352,30 @@
     at *x* by “twisting” the link between *x* and *y* to the left. The new root of
     the subtree is node *y*, with *x* as *y*’s left child and *y*’s original left
     child (the subtree represented by *β* in the figure) as *x*’s right child.'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 指针结构通过***旋转***发生变化，旋转是搜索树中保持二叉搜索树属性的局部操作。[图 13.2](chapter013.xhtml#Fig_13-2)
+    展示了两种旋转：左旋转和右旋转。让我们看看对节点 *x* 进行的左旋转，它将图中右侧的结构转换为左侧的结构。节点 *x* 有一个右孩子 *y*，*y* 不能是
+    *T.nil*。左旋转通过“扭转” *x* 和 *y* 之间的链接向左改变了最初以 *x* 为根的子树。子树的新根是节点 *y*，*x* 是 *y* 的左孩子，*y*
+    的原左孩子（图中由 *β* 表示的子树）是 *x* 的右孩子。
 - en: The pseudocode for LEFT-ROTATE appearing on the following page assumes that
     *x.right* ≠ *T.nil* and that the root’s parent is *T.nil*. [Figure 13.3](chapter013.xhtml#Fig_13-3)
     shows an example of how LEFT-ROTATE modifies a binary search tree. The code for
     RIGHT-ROTATE is symmetric. Both LEFT-ROTATE and RIGHT-ROTATE run in *O*(1) time.
     Only pointers are changed by a rotation, and all other attributes in a node remain
     the same.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 出现在下一页的 LEFT-ROTATE 的伪代码假设 *x.right* ≠ *T.nil*，并且根的父节点是 *T.nil*。[图 13.3](chapter013.xhtml#Fig_13-3)
+    展示了 LEFT-ROTATE 如何修改二叉搜索树的示例。RIGHT-ROTATE 的代码是对称的。LEFT-ROTATE 和 RIGHT-ROTATE 都在
+    *O*(1) 的时间内运行。旋转只改变指针，节点中的所有其他属性保持不变。
 - en: '![art](images/Art_P433.jpg)'
+  id: totrans-48
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P433.jpg)'
 - en: '**Figure 13.2** The rotation operations on a binary search tree. The operation
     LEFT-ROTATE(*T*, *x*) transforms the configuration of the two nodes on the right
     into the configuration on the left by changing a constant number of pointers.
@@ -266,108 +384,166 @@
     arbitrary subtrees. A rotation operation preserves the binary-search-tree property:
     the keys in *α* precede *x.key*, which precedes the keys in *β*, which precede
     *y.key*, which precedes the keys in *γ*.'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 13.2** 二叉搜索树上的旋转操作。操作 LEFT-ROTATE(*T*, *x*) 通过改变常数个指针，将右侧两个节点的配置转换为左侧的配置。逆操作
+    RIGHT-ROTATE(*T*, *y*) 将左侧的配置转换为右侧的配置。字母 *α*, *β*, 和 *γ* 代表任意子树。旋转操作保持二叉搜索树属性：*α*
+    中的键在 *x.key* 之前，*x.key* 在 *β* 中的键之前，*β* 中的键在 *y.key* 之前，*y.key* 在 *γ* 中的键之前。'
 - en: LEFT-ROTATE(*T*, *x*)
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: LEFT-ROTATE(*T*, *x*)
 - en: '|   1 | *y* = *x.right* |  |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | *y* = *x.right* |  |'
 - en: '|   2 | *x.right* = *y.left* | **//** turn *y*’s left subtree into *x*’s right
     subtree |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *x.right* = *y.left* | **//** 将 *y* 的左子树变为 *x* 的右子树 |'
 - en: '|   3 | **if** *y.left* ≠ *T.nil* | **//** if *y*’s left subtree is not empty
     … |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **if** *y.left* ≠ *T.nil* | **//** 如果 *y* 的左子树不为空 … |'
 - en: '|   4 | *y.left.p* = *x* | **//** … then *x* becomes the parent of the subtree’s
     root |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *y.left.p* = *x* | **//** … 然后 *x* 成为子树根的父节点 |'
 - en: '|   5 | *y.p* = *x.p* | **//** *x*’s parent becomes *y*’s parent |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | *y.p* = *x.p* | **//** *x* 的父节点变为 *y* 的父节点 |'
 - en: '|   6 | **if** *x.p* == *T.nil* | **//** if *x* was the root … |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **if** *x.p* == *T.nil* | **//** 如果 *x* 是根节点 … |'
 - en: '|   7 | *T.root* = *y* | **//** … then *y* becomes the root |'
+  id: totrans-57
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *T.root* = *y* | **//** …然后*y*成为根节点 |'
 - en: '|   8 | **elseif** *x* == *x.p.left* | **//** otherwise, if *x* was a left
     child … |'
+  id: totrans-58
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **否则如果** *x* == *x.p.left* | **//** 否则，如果*x*是左子节点…'
 - en: '|   9 | *x.p.left* = *y* | **//** … then *y* becomes a left child |'
+  id: totrans-59
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *x.p.left* = *y* | **//** …然后*y*成为左子节点 |'
 - en: '| 10 | **else** *x.p.right* = *y* | **//** otherwise, *x* was a right child,
     and now *y* is |'
+  id: totrans-60
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | **否则** *x.p.right* = *y* | **//** 否则，*x*是右子节点，现在*y*是 |'
 - en: '| 11 | *y.left* = *x* | **//** make *x* become *y*’s left child |'
+  id: totrans-61
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *y.left* = *x* | **//** 使*x*成为*y*的左子节点 |'
 - en: '| 12 | *x.p* = *y* |  |'
+  id: totrans-62
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *x.p* = *y* |  |'
 - en: '**Exercises**'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***13.2-1***'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.2-1***'
 - en: Write pseudocode for RIGHT-ROTATE.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 写出RIGHT-ROTATE的伪代码。
 - en: '![art](images/Art_P434.jpg)'
+  id: totrans-66
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P434.jpg)'
 - en: '**Figure 13.3** An example of how the procedure LEFT-ROTATE(*T*, *x*) modifies
     a binary search tree. Inorder tree walks of the input tree and the modified tree
     produce the same listing of key values.'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图13.3** LEFT-ROTATE(*T*, *x*)过程如何修改二叉搜索树的示例。输入树和修改后树的中序遍历产生相同的关键值列表。'
 - en: '***13.2-2***'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.2-2***'
 - en: Argue that in every *n*-node binary search tree, there are exactly *n* − 1 possible
     rotations.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证在每个*n*个节点的二叉搜索树中，恰好有*n* − 1种可能的旋转。
 - en: '***13.2-3***'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.2-3***'
 - en: Let *a*, *b*, and *c* be arbitrary nodes in subtrees *α*, *β*, and *γ*, respectively,
     in the right tree of [Figure 13.2](chapter013.xhtml#Fig_13-2). How do the depths
     of *a*, *b*, and *c* change when a left rotation is performed on node *x* in the
     figure?
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*α*、*β*和*γ*的子树中分别有任意节点*a*、*b*和*c*，在[图13.2](chapter013.xhtml#Fig_13-2)的右树中对节点*x*执行左旋转时，*a*、*b*和*c*的深度会如何变化？
 - en: '***13.2-4***'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.2-4***'
 - en: Show that any arbitrary *n*-node binary search tree can be transformed into
     any other arbitrary *n*-node binary search tree using *O*(*n*) rotations. (*Hint:*
     First show that at most *n* − 1 right rotations suffice to transform the tree
     into a right-going chain.)
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明任意的*n*个节点的二叉搜索树可以通过*O*(*n*)次旋转转换为另一棵任意的*n*个节点的二叉搜索树。（*提示：*首先证明最多*n* − 1次右旋转就足以将树转换为右链。）
 - en: ★ ***13.2-5***
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***13.2-5***
 - en: We say that a binary search tree *T*[1] can be ***right-converted*** to binary
     search tree *T*[2] if it is possible to obtain *T*[2] from *T*[1] via a series
     of calls to RIGHT-ROTATE. Give an example of two trees *T*[1] and *T*[2] such
     that *T*[1] cannot be right-converted to *T*[2]. Then, show that if a tree *T*[1]
     can be right-converted to *T*[2], it can be right-converted using *O*(*n*²) calls
     to RIGHT-ROTATE.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们说一个二叉搜索树*T*[1]可以通过一系列调用RIGHT-ROTATE转换为二叉搜索树*T*[2]。给出两棵树*T*[1]和*T*[2]的例子，使得*T*[1]无法转换为*T*[2]。然后，证明如果一棵树*T*[1]可以通过RIGHT-ROTATE的*O*(*n*²)次调用转换为*T*[2]，那么它可以通过*O*(*n*)次调用RIGHT-ROTATE进行右转换。
 - en: '[**13.3    Insertion**](toc.xhtml#Rh1-76)'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**13.3    插入**](toc.xhtml#Rh1-76)'
 - en: In order to insert a node into a red-black tree with *n* internal nodes in *O*(lg
     *n*) time and maintain the red-black properties, we’ll need to slightly modify
     the TREE-INSERT procedure on page 321\. The procedure RB-INSERT starts by inserting
@@ -377,66 +553,105 @@
     an auxiliary procedure RB-INSERT-FIXUP on the facing page recolors nodes and performs
     rotations. The call RB-INSERT(*T*, *z*) inserts node *z*, whose *key* is assumed
     to have already been filled in, into the red-black tree *T*.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了在*O*(lg *n*)时间内向具有*n*个内部节点的红黑树中插入一个节点并保持红黑属性，我们需要在第321页上略微修改TREE-INSERT过程。RB-INSERT过程首先将节点*z*插入树*T*中，就像它是一棵普通的二叉搜索树一样，然后将*z*着色为红色。（练习13.3-1要求您解释为什么将节点*z*着色为红色而不是黑色。）为了保证红黑属性得以保留，辅助过程RB-INSERT-FIXUP在对面的页面上重新着色节点并执行旋转。调用RB-INSERT(*T*,
+    *z*)将节点*z*插入红黑树*T*，其中*z*的*key*假定已经填充。
 - en: RB-INSERT(*T*, *z*)
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-INSERT(*T*, *z*)
 - en: '|   1 | *x* = *T.root* | **//** node being compared with *z* |'
+  id: totrans-79
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | *x* = *T.root* | **//** 与*z*进行比较的节点 |'
 - en: '|   2 | *y* = *T.nil* | **//** *y* will be parent of *z* |'
+  id: totrans-80
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *y* = *T.nil* | **//** *y*将成为*z*的父节点 |'
 - en: '|   3 | **while** *x* ≠ *T.nil* | **//** descend until reaching the sentinel
     |'
+  id: totrans-81
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **当** *x* ≠ *T.nil* **时** | **//** 下降直到达到哨兵 |'
 - en: '|   4 | *y* = *x* |  |'
+  id: totrans-82
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *y* = *x* |  |'
 - en: '|   5 | **if** *z.key* < *x.key* |  |'
+  id: totrans-83
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **如果** *z.key* < *x.key* |  |'
 - en: '|   6 | *x* = *x.left* |  |'
+  id: totrans-84
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *x* = *x.left* |  |'
 - en: '|   7 | **else** *x* = *x.right* |  |'
+  id: totrans-85
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **否则** *x* = *x.right* |  |'
 - en: '|   8 | *z.p* = *y* | **//** found the location—insert *z* with parent *y*
     |'
+  id: totrans-86
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *z.p* = *y* | **//** 找到位置—以父节点*y*插入*z* |'
 - en: '|   9 | **if** *y* == *T.nil* |  |'
+  id: totrans-87
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **如果** *y* == *T.nil* |  |'
 - en: '| 10 | *T.root* = *z* | **//** tree *T* was empty |'
+  id: totrans-88
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *T.root* = *z* | **//** 树*T*为空 |'
 - en: '| 11 | **elseif** *z.key* < *y.key* |  |'
+  id: totrans-89
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | **否则如果** *z.key* < *y.key* |  |'
 - en: '| 12 | *y.left* = *z* |  |'
+  id: totrans-90
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *y.left* = *z* |  |'
 - en: '| 13 | **else** *y.right* = *z* |  |'
+  id: totrans-91
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | **否则** *y.right* = *z* |  |'
 - en: '| 14 | *z.left* = *T.nil* | **//** both of *z*’s children are the sentinel
     |'
+  id: totrans-92
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | *z.left* = *T.nil* | **//** *z*的两个子节点都是哨兵 |'
 - en: '| 15 | *z.right* = *T.nil* |  |'
+  id: totrans-93
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | *z.right* = *T.nil* |  |'
 - en: '| 16 | *z.color* = RED | **//** the new node starts out red |'
+  id: totrans-94
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | *z.color* = 红色 | **//** 新节点初始为红色 |'
 - en: '| 17 | RB-INSERT-FIXUP(*T*, *z*) | **//** correct any violations of red-black
     properties |'
+  id: totrans-95
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | RB-INSERT-FIXUP(*T*, *z*) | **//** 修正任何违反红黑属性的情况 |'
 - en: The procedures TREE-INSERT and RB-INSERT differ in four ways. First, all instances
     of NIL in TREE-INSERT are replaced by *T.nil*. Second, lines 14–15 of RB-INSERT
     set *z.left* and *z.right* to *T.nil*, in order to maintain the proper tree structure.
@@ -444,104 +659,169 @@
     *z* red. Fourth, because coloring *z* red may cause a violation of one of the
     red-black properties, line 17 of RB-INSERT calls RB-INSERT-FIXUP(*T*, *z*) in
     order to restore the red-black properties.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-INSERT和RB-INSERT的过程有四个不同之处。首先，TREE-INSERT中所有的NIL实例都被*T.nil*替换。其次，RB-INSERT的第14-15行将*z.left*和*z.right*设置为*T.nil*，以保持正确的树结构。（TREE-INSERT假设*z*的子节点已经是NIL。）第三，第16行将*z*着色为红色。第四，因为将*z*着色为红色可能导致违反红黑属性之一，RB-INSERT的第17行调用RB-INSERT-FIXUP(*T*,
+    *z*)以恢复红黑属性。
 - en: RB-INSERT-FIXUP(*T*, *z*)
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-INSERT-FIXUP(*T*, *z*)
 - en: '|   1 | **while** *z.p.color* == RED |  |'
+  id: totrans-98
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **当** *z.p.color* == 红色 |  |'
 - en: '|   2 | **if** *z.p* == *z.p.p.left* | **//** is *z*’s parent a left child?
     |'
+  id: totrans-99
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **如果** *z.p* == *z.p.p.left* | **//** *z*的父节点是左子节点吗？ |'
 - en: '|   3 | *y* = *z.p.p.right* | **//** *y* is *z*’s uncle |'
+  id: totrans-100
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | *y* = *z.p.p.right* | **//** *y*是*z*的叔父节点 |'
 - en: '|   4 | **if** *y.color* == RED | **//** are *z*’s parent and uncle both red?
     |'
+  id: totrans-101
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | **如果** *y.color* == 红色 | **//** *z*的父节点和叔父节点都是红色吗？ |'
 - en: '|   5 | *z.p.color* = BLACK | ![art](images/Art_P435.jpg) |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | *z.p.color* = 黑色 | ![艺术](images/Art_P435.jpg) |'
 - en: '|   6 | *y.color* = BLACK |'
+  id: totrans-103
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *y.color* = 黑色 |'
 - en: '|   7 | *z.p.p.color* = RED |'
+  id: totrans-104
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *z.p.p.color* = 红色 |'
 - en: '|   8 | *z* = *z.p.p* |'
+  id: totrans-105
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *z* = *z.p.p* |'
 - en: '|   9 | **else** |  |'
+  id: totrans-106
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **否则** |  |'
 - en: '| 10 | **if** *z* == *z.p.right* |  |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | **如果** *z* == *z.p.right* |  |'
 - en: '| 11 | *z* = *z.p* | ![art](images/Art_P436.jpg) |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *z* = *z.p* | ![艺术](images/Art_P436.jpg) |'
 - en: '| 12 | LEFT-ROTATE(*T*, *z*) |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | 左旋转(*T*, *z*) |'
 - en: '| 13 | *z.p.color* = BLACK | ![art](images/Art_P437.jpg) |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | *z.p.color* = 黑色 | ![艺术](images/Art_P437.jpg) |'
 - en: '| 14 | *z.p.p.color* = RED |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | *z.p.p.color* = 红色 |'
 - en: '| 15 | RIGHT-ROTATE(*T*, *z.p.p*) |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | 右旋转(*T*, *z.p.p*) |'
 - en: '| 16 | **else** **//** same as lines 3–15, but with “right” and “left” exchanged
     |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | **否则** **//** 与行3-15相同，但“右”和“左”交换 |'
 - en: '| 17 | *y* = *z.p.p.left* |  |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | *y* = *z.p.p.left* |  |'
 - en: '| 18 | **if** *y.color* == RED |  |'
+  id: totrans-115
   prefs: []
   type: TYPE_TB
+  zh: '| 18 | **如果** *y.color* == 红色 |  |'
 - en: '| 19 | *z.p.color* = BLACK |  |'
+  id: totrans-116
   prefs: []
   type: TYPE_TB
+  zh: '| 19 | *z.p.color* = 黑色 |  |'
 - en: '| 20 | *y.color* = BLACK |  |'
+  id: totrans-117
   prefs: []
   type: TYPE_TB
+  zh: '| 20 | *y.color* = 黑色 |  |'
 - en: '| 21 | *z.p.p.color* = RED |  |'
+  id: totrans-118
   prefs: []
   type: TYPE_TB
+  zh: '| 21 | *z.p.p.color* = 红色 |  |'
 - en: '| 22 | *z* = *z.p.p* |  |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '| 22 | *z* = *z.p.p* |  |'
 - en: '| 23 | **else** |  |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '| 23 | **否则** |  |'
 - en: '| 24 | **if** *z* == *z.p.left* |  |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| 24 | **如果** *z* == *z.p.left* |  |'
 - en: '| 25 | *z* = *z.p* |  |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '| 25 | *z* = *z.p* |  |'
 - en: '| 26 | RIGHT-ROTATE(*T*, *z*) |  |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '| 26 | 右旋转(*T*, *z*) |  |'
 - en: '| 27 | *z.p.color* = BLACK |  |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '| 27 | *z.p.color* = 黑色 |  |'
 - en: '| 28 | *z.p.p.color* = RED |  |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '| 28 | *z.p.p.color* = 红色 |  |'
 - en: '| 29 | LEFT-ROTATE(*T*, *z.p.p*) |  |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '| 29 | 左旋转(*T*, *z.p.p*) |  |'
 - en: '| 30 | *T.root.color* = BLACK |  |'
+  id: totrans-127
   prefs: []
   type: TYPE_TB
+  zh: '| 30 | *T.root.color* = 黑色 |  |'
 - en: To understand how RB-INSERT-FIXUP works, let’s examine the code in three major
     steps. First, we’ll determine which violations of the red-black properties might
     arise in RB-INSERT upon inserting node *z* and coloring it red. Second, we’ll
@@ -549,15 +829,19 @@
     explore each of the three cases within the **while** loop’s body (case 2 falls
     through into case 3, so these two cases are not mutually exclusive) and see how
     they accomplish the goal.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 要理解RB-INSERT-FIXUP的工作原理，让我们分三个主要步骤来检查代码。首先，我们将确定在插入节点*z*并将其着色为红色时可能违反的红黑属性。其次，我们将考虑行1-29中**while**循环的整体目标。最后，我们将探讨**while**循环体内的三种情况（情况2会继续到情况3，因此这两种情况并不是互斥的），并看看它们是如何实现目标的。
 - en: In describing the structure of a red-black tree, we’ll often need to refer to
     the sibling of a node’s parent. We use the term ***uncle*** for such a node.^([1](#footnote_1)) [Figure
     13.4](chapter013.xhtml#Fig_13-4) shows how RB-INSERT-FIXUP operates on a sample
     red-black tree, with cases depending in part on the colors of a node, its parent,
     and its uncle.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 在描述红黑树的结构时，我们经常需要提到节点父节点的兄弟节点。我们使用术语***叔父节点***来表示这样的节点。[图13.4](chapter013.xhtml#Fig_13-4)展示了RB-INSERT-FIXUP在一个示例红黑树上的操作，具体情况取决于节点、其父节点和叔父节点的颜色。
 - en: What violations of the red-black properties might occur upon the call to RB-INSERT-FIXUP?
     Property 1 certainly continues to hold (every node is either red or black), as
     does property 3 (every leaf is black), since both children of the newly inserted
@@ -570,30 +854,42 @@
     Property 2 is violated if *z* is the root, and property 4 is violated if *z*’s
     parent is red. [Figure 13.4(a)](chapter013.xhtml#Fig_13-4) shows a violation of
     property 4 after the node *z* has been inserted.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 在调用RB-INSERT-FIXUP时可能会违反红黑属性的情况是什么？属性1肯定会继续保持（每个节点要么是红色要么是黑色），属性3也会保持（每个叶子节点都是黑色），因为新插入的红色节点的两个子节点都是哨兵*T.nil*。属性5也会得到满足，因为节点*z*替换了（黑色的）哨兵，而节点*z*是红色的，其子节点是哨兵。因此，可能违反的属性只有属性2，要求根节点为黑色，和属性4，规定红色节点不能有红色子节点。如果*z*为红色，则可能违反属性2；如果*z*的父节点为红色，则可能违反属性4。[图13.4(a)](chapter013.xhtml#Fig_13-4)展示了在插入节点*z*后违反属性4的情况。
 - en: 'The **while** loop of lines 1–29 has two symmetric possibilities: lines 3–15
     deal with the situation in which node *z*’s parent *z.p* is a left child of *z*’s
     grandparent *z.p.p*, and lines 17–29 apply when *z*’s parent is a right child.
     Our proof will focus only on lines 3–15, relying on the symmetry in lines 17–29.'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 行1-29的**while**循环有两种对称的可能性：行3-15处理节点*z*的父节点*z.p*是*z*的祖父节点*z.p.p*的左子节点的情况，而行17-29则适用于*z*的父节点是右子节点的情况。我们的证明将仅关注行3-15，依赖于行17-29的对称性。
 - en: 'We’ll show that the **while** loop maintains the following three-part invariant
     at the start of each iteration of the loop:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将展示**while**循环在每次迭代开始时维持以下三部分不变性：
 - en: a. Node *z* is red.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: a. 节点*z*为红色。
 - en: b. If *z.p* is the root, then *z.p* is black.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: b. 如果*z.p*是根节点，则*z.p*为黑色。
 - en: c. If the tree violates any of the red-black properties, then it violates at
     most one of them, and the violation is of either property 2 or property 4, but
     not both. If the tree violates property 2, it is because *z* is the root and is
     red. If the tree violates property 4, it is because both *z* and *z.p* are red.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: c. 如果树违反了任何红黑属性，则最多违反其中一个，违反的是属性2或属性4，但不会同时违反两者。如果树违反属性2，那是因为*z*是根节点且为红色。如果树违反属性4，那是因为*z*和*z.p*都是红色。
 - en: Part (c), which deals with violations of red-black properties, is more central
     to showing that RB-INSERT-FIXUP restores the red-black properties than parts (a)
     and (b), which we’ll use along the way to understand situations in the code. Because
@@ -601,11 +897,15 @@
     from part (a) that *z* is red. Part (b) will help show that *z*’s grandparent
     *z.p.p* exists when it’s referenced in lines 2, 3, 7, 8, 14, and 15 (recall that
     we’re focusing only on lines 3–15).
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 第（c）部分涉及违反红黑属性，比第（a）和（b）部分更加核心，用于展示RB-INSERT-FIXUP如何恢复红黑属性，我们将在理解代码中的情况时使用第（a）和（b）部分。因为我们将专注于节点*z*及其附近的节点，所以知道从第（a）部分得知*z*是红色是有帮助的。第（b）部分将帮助展示*z*的祖父*z.p.p*在代码中被引用时存在，这发生在第2、3、7、8、14和15行（请记住我们只关注第3-15行）。
 - en: '![art](images/Art_P438.jpg)'
+  id: totrans-137
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P438.jpg)'
 - en: '**Figure 13.4** The operation of RB-INSERT-FIXUP. **(a)** A node *z* after
     insertion. Because both *z* and its parent *z.p* are red, a violation of property
     4 occurs. Since *z*’s uncle *y* is red, case 1 in the code applies. Node *z*’s
@@ -616,64 +916,86 @@
     case 2 applies. Performing a left rotation results in the tree in **(c)**. Now
     *z* is the left child of its parent, and case 3 applies. Recoloring and right
     rotation yield the tree in **(d)**, which is a legal red-black tree.'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图13.4** RB-INSERT-FIXUP的操作。**(a)** 插入后的节点*z*。因为*z*及其父节点*z.p*都是红色，违反了属性4。由于*z*的叔叔*y*是红色，代码中的情况1适用。节点*z*的祖父*z.p.p*必须是黑色，其黑色向下传递到*z*的父节点和叔叔。当指针*z*在树中上移两级时，结果如**(b)**所示。再次，*z*及其父节点都是红色，但这次*z*的叔叔*y*是黑色。因为*z*是*z.p*的右子节点，情况2适用。执行左旋转得到**(c)**中的树。现在*z*是其父节点的左子节点，情况3适用。重新着色和右旋转得到**(d)**中的树，这是一个合法的红黑树。'
 - en: 'Recall that to use a loop invariant, we need to show that the invariant is
     true upon entering the first iteration of the loop, that each iteration maintains
     it, that the loop terminates, and that the loop invariant gives us a useful property
     at loop termination. We’ll see that each iteration of the loop has two possible
     outcomes: either the pointer *z* moves up the tree, or some rotations occur and
     then the loop terminates.'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 回想一下，要使用循环不变式，我们需要展示在进入循环的第一次迭代时不变式为真，每次迭代都保持它，循环终止，并且循环不变式在循环终止时给我们一个有用的属性。我们将看到循环的每次迭代有两种可能的结果：要么指针*z*向上移动，要么发生一些旋转然后循环终止。
 - en: '**Initialization:** Before RB-INSERT is called, the red-black tree has no violations.
     RB-INSERT adds a red node *z* and calls RB-INSERT-FIXUP. We’ll show that each
     part of the invariant holds at the time RB-INSERT-FIXUP is called:'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '**初始化：** 在调用RB-INSERT之前，红黑树没有违规。RB-INSERT添加了一个红色节点*z*并调用RB-INSERT-FIXUP。我们将展示在调用RB-INSERT-FIXUP时不变式的每个部分都成立：'
 - en: a. When RB-INSERT-FIXUP is called, *z* is the red node that was added.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: a. 当调用RB-INSERT-FIXUP时，*z*是添加的红色节点。
 - en: b. If *z.p* is the root, then *z.p* started out black and did not change before
     the call of RB-INSERT-FIXUP.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: b. 如果*z.p*是根，则*z.p*最初是黑色，并且在调用RB-INSERT-FIXUP之前未更改。
 - en: c. We have already seen that properties 1, 3, and 5 hold when RB-INSERTFIXUP
     is called.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: c. 我们已经看到在调用RB-INSERTFIXUP时属性1、3和5成立。
 - en: If the tree violates property 2 (the root must be black), then the red root
     must be the newly added node *z*, which is the only internal node in the tree.
     Because the parent and both children of *z* are the sentinel, which is black,
     the tree does not also violate property 4 (both children of a red node are black).
     Thus this violation of property 2 is the only violation of red-black properties
     in the entire tree.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果树违反属性2（根必须是黑色），那么红色根必须是新添加的节点*z*，它是树中唯一的内部节点。因为*z*的父节点和两个子节点都是黑色哨兵，树也不违反属性4（红色节点的两个子节点都是黑色）。因此，属性2的违反是整个树中唯一的红黑属性违反。
 - en: If the tree violates property 4, then, because the children of node *z* are
     black sentinels and the tree had no other violations prior to *z* being added,
     the violation must be because both *z* and *z.p* are red. Moreover, the tree violates
     no other red-black properties.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果树违反属性4，则因为节点*z*的子节点是黑哨兵，并且在*z*被添加之前树没有其他违规，违规必定是因为*z*和*z.p*都是红色。此外，树不违反其他红黑属性。
 - en: '**Maintenance:** There are six cases within the **while** loop, but we’ll examine
     only the three cases in lines 3–15, when node *z*’s parent *z.p* is a left child
     of *z*’s grandparent *z.p.p*. The proof for lines 17–29 is symmetric. The node
     *z.p.p* exists, since by part (b) of the loop invariant, if *z.p* is the root,
     then *z.p* is black. Since RB-INSERT-FIXUP enters a loop iteration only if *z.p*
     is red, we know that *z.p* cannot be the root. Hence, *z.p.p* exists.'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '**维护：** 在**while**循环中有六种情况，但我们只会检查第3-15行的三种情况，当节点*z*的父节点*z.p*是*z*的祖父*z.p.p*的左子节点时。第17-29行的证明是对称的。节点*z.p.p*存在，因为根据循环不变式的第（b）部分，如果*z.p*是根，则*z.p*是黑色。由于RB-INSERT-FIXUP仅在*z.p*是红色时进入循环迭代，我们知道*z.p*不能是根。因此，*z.p.p*存在。'
 - en: Case 1 differs from cases 2 and 3 by the color of *z*’s uncle *y*. Line 3 makes
     *y* point to *z*’s uncle *z.p.p.right*, and line 4 tests *y*’s color. If *y* is
     red, then case 1 executes. Otherwise, control passes to cases 2 and 3\. In all
     three cases, *z*’s grandparent *z.p.p* is black, since its parent *z.p* is red,
     and property 4 is violated only between *z* and *z.p*.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 情况1与情况2和3不同之处在于*z*的叔叔*y*的颜色。第3行使*y*指向*z*的叔叔*z.p.p.right*，第4行测试*y*的颜色。如果*y*是红色，则执行情况1。否则，控制权转移到情况2和3。在这三种情况下，*z*的祖父*z.p.p*是黑色，因为其父节点*z.p*是红色，属性4仅在*z*和*z.p*之间违反。
 - en: '![art](images/Art_P439.jpg)'
+  id: totrans-148
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P439.jpg)'
 - en: '**Figure 13.5** Case 1 of the procedure RB-INSERT-FIXUP. Both *z* and its parent
     *z.p* are red, violating property 4\. In case 1, *z*’s uncle *y* is red. The same
     action occurs regardless of whether **(a)** *z* is a right child or **(b)** *z*
@@ -685,11 +1007,18 @@
     the new *z*. If the action of case 1 causes a new violation of property 4 to occur,
     it must be only between the new *z*, which is red, and its parent, if it is red
     as well.'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 13.5** 过程 RB-INSERT-FIXUP 的情况 1。*z* 和其父节点 *z.p* 都是红色的，违反了属性 4。在情况 1 中，*z*
+    的叔叔 *y* 是红色的。无论 **(a)** *z* 是右子节点还是 **(b)** *z* 是左子节点，都会发生相同的操作。每个子树 *α*、*β*、*γ*、*δ*
+    和 *ϵ* 都有一个黑色的根—可能是哨兵—并且每个子树的黑高度相同。情况 1 的代码将 *z* 的祖父的黑色向下传递到 *z* 的父节点和叔叔，保持属性 5：从一个节点到叶子的所有向下简单路径具有相同数量的黑色节点。**while**
+    循环继续，节点 *z* 的祖父 *z.p.p* 作为新的 *z*。如果情况 1 的操作导致新的属性 4 违反发生，那么它必须只发生在新的 *z*（红色）和其父节点之间，如果其父节点也是红色的话。'
 - en: '![art](images/Art_P440.jpg)'
+  id: totrans-150
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P440.jpg)'
 - en: '**Figure 13.6** Cases 2 and 3 of the procedure RB-INSERT-FIXUP. As in case
     1, property 4 is violated in either case 2 or case 3 because *z* and its parent
     *z.p* are both red. Each of the subtrees *α*, *β*, *γ*, and *δ* has a black root
@@ -699,11 +1028,18 @@
     the same number of blacks. Case 3 causes some color changes and a right rotation,
     which also preserve property 5\. The **while** loop then terminates, because property
     4 is satisfied: there are no longer two red nodes in a row.'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 13.6** 过程 RB-INSERT-FIXUP 的第 2 和第 3 情况。与情况 1 一样，因为 *z* 和其父节点 *z.p* 都是红色的，所以在情况
+    2 或情况 3 中违反了属性 4。子树 *α*、*β*、*γ* 和 *δ* 中的每一个都有一个黑色的根（*α*、*β* 和 *γ* 来自属性 4，*δ* 是因为否则情况
+    1 将适用），并且每个子树的黑高度相同。情况 2 通过左旋转转换为情况 3，这保持了属性 5：从一个节点到叶子的所有向下简单路径具有相同数量的黑色节点。情况
+    3 导致一些颜色变化和右旋转，这也保持了属性 5。**while** 循环终止，因为属性 4 被满足：不再有两个相邻的红色节点。'
 - en: '***Case 1\. z’s uncle y is red***'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 1\. z 的叔叔 y 是红色的***'
 - en: '[Figure 13.5](chapter013.xhtml#Fig_13-5) shows the situation for case 1 (lines
     5–8), which occurs when both *z.p* and *y* are red. Because *z*’s grandparent
     *z.p.p* is black, its blackness can transfer down one level to both *z.p* and
@@ -711,47 +1047,71 @@
     blackness transferred down one level, *z*’s grandparent becomes red, thereby maintaining
     property 5\. The **while** loop repeats with *z.p.p* as the new node *z*, so that
     the pointer *z* moves up two levels in the tree.'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 13.5](chapter013.xhtml#Fig_13-5) 展示了情况 1（第 5–8 行），当 *z.p* 和 *y* 都是红色时发生。因为
+    *z* 的祖父 *z.p.p* 是黑色的，它的黑色可以向下传递一级到 *z.p* 和 *y*，从而修复 *z* 和 *z.p* 都是红色的问题。在黑色向下传递一级后，*z*
+    的祖父变为红色，从而保持属性 5。**while** 循环重复，*z.p.p* 作为新节点 *z*，因此指针 *z* 在树中向上移动两级。'
 - en: Now, we show that case 1 maintains the loop invariant at the start of the next
     iteration. We use *z* to denote node *z* in the current iteration, and *z*′ =
     *z.p.p* to denote the node that will be called node *z* at the test in line 1
     upon the next iteration.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我们展示情况 1 在下一次迭代开始时保持循环不变量。我们使用 *z* 表示当前迭代中的节点 *z*，*z*′ = *z.p.p* 表示下一次迭代时在第
+    1 行的测试中将被称为节点 *z* 的节点。
 - en: a. Because this iteration colors *z.p.p* red, node *z*′ is red at the start
     of the next iteration.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: a. 因为此迭代将 *z.p.p* 着色为红色，所以在下一���迭代开始时，节点 *z*′ 是红色的。
 - en: b. The node *z*′.*p* is *z.p.p.p* in this iteration, and the color of this node
     does not change. If this node is the root, it was black prior to this iteration,
     and it remains black at the start of the next iteration.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: b. 在此迭代中，节点 *z*′.*p* 是 *z.p.p.p*，此节点的颜色不会改变。如果此节点是根节点，则在此迭代之前它是黑色的，并且在下一次迭代开始时仍然是黑色的。
 - en: c. We have already argued that case 1 maintains property 5, and it does not
     introduce a violation of properties 1 or 3.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: c. 我们已经证明情况 1 保持属性 5，并且不会引入属性 1 或 3 的违反。
 - en: If node *z*′ is the root at the start of the next iteration, then case 1 corrected
     the lone violation of property 4 in this iteration. Since *z*′ is red and it is
     the root, property 2 becomes the only one that is violated, and this violation
     is due to *z*′.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果节点 *z*′ 在下一次迭代开始时是根节点，则情况 1 修正了此迭代中属性 4 的唯一违反。由于 *z*′ 是红色的且是根节点，属性 2 成为唯一违反的属性，而此违反是由
+    *z*′ 引起的。
 - en: If node *z*′ is not the root at the start of the next iteration, then case 1
     has not created a violation of property 2\. Case 1 corrected the lone violation
     of property 4 that existed at the start of this iteration. It then made *z*′ red
     and left *z*′.*p* alone. If *z*′.*p* was black, there is no violation of property
     4\. If *z*′.*p* was red, coloring *z*′ red created one violation of property 4,
     between *z*′ and *z*′.*p*.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果节点 *z*′ 在下一次迭代开始时不是根节点，则情况 1 没有引入属性 2 的违反。情况 1 修正了此迭代开始时存在的属性 4 的唯一违反。然后将
+    *z*′ 着色为红色，并保持 *z*′.*p* 不变。如果 *z*′.*p* 是黑色的，则不会违反属性 4。如果 *z*′.*p* 是红色的，则将 *z*′
+    着色为红色会导致属性 4 有一个违反，即 *z*′ 和 *z*′.*p* 之间的违反。
 - en: '***Case 2\. z’s uncle y is black and z is a right child***'
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 2\. z 的叔叔 y 是黑色且 z 是右子节点***'
 - en: '***Case 3\. z’s uncle y is black and z is a left child***'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 3\. z 的叔叔 y 是黑色且 z 是左子节点***'
 - en: In cases 2 and 3, the color of *z*’s uncle *y* is black. We distinguish the
     two cases, which assume that *z*’s parent *z.p* is red and a left child, according
     to whether *z* is a right or left child of *z.p*. Lines 11–12 constitute case
@@ -767,34 +1127,48 @@
     Case 3 performs some color changes and a right rotation, which preserve property
     5\. At this point, there are no longer two red nodes in a row. The **while** loop
     terminates upon the next test in line 1, since *z.p* is now black.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 在情况2和3中，*z*的叔叔*y*是黑色的。我们根据*z*的父节点*z.p*是红色且是左子节点的情况，区分这两种情况，分别对应*z*是*z.p*的右子节点或左子节点。第11-12行构成情况2，与[图13.6](chapter013.xhtml#Fig_13-6)一起展示了情况3。在情况2中，节点*z*是其父节点的右子节点。左旋立即将情况转换为情况3（第13-15行），其中节点*z*是左子节点。由于*z*和*z.p*都是红色的，旋转不会影响节点的黑高度或性质5。无论情况3是直接执行还是通过情况2执行，*z*的叔叔*y*都是黑色的，否则情况1就会执行。此外，节点*z.p.p*存在，因为我们已经证明这个节点在执行第2和第3行时存在，并且在第11行将*z*上移一级然后在第12行将其下移一级后，*z.p.p*的身份保持不变。情况3执行一些颜色变化和右旋转，以保持性质5。此时，不再有两个相邻的红色节点。**while**循环在下一次测试中终止，因为*z.p*现在是黑色的。
 - en: We now show that cases 2 and 3 maintain the loop invariant. (As we have just
     argued, *z.p* will be black upon the next test in line 1, and the loop body will
     not execute again.)
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现在展示情况2和3如何保持循环不变性。（正如我们刚才所讨论的，*z.p*在下一次测试时将是黑色的，并且循环体不会再次执行。）
 - en: a. Case 2 makes *z* point to *z.p*, which is red. No further change to *z* or
     its color occurs in cases 2 and 3.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: a. 情况2使*z*指向*z.p*，*z.p*是红色的。在情况2和3中，*z*或其颜色不再发生改变。
 - en: b. Case 3 makes *z.p* black, so that if *z.p* is the root at the start of the
     next iteration, it is black.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: b. 情况3使*z.p*变为黑色，因此如果*z.p*在下一次迭代开始时是根，则它是黑色的。
 - en: c. As in case 1, properties 1, 3, and 5 are maintained in cases 2 and 3.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: c. 与情况1一样，在情况2和3中保持性质1、3和5。
 - en: Since node *z* is not the root in cases 2 and 3, we know that there is no violation
     of property 2\. Cases 2 and 3 do not introduce a violation of property 2, since
     the only node that is made red becomes a child of a black node by the rotation
     in case 3.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于节点*z*在情况2和3中不是根，我们知道不会违反性质2。情况2和3不会引入性质2的违反，因为在情况3的旋转中，唯一变为红色的节点成为黑色节点的子节点。
 - en: Cases 2 and 3 correct the lone violation of property 4, and they do not introduce
     another violation.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 情况2和3纠正了性质4的唯一违反，并且不会引入其他违反。
 - en: '**Termination:** To see that the loop terminates, observe that if only case
     1 occurs, then the node pointer *z* moves toward the root in each iteration, so
     that eventually *z.p* is black. (If *z* is the root, then *z.p* is the sentinel
@@ -804,14 +1178,20 @@
     property that might fail to hold is property 2\. Line 30 restores this property
     by coloring the root black, so that when RB-INSERT-FIXUP terminates, all the red-black
     properties hold.'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: '**终止：** 观察到如果只发生情况1，则节点指针*z*在每次迭代中向根移动，因此最终*z.p*将是黑色的。（如果*z*是根，则*z.p*是哨兵*T.nil*，它是黑色的。）如果发生情况2或情况3，则我们已经看到循环终止。由于循环终止是因为*z.p*是黑色的，所以在循环终止时树不会违反性质4。根据循环不变性，可能不满足的唯一性质是性质2。第30行通过将根节点着色为黑色来恢复此性质，因此当RB-INSERT-FIXUP终止时，所有红黑树性质都成立。'
 - en: Thus, we have shown that RB-INSERT-FIXUP correctly restores the red-black properties.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，我们已经证明了RB-INSERT-FIXUP正确恢复了红黑树的性质。
 - en: '**Analysis**'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '**分析**'
 - en: What is the running time of RB-INSERT? Since the height of a red-black tree
     on *n* nodes is *O*(lg *n*), lines 1–16 of RB-INSERT take *O*(lg *n*) time. In
     RB-INSERTFIXUP, the **while** loop repeats only if case 1 occurs, and then the
@@ -819,66 +1199,99 @@
     loop can be executed is therefore *O*(lg *n*). Thus, RB-INSERT takes a total of
     *O*(lg *n*) time. Moreover, it never performs more than two rotations, since the
     **while** loop terminates if case 2 or case 3 is executed.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-INSERT的运行时间是多少？由于红黑树在*n*个节点上的高度是*O*(lg *n*)，RB-INSERT的第1-16行需要*O*(lg *n*)的时间。在RB-INSERTFIXUP中，**while**循环仅在发生情况1时重复，然后指针*z*向树上移动两级。**while**循环可以执行的总次数因此是*O*(lg
+    *n*)。因此，RB-INSERT总共需要*O*(lg *n*)的时间。此外，它永远不会执行超过两次旋转，因为**while**循环在执行情况2或情况3时终止。
 - en: '**Exercises**'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***13.3-1***'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-1***'
 - en: Line 16 of RB-INSERT sets the color of the newly inserted node *z* to red. If
     instead *z*’s color were set to black, then property 4 of a red-black tree would
     not be violated. Why not set *z*’s color to black?
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-INSERT的第16行将新插入节点*z*的颜色设置为红色。如果将*z*的颜色设置为黑色，那么红黑树的性质4就不会被违反。为什么不将*z*的颜色设置为黑色呢？
 - en: '***13.3-2***'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-2***'
 - en: Show the red-black trees that result after successively inserting the keys 41,
     38, 31, 12, 19, 8 into an initially empty red-black tree.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示在将键41、38、31、12、19、8依次插入到初始为空的红黑树中后得到的红黑树。
 - en: '***13.3-3***'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-3***'
 - en: Suppose that the black-height of each of the subtrees *α*, *β*, *γ*, *δ*, *ϵ*
     in [Figures 13.5](chapter013.xhtml#Fig_13-5) and [13.6](chapter013.xhtml#Fig_13-6)
     is *k*. Label each node in each figure with its black-height to verify that the
     indicated transformation preserves property 5.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设[图13.5](chapter013.xhtml#Fig_13-5)和[13.6](chapter013.xhtml#Fig_13-6)中每个子树*α*、*β*、*γ*、*δ*、*ϵ*的黑高度为*k*。用每个图中的节点的黑高度标记每个���点，以验证所示的变换保持属性5。
 - en: '***13.3-4***'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-4***'
 - en: Professor Teach is concerned that RB-INSERT-FIXUP might set *T.nil.color* to
     RED, in which case the test in line 1 would not cause the loop to terminate when
     *z* is the root. Show that the professor’s concern is unfounded by arguing that
     RB-INSERT-FIXUP never sets *T.nil.color* to RED.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 教授Teach担心RB-INSERT-FIXUP可能会将*T.nil.color*设置为RED，这样当*z*是根时，第1行的测试不会导致循环终止。通过论证RB-INSERT-FIXUP永远不会将*T.nil.color*设置为RED，证明教授的担忧是没有根据的。
 - en: '***13.3-5***'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-5***'
 - en: Consider a red-black tree formed by inserting *n* nodes with RB-INSERT. Argue
     that if *n* > 1, the tree has at least one red node.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑通过RB-INSERT插入*n*个节点形成的红黑树。证明如果*n* > 1，则该树至少有一个红色节点。
 - en: '***13.3-6***'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.3-6***'
 - en: Suggest how to implement RB-INSERT efficiently if the representation for red-black
     trees includes no storage for parent pointers.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 建议如何高效实现RB-INSERT，如果红黑树的表示不包括父指针的存储。
 - en: '[**13.4    Deletion**](toc.xhtml#Rh1-77)'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**13.4    删除**](toc.xhtml#Rh1-77)'
 - en: Like the other basic operations on an *n*-node red-black tree, deletion of a
     node takes *O*(lg *n*) time. Deleting a node from a red-black tree is more complicated
     than inserting a node.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 与在*n*个节点的红黑树上的其他基本操作一样，从红黑树中删除节点需要*O*(lg *n*)时间。从红黑树中删除节点比插入节点更复杂。
 - en: 'The procedure for deleting a node from a red-black tree is based on the TREE-DELETE
     procedure on page 325\. First, we need to customize the TRANSPLANT subroutine
     on page 324 that TREE-DELETE calls so that it applies to a red-black tree. Like
@@ -888,29 +1301,46 @@
     of NIL. Second, the assignment to *v.p* in line 6 occurs unconditionally: the
     procedure can assign to *v.p* even if *v* points to the sentinel. We’ll take advantage
     of the ability to assign to *v.p* when *v* = *T.nil*.'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 从红黑树中删除节点的过程基于第325页的TREE-DELETE过程。首先，我们需要定制TREE-DELETE调用的第324页的TRANSPLANT子程序，以便它适用于红黑树。与TRANSPLANT类似，新的RB-TRANSPLANT过程将以节点*u*为根的子树替换为以节点*v*为根的子树。RB-TRANSPLANT过程与TRANSPLANT有两种不同之处。首先，第1行引用哨兵*T.nil*而不是NIL。其次，在第6行中对*v.p*的赋值是无条件的：即使*v*指向哨兵，该过程也可以对*v.p*进行赋值。我们将利用对*v.p*进行赋值的能力，当*v*
+    = *T.nil*时。
 - en: RB-TRANSPLANT(*T*, *u*, *v*)
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-TRANSPLANT(*T*, *u*, *v*)
 - en: '| 1 | **if** *u.p* == *T.nil* |'
+  id: totrans-190
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *u.p* == *T.nil* |'
 - en: '| 2 | *T.root* = *v* |'
+  id: totrans-191
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *T.root* = *v* |'
 - en: '| 3 | **elseif** *u* == *u.p.left* |'
+  id: totrans-192
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **否则如果** *u* == *u.p.left* |'
 - en: '| 4 | *u.p.left* = *v* |'
+  id: totrans-193
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *u.p.left* = *v* |'
 - en: '| 5 | **else** *u.p.right* = *v* |'
+  id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **否则** *u.p.right* = *v* |'
 - en: '| 6 | *v.p* = *u.p* |'
+  id: totrans-195
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *v.p* = *u.p* |'
 - en: 'The procedure RB-DELETE on the next page is like the TREE-DELETE procedure,
     but with additional lines of pseudocode. The additional lines deal with nodes
     *x* and *y* that may be involved in violations of the red-black properties. When
@@ -924,22 +1354,30 @@
     the red-black properties might be violated after deleting node *z*, RB-DELETE
     calls the auxiliary procedure RB-DELETE-FIXUP, which changes colors and performs
     rotations to restore the red-black properties.'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一页的RB-DELETE过程类似于TREE-DELETE过程，但有额外的伪代码行。额外的行处理可能涉及违反红黑属性的节点*x*和*y*。当要删除的节点*z*最多有一个子节点时，*y*将是*z*。当*z*有两个子节点时，就像TREE-DELETE一样，*y*将是*z*的后继，后继没有左子节点，并移动到树中*z*的位置。此外，*y*继承*z*的颜色。在任一情况下，节点*y*最多有一个子节点：节点*x*，它取代*y*在树中的位置。（如果*y*没有子节点，则节点*x*将是哨兵*T.nil*。）由于节点*y*将被从树中删除或在树中移动，因此该过程需要跟踪*y*的原始颜色。如果删除节点*z*后可能违反红黑属性，则RB-DELETE调用辅助过程RB-DELETE-FIXUP，该过程更改颜色并执行旋转以恢复红黑属性。
 - en: Although RB-DELETE contains almost twice as many lines of pseudocode as TREE-DELETE,
     the two procedures have the same basic structure. You can find each line of TREE-DELETE
     within RB-DELETE (with the changes of replacing NIL by *T.nil* and replacing calls
     to TRANSPLANT by calls to RB-TRANSPLANT), executed under the same conditions.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管RB-DELETE的伪代码行数几乎是TREE-DELETE的两倍，但两个过程具有相同的基本结构。您可以在RB-DELETE中找到TREE-DELETE的每一行（将NIL替换为*T.nil*，将对TRANSPLANT的调用替换为对RB-TRANSPLANT的调用），在相同条件下执行。
 - en: 'In detail, here are the other differences between the two procedures:'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 具体来说，以下是两个过程之间的其他差异：
 - en: 'Lines 1 and 9 set node *y* as described above: line 1 when node *z* has at
     most one child and line 9 when *z* has two children.'
+  id: totrans-199
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 第1行和第9行将节点*y*设置为上述描述：当节点*z*最多有一个子节点时为第1行，当*z*有两个子节点时为第9行。
 - en: Because node *y*’s color might change, the variable *y-original-color* stores
     *y*’s color before any changes occur. Lines 2 and 10 set this variable immediately
     after assignments to *y*. When node *z* has two children, then nodes *y* and *z*
@@ -948,91 +1386,141 @@
     and line 20 gives *y* the same color as *z*. When node *y* was originally black,
     removing or moving it could cause violations of the red-black properties, which
     are corrected by the call of RB-DELETE-FIXUP in line 22.
+  id: totrans-200
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由于节点*y*的颜色可能会改变，变量*y-original-color*在任何更改发生之前存储*y*的颜色。第2行和第10行在对*y*赋值后立即设置这个变量。当节点*z*有两个子节点时，节点*y*和*z*是不同的。在这种情况下，第17行将*y*移动到树中*z*的原始位置（即在调用RB-DELETE时*z*在树中的位置），第20行将*y*赋予与*z*相同的颜色。当节点*y*最初是黑色时，移除或移动它可能导致违反红黑属性，这些违反通过第22行调用的RB-DELETE-FIXUP来纠正。
 - en: RB-DELETE(*T*, *z*)
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-DELETE(*T*, *z*)
 - en: '|   1 | *y* = *z* |  |'
+  id: totrans-202
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | *y* = *z* |  |'
 - en: '|   2 | *y-original-color* = *y.color* |  |'
+  id: totrans-203
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *y-original-color* = *y.color* |  |'
 - en: '|   3 | **if** *z.left* == *T.nil* |  |'
+  id: totrans-204
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **if** *z.left* == *T.nil* |  |'
 - en: '|   4 | *x* = *z.right* |  |'
+  id: totrans-205
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *x* = *z.right* |  |'
 - en: '|   5 | RB-TRANSPLANT(*T*, *z*, *z.right*) | **//** replace *z* by its right
     child |'
+  id: totrans-206
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | RB-TRANSPLANT(*T*, *z*, *z.right*) | **//** 用其右子节点替换*z* |'
 - en: '|   6 | **elseif** *z.right* == *T.nil* |  |'
+  id: totrans-207
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **elseif** *z.right* == *T.nil* |  |'
 - en: '|   7 | *x* = *z.left* |  |'
+  id: totrans-208
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *x* = *z.left* |  |'
 - en: '|   8 | RB-TRANSPLANT(*T*, *z*, *z.left*) | **//** replace *z* by its left
     child |'
+  id: totrans-209
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | RB-TRANSPLANT(*T*, *z*, *z.left*) | **//** 用其左子节点替换*z* |'
 - en: '|   9 | **else** *y* = TREE-MINIMUM(*z.right*) | **//** *y* is *z*’s successor
     |'
+  id: totrans-210
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **else** *y* = TREE-MINIMUM(*z.right*) | **//** *y*是*z*的后继 |'
 - en: '| 10 | *y-original-color* = *y.color* |  |'
+  id: totrans-211
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *y-original-color* = *y.color* |  |'
 - en: '| 11 | *x* = *y.right* |  |'
+  id: totrans-212
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *x* = *y.right* |  |'
 - en: '| 12 | **if** *y* ≠ *z.right* |  | **//** is *y* farther down the tree? |'
+  id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | **if** *y* ≠ *z.right* |  | **//** *y*是否在树中更深处？ |'
 - en: '| 13 | RB-TRANSPLANT(*T*, *y*, *y.right*) | **//** replace *y* by its right
     child |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | RB-TRANSPLANT(*T*, *y*, *y.right*) | **//** 用其右子节点替换*y* |'
 - en: '| 14 | *y.right* = *z.right* |  | **//** *z*’s right child becomes |'
+  id: totrans-215
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | *y.right* = *z.right* |  | **//** *z*的右子节点变为 |'
 - en: '| 15 | *y.right.p* = *y* |  | **//**   *y*’s right child |'
+  id: totrans-216
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | *y.right.p* = *y* |  | **//** *y*的右子节点 |'
 - en: '| 16 | **else** *x.p* = *y* |  | **//** in case *x* is *T.nil* |'
+  id: totrans-217
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | **else** *x.p* = *y* |  | **//** 如果*x*是*T.nil*的情况 |'
 - en: '| 17 | RB-TRANSPLANT(*T*, *z*, *y*) |  | **//** replace *z* by its successor
     *y* |'
+  id: totrans-218
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | RB-TRANSPLANT(*T*, *z*, *y*) |  | **//** 用其后继*y*替换*z* |'
 - en: '| 18 | *y.left* = *z.left* |  | **//** and give *z*’s left child to *y*, |'
+  id: totrans-219
   prefs: []
   type: TYPE_TB
+  zh: '| 18 | *y.left* = *z.left* |  | **//** 将*z*的左子节点给*y*， |'
 - en: '| 19 | *y.left.p* = *y* |  | **//**       which had no left child |'
+  id: totrans-220
   prefs: []
   type: TYPE_TB
+  zh: '| 19 | *y.left.p* = *y* |  | **//** 没有左子节点 |'
 - en: '| 20 | *y.color* = *z.color* |  |'
+  id: totrans-221
   prefs: []
   type: TYPE_TB
+  zh: '| 20 | *y.color* = *z.color* |  |'
 - en: '| 21 | **if** *y-original-color* == BLACK | **//** if any red-black violations
     occurred, |'
+  id: totrans-222
   prefs: []
   type: TYPE_TB
+  zh: '| 21 | **if** *y-original-color* == BLACK | **//** 如果出现任何红黑违规情况， |'
 - en: '| 22 | RB-DELETE-FIXUP(*T*, *x*) | **//**       correct them |'
+  id: totrans-223
   prefs: []
   type: TYPE_TB
+  zh: '| 22 | RB-DELETE-FIXUP(*T*, *x*) | **//** 修正它们 |'
 - en: As discussed, the procedure keeps track of the node *x* that moves into node
     *y*’s original position at the time of call. The assignments in lines 4, 7, and
     11 set *x* to point to either *y*’s only child or, if *y* has no children, the
     sentinel *T.nil*.
+  id: totrans-224
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如前所述，该过程在调用时跟踪移动到节点*y*的原始位置的节点*x*。第4、7和11行的赋值将*x*设置为指向*y*的唯一子节点，或者如果*y*没有子节点，则指向哨兵*T.nil*。
 - en: Since node *x* moves into node *y*’s original position, the attribute *x.p*
     must be set correctly. If node *z* has two children and *y* is *z*’s right child,
     then *y* just moves into *z*’s position, with *x* remaining a child of *y*. Line
@@ -1041,28 +1529,36 @@
     relies on *x.p* being *y* even if *x* is *T.nil*. Thus, when *z* has two children
     and *y* is *z*’s right child, executing line 16 is necessary if *y*’s right child
     is *T.nil*, and otherwise it does not change anything.
+  id: totrans-225
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由于节点*x*移动到节点*y*的原始位置，属性*x.p*必须正确设置。如果节点*z*有两个子节点且*y*是*z*的右子节点，则*y*只是移动到*z*的位置，*x*仍然是*y*的子节点。第12行检查这种情况。尽管你可能认为在第16行将*x.p*设置为*y*是不必要的，因为*x*是*y*的子节点，但是RB-DELETE-FIXUP的调用依赖于*x.p*是*y*，即使*x*是*T.nil*。因此，当*z*有两个子节点且*y*是*z*的右子节点时，如果*y*的右子节点是*T.nil*，执行第16行是必要的，否则不会改变任何内容。
 - en: Otherwise, node *z* is either the same as node *y* or it is a proper ancestor
     of *y*’s original parent. In these cases, the calls of RB-TRANSPLANT in lines
     5, 8, and 13 set *x.p* correctly in line 6 of RB-TRANSPLANT. (In these calls of
     RB-TRANSPLANT, the third parameter passed is the same as *x*.)
+  id: totrans-226
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 否则，节点*z*要么与节点*y*相同，要么是*y*的原始父节点的正确祖先。在这些情况下，第5、8和13行的RB-TRANSPLANT调用在RB-TRANSPLANT的第6行中正确设置*x.p*。（在这些RB-TRANSPLANT的调用中，传递的第三个参数与*x*相同。）
 - en: 'Finally, if node *y* was black, one or more violations of the red-black properties
     might arise. The call of RB-DELETE-FIXUP in line 22 restores the red-black properties.
     If *y* was red, the red-black properties still hold when *y* is removed or moved,
     for the following reasons:'
+  id: totrans-227
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 最后，如果节点*y*是黑色的，可能会出现一个或多个违反红黑属性的情况。第22行调用RB-DELETE-FIXUP来恢复红黑属性。如果*y*是红色的，当*y*被移除或移动时，红黑属性仍然保持，原因如下：
 - en: No black-heights in the tree have changed. (See Exercise 13.4-1.)
+  id: totrans-228
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 树中没有黑高度发生变化。（参见练习13.4-1。）
 - en: No red nodes have been made adjacent. If *z* has at most one child, then *y*
     and *z* are the same node. That node is removed, with a child taking its place.
     If the removed node was red, then neither its parent nor its children can also
@@ -1073,15 +1569,19 @@
     then *y*’s original right child *x* replaces *y* in the tree. Since *y* is red,
     *x* must be black, and so replacing *y* by *x* cannot cause two red nodes to become
     adjacent.
+  id: totrans-229
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 没有使红色节点相邻。如果*z*最多有一个子节点，则*y*和*z*是同一节点。该节点被移除，一个子节点取代它。如果被移除的节点是红色的，则其父节点和子节点也不能是红色，因此移动一个子节点来取代它不会导致两个红色节点相邻。另一方面，如果*z*有两个子节点，则*y*在树中取代*z*的位置，连同*z*的颜色，因此在树中*y*的新位置不可能有两个相邻的红色节点。此外，如果*y*不是*z*的右子节点，则*y*的原始右子节点*x*在树中取代*y*。由于*y*是红色的，*x*必须是黑色的，因此用*x*替换*y*不会导致两个红色节点相邻。
 - en: Because *y* could not have been the root if it was red, the root remains black.
+  id: totrans-230
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 因为如果*y*是红色的话，*y*不可能是根，所以根节点保持黑色。
 - en: 'If node *y* was black, three problems may arise, which the call of RB-DELETE-FIXUP
     will remedy. First, if *y* was the root and a red child of *y* became the new
     root, property 2 is violated. Second, if both *x* and its new parent are red,
@@ -1099,33 +1599,45 @@
     RED (if *x* is red-and-black) or BLACK (if *x* is doubly black). In other words,
     the extra black on a node is reflected in *x*’s pointing to the node rather than
     in the *color* attribute.'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果节点*y*是黑色的，可能会出现三个问题，RB-DELETE-FIXUP的调用将解决这些问题。首先，如果*y*是根，且*y*的一个红色子节点成为新根，那么属性2就被违反了。其次，如果*x*及其新父节点都是红色，则属性4被违反。第三，将*y*在树中移动会导致以前包含*y*的任何简单路径的黑色节点减少一个。因此，树中*y*的任何祖先现在都违反了属性5。我们可以通过说当黑色节点*y*被移除或移动时，其黑色传递给移动到*y*原始位置的节点*x*来纠正属性5的违反，给*x*增加一个“额外”的黑色。也就是说，如果我们在包含*x*的任何简单路径上的黑色节点计数中添加1，那么根据这种解释，属性5成立。但现在另一个问题出现了：节点*x*既不是红色也不是黑色，从而违反了属性1。相反，节点*x*是“双重黑色”或“红黑色”，分别对包含*x*的简单路径上的黑色节点计数贡献2或1。*x*的*color*属性仍然是RED（如果*x*是红黑色）或BLACK（如果*x*是双重黑色）。换句话说，节点上的额外黑色反映在*x*指向节点而不是*color*属性上。
 - en: The procedure RB-DELETE-FIXUP on the next page restores properties 1, 2, and
     4\. Exercises 13.4-2 and 13.4-3 ask you to show that the procedure restores properties
     2 and 4, and so in the remainder of this section, we focus on property 1\. The
     goal of the **while** loop in lines 1–43 is to move the extra black up the tree
     until
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一页的RB-DELETE-FIXUP过程恢复属性1、2和4。练习13.4-2和13.4-3要求您展示该过程恢复了属性2和4，因此在本节的其余部分，我们将专注于属性1。第1-43行中的**while**循环的目标是将额外的黑色沿树向上移动，直到
 - en: '*x* points to a red-and-black node, in which case line 44 colors *x* (singly)
     black;'
+  id: totrans-233
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*x*指向��黑色节点，此时第44行将*x*着色为（单一）黑色；'
 - en: '*x* points to the root, in which case the extra black simply vanishes; or'
+  id: totrans-234
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*x*指向根，此时额外的黑色简单消失；'
 - en: having performed suitable rotations and recolorings, the loop exits.
+  id: totrans-235
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 经过适当的旋转和重新着色后，循环退出。
 - en: 'Like RB-INSERT-FIXUP, the RB-DELETE-FIXUP procedure handles two symmetric situations:
     lines 3–22 for when node *x* is a left child, and lines 24–43 for when *x* is
     a right child. Our proof focuses on the four cases shown in lines 3–22.'
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 与RB-INSERT-FIXUP类似，RB-DELETE-FIXUP过程处理两种对称情况：当节点*x*是左子节点时的第3-22行，以及当*x*是右子节点时的第24-43行。我们的证明集中在第3-22行中显示的四种情况上。
 - en: Within the **while** loop, *x* always points to a nonroot doubly black node.
     Line 2 determines whether *x* is a left child or a right child of its parent *x.p*
     so that either lines 3–22 or 24–43 will execute in a given iteration. The sibling
@@ -1133,15 +1645,19 @@
     *w* cannot be *T.nil*, because otherwise, the number of blacks on the simple path
     from *x.p* to the (singly black) leaf *w* would be smaller than the number on
     the simple path from *x.p* to *x*.
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 在**while**循环中，*x*始终指向非根的双重黑色节点。第2行确定*x*是其父节点*x.p*的左子节点还是右子节点，以便在给定迭代中执行第3-22行或24-43行。*x*的兄弟始终由指针*w*表示。由于节点*x*是双重黑色，节点*w*不能是*T.nil*，否则，从*x.p*到（单黑色）叶子*w*的简单路径上的黑色数量将小于从*x.p*到*x*的简单路径上的数量。
 - en: Recall that the RB-DELETE procedure always assigns to *x.p* before calling RB-DELETE-FIXUP
     (either within the call of RB-TRANSPLANT in line 13 or the assignment in line
     16), even when node *x* is the sentinel *T.nil*. That is because RB-DELETE-FIXUP
     references *x*’s parent *x.p* in several places, and this attribute must point
     to the node that became *x*’s parent in RB-DELETE—even if *x* is *T.nil*.
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 回想一下，RB-DELETE过程总是在调用RB-DELETE-FIXUP之前（无论是在第13行的RB-TRANSPLANT调用中还是第16行的赋值中）分配*x.p*，即使节点*x*是哨兵*T.nil*。这是因为RB-DELETE-FIXUP在几个地方引用*x*的父节点*x.p*，而这个属性必须指向在RB-DELETE中成为*x*父节点的节点，即使*x*是*T.nil*。
 - en: '[Figure 13.7](chapter013.xhtml#Fig_13-7) demonstrates the four cases in the
     code when node *x* is a left child. (As in RB-INSERT-FIXUP, the cases in RB-DELETE-FIXUP
     are not mutually exclusive.) Before examining each case in detail, let’s look
@@ -1158,147 +1674,243 @@
     the transformation.^([2](#footnote_2)) In [Figure 13.7(b)](chapter013.xhtml#Fig_13-7),
     the counting must involve the value *c* of the *color* attribute of the root of
     the subtree shown, which can be either RED or BLACK.'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图13.7](chapter013.xhtml#Fig_13-7)展示了当节点*x*是左子节点时代码中的四种情况。（与RB-INSERT-FIXUP一样，RB-DELETE-FIXUP中的情况并不是互斥的。）在详细研究每种情况之前，让我们更一般地看看如何验证每种情况中的转换如何保持属性5\.
+    关键思想是，在每种情况下，应用的转换保持了从（包括*x*的额外黑色）子树的根节点到每个子树*α*、*β*、…、*ζ*的根节点的黑色节点数。因此，如果在转换之前属性5成立，则转换后仍然成立。例如，在[图13.7(a)](chapter013.xhtml#Fig_13-7)中，这说明了情况1，从根节点到*α*或*β*子树的根节点的黑色节点数为3，无论是在转换前还是转换后。（再次提醒，节点*x*添加了额外的黑色。）同样，从根节点到任何*γ*、*δ*、*ϵ*和*ζ*中的任何一个的根节点的黑色节点数为2，无论是在转换前还是在转换后。^([2](#footnote_2))
+    在[图13.7(b)](chapter013.xhtml#Fig_13-7)中，计数必��涉及所示子树的根节点的*color*属性的值*c*，它可以是红色或黑色。'
 - en: RB-DELETE-FIXUP(*T*, *x*)
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 修正红黑树删除(*T*, *x*)
 - en: '|   1 | **while** *x* ≠ *T.root* and *x.color* == BLACK |'
+  id: totrans-241
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **当** *x* ≠ *T.root* **且** *x.color* == 黑色 **时** |'
 - en: '|   2 | **if** *x* == *x.p.left* | **//** is *x* a left child? |'
+  id: totrans-242
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **如果** *x* == *x.p.left* | **//** *x* 是左子节点吗？ |'
 - en: '|   3 | *w* = *x.p.right* | **//** *w* is *x*’s sibling |'
+  id: totrans-243
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | *w* = *x.p.right* | **//** *w* 是 *x* 的兄弟节点 |'
 - en: '|   4 | **if** *w.color* == RED |'
+  id: totrans-244
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | **如果** *w.color* == 红色 |'
 - en: '|   5 | *w.color* = BLACK | ![art](images/Art_P441.jpg) |'
+  id: totrans-245
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | *w.color* = 黑色 | ![艺术](images/Art_P441.jpg) |'
 - en: '|   6 | *x.p.color* = RED |'
+  id: totrans-246
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *x.p.color* = 红色 |'
 - en: '|   7 | LEFT-ROTATE(*T*, *x.p*) |'
+  id: totrans-247
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | 左旋转(*T*, *x.p*) |'
 - en: '|   8 | *w* = *x.p.right* |'
+  id: totrans-248
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *w* = *x.p.right* |'
 - en: '|   9 | **if** *w.left.color* == BLACK and *w.right.color* == BLACK |'
+  id: totrans-249
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **如果** *w.left.color* == 黑色 **且** *w.right.color* == 黑色 |'
 - en: '| 10 | *w.color* = RED | ![art](images/Art_P442.jpg) |'
+  id: totrans-250
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *w.color* = 红色 | ![艺术](images/Art_P442.jpg) |'
 - en: '| 11 | *x* = *x.p* |'
+  id: totrans-251
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *x* = *x.p* |'
 - en: '| 12 | **else** |'
+  id: totrans-252
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | **否则** |'
 - en: '| 13 | **if** *w.right.color* == BLACK |'
+  id: totrans-253
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | **如果** *w.right.color* == 黑色 |'
 - en: '| 14 | *w.left.color* = BLACK | ![art](images/Art_P443.jpg) |'
+  id: totrans-254
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | *w.left.color* = 黑色 | ![艺术](images/Art_P443.jpg) |'
 - en: '| 15 | *w.color* = RED |'
+  id: totrans-255
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | *w.color* = 红色 |'
 - en: '| 16 | RIGHT-ROTATE(*T*, *w*) |'
+  id: totrans-256
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | 右旋转(*T*, *w*) |'
 - en: '| 17 | *w* = *x.p.right* |'
+  id: totrans-257
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | *w* = *x.p.right* |'
 - en: '| 18 | *w.color* = *x.p.color* | ![art](images/Art_P444.jpg) |'
+  id: totrans-258
   prefs: []
   type: TYPE_TB
+  zh: '| 18 | *w.color* = *x.p.color* | ![艺术](images/Art_P444.jpg) |'
 - en: '| 19 | *x.p.color* = BLACK |'
+  id: totrans-259
   prefs: []
   type: TYPE_TB
+  zh: '| 19 | *x.p.color* = 黑色 |'
 - en: '| 20 | *w.right.color* = BLACK |'
+  id: totrans-260
   prefs: []
   type: TYPE_TB
+  zh: '| 20 | *w.right.color* = 黑色 |'
 - en: '| 21 | LEFT-ROTATE(*T*, *x.p*) |'
+  id: totrans-261
   prefs: []
   type: TYPE_TB
+  zh: '| 21 | 左旋转(*T*, *x.p*) |'
 - en: '| 22 | *x* = *T.root* |'
+  id: totrans-262
   prefs: []
   type: TYPE_TB
+  zh: '| 22 | *x* = *T.root* |'
 - en: '| 23 | **else** **//** same as lines 3–22, but with “right” and “left” exchanged
     |'
+  id: totrans-263
   prefs: []
   type: TYPE_TB
+  zh: '| 23 | **否则** **//** 与行3-22相同，但“right”和“left”交换 |'
 - en: '| 24 | *w* = *x.p.left* |'
+  id: totrans-264
   prefs: []
   type: TYPE_TB
+  zh: '| 24 | *w* = *x.p.left* |'
 - en: '| 25 | **if** *w.color* == RED |'
+  id: totrans-265
   prefs: []
   type: TYPE_TB
+  zh: '| 25 | **如果** *w.color* == 红色 |'
 - en: '| 26 | *w.color* = BLACK |'
+  id: totrans-266
   prefs: []
   type: TYPE_TB
+  zh: '| 26 | *w.color* = 黑色 |'
 - en: '| 27 | *x.p.color* = RED |'
+  id: totrans-267
   prefs: []
   type: TYPE_TB
+  zh: '| 27 | *x.p.color* = 红色 |'
 - en: '| 28 | RIGHT-ROTATE(*T*, *x.p*) |'
+  id: totrans-268
   prefs: []
   type: TYPE_TB
+  zh: '| 28 | 右旋转(*T*, *x.p*) |'
 - en: '| 29 | *w* = *x.p.left* |'
+  id: totrans-269
   prefs: []
   type: TYPE_TB
+  zh: '| 29 | *w* = *x.p.left* |'
 - en: '| 30 | **if** *w.right.color* == BLACK and *w.left.color* == BLACK |'
+  id: totrans-270
   prefs: []
   type: TYPE_TB
+  zh: '| 30 | **如果** *w.right.color* == 黑色 **且** *w.left.color* == 黑色 |'
 - en: '| 31 | *w.color* = RED |'
+  id: totrans-271
   prefs: []
   type: TYPE_TB
+  zh: '| 31 | *w.color* = 红色 |'
 - en: '| 32 | *x* = *x.p* |'
+  id: totrans-272
   prefs: []
   type: TYPE_TB
+  zh: '| 32 | *x* = *x.p* |'
 - en: '| 33 | **else** |'
+  id: totrans-273
   prefs: []
   type: TYPE_TB
+  zh: '| 33 | **否则** |'
 - en: '| 34 | **if** *w.left.color* == BLACK |'
+  id: totrans-274
   prefs: []
   type: TYPE_TB
+  zh: '| 34 | **如果** *w.left.color* == 黑色 |'
 - en: '| 35 | *w.right.color* = BLACK |'
+  id: totrans-275
   prefs: []
   type: TYPE_TB
+  zh: '| 35 | *w.right.color* = 黑色 |'
 - en: '| 36 | *w.color* = RED |'
+  id: totrans-276
   prefs: []
   type: TYPE_TB
+  zh: '| 36 | *w.color* = 红色 |'
 - en: '| 37 | LEFT-ROTATE(*T*, *w*) |'
+  id: totrans-277
   prefs: []
   type: TYPE_TB
+  zh: '| 37 | 左旋转(*T*, *w*) |'
 - en: '| 38 | *w* = *x.p.left* |'
+  id: totrans-278
   prefs: []
   type: TYPE_TB
+  zh: '| 38 | *w* = *x.p.left* |'
 - en: '| 39 | *w.color* = *x.p.color* |'
+  id: totrans-279
   prefs: []
   type: TYPE_TB
+  zh: '| 39 | *w.color* = *x.p.color* |'
 - en: '| 40 | *x.p.color* = BLACK |'
+  id: totrans-280
   prefs: []
   type: TYPE_TB
+  zh: '| 40 | *x.p.color* = 黑色 |'
 - en: '| 41 | *w.left.color* = BLACK |'
+  id: totrans-281
   prefs: []
   type: TYPE_TB
+  zh: '| 41 | *w.left.color* = 黑色 |'
 - en: '| 42 | RIGHT-ROTATE(*T*, *x.p*) |'
+  id: totrans-282
   prefs: []
   type: TYPE_TB
+  zh: '| 42 | 右旋转(*T*, *x.p*) |'
 - en: '| 43 | *x* = *T.root* |'
+  id: totrans-283
   prefs: []
   type: TYPE_TB
+  zh: '| 43 | *x* = *T.root* |'
 - en: '| 44 | *x.color* = BLACK |'
+  id: totrans-284
   prefs: []
   type: TYPE_TB
+  zh: '| 44 | *x.color* = 黑色 |'
 - en: '![art](images/Art_P445.jpg)'
+  id: totrans-285
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P445.jpg)'
 - en: '**Figure 13.7** The cases in lines 3–22 of the procedure RB-DELETE-FIXUP. Brown
     nodes have *color* attributes represented by *c* and *c*′, which may be either
     RED or BLACK. The letters *α*, *β*, …, *ζ* represent arbitrary subtrees. Each
@@ -1315,33 +1927,55 @@
     a right rotation. **(d)** Case 4 removes the extra black represented by *x* by
     changing some colors and performing a left rotation (without violating the red-black
     properties), and then the loop terminates.'
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 13.7** 过程 RB-DELETE-FIXUP 中第 3–22 行中的情况。棕色节点具有由 *c* 和 *c*′ 表示的 *color*
+    属性，可以是 RED 或 BLACK。字母 *α*、*β*、…、*ζ* 代表任意子树。每种情况通过改变一些颜色和/或执行旋转，将左侧的配置转换为右侧的配置。任何被
+    *x* 指向的节点都有额外的黑色，要么是双重黑色，要么是红黑相��的。只有情况 2 会导致循环重复。**(a)** 情况 1 通过交换节点 *B* 和 *D*
+    的颜色并执行左旋转转换为情况 2、3 或 4。**(b)** 在情况 2 中，由指针 *x* 表示的额外黑色通过将节点 *D* 着色为红色并将 *x* 指向节点
+    *B* 来沿树上移。如果情况 2 是通过情况 1 进入的，**while** 循环会终止，因为新节点 *x* 是红黑相间的，因此其 *color* 属性的值是
+    RED。**(c)** 情况 3 通过交换节点 *C* 和 *D* 的颜色并执行右旋转转换为情况 4。**(d)** 情况 4 通过改变一些颜色并执行左旋转（不违反红黑属性）来移除由
+    *x* 表示的额外黑色，然后循环终止。'
 - en: If we define count(RED) = 0 and count(BLACK) = 1, then the number of black nodes
     from the root to *α* is 2 + count(*c*), both before and after the transformation.
     In this case, after the transformation, the new node *x* has *color* attribute
     *c*, but this node is really either red-and-black (if *c* = RED) or doubly black
     (if *c* = BLACK). You can verify the other cases similarly (see Exercise 13.4-6).
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们定义 count(RED) = 0 和 count(BLACK) = 1，那么从根节点到 *α* 的黑色节点数为 2 + count(*c*)，在变换前后都是如此。在这种情况下，变换后，新节点
+    *x* 具有 *color* 属性 *c*，但这个节点实际上是红黑相间的（如果 *c* = RED）或者双重黑色的（如果 *c* = BLACK）。你可以类似地验证其他情况（参见练习
+    13.4-6）。
 - en: '***Case 1\. x’s sibling w is red***'
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 1\. x 的兄弟节点 w 是红色***'
 - en: Case 1 (lines 5–8 and [Figure 13.7(a)](chapter013.xhtml#Fig_13-7)) occurs when
     node *w*, the sibling of node *x*, is red. Because *w* is red, it must have black
     children. This case switches the colors of *w* and *x.p* and then performs a left-rotation
     on *x.p* without violating any of the red-black properties. The new sibling of
     *x*, which is one of *w*’s children prior to the rotation, is now black, and thus
     case 1 converts into one of cases 2, 3, or 4.
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: 情况 1（第 5–8 行和 [图 13.7(a)](chapter013.xhtml#Fig_13-7)）发生在节点 *w*，即节点 *x* 的兄弟节点，是红色的情况下。由于
+    *w* 是红色的，它必须有黑色的子节点。这种情况会交换 *w* 和 *x.p* 的颜色，然后在不违反任何红黑属性的情况下对 *x.p* 执行左旋转。*x*
+    的新兄弟节点，在旋转之前是 *w* 的子节点之一，现在是黑色的，因此情况 1 转换为情况 2、3 或 4 中的一种。
 - en: Cases 2, 3, and 4 occur when node *w* is black and are distinguished by the
     colors of *w*’s children.
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: 当节点 *w* 是黑色时，情况 2、3 和 4 是由 *w* 的子节点的颜色区分的。
 - en: '***Case 2\. x’s sibling w is black, and both of w’s children are black***'
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 2\. x 的兄弟节点 w 是黑色，且 w 的两个子节点都是黑色***'
 - en: In case 2 (lines 10–11 and [Figure 13.7(b)](chapter013.xhtml#Fig_13-7)), both
     of *w*’s children are black. Since *w* is also black, this case removes one black
     from both *x* and *w*, leaving *x* with only one black and leaving *w* red. To
@@ -1352,34 +1986,52 @@
     value *c* of the *color* attribute of the new node *x* is RED, and the loop terminates
     when it tests the loop condition. Line 44 then colors the new node *x* (singly)
     black.
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: 在情况 2（第 10–11 行和 [图 13.7(b)](chapter013.xhtml#Fig_13-7)）中，*w* 的两个子节点都是黑色。由于
+    *w* 也是黑色，这种情况会从 *x* 和 *w* 中各移除一个黑色，使得 *x* 只剩下一个黑色，而 *w* 变成红色。为了弥补 *x* 和 *w* 每个失去一个黑色，*x*
+    的父节点 *x.p* 可以多接收一个黑色。第 11 行通过将 *x* 上移一级来实现这一点，这样 **while** 循环会以 *x.p* 作为新节点 *x*
+    重复。如果情况 2 是通过情况 1 进入的，新节点 *x* 就是红黑相间的，因为原始的 *x.p* 是红色的。因此，新节点 *x* 的 *color* 属性的值
+    *c* 是 RED，当测试循环条件时，循环终止。然后第 44 行将新节点 *x*（单独）着色为黑色。
 - en: '***Case 3\. x’s sibling w is black, w’s left child is red, and w’s right child
     is black***'
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 3\. x 的兄弟节点 w 是黑色，w 的左子节点是红色，w 的右子节点是黑色***'
 - en: Case 3 (lines 14–17 and [Figure 13.7(c)](chapter013.xhtml#Fig_13-7)) occurs
     when *w* is black, its left child is red, and its right child is black. This case
     switches the colors of *w* and its left child *w.left* and then performs a right
     rotation on *w* without violating any of the red-black properties. The new sibling
     *w* of *x* is now a black node with a red right child, and thus case 3 falls through
     into case 4.
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: 情况 3（第 14–17 行和 [图 13.7(c)](chapter013.xhtml#Fig_13-7)）发生在 *w* 是黑色的情况下，它的左子节点是红色的，右子节点是黑色的情况。这种情况会交换
+    *w* 和它的左子节点 *w.left* 的颜色，然后在不违反任何红黑属性的情况下对 *w* 执行右旋转。*x* 的新兄弟节点 *w* 现在是一个黑色节点，有一个红色的右子节点，因此情况
+    3 转换为情况 4。
 - en: '***Case 4\. x’s sibling w is black, and w’s right child is red***'
+  id: totrans-295
   prefs: []
   type: TYPE_NORMAL
+  zh: '***情况 4\. x 的兄弟节点 w 是黑色，且 w 的右子节点是红色***'
 - en: Case 4 (lines 18–22 and [Figure 13.7(d)](chapter013.xhtml#Fig_13-7)) occurs
     when node *x*’s sibling *w* is black and *w*’s right child is red. Some color
     changes and a left rotation on *x.p* allow the extra black on *x* to vanish, making
     it singly black, without violating any of the red-black properties. Line 22 sets
     *x* to be the root, and the **while** loop terminates when it next tests the loop
     condition.
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: 第4案例（第18-22行和[图13.7(d)](chapter013.xhtml#Fig_13-7)）发生在节点*x*的兄弟*w*是黑色且*w*的右子节点是红色时。对*x.p*进行一些颜色更改和左旋转可以使*x*上的额外黑色消失，使其变为单黑色，而不违反任何红黑属性。第22行将*x*设置为根，**while**循环在下一次测试循环条件时终止。
 - en: '**Analysis**'
+  id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: '**分析**'
 - en: What is the running time of RB-DELETE? Since the height of a red-black tree
     of *n* nodes is *O*(lg *n*), the total cost of the procedure without the call
     to RB-DELETE-FIXUP takes *O*(lg *n*) time. Within RB-DELETE-FIXUP, each of cases
@@ -1389,97 +2041,147 @@
     times, performing no rotations. Thus, the procedure RB-DELETE-FIXUP takes *O*(lg
     *n*) time and performs at most three rotations, and the overall time for RB-DELETE
     is therefore also *O*(lg *n*).
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-DELETE的运行时间是多少？由于*n*个节点的红黑树的高度是*O*(lg *n*），因此在没有调用RB-DELETE-FIXUP的情况下，该过程的总成本为*O*(lg
+    *n*)时间。在RB-DELETE-FIXUP中，案例1、3和4中的每一种情况在执行一定数量的颜色更改和最多三次旋转后终止。案例2是唯一一种可能重复**while**循环的情况，然后指针*x*最多向上移动树*O*(lg
+    *n*)次，不执行旋转。因此，RB-DELETE-FIXUP过程需要*O*(lg *n*)时间，并且执行最多三次旋转，因此RB-DELETE的总体时间也是*O*(lg
+    *n*)。
 - en: '**Exercises**'
+  id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***13.4-1***'
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-1***'
 - en: Show that if node *y* in RB-DELETE is red, then no black-heights change.
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明如果RB-DELETE中的节点*y*是红色，则黑高度不会改变。
 - en: '***13.4-2***'
+  id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-2***'
 - en: Argue that after RB-DELETE-FIXUP executes, the root of the tree must be black.
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证RB-DELETE-FIXUP执行后，树的根必须是黑色。
 - en: '***13.4-3***'
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-3***'
 - en: Argue that if in RB-DELETE both *x* and *x.p* are red, then property 4 is restored
     by the call to RB-DELETE-FIXUP(*T*, *x*).
+  id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证如果在RB-DELETE中*x*和*x.p*都是红色，则通过调用RB-DELETE-FIXUP(*T*, *x*)可以恢复属性4。
 - en: '***13.4-4***'
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-4***'
 - en: In Exercise 13.3-2 on page 346, you found the red-black tree that results from
     successively inserting the keys 41, 38, 31, 12, 19, 8 into an initially empty
     tree. Now show the red-black trees that result from the successive deletion of
     the keys in the order 8, 12, 19, 31, 38, 41.
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: 在第346页的练习13.3-2中，您找到了通过依次插入键41、38、31、12、19、8到初始空树中得到的红黑树。现在展示依次���除键8、12、19、31、38、41后得到的红黑树。
 - en: '***13.4-5***'
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-5***'
 - en: Which lines of the code for RB-DELETE-FIXUP might examine or modify the sentinel
     *T.nil*?
+  id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: RB-DELETE-FIXUP代码的哪些行可能检查或修改哨兵*T.nil*？
 - en: '***13.4-6***'
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-6***'
 - en: In each of the cases of [Figure 13.7](chapter013.xhtml#Fig_13-7), give the count
     of black nodes from the root of the subtree shown to the roots of each of the
     subtrees *α*, *β*, …, *ζ*, and verify that each count remains the same after the
     transformation. When a node has a *color* attribute *c* or *c*′, use the notation
     count(*c*) or count(*c*′) symbolically in your count.
+  id: totrans-311
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[图13.7](chapter013.xhtml#Fig_13-7)的每种情况中，从所示子树的根到每个子树*α*、*β*、…、*ζ*的根，给出黑色节点的计数，并验证每次转换后计数保持不变。当节点具有*颜色*属性*c*或*c*′时，在计数中使用符号计数(*c*)或计数(*c*′)。
 - en: '***13.4-7***'
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-7***'
 - en: Professors Skelton and Baron worry that at the start of case 1 of RB-DELETE-FIXUP,
     the node *x.p* might not be black. If *x.p* is not black, then lines 5–6 are wrong.
     Show that *x.p* must be black at the start of case 1, so that the professors need
     not be concerned.
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: Skelton教授和Baron教授担心在RB-DELETE-FIXUP的第1个案例开始时，节点*x.p*可能不是黑色。如果*x.p*不是黑色，则第5-6行是错误的。证明*x.p*在第1个案例开始时必须是黑色，这样教授们就不必担心了。
 - en: '***13.4-8***'
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13.4-8***'
 - en: A node *x* is inserted into a red-black tree with RB-INSERT and then is immediately
     deleted with RB-DELETE. Is the resulting red-black tree always the same as the
     initial red-black tree? Justify your answer.
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: 将节点*x*插入红黑树中，并立即使用RB-DELETE删除。结果得到的红黑树总是与初始红黑树相同吗？证明你的答案。
 - en: ★ ***13.4-9***
+  id: totrans-316
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***13.4-9***
 - en: Consider the operation RB-ENUMERATE(*T*, *r*, *a*, *b*), which outputs all the
     keys *k* such that *a* ≤ *k* ≤ *b* in a subtree rooted at node *r* in an *n*-node
     red-black tree *T*. Describe how to implement RB-ENUMERATE in Θ(*m* + lg *n*)
     time, where *m* is the number of keys that are output. Assume that the keys in
     *T* are unique and that the values *a* and *b* appear as keys in *T*. How does
     your solution change if *a* and *b* might not appear in *T*?
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑操作RB-ENUMERATE(*T*, *r*, *a*, *b*)，它输出所有在红黑树*T*中以节点*r*为根的子树中满足*a* ≤ *k* ≤
+    *b*的键*k*。描述如何在Θ(*m* + lg *n*)时间内实现RB-ENUMERATE，其中*m*是输出的键的数量。假设*T*中的键是唯一的，并且值*a*和*b*出现为*T*中的键。如果*a*和*b*可能不出现在*T*中，您的解决方案会如何改变？
 - en: '**Problems**'
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***13-1     Persistent dynamic sets***'
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13-1     持久动态集***'
 - en: During the course of an algorithm, you sometimes find that you need to maintain
     past versions of a dynamic set as it is updated. We call such a set ***persistent***.
     One way to implement a persistent set is to copy the entire set whenever it is
     modified, but this approach can slow down a program and also consume a lot of
     space. Sometimes, you can do much better.
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
+  zh: 在算法过程中，有时您会发现需要在更新时保持动态集的过去版本。我们称这样的集合为***持久***。实现持久集合的一种方法是每次修改时复制整个集合，但这种方法可能会减慢程序速度，同时也会消耗大量空间。有时，您可以做得更好。
 - en: Consider a persistent set *S* with the operations INSERT, DELETE, and SEARCH,
     which you implement using binary search trees as shown in [Figure 13.8(a)](chapter013.xhtml#Fig_13-8).
     Maintain a separate root for every version of the set. In order to insert the
@@ -1490,110 +2192,155 @@
     key 8 becomes, in turn, the right child of a new root *r*′ with key 4 whose left
     child is the existing node with key 3\. Thus, you copy only part of the tree and
     share some of the nodes with the original tree, as shown in [Figure 13.8(b)](chapter013.xhtml#Fig_13-8).
+  id: totrans-321
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个具有INSERT、DELETE和SEARCH操作的持久集合*S*，你使用二叉搜索树来实现，如[图13.8(a)](chapter013.xhtml#Fig_13-8)所示。为每个版本的集合维护一个单独的根。为了将键5插入集合中，创建一个具有键5的新节点。这个节点成为具有键7的新节点的左子节点，因为你不能修改具有键7的现有节点。类似地，具有键7的新节点成为具有键10的现有节点的左子节点。具有键8的新节点依次成为具有键3的现有节点的右子节点。因此，你只复制树的一部分，并与原始树共享一些节点，如[图13.8(b)](chapter013.xhtml#Fig_13-8)所示。
 - en: Assume that each tree node has the attributes *key*, *left*, and *right* but
     no parent. (See also Exercise 13.3-6 on page 346.)
+  id: totrans-322
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设每个树节点都有属性*key*、*left*和*right*，但没有父节点。（另见第346页上的练习13.3-6。）
 - en: '***a.*** For a persistent binary search tree (not a red-black tree, just a
     binary search tree), identify the nodes that need to change to insert or delete
     a node.'
+  id: totrans-323
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 对于一个持久性二叉搜索树（不是红黑树，只是一个二叉搜索树），确定插入或删除节点时需要更改的节点。'
 - en: '![art](images/Art_P446.jpg)'
+  id: totrans-324
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P446.jpg)'
 - en: '**Figure 13.8 (a)** A binary search tree with keys 2, 3, 4, 7, 8, 10\. **(b)**
     The persistent binary search tree that results from the insertion of key 5\. The
     most recent version of the set consists of the nodes reachable from the root *r*′,
     and the previous version consists of the nodes reachable from *r*. Blue nodes
     are added when key 5 is inserted.'
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图13.8 (a)** 具有键2、3、4、7、8、10的二叉搜索树。**(b)** 插入键5后得到的持久性二叉搜索树。最新版本的集合由从根*r*′可达的节点组成，而上一个版本由从*r*可达的节点组成。插入键5时添加了蓝色节点。'
 - en: '***b.*** Write a procedure PERSISTENT-TREE-INSERT(*T*, *z*) that, given a persistent
     binary search tree *T* and a node *z* to insert, returns a new persistent tree
     *T*′ that is the result of inserting *z* into *T*. Assume that you have a procedure
     COPY-NODE(*x*) that makes a copy of node *x*, including all of its attributes.'
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 编写一个过程PERSISTENT-TREE-INSERT(*T*, *z*)，给定一个持久性二叉搜索树*T*和要插入的节点*z*，返回一个新的持久树*T*′，即将*z*插入*T*的结果。假设你有一个过程COPY-NODE(*x*)，它复制节点*x*，包括其所有属性。'
 - en: '***c.*** If the height of the persistent binary search tree *T* is *h*, what
     are the time and space requirements of your implementation of PERSISTENT-TREE-INSERT?
     (The space requirement is proportional to the number of nodes that are copied.)'
+  id: totrans-327
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 如果持久性二叉搜索树*T*的高度为*h*，那么你对PERSISTENT-TREE-INSERT的实现需要的时间和空间是多少？（空间需求与被复制的节点数量成正比。）'
 - en: '***d.*** Suppose that you include the parent attribute in each node. In this
     case, the PERSISTENT-TREE-INSERT procedure needs to perform additional copying.
     Prove that PERSISTENT-TREE-INSERT then requires Ω(*n*) time and space, where *n*
     is the number of nodes in the tree.'
+  id: totrans-328
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 假设你在每个节点中包含了父属性。在这种情况下，PERSISTENT-TREE-INSERT过程需要执行额外的复制。证明PERSISTENT-TREE-INSERT需要Ω(*n*)的时间和空间，其中*n*是树中节点的数量。'
 - en: '***e.*** Show how to use red-black trees to guarantee that the worst-case running
     time and space are *O*(lg *n*) per insertion or deletion. You may assume that
     all keys are distinct.'
+  id: totrans-329
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 展示如何使用红黑树来保证最坏情况下的运行时间和空间为每次插入或删除都是*O*(lg *n*)。你可以假设所有键都是不同的。'
 - en: '***13-2     Join operation on red-black trees***'
+  id: totrans-330
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13-2     红黑树上的连接操作***'
 - en: The ***join*** operation takes two dynamic sets *S*[1] and *S*[2] and an element
     *x* such that for any *x*[1] ∈ *S*[1] and *x*[2] ∈ *S*[2], we have *x*[1].*key*
     ≤ *x.key* ≤ *x*[2].*key*. It returns a set *S* = *S*[1] ⋃ {*x*} ⋃ *S*[2]. In this
     problem, we investigate how to implement the join operation on red-black trees.
+  id: totrans-331
   prefs: []
   type: TYPE_NORMAL
+  zh: '***连接*** 操作接受两个动态集合*S*[1]和*S*[2]以及一个元素*x*，对于任意*S*[1]中的*x*[1]和*S*[2]中的*x*[2]，我们有*x*[1].*key*
+    ≤ *x.key* ≤ *x*[2].*key*。它返回一个集合*S* = *S*[1] ⋃ {*x*} ⋃ *S*[2]。在这个问题中，我们研究如何在红黑树上实现连接操作。'
 - en: '***a.*** Suppose that you store the black-height of a red-black tree *T* as
     the new attribute *T.bh*. Argue that RB-INSERT and RB-DELETE can maintain the
     *bh* attribute without requiring extra storage in the nodes of the tree and without
     increasing the asymptotic running times. Show how to determine the black-height
     of each node visited while descending through *T*, using *O*(1) time per node
     visited.'
+  id: totrans-332
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 假设你将红黑树*T*的黑高度存储为新属性*T.bh*。论证RB-INSERT和RB-DELETE可以在不需要额外存储的情况下维护*bh*属性，并且不增加渐近运行时间。展示如何确定通过*T*下降时访问的每个节点的黑高度，每个访问的节点使用*O*(1)的时间。'
 - en: Let *T*[1] and *T*[2] be red-black trees and *x* be a key value such that for
     any nodes *x*[1] in *T*[1] and *x*[2] in *T*[2], we have *x*[1].*key* ≤ *x.key*
     ≤ *x*[2].*key*. You will show how to implement the operation RB-JOIN(*T*[1], *x*,
     *T*[2]), which destroys *T*[1] and *T*[2] and returns a red-black tree *T* = *T*[1]
     ⋃ {*x*} ⋃ *T*[2]. Let *n* be the total number of nodes in *T*[1] and *T*[2].
+  id: totrans-333
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*T*[1]和*T*[2]为红黑树，*x*为一个键值，对于*T*[1]中的任意节点*x*[1]和*T*[2]中的节点*x*[2]，我们有*x*[1].*key*
+    ≤ *x.key* ≤ *x*[2].*key*。你将展示如何实现操作RB-JOIN(*T*[1], *x*, *T*[2])，该操作销毁*T*[1]和*T*[2]，并返回一个红黑树*T*
+    = *T*[1] ⋃ {*x*} ⋃ *T*[2]。设*n*为*T*[1]和*T*[2]中节点的总数。
 - en: '***b.*** Assume that *T*[1].*bh* ≥ *T*[2].*bh*. Describe an *O*(lg *n*)-time
     algorithm that finds a black node *y* in *T*[1] with the largest key from among
     those nodes whose black-height is *T*[2].*bh*.'
+  id: totrans-334
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 假设*T*[1].*bh* ≥ *T*[2].*bh*。描述一个在*T*[1]中找到具有最大键的黑节点*y*的*O*(lg *n*)时间算法，其中*y*的黑高度为*T*[2].*bh*。'
 - en: '***c.*** Let *T[y]* be the subtree rooted at *y*. Describe how *T[y]* ⋃ {*x*}
     ⋃ *T*[2] can replace *T[y]* in *O*(1) time without destroying the binary-search-tree
     property.'
+  id: totrans-335
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 让*T[y]*表示以*y*为根的子树。描述如何在*O*(1)时间内用*T[y]* ⋃ {*x*} ⋃ *T*[2]替换*T[y]*，而不破坏二叉搜索树的性质。'
 - en: '***d.*** What color should you make *x* so that red-black properties 1, 3,
     and 5 are maintained? Describe how to enforce properties 2 and 4 in *O*(lg *n*)
     time.'
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 为了保持红黑属性1、3和5，你应该让*x*是什么颜色？描述如何在*O*(lg *n*)时间内强制执行属性2和4。'
 - en: '***e.*** Argue that no generality is lost by making the assumption in part
     (b). Describe the symmetric situation that arises when *T*[1].*bh* ≤ *T*[2].*bh*.'
+  id: totrans-337
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 论证通过在部分(b)中做出的假设不会失去一般性。描述当*T*[1].*bh* ≤ *T*[2].*bh*时出现的对称情况。'
 - en: '***f.*** Argue that the running time of RB-JOIN is *O*(lg *n*).'
+  id: totrans-338
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 论证RB-JOIN的运行时间为*O*(lg *n*)。'
 - en: '***13-3     AVL trees***'
+  id: totrans-339
   prefs: []
   type: TYPE_NORMAL
+  zh: '***13-3     AVL树***'
 - en: 'An ***AVL tree*** is a binary search tree that is ***height balanced***: for
     each node *x*, the heights of the left and right subtrees of *x* differ by at
     most 1\. To implement an AVL tree, maintain an extra attribute *h* in each node
     such that *x.h* is the height of node *x*. As for any other binary search tree
     *T*, assume that *T.root* points to the root node.'
+  id: totrans-340
   prefs: []
   type: TYPE_NORMAL
+  zh: '***AVL树***是一种***高度平衡***的二叉搜索树：对于每个节点*x*，*x*的左右子树的高度最多相差1。为了实现AVL树，在每个节点中保持额外的属性*h*，使得*x.h*是节点*x*的高度。对于任何其他二叉搜索树*T*，假设*T.root*指向根节点。'
 - en: '***a.*** Prove that an AVL tree with *n* nodes has height *O*(lg *n*). (*Hint:*
     Prove that an AVL tree of height *h* has at least *F[h]* nodes, where *F[h]* is
     the *h*th Fibonacci number.)'
+  id: totrans-341
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 证明具有*n*个节点的AVL树的高度为*O*(lg *n*)。(*提示:* 证明高度为*h*的AVL树至少有*F[h]*个节点，其中*F[h]*是第*h*个斐波那契数。)'
 - en: '***b.*** To insert into an AVL tree, first place a node into the appropriate
     place in binary search tree order. Afterward, the tree might no longer be height
     balanced. Specifically, the heights of the left and right children of some node
@@ -1603,23 +2350,34 @@
     rooted at *x* to be height balanced. The procedure should return a pointer to
     the node that is the root of the subtree after alterations occur. (*Hint:* Use
     rotations.)'
+  id: totrans-342
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 要插入AVL树，首先按照二叉搜索树顺序将一个节点放入适当的位置。之后，树可能不再是高度平衡的。具体来说，某些节点的左右子节点的高度可能相差2。描述一个过程BALANCE(*x*)，它接受以*x*为根的子树，其左右子节点是高度平衡的，并且高度最多相差2，即
+    |*x.right.h* − *x.left.h*| ≤ 2，并改变以*x*为根的子树以保持高度平衡。该过程应返回进行修改后的子树的根节点的指针。(*提示:*
+    使用旋转。)'
 - en: '***c.*** Using part (b), describe a recursive procedure AVL-INSERT(*T*, *z*)
     that takes an AVL tree *T* and a newly created node *z* (whose key has already
     been filled in), and adds *z* into *T*, maintaining the property that *T* is an
     AVL tree. As in TREE-INSERT from [Section 12.3](chapter012.xhtml#Sec_12.3), assume
     that *z.key* has already been filled in and that *z.left* = NIL and *z.right*
     = NIL. Assume as well that *z.h* = 0.'
+  id: totrans-343
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 使用部分(b)，描述一个递归过程AVL-INSERT(*T*, *z*)，它接受一个AVL树*T*和一个新创建的节点*z*（其键已经填充），并将*z*添加到*T*中，保持*T*是AVL树的性质。与[第12.3节](chapter012.xhtml#Sec_12.3)中的TREE-INSERT一样，假设*z.key*已经填充，并且*z.left*
+    = NIL和*z.right* = NIL。还假设*z.h* = 0。'
 - en: '***d.*** Show that AVL-INSERT, run on an *n*-node AVL tree, takes *O*(lg *n*)
     time and performs *O*(lg *n*) rotations.'
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明在一个*n*节点的AVL树上运行AVL-INSERT，花费*O*(lg *n*)时间并执行*O*(lg *n*)次旋转。'
 - en: '**Chapter notes**'
+  id: totrans-345
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: The idea of balancing a search tree is due to Adel’son-Vel’skiĭ and Landis [[2](bibliography001.xhtml#endnote_2)],
     who introduced a class of balanced search trees called “AVL trees” in 1962, described
     in Problem 13-3\. Another class of search trees, called “2-3 trees,” was introduced
@@ -1627,8 +2385,11 @@
     the degrees of nodes in the tree, where each node has either two or three children.
     [Chapter 18](chapter018.xhtml) covers a generalization of 2-3 trees introduced
     by Bayer and McCreight [[39](bibliography001.xhtml#endnote_39)], called “B-trees.”
+  id: totrans-346
   prefs: []
   type: TYPE_NORMAL
+  zh: 平衡搜索树的概念归功于Adel’son-Vel’skiĭ和Landis [[2](bibliography001.xhtml#endnote_2)]，他们在1962年引入了一类称为“AVL树”的平衡搜索树，描述在问题13-3中。另一类搜索树，称为“2-3树”，是由J.
+    E. Hopcroft（未发表）在1970年引入的。2-3树通过操纵树中节点的度来保持平衡，其中每个节点具有两个或三个子节点。[第18章](chapter018.xhtml)介绍了Bayer和McCreight在[[39](bibliography001.xhtml#endnote_39)]中引入的2-3树的泛化，称为“B树”。
 - en: Red-black trees were invented by Bayer [[38](bibliography001.xhtml#endnote_38)]
     under the name “symmetric binary B-trees.” Guibas and Sedgewick [[202](bibliography001.xhtml#endnote_202)]
     studied their properties at length and introduced the red/black color convention.
@@ -1636,8 +2397,12 @@
     of red-black trees. Weiss [[451](bibliography001.xhtml#endnote_451)] calls this
     variant AA-trees. An AA-tree is similar to a red-black tree except that left children
     can never be red.
+  id: totrans-347
   prefs: []
   type: TYPE_NORMAL
+  zh: 红黑树是由Bayer [[38](bibliography001.xhtml#endnote_38)]在“对称二叉B树”名称下发明的。Guibas和Sedgewick
+    [[202](bibliography001.xhtml#endnote_202)]详细研究了它们的性质，并引入了红/黑颜色约定。Andersson [[16](bibliography001.xhtml#endnote_16)]提供了红黑树的一种更简单的编码变体。Weiss
+    [[451](bibliography001.xhtml#endnote_451)]将这种变体称为AA树。AA树类似于红黑树，只是左子节点永远不能是红色。
 - en: Sedgewick and Wayne [[402](bibliography001.xhtml#endnote_402)] present red-black
     trees as a modified version of 2-3 trees in which a node with three children is
     split into two nodes with two children each. One of these nodes becomes the left
@@ -1647,14 +2412,18 @@
     in this chapter, operations on left-leaning red-black binary search trees do not
     limit the number of rotations per operation to a constant. This distinction will
     matter in [Chapter 17](chapter017.xhtml).
+  id: totrans-348
   prefs: []
   type: TYPE_NORMAL
+  zh: Sedgewick和Wayne[[402](bibliography001.xhtml#endnote_402)]将红黑树呈现为2-3树的修改版本，其中具有三个子节点的节点被分割为具有两个子节点的两个节点。其中一个节点成为另一个节点的左子节点，只有左子节点可以是红色。他们将这种结构称为“左倾红黑二叉搜索树”。尽管左倾红黑二叉搜索树的代码比本章中的红黑树伪代码更简洁，但左倾红黑二叉搜索树上的操作不限制每次操作的旋转次数为一个常数。这种区别将在[第17章](chapter017.xhtml)中变得重要。
 - en: Treaps, a hybrid of binary search trees and heaps, were proposed by Seidel and
     Aragon [[404](bibliography001.xhtml#endnote_404)]. They are the default implementation
     of a dictionary in LEDA [[324](bibliography001.xhtml#endnote_324)], which is a
     well-implemented collection of data structures and algorithms.
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
+  zh: Treaps，是二叉搜索树和堆的混合体，由Seidel和Aragon提出[[404](bibliography001.xhtml#endnote_404)]。它们是LEDA中字典的默认实现[[324](bibliography001.xhtml#endnote_324)]，LEDA是一个实现良好的数据结构和算法集合。
 - en: There are many other variations on balanced binary trees, including weight-balanced
     trees [[344](bibliography001.xhtml#endnote_344)], *k*-neighbor trees [[318](bibliography001.xhtml#endnote_318)],
     and scapegoat trees [[174](bibliography001.xhtml#endnote_174)]. Perhaps the most
@@ -1668,20 +2437,31 @@
     factor of the best offline rotation-based tree. The best known competitive ratio
     (see [Chapter 27](chapter027.xhtml)) for a rotation-based tree is the Tango Tree
     of Demaine et al. [[109](bibliography001.xhtml#endnote_109)].
+  id: totrans-350
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有许多其他平衡二叉树的变种，包括权重平衡树[[344](bibliography001.xhtml#endnote_344)]、*k*-邻居树[[318](bibliography001.xhtml#endnote_318)]和替罪羊树[[174](bibliography001.xhtml#endnote_174)]。也许最引人注目的是Sleator和Tarjan引入的“伸展树”[[418](bibliography001.xhtml#endnote_418)]，它们是“自调整的”。（参见Tarjan[[429](bibliography001.xhtml#endnote_429)]对伸展树的良好描述。）伸展树在没有任何显式平衡条件（如颜色）的情况下保持平衡。相反，每次访问时都在树内执行“伸展操作”（涉及旋转）。在*n*个节点的树上，每个操作的摊销成本（参见[第16章](chapter016.xhtml)）为*O*(lg
+    *n*)。据推测，伸展树的性能接近最佳离线基于旋转的树的一个常数因子。基于旋转的树的已知最佳竞争比率（参见[第27章](chapter027.xhtml)）是Demaine等人的Tango
+    Tree[[109](bibliography001.xhtml#endnote_109)]。
 - en: Skip lists [[369](bibliography001.xhtml#endnote_369)] provide an alternative
     to balanced binary trees. A skip list is a linked list that is augmented with
     a number of additional pointers. Each dictionary operation runs in *O*(lg *n*)
     expected time on a skip list of *n* items.
+  id: totrans-351
   prefs: []
   type: TYPE_NORMAL
+  zh: Skip lists [[369](bibliography001.xhtml#endnote_369)] 提供了一种替代平衡二叉树的方法。Skip list是一个带有许多额外指针的链表。在一个包含*n*个元素的skip
+    list上，每个字典操作的期望时间复杂度为*O*(lg *n*)。
 - en: '[¹](#footnote_ref_1) Although we try to avoid gendered language in this book,
     the English language lacks a gender-neutral word for a parent’s sibling.'
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 尽管我们在这本书中尽量避免使用有性别倾向的语言，但英语缺乏一个中性的词来表示父母的兄弟姐妹。'
 - en: '[²](#footnote_ref_2) If property 5 holds, we can assume that paths from the
     roots of *γ*, *δ*, *ϵ*, and *ζ* down to leaves contain one more black than do
     paths from the roots of *α* and *β* down to leaves.'
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 如果属性5成立，我们可以假设从*γ*、*δ*、*ϵ*和*ζ*的根到叶子的路径比从*α*和*β*的根到叶子的路径多一个黑色节点。'

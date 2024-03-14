@@ -1,6 +1,8 @@
 - en: '[**14        Dynamic Programming**](toc.xhtml#chap-14)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**14        动态规划**](toc.xhtml#chap-14)'
 - en: Dynamic programming, like the divide-and-conquer method, solves problems by
     combining the solutions to subproblems. (“Programming” in this context refers
     to a tabular method, not to writing computer code.) As we saw in [Chapters 2](chapter002.xhtml)
@@ -12,40 +14,56 @@
     repeatedly solving the common subsubproblems. A dynamic-programming algorithm
     solves each subsubproblem just once and then saves its answer in a table, thereby
     avoiding the work of recomputing the answer every time it solves each subsubproblem.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态规划，类似于分治方法，通过组合子问题的解来解决问题。（这里的“规划”指的是一种表格方法，而不是编写计算机代码。）正如我们在[第2章](chapter002.xhtml)和[第4章](chapter004.xhtml)中看到的，分治算法将问题划分为不相交的子问题，递归地解决子问题，然后组合它们的解来解决原始问题。相比之下，动态规划适用于子问题重叠的情况——也就是说，子问题共享子子问题。在这种情况下，分治算法做了比必要更多的工作，反复解决共同的子子问题。动态规划算法仅解决每个子子问题一次，然后将其答案保存在表中，从而避免每次解决子子问题时重新计算答案。
 - en: Dynamic programming typically applies to ***optimization problems***. Such problems
     can have many possible solutions. Each solution has a value, and you want to find
     a solution with the optimal (minimum or maximum) value. We call such a solution
     *an* optimal solution to the problem, as opposed to *the* optimal solution, since
     there may be several solutions that achieve the optimal value.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态规划通常适用于***优化问题***。这些问题可能有许多可能的解决方案。每个解决方案都有一个值，您希望找到一个具有最优（最小或最大）值的解决方案。我们称这样的解决方案为问题的*一个*最优解，而不是*最佳*解，因为可能有几个解决方案可以达到最优值。
 - en: 'To develop a dynamic-programming algorithm, follow a sequence of four steps:'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 要开发动态规划算法，请按照以下四个步骤的顺序进行：
 - en: Characterize the structure of an optimal solution.
+  id: totrans-4
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 描述最优解的结构。
 - en: Recursively define the value of an optimal solution.
+  id: totrans-5
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 递归定义最优解的值。
 - en: Compute the value of an optimal solution, typically in a bottom-up fashion.
+  id: totrans-6
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 以自底向上的方式计算最优解的值。
 - en: Construct an optimal solution from computed information.
+  id: totrans-7
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 从计算信息中构建最优解。
 - en: Steps 1–3 form the basis of a dynamic-programming solution to a problem. If
     you need only the value of an optimal solution, and not the solution itself, then
     you can omit step 4\. When you do perform step 4, it often pays to maintain additional
     information during step 3 so that you can easily construct an optimal solution.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 步骤1-3构成了解决问题的动态规划解决方案的基础。如果您只需要最优解的值，而不需要解决方案本身，则可以省略第4步。当您执行第4步时，通常值得在第3步期间保留额外的信息，以便轻松构建最优解。
 - en: The sections that follow use the dynamic-programming method to solve some optimization
     problems. [Section 14.1](chapter014.xhtml#Sec_14.1) examines the problem of cutting
     a rod into rods of smaller length in a way that maximizes their total value. [Section
@@ -57,36 +75,51 @@
     subsequence of two sequences via dynamic programming. Finally, [Section 14.5](chapter014.xhtml#Sec_14.5)
     uses dynamic programming to construct binary search trees that are optimal, given
     a known distribution of keys to be looked up.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来的部分使用动态规划方法解决一些优化问题。[第14.1节](chapter014.xhtml#Sec_14.1)讨论了如何将一根棒子切割成长度更短的棒子，以最大化它们的总价值。[第14.2节](chapter014.xhtml#Sec_14.2)展示了如何在执行最少的标量乘法的同时乘以一串矩阵。鉴于这些动态规划的例子，[第14.3节](chapter014.xhtml#Sec_14.3)讨论了一个问题必须具备的两个关键特征，以便动态规划成为一种可行的解决技术。最后，[第14.5节](chapter014.xhtml#Sec_14.5)使用动态规划构建了根据已知密钥分布查找的二叉搜索树。
 - en: '[**14.1    Rod cutting**](toc.xhtml#Rh1-81)'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**14.1    切割棒子**](toc.xhtml#Rh1-81)'
 - en: Our first example uses dynamic programming to solve a simple problem in deciding
     where to cut steel rods. Serling Enterprises buys long steel rods and cuts them
     into shorter rods, which it then sells. Each cut is free. The management of Serling
     Enterprises wants to know the best way to cut up the rods.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的第一个例子使用动态规划来解决一个简单的问题，即在哪里切割钢棒。Serling Enterprises购买长钢棒并将其切割成较短的棒子，然后出售。每次切割都是免费的。Serling
+    Enterprises的管理层想知道最佳切割棒子的方法。
 - en: Serling Enterprises has a table giving, for *i* = 1, 2, …, the price *p[i]*
     in dollars that they charge for a rod of length *i* inches. The length of each
     rod in inches is always an integer. [Figure 14.1](chapter014.xhtml#Fig_14-1) gives
     a sample price table.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: Serling Enterprises有一张表，给出了当 *i* = 1, 2, … 时，他们为长度为 *i* 英寸的棒子收费 *p[i]* 美元。每根棒子的长度都是整数英寸。[图14.1](chapter014.xhtml#Fig_14-1)给出了一个示例价格表。
 - en: The ***rod-cutting problem*** is the following. Given a rod of length *n* inches
     and a table of prices *p[i]* for *i* = 1, 2, …, *n*, determine the maximum revenue
     *r[n]* obtainable by cutting up the rod and selling the pieces. If the price *p[n]*
     for a rod of length *n* is large enough, an optimal solution might require no
     cutting at all.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '***切割棒子问题***如下。给定长度为 *n* 英寸的一根棒子和 *i* = 1, 2, …, *n* 的价格表 *p[i]*，确定通过切割棒子并出售碎片获得的最大收入
+    *r[n]*。如果长度为 *n* 的棒子���价格 *p[n]* 足够高，则最优解可能根本不需要切割。'
 - en: Consider the case when *n* = 4\. [Figure 14.2](chapter014.xhtml#Fig_14-2) shows
     all the ways to cut up a rod of 4 inches in length, including the way with no
     cuts at all. Cutting a 4-inch rod into two 2-inch pieces produces revenue *p*[2]
     + *p*[2] = 5 + 5 = 10, which is optimal.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑*n* = 4的情况。[图 14.2](chapter014.xhtml#Fig_14-2)展示了将长度为4英寸的棒材切割的所有方法，包括完全不切割的方式。将一根4英寸的棒材切成两个2英寸的小段可以产生收入*p*[2]
+    + *p*[2] = 5 + 5 = 10，这是最佳的。
 - en: Serling Enterprises can cut up a rod of length *n* in 2^(*n*−1) different ways,
     since they have an independent option of cutting, or not cutting, at distance
     *i* inches from the left end, for *i* = 1, 2, …, *n* − 1.^([1](#footnote_1)) We
@@ -94,76 +127,121 @@
     = 2 + 2 + 3 indicates that a rod of length 7 is cut into three pieces—two of length
     2 and one of length 3\. If an optimal solution cuts the rod into *k* pieces, for
     some 1 ≤ *k* ≤ *n*, then an optimal decomposition
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: Serling Enterprises可以将长度为*n*的棒材切割成2^(*n*−1)种不同的方式，因为他们可以在距左端*i*英寸处独立选择切割或不切割，对于*i*
+    = 1, 2, …, *n* − 1。我们使用普通加法符号表示将棒材分解成段，因此7 = 2 + 2 + 3表示长度为7的棒材被切成三段——两段长度为2，一段长度为3。如果最佳解将棒材切成*k*段，对于某个1
+    ≤ *k* ≤ *n*，则最佳分解
 - en: '*n* = *i*[1] + *i*[2] + ⋯ + *i[k]*'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '*n* = *i*[1] + *i*[2] + ⋯ + *i[k]*'
 - en: '![art](images/Art_P447.jpg)'
+  id: totrans-17
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P447.jpg)'
 - en: '**Figure 14.1** A sample price table for rods. Each rod of length *i* inches
     earns the company *p[i]* dollars of revenue.'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 14.1** 一张棒材价格表。每根长度为*i*英寸的棒材为公司赚取*p[i]*美元的收入。'
 - en: '![art](images/Art_P448.jpg)'
+  id: totrans-19
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P448.jpg)'
 - en: '**Figure 14.2** The 8 possible ways of cutting up a rod of length 4\. Above
     each piece is the value of that piece, according to the sample price chart of
     [Figure 14.1](chapter014.xhtml#Fig_14-1). The optimal strategy is part (c)—cutting
     the rod into two pieces of length 2—which has total value 10.'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 14.2** 将长度为4的棒材切割成8种可能的方式。每个段上方是根据[图 14.1](chapter014.xhtml#Fig_14-1)的样本价格表的价值。最佳策略是部分(c)——将棒材切成两段长度为2，总价值为10。'
 - en: of the rod into pieces of lengths *i*[1], *i*[2], …, *i[k]* provides maximum
     corresponding revenue
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 将棒材切割成长度为*i*[1]、*i*[2]、…、*i[k]*的段提供最大对应收入
 - en: '![art](images/Art_P449.jpg)'
+  id: totrans-22
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P449.jpg)'
 - en: For the sample problem in [Figure 14.1](chapter014.xhtml#Fig_14-1), you can
     determine the optimal revenue figures *r[i]*, for *i* = 1, 2, …, 10, by inspection,
     with the corresponding optimal decompositions
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于[图 14.1](chapter014.xhtml#Fig_14-1)中的示例问题，您可以通过检查确定最佳收入数字*r[i]*，对于*i* = 1,
+    2, …, 10，以及相应的最佳分解。
 - en: '| *r*[1] = 1 | from solution 1 = 1 | (no cuts), |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[1] = 1 | 来自解1 = 1 | (未切割), |'
 - en: '| *r*[2] = 5 | from solution 2 = 2 | (no cuts), |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[2] = 5 | 来自解2 = 2 | (未切割), |'
 - en: '| *r*[3] = 8 | from solution 3 = 3 | (no cuts), |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[3] = 8 | 来自解3 = 3 | (未切割), |'
 - en: '| *r*[4] = 10 | from solution 4 = 2 + 2, |'
+  id: totrans-27
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[4] = 10 | 来自解4 = 2 + 2, |'
 - en: '| *r*[5] = 13 | from solution 5 = 2 + 3, |'
+  id: totrans-28
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[5] = 13 | 来自解5 = 2 + 3, |'
 - en: '| *r*[6] = 17 | from solution 6 = 6 | (no cuts), |'
+  id: totrans-29
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[6] = 17 | 来自解6 = 6 | (未切割), |'
 - en: '| *r*[7] = 18 | from solution 7 = 1 + 6 or 7 = 2 + 2 + 3, |'
+  id: totrans-30
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[7] = 18 | 来自解7 = 1 + 6或7 = 2 + 2 + 3, |'
 - en: '| *r*[8] = 22 | from solution 8 = 2 + 6, |'
+  id: totrans-31
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[8] = 22 | 来自解8 = 2 + 6, |'
 - en: '| *r*[9] = 25 | from solution 9 = 3 + 6, |'
+  id: totrans-32
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[9] = 25 | 来自解9 = 3 + 6, |'
 - en: '| *r*[10] = 30 | from solution 10 = 10 | (no cuts). |'
+  id: totrans-33
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[10] = 30 | 来自解10 = 10 | (未切割). |'
 - en: 'More generally, we can express the values *r[n]* for *n* ≥ 1 in terms of optimal
     revenues from shorter rods:'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 更一般地，我们可以用较短棒材的最佳收入来表示*n* ≥ 1的值*r[n]*：
 - en: '![art](images/Art_P450.jpg)'
+  id: totrans-35
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P450.jpg)'
 - en: The first argument, *p[n]*, corresponds to making no cuts at all and selling
     the rod of length *n* as is. The other *n* − 1 arguments to max correspond to
     the maximum revenue obtained by making an initial cut of the rod into two pieces
@@ -173,8 +251,11 @@
     revenue, you have to consider all possible values for *i* and pick the one that
     maximizes revenue. You also have the option of picking no *i* at all if the greatest
     revenue comes from selling the rod uncut.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个参数*p[n]*对应于完全不切割并将长度为*n*的棒材原样出售。max的其他*n* − 1个参数对应于通过将棒材初始切割成大小为*i*和*n* −
+    *i*的两段，对每个*i* = 1, 2, …, *n* − 1，然后最优地进一步切割这些段，从这两段获得收入*r[i]*和*r*[*n*−*i*]。由于事先不知道哪个*i*的值能够最大化收入，您必须考虑所有可能的*i*值，并选择最大化收入的值。如果最大收入来自未切割棒材，则还可以选择不切割*i*。
 - en: 'To solve the original problem of size *n*, you solve smaller problems of the
     same type. Once you make the first cut, the two resulting pieces form independent
     instances of the rod-cutting problem. The overall optimal solution incorporates
@@ -182,8 +263,10 @@
     of those two pieces. We say that the rod-cutting problem exhibits ***optimal substructure***:
     optimal solutions to a problem incorporate optimal solutions to related subproblems,
     which you may solve independently.'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 要解决大小为*n*的原始问题，您需要解决相同类型的较小问题。一旦进行第一次切割，两个结果段形成独立的棒材切割问题实例。整体最佳解包含了两个结果子问题的最佳解，最大化了这两段的收入。我们说棒材切割问题展现出***最优子结构***：问题的最佳解包含了相关子问题的最佳解，您可以独立解决这些子问题。
 - en: 'In a related, but slightly simpler, way to arrange a recursive structure for
     the rod-cutting problem, let’s view a decomposition as consisting of a first piece
     of length *i* cut off the left-hand end, and then a right-hand remainder of length
@@ -193,18 +276,28 @@
     with no cuts at all by saying that the first piece has size *i* = *n* and revenue
     *p[n]* and that the remainder has size 0 with corresponding revenue *r*[0] = 0\.
     We thus obtain the following simpler version of equation (14.1):'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个相关但稍微简单的方式中为切割钢条问题安排递归结构，让我们将分解视为首先切下左端的长度为 *i* 的第一段，然后是长度为 *n* − *i* 的右侧剩余部分。只有剩余部分，而不是第一部分，可以进一步切割。以这种方式思考长度为
+    *n* 的钢条的每个分解：作为第一部分，后面跟着剩余部分的某种分解。然后我们可以通过说第一部分的大小为 *i* = *n*，收入为 *p[n]*，剩余部分大小为
+    0，对应收入为 *r*[0] = 0，来表达没有任何切割的解决方案。因此，我们得到了以下方程（14.1）的简化版本：
 - en: '![art](images/Art_P451.jpg)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P451.jpg)'
 - en: In this formulation, an optimal solution embodies the solution to only *one*
     related subproblem—the remainder—rather than two.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个公式中，最优解体现在只解决了*一个*相关的子问题——剩余部分，而不是两个。
 - en: '**Recursive top-down implementation**'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '**递归自顶向下的实现**'
 - en: 'The CUT-ROD procedure on the following page implements the computation implicit
     in equation (14.2) in a straightforward, top-down, recursive manner. It takes
     as input an array *p*[1 : *n*] of prices and an integer *n*, and it returns the
@@ -214,37 +307,59 @@
     = max {*p[i]* + CUT-ROD(*p*, *n* − *i*) : 1 ≤ *i* ≤ *n*}. Line 6 then returns
     this value. A simple induction on *n* proves that this answer is equal to the
     desired answer *r[n]*, using equation (14.2).'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '下一页的 CUT-ROD 程序以一种直接、自顶向下、递归的方式实现了方程（14.2）中隐含的计算。它以价格数组 *p*[1 : *n*] 和整数 *n*
+    作���输入，并返回长度为 *n* 的钢条的最大收入。对于长度 *n* = 0，没有收入是可能的，因此 CUT-ROD 在第 2 行返回 0。第 3 行将最大收入
+    *q* 初始化为 −∞，以便第 4–5 行的 **for** 循环正确计算 *q* = max {*p[i]* + CUT-ROD(*p*, *n* − *i*)
+    : 1 ≤ *i* ≤ *n*}。然后第 6 行返回这个值。对 *n* 进行简单归纳证明，证明这个答案等于所需答案 *r[n]*，使用方程（14.2）。'
 - en: CUT-ROD(*p*, *n*)
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: CUT-ROD(*p*, *n*)
 - en: '| 1 | **if** *n* == 0 |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *n* == 0 |'
 - en: '| 2 | **return** 0 |'
+  id: totrans-45
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **返回** 0 |'
 - en: '| 3 | *q* = −∞ |'
+  id: totrans-46
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = −∞ |'
 - en: '| 4 | **for** *i* = 1 **to** *n* |'
+  id: totrans-47
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **对于** *i* = 1 **到** *n* |'
 - en: '| 5 | *q* = max {*q*, *p*[*i*] + CUT-ROD(*p*, *n* − *i*)} |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | *q* = max {*q*, *p*[*i*] + CUT-ROD(*p*, *n* − *i*)} |'
 - en: '| 6 | **return** *q* |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **返回** *q* |'
 - en: If you code up CUT-ROD in your favorite programming language and run it on your
     computer, you’ll find that once the input size becomes moderately large, your
     program takes a long time to run. For *n* = 40, your program may take several
     minutes and possibly more than an hour. For large values of *n*, you’ll also discover
     that each time you increase *n* by 1, your program’s running time approximately
     doubles.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你在你喜欢的编程语言中编写 CUT-ROD 并在计算机上运行它，你会发现一旦输入大小变得相当大，你的程序运行时间会很长。对于 *n* = 40，你的程序可能需要几分钟，甚至可能超过一个小时。对于较大的
+    *n* 值，你还会发现每次增加 *n* 1，你的程序的运行时间大约会加倍。
 - en: 'Why is CUT-ROD so inefficient? The problem is that CUT-ROD calls itself recursively
     over and over again with the same parameter values, which means that it solves
     the same subproblems repeatedly. [Figure 14.3](chapter014.xhtml#Fig_14-3) shows
@@ -252,28 +367,45 @@
     CUT-ROD(*p*, *n* − *i*) for *i* = 1, 2, …, *n*. Equivalently, CUT-ROD(*p*, *n*)
     calls CUT-ROD(*p*, *j*) for each *j* = 0, 1, …, *n* − 1\. When this process unfolds
     recursively, the amount of work done, as a function of *n*, grows explosively.'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么 CUT-ROD 如此低效？问题在于 CUT-ROD 反复使用相同的参数值递归调用自身，这意味着它重复解决相同的子问题。[图 14.3](chapter014.xhtml#Fig_14-3)
+    展示了当 *n* = 4 时会发生什么：CUT-ROD(*p*, *n*) 为 *i* = 1, 2, …, *n* 调用 CUT-ROD(*p*, *n*
+    − *i*)。等价地，CUT-ROD(*p*, *n*) 为每个 *j* = 0, 1, …, *n* − 1 调用 CUT-ROD(*p*, *j*)。当这个过程递归展开时，随着
+    *n* 的增长，所做的工作量呈指数级增长。
 - en: To analyze the running time of CUT-ROD, let *T*(*n*) denote the total number
     of calls made to CUT-ROD(*p*, *n*) for a particular value of *n*. This expression
     equals the number of nodes in a subtree whose root is labeled *n* in the recursion
     tree. The count includes the initial call at its root. Thus, *T*(0) = 1 and
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 要分析 CUT-ROD 的运行时间，让 *T*(*n*) 表示对于特定值 *n* 调用 CUT-ROD(*p*, *n*) 的总次数。这个表达式等于递归树中以标记为
+    *n* 的根的子树中的节点数。计数包括其根处的初始调用。因此，*T*(0) = 1，且
 - en: '![art](images/Art_P452.jpg)'
+  id: totrans-53
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P452.jpg)'
 - en: The initial 1 is for the call at the root, and the term *T*(*j*) counts the
     number of calls (including recursive calls) due to the call CUT-ROD(*p*, *n* −
     *i*), where *j* = *n* − *i*. As Exercise 14.1-1 asks you to show,
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 最初的 1 是为了在根处的调用，术语 *T*(*j*) 计算由于调用 CUT-ROD(*p*, *n* − *i*) 而产生的调用次数（包括递归调用），其中
+    *j* = *n* − *i*。正如练习 14.1-1 要求的那样，
 - en: '![art](images/Art_P453.jpg)'
+  id: totrans-55
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P453.jpg)'
 - en: and so the running time of CUT-ROD is exponential in *n*.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，CUT-ROD 的运行时间是指数级的。
 - en: In retrospect, this exponential running time is not so surprising. CUT-ROD explicitly
     considers all possible ways of cutting up a rod of length *n*. How many ways are
     there? A rod of length *n* has *n* − 1 potential locations to cut. Each possible
@@ -285,11 +417,17 @@
     leaves. The labels on the simple path from the root to a leaf give the sizes of
     each remaining right-hand piece before making each cut. That is, the labels give
     the corresponding cut points, measured from the right-hand end of the rod.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 回顾起来，这种指数运行时间并不奇怪。CUT-ROD 明确考虑了切割长度为 *n* 的钢条的所有可能方式。有多少种方式？长度为 *n* 的钢条有 *n*
+    − 1 个潜在的切割位置。切割钢条的每种可能方式在这 *n* − 1 个位置的某个子集上进行切割，包括空集，即不切割。将每个切割位置视为 *n* − 1 个元素集合的不同成员，您可以看到有
+    2^(*n*−1) 个子集。递归树中的每个叶子对应于切割钢条的一种可能方式。因此，递归树有 2^(*n*−1) 个叶子。从根到叶子的简单路径上的标签给出了在进行每次切割之前每个剩余右侧部分的大小。也就是说，标签给出了从钢条右端测量的相应切割点。
 - en: '![art](images/Art_P454.jpg)'
+  id: totrans-58
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P454.jpg)'
 - en: '**Figure 14.3** The recursion tree showing recursive calls resulting from a
     call CUT-ROD(*p*, *n*) for *n* = 4\. Each node label gives the size *n* of the
     corresponding subproblem, so that an edge from a parent with label *s* to a child
@@ -297,22 +435,32 @@
     leaving a remaining subproblem of size *t*. A path from the root to a leaf corresponds
     to one of the 2^(*n*−1) ways of cutting up a rod of length *n*. In general, this
     recursion tree has 2^(*n*) nodes and 2^(*n*−1) leaves.'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 14.3** 递归树显示了调用 CUT-ROD(*p*, *n*) 产生的递归调用，其中 *n* = 4\. 每个节点标签给出了相应子问题的大小
+    *n*，因此从具有标签 *s* 的父节点到具有标签 *t* 的子节点的边对应于切割大小为 *s* − *t* 的初始部分并留下大小为 *t* 的剩余子问题。从根到叶子的路径对应于长度为
+    *n* 的钢条切割的 2^(*n*−1) 种方式之一。一般来说，这个递归树有 2^(*n*) 个节点和 2^(*n*−1) 个叶子。'
 - en: '**Using dynamic programming for optimal rod cutting**'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用动态规划进行最优切割**'
 - en: Now, let’s see how to use dynamic programming to convert CUT-ROD into an efficient
     algorithm.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，让我们看看如何使用动态规划将 CUT-ROD 转换为高效算法。
 - en: 'The dynamic-programming method works as follows. Instead of solving the same
     subproblems repeatedly, as in the naive recursion solution, arrange for each subproblem
     to be solved *only once*. There’s actually an obvious way to do so: the first
     time you solve a subproblem, *save its solution*. If you need to refer to this
     subproblem’s solution again later, just look it up, rather than recomputing it.'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态规划方法的工作方式如下。与天真的递归解决方案中重复解决相同的子问题不同，安排每个子问题仅解决一次。实际上有一种明显的方法：第一次解决子问题时，*保存其解决���案*。如果以后需要再次引用此子问题的解决方案，只需查找它，而不是重新计算它。
 - en: 'Saving subproblem solutions comes with a cost: the additional memory needed
     to store solutions. Dynamic programming thus serves as an example of a ***time-memory
     trade-off***. The savings may be dramatic. For example, we’re about to use dynamic
@@ -320,12 +468,17 @@
     a Θ(*n*²)-time algorithm. A dynamic-programming approach runs in polynomial time
     when the number of *distinct* subproblems involved is polynomial in the input
     size and you can solve each such subproblem in polynomial time.'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 保存子问题的解决方案会带来一个成本：额外的内存用于存储解决方案。因此，动态规划是一个***时间-内存权衡***的例子。节省可能是惊人的。例如，我们将使用动态规划从指数时间复杂度的切割钢条算法降低到
+    Θ(*n*²) 的时间复杂度算法。当涉及的*不同*子问题数量与输入规模的多项式成正比，并且您可以在多项式时间内解决每个子问题时，动态规划方法运行在多项式时间内。
 - en: There are usually two equivalent ways to implement a dynamic-programming approach.
     Solutions to the rod-cutting problem illustrate both of them.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常有两种等效的实现动态规划方法的方式。切割钢条问题的解决方案展示了它们两者。
 - en: 'The first approach is ***top-down*** with ***memoization***.^([2](#footnote_2))
     In this approach, you write the procedure recursively in a natural manner, but
     modified to save the result of each subproblem (usually in an array or hash table).
@@ -334,8 +487,10 @@
     not, the procedure computes the value in the usual manner but also saves it. We
     say that the recursive procedure has been ***memoized***: it “remembers” what
     results it has computed previously.'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一种方法是***自顶向下***的***记忆化***方法。^([2](#footnote_2)) 在这种方法中，您以自然的方式递归地编写过程，但修改为保存每个子问题的结果（通常在数组或哈希表中）。现在，该过程首先检查是否先前已解决了此子问题。如果是，则返回保存的值，在此级别节省进一步的计算。如果没有，则该过程以通常的方式计算值，同时也保存它。我们说这个递归过程已经被***记忆化***：它“记住”了它先前计算过的结果。
 - en: The second approach is the ***bottom-up method***. This approach typically depends
     on some natural notion of the “size” of a subproblem, such that solving any particular
     subproblem depends only on solving “smaller” subproblems. Solve the subproblems
@@ -344,14 +499,18 @@
     already saved solutions for all of the smaller subproblems its solution depends
     upon. You need to solve each subproblem only once, and when you first see it,
     you have already solved all of its prerequisite subproblems.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二种方法是***自底向上方法***。这种方法通常依赖于某种自然的子问题“大小”的概念，这样解决任何特定子问题仅取决于解决“更小”的子问题。按照大小顺序解决子问题，先解决最小的子问题，并在首次解决每个子问题时存储其解决方案。通过这种方式，当解决特定子问题时，已经保存了其解决方案所依赖的所有更小子问题的解决方案。您只需要解决每个子问题一次，当您首次看到它时，您已经解决了所有先决子问题。
 - en: These two approaches yield algorithms with the same asymptotic running time,
     except in unusual circumstances where the top-down approach does not actually
     recurse to examine all possible subproblems. The bottom-up approach often has
     much better constant factors, since it has lower overhead for procedure calls.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两种方法产生的算法具有相同的渐近运行时间，除非在不实际递归检查所有可能的子问题的异常情况下，自顶向下的方法。自底向上的方法通常具有更好的常数因子，因为它对过程调用的开销较低。
 - en: 'The procedures MEMOIZED-CUT-ROD and MEMOIZED-CUT-ROD-AUX on the facing page
     demonstrate how to memoize the top-down CUT-ROD procedure. The main procedure
     MEMOIZED-CUT-ROD initializes a new auxiliary array *r*[0 : *n*] with the value
@@ -361,93 +520,148 @@
     It first checks in line 1 to see whether the desired value is already known and,
     if it is, then line 2 returns it. Otherwise, lines 3–7 compute the desired value
     *q* in the usual manner, line 8 saves it in *r*[*n*], and line 9 returns it.'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '面对页面上的MEMOIZED-CUT-ROD和MEMOIZED-CUT-ROD-AUX程序展示了如何对自顶向下的CUT-ROD过程进行记忆化。主程序MEMOIZED-CUT-ROD使用值为−∞的新辅助数组*r*[0
+    : *n*]进行初始化，因为已知的收入值始终为非负数，这是表示“未知”的方便选择。然后，MEMOIZED-CUT-ROD调用其辅助程序MEMOIZED-CUT-ROD-AUX，这只是指数时间过程CUT-ROD的记忆化版本。它首先在第1行检查所需值是否已知，如果是，则第2行返回它。否则，第3-7行以通常的方式计算所需值*q*，第8行将其保存在*r*[*n*]中，第9行返回它。'
 - en: 'The bottom-up version, BOTTOM-UP-CUT-ROD on the next page, is even simpler.
     Using the bottom-up dynamic-programming approach, BOTTOM-UP-CUT-ROD takes advantage
     of the natural ordering of the subproblems: a subproblem of size *i* is “smaller”
     than a subproblem of size *j* if *i* < *j*. Thus, the procedure solves subproblems
     of sizes *j* = 0, 1, …, *n*, in that order.'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 底部向上版本，下一页的BOTTOM-UP-CUT-ROD，更加简单。利用自底向上的动态规划方法，BOTTOM-UP-CUT-ROD利用了子问题的自然排序：如果
+    *i* < *j*，那么大小为 *i* 的子问题比大小为 *j* 的子问题“更小”。因此，该过程按顺序解决大小为 *j* = 0, 1, …, *n* 的子问题。
 - en: MEMOIZED-CUT-ROD(*p*, *n*)
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: MEMOIZED-CUT-ROD(*p*, *n*)
 - en: '| 1 | let *r*[0 : *n*] be a new array | **//** will remember solution values
     in *r* |'
+  id: totrans-71
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 让*r*[0 : *n*]成为一个新数组 | **//** 将在*r*中记住解决方案值 |'
 - en: '| 2 | **for** *i* = 0 **to** *n* |  |'
+  id: totrans-72
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *i* = 0 **to** *n* |  |'
 - en: '| 3 | *r*[*i*] = −∞ |  |'
+  id: totrans-73
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *r*[*i*] = −∞ |  |'
 - en: '| 4 | **return** MEMOIZED-CUT-ROD-AUX(*p*, *n*, *r*) |'
+  id: totrans-74
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **return** MEMOIZED-CUT-ROD-AUX(*p*, *n*, *r*) |'
 - en: MEMOIZED-CUT-ROD-AUX(*p*, *n*, *r*)
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: MEMOIZED-CUT-ROD-AUX(*p*, *n*, *r*)
 - en: '| 1 | **if** *r*[*n*] ≥ 0 | **//** already have a solution for length *n*?
     |'
+  id: totrans-76
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **if** *r*[*n*] ≥ 0 | **//** 长度为 *n* 的解决方案已知？ |'
 - en: '| 2 | **return** *r*[*n*] |  |'
+  id: totrans-77
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **return** *r*[*n*] |  |'
 - en: '| 3 | **if** *n* == 0 |  |'
+  id: totrans-78
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **if** *n* == 0 |  |'
 - en: '| 4 | *q* = 0 |  |'
+  id: totrans-79
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *q* = 0 |  |'
 - en: '| 5 | **else** *q* = −∞ |  |'
+  id: totrans-80
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **else** *q* = −∞ |  |'
 - en: '| 6 | **for** *i* = 1 **to** *n* | **//** *i* is the position of the first
     cut |'
+  id: totrans-81
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **for** *i* = 1 **to** *n* | **//** *i* 是第一次切割的位置 |'
 - en: '| 7 | *q* = max {*q*, *p*[*i*] + MEMOIZED-CUT-ROD-AUX(*p*, *n* − *i*, *r*)}
     |'
+  id: totrans-82
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *q* = max {*q*, *p*[*i*] + MEMOIZED-CUT-ROD-AUX(*p*, *n* − *i*, *r*)}
+    |'
 - en: '| 8 | *r*[*n*] = *q* | **//** remember the solution value for length *n* |'
+  id: totrans-83
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | *r*[*n*] = *q* | **//** 记住长度为 *n* 的解决方案值 |'
 - en: '| 9 | **return** *q* |  |'
+  id: totrans-84
   prefs: []
   type: TYPE_TB
+  zh: '| 9 | **return** *q* |  |'
 - en: BOTTOM-UP-CUT-ROD(*p*, *n*)
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: BOTTOM-UP-CUT-ROD(*p*, *n*)
 - en: '| 1 | let *r*[0 : *n*] be a new array | **//** will remember solution values
     in *r* |'
+  id: totrans-86
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 让*r*[0 : *n*]成为一个新数组 | **//** 将在*r*中记住解决方案值 |'
 - en: '| 2 | *r*[0] = 0 |  |'
+  id: totrans-87
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *r*[0] = 0 |  |'
 - en: '| 3 | **for** *j* = 1 **to** *n* | **//** for increasing rod length *j* |'
+  id: totrans-88
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **for** *j* = 1 **to** *n* | **//** 递增的杆长度 *j* |'
 - en: '| 4 | *q* = −∞ |  |'
+  id: totrans-89
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *q* = −∞ |  |'
 - en: '| 5 | **for** *i* = 1 **to** *j* | **//** *i* is the position of the first
     cut |'
+  id: totrans-90
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **for** *i* = 1 **to** *j* | **//** *i* 是第一次切割的位置 |'
 - en: '| 6 | *q* = max {*q*, *p*[*i*] + *r*[*j* − *i*]} |'
+  id: totrans-91
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *q* = max {*q*, *p*[*i*] + *r*[*j* − *i*]} |'
 - en: '| 7 | *r*[*j*] = *q* | **//** remember the solution value for length *j* |'
+  id: totrans-92
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *r*[*j*] = *q* | **//** 记住长度为 *j* 的解决方案值 |'
 - en: '| 8 | **return** *r*[*n*] |  |'
+  id: totrans-93
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **return** *r*[*n*] |  |'
 - en: 'Line 1 of BOTTOM-UP-CUT-ROD creates a new array *r*[0 : *n*] in which to save
     the results of the subproblems, and line 2 initializes *r*[0] to 0, since a rod
     of length 0 earns no revenue. Lines 3–6 solve each subproblem of size *j*, for
@@ -457,8 +671,12 @@
     recursive call to solve the subproblem of size *j* − *i*. Line 7 saves in *r*[*j*]
     the solution to the subproblem of size *j*. Finally, line 8 returns *r*[*n*],
     which equals the optimal value *r[n]*.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 'BOTTOM-UP-CUT-ROD的第1行创建一个新数组*r*[0 : *n*]，用于保存子问题的结果，第2行将*r*[0]初始化为0，因为长度为0的杆不会产生收入。第3-6行按照递增大小的顺序解决每个大小为*j*的子问题，*j*
+    = 1, 2, …, *n*。解决特定大小*j*的问题所使用的方法与CUT-ROD所使用的方法相同，只是现在第6行直接引用数组条目*r*[*j* − *i*]，而不是进行递归调用来解决大小为*j*
+    − *i*的子问题。第7行将大小为*j*的子问题的解决方案保存在*r*[*j*]中。最后，第8行返回*r*[*n*]，这等于最优值*r[n]*。'
 - en: The bottom-up and top-down versions have the same asymptotic running time. The
     running time of BOTTOM-UP-CUT-ROD is Θ(*n*²), due to its doubly nested loop structure.
     The number of iterations of its inner **for** loop, in lines 5–6, forms an arithmetic
@@ -472,26 +690,36 @@
     iterations, just like the inner **for** loop of BOTTOM-UP-CUT-ROD. (We actually
     are using a form of aggregate analysis here. We’ll see aggregate analysis in detail
     in [Section 16.1](chapter016.xhtml#Sec_16.1).)
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 自底向上和自顶向下版本具有相同的渐近运行时间。BOTTOM-UP-CUT-ROD的运行时间为Θ(*n*²)，因为它具有双重嵌套循环结构。在第5-6行的内部**for**循环的迭代次数形成一个等差数列。其自顶向下对应物MEMOIZED-CUT-ROD的运行时间也是Θ(*n*²)，尽管这个运行时间可能稍微难以理解。因为递归调用解决先前解决的子问题会立即返回，MEMOIZED-CUT-ROD只解决每个子问题一次。它解决大小为0、1、…、*n*的子问题。要解决大小为*n*的子问题，第6-7行的**for**循环迭代*n*次。因此，通过MEMOIZED-CUT-ROD的所有递归调用的**for**循环的总迭代次数形成一个等差数列，总共有Θ(*n*²)次迭代，就像BOTTOM-UP-CUT-ROD的内部**for**循环一样。（实际上，我们这里使用了一种聚合分析形式。我们将在[第16.1节](chapter016.xhtml#Sec_16.1)中详细讨论聚合分析。）
 - en: '![art](images/Art_P455.jpg)'
+  id: totrans-96
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P455.jpg)'
 - en: '**Figure 14.4** The subproblem graph for the rod-cutting problem with *n* =
     4\. The vertex labels give the sizes of the corresponding subproblems. A directed
     edge (*x*, *y*) indicates that solving subproblem *x* requires a solution to subproblem
     *y*. This graph is a reduced version of the recursion tree of [Figure 14.3](chapter014.xhtml#Fig_14-3),
     in which all nodes with the same label are collapsed into a single vertex and
     all edges go from parent to child.'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图14.4** 当*n*=4时，切割钢条问题的子问题图。顶点标签给出了相应子问题的大小。有向边(*x*, *y*)表示解决子问题*x*需要解决子问题*y*。这个图是[图14.3](chapter014.xhtml#Fig_14-3)递归树的简化版本，其中所有具有相同标签的节点合并为单个顶点，所有边都从父节点指向子节点。'
 - en: '**Subproblem graphs**'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '**子问题图**'
 - en: When you think about a dynamic-programming problem, you need to understand the
     set of subproblems involved and how subproblems depend on one another.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你考虑一个动态规划问题时，你需要理解涉及的子问题集合以及子问题之间的依赖关系。
 - en: The ***subproblem graph*** for the problem embodies exactly this information.
     [Figure 14.4](chapter014.xhtml#Fig_14-4) shows the subproblem graph for the rod-cutting
     problem with *n* = 4\. It is a directed graph, containing one vertex for each
@@ -504,8 +732,10 @@
     version of the recursion tree for the top-down recursive method, with all nodes
     for the same subproblem coalesced into a single vertex and all edges directed
     from parent to child.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题的***子问题图***恰好体现了这些信息。[图14.4](chapter014.xhtml#Fig_14-4)展示了当*n*=4时，切割钢条问题的子问题图。它是一个有向图，包含每个不同子问题的一个顶点。如果确定子问题*x*的最优解直接涉及考虑子问题*y*的最优解，则子问题图从子问题*x*的顶点到子问题*y*的顶点有一条有向边。例如，如果用于解决*x*的自顶向下递归过程直接调用自身以解决*y*，则子问题图包含从*x*到*y*的边。你可以将子问题图视为自顶向下递归方法的递归树的“简化”或“折叠”版本，其中所有相同子问题的节点合并为单个顶点，所有边都从父节点指向子节点。
 - en: The bottom-up method for dynamic programming considers the vertices of the subproblem
     graph in such an order that you solve the subproblems *y* adjacent to a given
     subproblem *x* before you solve subproblem *x*. (As [Section B.4](appendix002.xhtml#Sec_B.4)
@@ -518,8 +748,10 @@
     using notions that we’ll visit in [Section 20.3](chapter020.xhtml#Sec_20.3), you
     can view the top-down method (with memoization) for dynamic programming as a “depth-first
     search” of the subproblem graph.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态规划的自底向上方法考虑子问题图的顶点顺序，这样你就可以在解决给定子问题*x*之前解决与其相邻的子问题*y*。（正如[第B.4节](appendix002.xhtml#Sec_B.4)所述，有向图中的邻接关系不一定对称。）使用我们将在[第20.4节](chapter020.xhtml#Sec_20.4)中看到的术语，在自底向上的动态规划算法中，你按照“逆拓扑排序”或“子问题图的转置的拓扑排序”顺序考虑子问题图的顶点。换句话说，直到解决了所有依赖的子问题，才会考虑任何子问题。同样，使用我们将在[第20.3节](chapter020.xhtml#Sec_20.3)中讨论的概念，你可以将自顶向下的（带备忘录的）动态规划方法视为对子问题图的“深度优先搜索”。
 - en: The size of the subproblem graph *G* = (*V*, *E*) can help you determine the
     running time of the dynamic-programming algorithm. Since you solve each subproblem
     just once, the running time is the sum of the times needed to solve each subproblem.
@@ -528,16 +760,22 @@
     graph, and the number of subproblems is equal to the number of vertices in the
     subproblem graph. In this common case, the running time of dynamic programming
     is linear in the number of vertices and edges.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 子问题图*G* = (*V*, *E*)的大小可以帮助您确定动态规划算法的运行时间。由于您只解决每个子问题一次，因此运行时间是解决每个子问题所需时间的总和。通常，计算子问题解的时间与子问题图中相应顶点的度数（出边数）成正比，而子问题的数量等于子问题图中的顶点数。在这种常见情况下，动态规划的运行时间与顶点和边的数量成线性关系。
 - en: '**Reconstructing a solution**'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '**重建解决方案**'
 - en: 'The procedures MEMOIZED-CUT-ROD and BOTTOM-UP-CUT-ROD return the *value* of
     an optimal solution to the rod-cutting problem, but they do not return the solution
     *itself*: a list of piece sizes.'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: MEMOIZED-CUT-ROD和BOTTOM-UP-CUT-ROD过程返回杆切割问题的最佳解的*值*，但它们不返回解决方案*本身*：一系列段的大小。
 - en: Let’s see how to extend the dynamic-programming approach to record not only
     the optimal *value* computed for each subproblem, but also a *choice* that led
     to the optimal value. With this information, you can readily print an optimal
@@ -547,149 +785,230 @@
     except that it creates the array *s* in line 1, and it updates *s*[*j*] in line
     8 to hold the optimal size *i* of the first piece to cut off when solving a subproblem
     of size *j*.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们看看如何扩展动态规划方法，记录不仅为每个子问题计算的最佳*值*，还有导致最佳值的*选择*。有了这些信息，您可以轻松打印出最佳解决方案。下一页的EXTENDED-BOTTOM-UP-CUT-ROD过程计算每个杆长度*j*的最大收入*r[j]*，还有*s[j]*，第���段切割的最佳大小*i*。它类似于BOTTOM-UP-CUT-ROD，只是在第1行创建数组*s*，并在第8行更新*s*[*j*]以保存解决大小为*j*的子问题时切割的最佳大小*i*。
 - en: 'The procedure PRINT-CUT-ROD-SOLUTION on the following page takes as input an
     array *p*[1 : *n*] of prices and a rod size *n*. It calls EXTENDED-BOTTOM-UP-CUT-ROD
     to compute the array *s*[1 : *n*] of optimal first-piece sizes. Then it prints
     out the complete list of piece sizes in an optimal decomposition of a rod of length
     *n*. For the sample price chart appearing in [Figure 14.1](chapter014.xhtml#Fig_14-1),
     the call EXTENDED-BOTTOM-UP-CUT-ROD(*p*, 10) returns the following arrays:'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '下一页的PRINT-CUT-ROD-SOLUTION过程接受价格数组*p*[1 : *n*]和杆的长度*n*作为输入。它调用EXTENDED-BOTTOM-UP-CUT-ROD来计算最佳第一段大小的数组*s*[1
+    : *n*]。然后打印出长度为*n*的杆的最佳分解中所有段的完整列表。对于出现在[图14.1](chapter014.xhtml#Fig_14-1)中的示例价格表，调用EXTENDED-BOTTOM-UP-CUT-ROD(*p*,
+    10)返回以下数组：'
 - en: '| *i* | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| *i* | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |'
 - en: '| *r*[*i*] | 0 | 1 | 5 | 8 | 10 | 13 | 17 | 18 | 22 | 25 | 30 |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| *r*[*i*] | 0 | 1 | 5 | 8 | 10 | 13 | 17 | 18 | 22 | 25 | 30 |'
 - en: '| *s*[*i*] |  | 1 | 2 | 3 | 2 | 2 | 6 | 1 | 2 | 3 | 10 |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| *s*[*i*] |  | 1 | 2 | 3 | 2 | 2 | 6 | 1 | 2 | 3 | 10 |'
 - en: A call to PRINT-CUT-ROD-SOLUTION(*p*, 10) prints just 10, but a call with *n*
     = 7 prints the cuts 1 and 6, which correspond to the first optimal decomposition
     for *r*[7] given earlier.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用PRINT-CUT-ROD-SOLUTION(*p*, 10)仅打印10，但当*n* = 7时，打印切割1和6，这对应于之前给出的*r*[7]的第一个最佳分解。
 - en: EXTENDED-BOTTOM-UP-CUT-ROD(*p*, *n*)
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: EXTENDED-BOTTOM-UP-CUT-ROD(*p*, *n*)
 - en: '|   1 | let *r*[0 : *n*] and *s*[1 : *n*] be new arrays |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | 令*r*[0 : *n*]和*s*[1 : *n*]为新数组 |'
 - en: '|   2 | *r*[0] = 0 |  |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *r*[0] = 0 |  |'
 - en: '|   3 | **for** *j* = 1 **to** *n* | **//** for increasing rod length *j* |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **对于** *j* = 1 **到** *n* | **//** 对于递增的杆长度*j* |'
 - en: '|   4 | *q* = −∞ |  |'
+  id: totrans-115
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *q* = −∞ |  |'
 - en: '|   5 | **for** *i* = 1 **to** *j* | **//** *i* is the position of the first
     cut |'
+  id: totrans-116
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **对于** *i* = 1 **到** *j* | **//** *i*是第一次切割的位置 |'
 - en: '|   6 | **if** *q* < *p*[*i*] + *r*[*j* − *i*] |  |'
+  id: totrans-117
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **如果** *q* < *p*[*i*] + *r*[*j* − *i*] |  |'
 - en: '|   7 | *q* = *p*[*i*] + *r*[*j* − *i*] |'
+  id: totrans-118
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *q* = *p*[*i*] + *r*[*j* − *i*] |'
 - en: '|   8 | *s*[*j*] = *i* | **//** best cut location so far for length *j* |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *s*[*j*] = *i* | **//** 到目前为止长度*j*的最佳切割位置 |'
 - en: '|   9 | *r*[*j*] = *q* | **//** remember the solution value for length *j*
     |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *r*[*j*] = *q* | **//** 记住长度*j*的解值 |'
 - en: '| 10 | **return** *r* and *s* |  |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | **返回** *r* 和 *s* |  |'
 - en: PRINT-CUT-ROD-SOLUTION(*p*, *n*)
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: PRINT-CUT-ROD-SOLUTION(*p*, *n*)
 - en: '| 1 | (*r*, *s*) = EXTENDED-BOTTOM-UP-CUT-ROD(*p*, *n*) |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | (*r*, *s*) = EXTENDED-BOTTOM-UP-CUT-ROD(*p*, *n*) |'
 - en: '| 2 | **while** *n* > 0 |  |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **当** *n* > 0 |  |'
 - en: '| 3 | print *s*[*n*] | **//** cut location for length *n* |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | 打印*s*[*n*] | **//** 长度为*n*的切割位置 |'
 - en: '| 4 | *n* = *n* − *s*[*n*] | **//** length of the remainder of the rod |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *n* = *n* − *s*[*n*] | **//** 剩余杆的长度 |'
 - en: '**Exercises**'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***14.1-1***'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-1***'
 - en: Show that equation (14.4) follows from equation (14.3) and the initial condition
     *T*(0) = 1.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明方程（14.4）是由方程（14.3）和初始条件*T*(0) = 1得出的。
 - en: '***14.1-2***'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-2***'
 - en: Show, by means of a counterexample, that the following “greedy” strategy does
     not always determine an optimal way to cut rods. Define the ***density*** of a
     rod of length *i* to be *p[i]*/*i*, that is, its value per inch. The greedy strategy
     for a rod of length *n* cuts off a first piece of length *i*, where 1 ≤ *i* ≤
     *n*, having maximum density. It then continues by applying the greedy strategy
     to the remaining piece of length *n* − *i*.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过反例说明以下“贪婪”策略并不总是确定切割杆的最佳方式。将长度为*i*的杆的***密度***定义为*p[i]*/*i*，即每英寸的价值。长度为*n*的杆的贪婪策略切割出具有最大密度的第一段长度为*i*，其中1
+    ≤ *i* ≤ *n*，然后继续对长度为*n* − *i*的剩余部分应用贪婪策略。
 - en: '***14.1-3***'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-3***'
 - en: Consider a modification of the rod-cutting problem in which, in addition to
     a price *p[i]* for each rod, each cut incurs a fixed cost of *c*. The revenue
     associated with a solution is now the sum of the prices of the pieces minus the
     costs of making the cuts. Give a dynamic-programming algorithm to solve this modified
     problem.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个修改后的切割钢条问题，除了每根钢条的价格*p[i]*外，每次切割还会产生固定成本*c*。现在与解决方案相关联的收入是各段价格之和减去切割成本。给出一个动态规划算法来解决这个修改后的问题。
 - en: '***14.1-4***'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-4***'
 - en: Modify CUT-ROD and MEMOIZED-CUT-ROD-AUX so that their **for** loops go up to
     only ⌊*n*/2⌋, rather than up to *n*. What other changes to the procedures do you
     need to make? How are their running times affected?
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改CUT-ROD和MEMOIZED-CUT-ROD-AUX，使它们的**for**循环仅到⌊*n*/2⌋，而不是到*n*。你需要对这些程序做哪些其他更改？它们的运行时间会受到什么影响？
 - en: '***14.1-5***'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-5***'
 - en: Modify MEMOIZED-CUT-ROD to return not only the value but the actual solution.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改MEMOIZED-CUT-ROD，不仅返回值，还返回实际解决方案。
 - en: '***14.1-6***'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.1-6***'
 - en: The Fibonacci numbers are defined by recurrence (3.31) on page 69\. Give an
     *O*(*n*)-time dynamic-programming algorithm to compute the *n*th Fibonacci number.
     Draw the subproblem graph. How many vertices and edges does the graph contain?
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 斐波那契数由第69页上的递归（3.31）定义。给出一个*O*(*n*)时间的动态规划算法来计算第*n*个斐波那契数。绘制子问题图。图中包含多少个顶点和边？
 - en: '[**14.2    Matrix-chain multiplication**](toc.xhtml#Rh1-82)'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**14.2    矩阵链乘法**](toc.xhtml#Rh1-82)'
 - en: Our next example of dynamic programming is an algorithm that solves the problem
     of matrix-chain multiplication. Given a sequence (chain) 〈*A*[1], *A*[2], …, *A[n]*〉
     of *n* matrices to be multiplied, where the matrices aren’t necessarily square,
     the goal is to compute the product
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们下一个动态规划的例子是解决矩阵链乘法问题的算法。给定一个要相乘的*n*个矩阵序列（链）〈*A*[1], *A*[2], …, *A[n]*〉，其中矩阵不一定是方阵，目标是计算乘积
 - en: '![art](images/Art_P456.jpg)'
+  id: totrans-142
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P456.jpg)'
 - en: using the standard algorithm^([3](#footnote_3)) for multiplying rectangular
     matrices, which we’ll see in a moment, while minimizing the number of scalar multiplications.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用标准算法^([3](#footnote_3))来乘法矩形矩阵，我们将很快看到，同时最小化标量乘法的次数。
 - en: 'You can evaluate the expression (14.5) using the algorithm for multiplying
     pairs of rectangular matrices as a subroutine once you have parenthesized it to
     resolve all ambiguities in how the matrices are multiplied together. Matrix multiplication
@@ -699,12 +1018,18 @@
     For example, if the chain of matrices is 〈*A*[1], *A*[2], *A*[3], *A*[4]〉, then
     you can fully parenthesize the product *A*[1]*A*[2]*A*[3]*A*[4] in five distinct
     ways:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦你对表达式(14.5)进行了完全括号化以解决所有矩阵相乘的歧义，你就可以使用矩形矩阵对乘法对的算法作为子程序来评估它。矩阵乘法是可结合的，因此所有括号化都会产生相同的乘积。如果矩阵链是〈*A*[1],
+    *A*[2], *A*[3], *A*[4]〉，那么你可以以五种不同的方式完全括号化乘积*A*[1]*A*[2]*A*[3]*A*[4]：
 - en: '| (*A*[1](*A*[2](*A*[3]*A*[4]))),(*A*[1]((*A*[2]*A*[3])*A*[4])),((*A*[1]*A*[2])(*A*[3]*A*[4])),((*A*[1](*A*[2]*A*[3]))*A*[4]),(((*A*[1]*A*[2])*A*[3])*A*[4]).
     |'
+  id: totrans-145
   prefs: []
   type: TYPE_TB
+  zh: '| (*A*[1](*A*[2](*A*[3]*A*[4]))),(*A*[1]((*A*[2]*A*[3])*A*[4])),((*A*[1]*A*[2])(*A*[3]*A*[4])),((*A*[1](*A*[2]*A*[3]))*A*[4]),(((*A*[1]*A*[2])*A*[3])*A*[4]).
+    |'
 - en: How you parenthesize a chain of matrices can have a dramatic impact on the cost
     of evaluating the product. Consider first the cost of multiplying two rectangular
     matrices. The standard algorithm is given by the procedure RECTANGULAR-MATRIX-MULTIPLY,
@@ -712,30 +1037,47 @@
     page 81\. The RECTANGULAR-MATRIX-MULTIPLY procedure computes *C* = *C* + *A* ·*B*
     for three matrices *A* = (*a[ij]*), *B* = (*b[ij]*), and *C* = (*c[ij]*), where
     *A* is *p* × *q*, *B* is *q* × *r*, and *C* is *p* × *r*.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 如何给一系列矩阵加括号会对计算乘积的成本产生巨大影响。首先考虑两个矩形矩阵相乘的成本。标准算法由程序RECTANGULAR-MATRIX-MULTIPLY给出，该程序在第81页上的矩阵乘法程序MATRIX-MULTIPLY的基础上进行了推广。RECTANGULAR-MATRIX-MULTIPLY程序计算*C*
+    = *C* + *A* ·*B*，其中*A* = (*a[ij]*)，*B* = (*b[ij]*)，*C* = (*c[ij]*)，其中*A*为*p* ×
+    *q*，*B*为*q* × *r*，*C*为*p* × *r*。
 - en: RECTANGULAR-MATRIX-MULTIPLY(*A*, *B*, *C*, *p*, *q*, *r*)
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: RECTANGULAR-MATRIX-MULTIPLY(*A*, *B*, *C*, *p*, *q*, *r*)
 - en: '| 1 | **for** *i* = 1 **to** *p* |'
+  id: totrans-148
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **for** *i* = 1 **to** *p* |'
 - en: '| 2 | **for** *j* = 1 **to** *r* |'
+  id: totrans-149
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *j* = 1 **to** *r* |'
 - en: '| 3 | **for** *k* = 1 **to** *q* |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **for** *k* = 1 **to** *q* |'
 - en: '| 4 | *c[ij]* = *c[ij]* + *a[ik]* · *b[kj]* |'
+  id: totrans-151
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *c[ij]* = *c[ij]* + *a[ik]* · *b[kj]* |'
 - en: The running time of RECTANGULAR-MATRIX-MULTIPLY is dominated by the number of
     scalar multiplications in line 4, which is *pqr*. Therefore, we’ll consider the
     cost of multiplying matrices to be the number of scalar multiplications. (The
     number of scalar multiplications dominates even if we consider initializing *C*
     = 0 to perform just *C* = *A* ·*B*.)
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: RECTANGULAR-MATRIX-MULTIPLY的运行时间由第4行中的标量乘法次数所主导，即*pqr*。因此，我们将矩阵乘法的成本视为标量乘法的次数。（即使我们考虑初始化*C*
+    = 0执行*C* = *A* ·*B*，标量乘法的次数仍然占主导地位。）
 - en: To illustrate the different costs incurred by different parenthesizations of
     a matrix product, consider the problem of a chain 〈*A*[1], *A*[2], *A*[3]〉 of
     three matrices. Suppose that the dimensions of the matrices are 10 × 100, 100
@@ -748,26 +1090,39 @@
     *A*[2]*A*[3], plus another 10 · 100 · 50 = 50,000 scalar multiplications to multiply
     *A*[1] by this matrix, for a total of 75,000 scalar multiplications. Thus, computing
     the product according to the first parenthesization is 10 times faster.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了说明不同括号化矩阵乘积所产生的不同成本，考虑一个包含三个矩阵的链〈*A*[1], *A*[2], *A*[3]〉的问题。假设矩阵的维度分别为10 ×
+    100，100 × 5和5 × 50。根据括号化((*A*[1]*A*[2])*A*[3])进行乘法，执行10 · 100 · 5 = 5000个标量乘法来计算10
+    × 5矩阵乘积*A*[1]*A*[2]，再执行10 · 5 · 50 = 2500个标量乘法将此矩阵乘以*A*[3]，总共执行7500个标量乘法。根据另一种括号化(*A*[1](*A*[2]*A*[3]))进行乘法，执行100
+    · 5 · 50 = 25,000个标量乘法来计算100 × 50矩阵乘积*A*[2]*A*[3]，再执行10 · 100 · 50 = 50,000个标量乘法将*A*[1]乘以此矩阵，总共执行75,000个标量乘法。因此，根据第一种括号化计算乘积要快10倍。
 - en: 'We state the ***matrix-chain multiplication problem*** as follows: given a
     chain 〈*A*[1], *A*[2], …, *A[n]*〉 of *n* matrices, where for *i* = 1, 2, …, *n*,
     matrix *A[i]* has dimension *p*[*i*−1] × *p[i]*, fully parenthesize the product
     *A*[1]*A*[2] ⋯ *A[n]* in a way that minimizes the number of scalar multiplications.
     The input is the sequence of dimensions 〈*p*[0], *p*[1], *p*[2], …, *p[n]*〉.'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将***矩阵链乘法问题***陈述如下：给定一个包含*n*个矩阵的链〈*A*[1], *A*[2], …, *A[n]*〉，其中对于*i* = 1,
+    2, …, *n*，矩阵*A[i]*的维度为*p*[*i*−1] × *p[i]*，完全括号化乘积*A*[1]*A*[2] ⋯ *A[n]*，以最小化标量乘法的数量。输入是维度序列〈*p*[0],
+    *p*[1], *p*[2], …, *p[n]*〉。
 - en: The matrix-chain multiplication problem does not entail actually multiplying
     matrices. The goal is only to determine an order for multiplying matrices that
     has the lowest cost. Typically, the time invested in determining this optimal
     order is more than paid for by the time saved later on when actually performing
     the matrix multiplications (such as performing only 7500 scalar multiplications
     instead of 75,000).
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 矩阵链乘法问题并不涉及实际矩阵乘法。目标只是确定一个矩阵乘法顺序，使成本最低。通常，投入时间来确定这个最优顺序的时间比以后实际执行矩阵乘法时节省的时间更多（例如，只执行7500个标量乘法而不是75,000个）。
 - en: '**Counting the number of parenthesizations**'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '**计算括号化数量**'
 - en: Before solving the matrix-chain multiplication problem by dynamic programming,
     let us convince ourselves that exhaustively checking all possible parenthesizations
     is not an efficient algorithm. Denote the number of alternative parenthesizations
@@ -777,50 +1132,74 @@
     product of two fully parenthesized matrix subproducts, and the split between the
     two subproducts may occur between the *k*th and (*k* + 1)st matrices for any *k*
     = 1, 2, …, *n* − 1\. Thus, we obtain the recurrence
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 在通过动态规划解决矩阵链乘法问题之前，让我们确信穷尽检查所有可能的括号化不是一个高效的算法。将*n*个矩阵序列的替代括号化数量表示为*P*(*n*)。当*n*
+    = 1时，序列只包含一个矩阵，因此完全括号化矩阵乘积只有一种方式。当*n* ≥ 2时，完全括号化的矩阵乘积是两个完全括号化的矩阵子乘积的乘积，而两个子乘积之间的分割可能发生在第*k*和(*k*
+    + 1)个矩阵之间，其中*k* = 1, 2, …, *n* − 1。因此，我们得到递归关系
 - en: '![art](images/Art_P457.jpg)'
+  id: totrans-158
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P457.jpg)'
 - en: Problem 12-4 on page 329 asked you to show that the solution to a similar recurrence
     is the sequence of ***Catalan numbers***, which grows as Ω(4^(*n*)/*n*^(3/2)).
     A simpler exercise (see Exercise 14.2-3) is to show that the solution to the recurrence
     (14.6) is Ω(2*^n*). The number of solutions is thus exponential in *n*, and the
     brute-force method of exhaustive search makes for a poor strategy when determining
     how to optimally parenthesize a matrix chain.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 第329页的问题12-4要求您展示类似递归的解决方案是***卡特兰数***序列，增长为Ω(4^(*n*)/*n*^(3/2))。一个更简单的练习（见练习14.2-3）是展示递归（14.6）的解决方案是Ω(2*^n*)。因此，解的数量在*n*中呈指数增长，而穷举搜索的蛮力方法在确定如何最优地括号化矩阵链时并不是一个好策略。
 - en: '**Applying dynamic programming**'
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: '**应用动态规划**'
 - en: 'Let’s use the dynamic-programming method to determine how to optimally parenthesize
     a matrix chain, by following the four-step sequence that we stated at the beginning
     of this chapter:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们使用动态规划方法来确定如何最优地括号化矩阵链，按照我们在本章开头所述的四步序列进行：
 - en: Characterize the structure of an optimal solution.
+  id: totrans-162
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 描述最优解的结构。
 - en: Recursively define the value of an optimal solution.
+  id: totrans-163
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 递归地定义最优解的值。
 - en: Compute the value of an optimal solution.
+  id: totrans-164
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 计算最优解的值。
 - en: Construct an optimal solution from computed information.
+  id: totrans-165
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 从计算的信息构建一个最优解。
 - en: We’ll go through these steps in order, demonstrating how to apply each step
     to the problem.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将按顺序执行这些步骤，演示如何将每个步骤应用于问题。
 - en: '**Step 1: The structure of an optimal parenthesization**'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '**步骤1：最优括号化的结构**'
 - en: In the first step of the dynamic-programming method, you find the optimal substructure
     and then use it to construct an optimal solution to the problem from optimal solutions
     to subproblems. To perform this step for the matrix-chain multiplication problem,
@@ -833,8 +1212,14 @@
     then multiply them together to produce the final product *A*[*i*:*j*]. The cost
     of parenthesizing this way is the cost of computing the matrix *A*[*i*:*k*], plus
     the cost of computing *A*[*k*+1:*j*], plus the cost of multiplying them together.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 在动态规划方法的第一步中，您需要找到最优子结构，然后利用它从子问题的最优解构造出问题的最优解。为了对矩阵链乘法问题执行这一步骤，首先引入一些符号是很方便的。让
+    *A*[*i*:*j*]，其中 *i* ≤ *j*，表示从计算乘积 *A[i]A*[*i*+1] ⋯ *A[j]* 得到的矩阵。如果问题是非平凡的，即 *i*
+    < *j*，那么为了给乘积 *A[i]A*[*i*+1] ⋯ *A[j]* 加括号，乘积必须在 *i* ≤ *k* < *j* 的某个整数 *k* 处分裂。也就是说，对于某个值
+    *k*，首先计算矩阵 *A*[*i*:*k*] 和 *A*[*k*+1:*j*]，然后将它们相乘得到最终乘积 *A*[*i*:*j*]。这种加括号的成本是计算矩阵
+    *A*[*i*:*k*] 的成本，加上计算 *A*[*k*+1:*j*] 的成本，再加上将它们相乘的成本。
 - en: 'The optimal substructure of this problem is as follows. Suppose that to optimally
     parenthesize *A[i]A*[*i*+1] ⋯ *A[j]*, you split the product between *A[k]* and
     *A*[*k*+1]. Then the way you parenthesize the “prefix” subchain *A[i]A*[*i*+1]
@@ -847,8 +1232,15 @@
     the subchain *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]* in the optimal parenthesization of
     *A[i]A*[*i*+1] ⋯ *A[j]*: it must be an optimal parenthesization of *A*[*k*+1]*A*[*k*+2]
     ⋯ *A[j]*.'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个问题的最优子结构如下。假设为了最优地给 *A[i]A*[*i*+1] ⋯ *A[j]* 加括号，你在 *A[k]* 和 *A*[*k*+1] 之间分裂乘积。那么在
+    *A[i]A*[*i*+1] ⋯ *A[j]* 的这种最优加括号中，你对“前缀”子链 *A[i]A*[*i*+1] ⋯ *A[k]* 的加括号方式必须是 *A[i]A*[*i*+1]
+    ⋯ *A[k]* 的最优加括号方式。为什么呢？如果有一种更省成本的方式给 *A[i]A*[*i*+1] ⋯ *A[k]* 加括号，那么你可以将这种加括号方式替换到
+    *A[i]A*[*i*+1] ⋯ *A[j]* 的最优加括号中，从而产生另一种比最优解更低成本的 *A[i]A*[*i*+1] ⋯ *A[j]* 加括号方式：这是矛盾的。对于如何给
+    *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]* 的子链在 *A[i]A*[*i*+1] ⋯ *A[j]* 的最优加括号中加括号也有类似的观察：它必须是
+    *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]* 的最优加括号方式。
 - en: Now let’s use the optimal substructure to show how to construct an optimal solution
     to the problem from optimal solutions to subproblems. Any solution to a nontrivial
     instance of the matrix-chain multiplication problem requires splitting the product,
@@ -859,11 +1251,16 @@
     subproblem instances, and then combine these optimal subproblem solutions. To
     ensure that you’ve examined the optimal split, you must consider all possible
     splits.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在让我们利用最优子结构来展示如何从子问题的最优解构造出问题的最优解。对于矩阵链乘法问题的任何非平凡实例的解决方案都需要分裂乘积，并且任何最优解中都包含子问题实例的最优解。因此，为了构建矩阵链乘法问题实例的最优解，将问题分为两个子问题（最优地给
+    *A[i]A*[*i*+1] ⋯ *A[k]* 和 *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]* 加括号），找到两个子问题实例的最优解，然后组合��些最优子问题解。为了确保您已经考虑了最优分裂，您必须考虑所有可能的分裂。
 - en: '**Step 2: A recursive solution**'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '**第二步：递归解法**'
 - en: The next step is to define the cost of an optimal solution recursively in terms
     of the optimal solutions to subproblems. For the matrix-chain multiplication problem,
     a subproblem is to determine the minimum cost of parenthesizing *A[i]A*[*i*+1]
@@ -872,8 +1269,13 @@
     *j*] be the minimum number of scalar multiplications needed to compute the matrix
     *A*[*i*:*j*]. For the full problem, the lowest-cost way to compute *A*[1:*n*]
     is thus *m*[1, *n*].
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一步是递归地根据子问题的最优解来定义最优解的成本。对于矩阵链乘法问题，一个子问题是确定对于 1 ≤ *i* ≤ *j* ≤ *n*，加括号给 *A[i]A*[*i*+1]
+    ⋯ *A[j]* 的最小成本。给定输入维度 〈*p*[0], *p*[1], *p*[2], …, *p[n]*〉，索引对 *i*, *j* 指定一个子问题。让
+    *m*[*i*, *j*] 是计算矩阵 *A*[*i*:*j*] 所需的最小数量的标量乘法。对于完整问题，计算 *A*[1:*n*] 的最低成本方式因此是
+    *m*[1, *n*]。
 - en: 'We can define *m*[*i*, *j*] recursively as follows. If *i* = *j*, the problem
     is trivial: the chain consists of just one matrix *A*[*i*:*i*] = *A[i]*, so that
     no scalar multiplications are necessary to compute the product. Thus, *m*[*i*,
@@ -886,48 +1288,73 @@
     of multiplying these two matrices together. Because each matrix *A[i]* is *p*[*i*−1]
     × *p[i]*, computing the matrix product *A*[*i*:*k*]*A*[*k*+1:*j*] takes *p*[*i*−1] *p[k]
     p[j]* scalar multiplications. Thus, we obtain'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以如下递归地定义*m*[*i*, *j*]。如果*i* = *j*，问题很简单：链只包含一个矩阵*A*[*i*:*i*] = *A[i]*，因此不需要任何标量乘法来计算乘积。因此，对于*i*
+    = 1, 2, …, *n*，*m*[*i*, *i*] = 0。当*i* < *j*时，为了计算*m*[*i*, *j*]，我们利用第1步中最优解的结构。假设最优括号化将乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*分割为*A[k]*和*A*[*k*+1]，其中*i* ≤ *k* < *j*。那么，*m*[*i*, *j*]等于计算子乘积*A*[*i*:*k*]的最小成本*m*[*i*,
+    *k*]，加上计算子乘积*A*[*k*+1, *j*]的最小成本*m*[*k*+1, *j*]，再加上将这两个矩阵相乘的成本。因为每个矩阵*A[i]*是*p*[*i*−1]
+    × *p[i]*，计算矩阵乘积*A*[*i*:*k*]*A*[*k*+1:*j*]需要*p*[*i*−1] *p[k] p[j]*个标量乘法。因此，我们得到
 - en: '*m*[*i*, *j*] = *m*[*i*, *k*] + *m*[*k* + 1, *j*] + *p*[*i*−1] *p[k] p[j]*.'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '*m*[*i*, *j*] = *m*[*i*, *k*] + *m*[*k* + 1, *j*] + *p*[*i*−1] *p[k] p[j]*.'
 - en: This recursive equation assumes that you know the value of *k*. But you don’t,
     at least not yet. You have to try all possible values of *k*. How many are there?
     Just *j* − *i*, namely *k* = *i*, *i* + 1, …, *j* − 1\. Since the optimal parenthesization
     must use one of these values for *k*, you need only check them all to find the
     best. Thus, the recursive definition for the minimum cost of parenthesizing the
     product *A[i]A*[*i*+1] ⋯ *A[j]* becomes
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个递归方程假设你知道*k*的值。但你不知道，至少现在还不知道。你必须尝试所有可能的*k*值。有多少个？就是*j* − *i*，即*k* = *i*,
+    *i* + 1, …, *j* − 1\. 由于最优括号化必须使用这些值之一作为*k*，你只需要检查它们所有来找到最佳值。因此，括号化乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*的最小成本的递归定义变为
 - en: '![art](images/Art_P458.jpg)'
+  id: totrans-176
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P458.jpg)'
 - en: The *m*[*i*, *j*] values give the costs of optimal solutions to subproblems,
     but they do not provide all the information you need to construct an optimal solution.
     To help you do so, let’s define *s*[*i*, *j*] to be a value of *k* at which you
     split the product *A[i]A*[*i*+1] ⋯ *A[j]* in an optimal parenthesization. That
     is, *s*[*i*, *j*] equals a value *k* such that *m*[*i*, *j*] = *m*[*i*, *k*] +
     *m*[*k* + 1, *j*] + *p*[*i*−1] *p[k] p[j]*.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '*m*[*i*, *j*]值给出了���问题的最优解成本，但它们并不提供构建最优解所需的所有信息。为了帮助你这样做，让我们定义*s*[*i*, *j*]为你在最优括号化中分割乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*的值*k*。也就是说，*s*[*i*, *j*]等于一个值*k*，使得*m*[*i*, *j*] = *m*[*i*, *k*] + *m*[*k*
+    + 1, *j*] + *p*[*i*−1] *p[k] p[j]*。'
 - en: '**Step 3: Computing the optimal costs**'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '**第3步：计算最优成本**'
 - en: At this point, you could write a recursive algorithm based on recurrence (14.7)
     to compute the minimum cost *m*[1, *n*] for multiplying *A*[1]*A*[2] ⋯ *A[n]*.
     But as we saw for the rod-cutting problem, and as we shall see in [Section 14.3](chapter014.xhtml#Sec_14.3),
     this recursive algorithm takes exponential time. That’s no better than the brute-force
     method of checking each way of parenthesizing the product.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这一点上，你可以基于递归（14.7）编写一个递归算法来计算乘积*A*[1]*A*[2] ⋯ *A[n]*的最小成本*m*[1, *n*]。但正如我们在切割钢条问题中看到的，以及我们将在[第14.3节](chapter014.xhtml#Sec_14.3)中看到的，这个递归算法需要指数时间。这并不比检查每种括号化乘积的暴力方法好。
 - en: 'Fortunately, there aren’t all that many distinct subproblems: just one subproblem
     for each choice of *i* and *j* satisfying 1 ≤ *i* ≤ *j* ≤ *n*, or ![art](images/Art_P459.jpg)
     in all.^([4](#footnote_4)) A recursive algorithm may encounter each subproblem
     many times in different branches of its recursion tree. This property of overlapping
     subproblems is the second hallmark of when dynamic programming applies (the first
     hallmark being optimal substructure).'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 幸运的是，并不是所有子问题都有很多不同的：只有一个子问题适用于每个满足1 ≤ *i* ≤ *j* ≤ *n*的*i*和*j*的选择，或者总共有![art](images/Art_P459.jpg)个。[^4](#footnote_4)
+    一个递归算法可能在其递归树的不同分支中多次遇到每个子问题。这种重叠子问题的特性是动态规划适用的第二个标志（第一个标志是最优子结构）。
 - en: 'Instead of computing the solution to recurrence (14.7) recursively, let’s compute
     the optimal cost by using a tabular, bottom-up approach, as in the procedure MATRIX-CHAIN-ORDER.
     (The corresponding top-down approach using memoization appears in [Section 14.3](chapter014.xhtml#Sec_14.3).)
@@ -937,53 +1364,87 @@
     the *m*[*i*, *j*] costs and another auxiliary table *s*[1 : *n* − 1, 2 : *n*]
     that records which index *k* achieved the optimal cost in computing *m*[*i*, *j*].
     The table *s* will help in constructing an optimal solution.'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: '不要递归计算解决方案（14.7），而是使用自底向上的表格方法计算最优成本，就像在过程MATRIX-CHAIN-ORDER中一样。（相应的自顶向下方法使用记忆化出现在[第14.3节](chapter014.xhtml#Sec_14.3)中。）输入是一个矩阵维度序列*p*
+    = 〈*p*[0], *p*[1], …, *p[n]*〉，以及*n*，这样对于*i* = 1, 2, …, *n*，矩阵*A[i]*的维度为*p*[*i*−1]
+    × *p[i]*。该过程使用辅助表*m*[1 : *n*, 1 : *n*]来存储*m*[*i*, *j*]成本，另一个辅助表*s*[1 : *n* − 1,
+    2 : *n*]记录了在计算*m*[*i*, *j*]时实现最优成本的索引*k*。表*s*将有助于构建最优解。'
 - en: MATRIX-CHAIN-ORDER(*p*, *n*)
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: MATRIX-CHAIN-ORDER(*p*, *n*)
 - en: '|   1 | let *m*[1 : *n*, 1 : *n*] and *s*[1 : *n* − 1, 2 : *n*] be new tables
     |'
+  id: totrans-183
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | 令*m*[1 : *n*, 1 : *n*]和*s*[1 : *n* − 1, 2 : *n*]为新表 |'
 - en: '|   2 | **for** *i* = 1 **to** *n* | **//** chain length 1 |'
+  id: totrans-184
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **for** *i* = 1 **to** *n* | **//** 链长度为1 |'
 - en: '|   3 | *m*[*i*, *i*] = 0 |'
+  id: totrans-185
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | *m*[*i*, *i*] = 0 |'
 - en: '|   4 | **for** *l* = 2 **to** *n* | **//** *l* is the chain length |'
+  id: totrans-186
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | **for** *l* = 2 **to** *n* | **//** *l* 代表链的长度 |'
 - en: '|   5 | **for** *i* = 1 **to** *n* − *l* + 1 | **//** chain begins at *A[i]*
     |'
+  id: totrans-187
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **for** *i* = 1 **to** *n* − *l* + 1 | **//** 链从*A[i]*开始 |'
 - en: '|   6 | *j* = *i* + *l* − 1 | **//** chain ends at *A[j]* |'
+  id: totrans-188
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *j* = *i* + *l* − 1 | **//** 链结束于 *A[j]* |'
 - en: '|   7 | *m*[*i*, *j*] = ∞ |'
+  id: totrans-189
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | *m*[*i*, *j*] = ∞ |'
 - en: '|   8 | **for** *k* = *i* **to** *j* − 1 | **//** try *A*[*i*:*k*]*A*[*k*+1:*j*]
     |'
+  id: totrans-190
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **for** *k* = *i* **to** *j* − 1 | **//** 尝试 *A*[*i*:*k*]*A*[*k*+1:*j*]
+    |'
 - en: '|   9 | *q* = *m*[*i*, *k*] + *m*[*k* + 1, *j*] + *p*[*i*−1]*p[k] p[j]* |'
+  id: totrans-191
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *q* = *m*[*i*, *k*] + *m*[*k* + 1, *j*] + *p*[*i*−1]*p[k] p[j]* |'
 - en: '| 10 | **if** *q* < *m*[*i*, *j*] |'
+  id: totrans-192
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | **if** *q* < *m*[*i*, *j*] |'
 - en: '| 11 | *m*[*i*, *j*] = *q* | **//** remember this cost |'
+  id: totrans-193
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *m*[*i*, *j*] = *q* | **//** 记住这个代价 |'
 - en: '| 12 | *s*[*i*, *j*] = *k* | **//** remember this index |'
+  id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *s*[*i*, *j*] = *k* | **//** 记住这个索引 |'
 - en: '| 13 | **return** *m* and *s* |'
+  id: totrans-195
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | **return** *m* 和 *s* |'
 - en: In what order should the algorithm fill in the table entries? To answer this
     question, let’s see which entries of the table need to be accessed when computing
     the cost *m*[*i*, *j*]. Equation (14.7) tells us that to compute the cost of matrix
@@ -998,8 +1459,16 @@
     chains. That is, for the subproblem of optimally parenthesizing the chain *A[i]A*[*i*+1]
     ⋯ *A[j]*, it makes sense to consider the subproblem size as the length *j* − *i*
     + 1 of the chain.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 算法应该以什么顺序填充表格条目？为了回答这个问题，让我们看看在计算代价 *m*[*i*, *j*] 时需要访问表格的哪些条目。方程（14.7）告诉我们，要计算矩阵乘积
+    *A*[*i*:*j*] 的代价，首先需要计算所有 *k* = *i*, *i* + 1, …, *j* − 1 的乘积 *A*[*i*:*k*] 和 *A*[*k*+1:*j*]
+    的代价。链 *A[i]A*[*i*+1] ⋯ *A[j]* 由 *j* − *i* + 1 个矩阵组成，而链 *A[i]A*[*i*+1] … *A[k]*
+    和 *A*[*k*+1] *A*[*k*+2] … *A[j]* 分别由 *k* − *i* + 1 和 *j* − *k* 个矩阵组成。由于 *k* <
+    *j*，一个由 *k* − *i* + 1 个矩阵组成的链比 *j* − *i* + 1 个矩阵少。同样，由于 *k* ≥ *i*，一个由 *j* − *k*
+    个矩阵组成的链比 *j* − *i* + 1 个矩阵少。因此，算法应该从较短的矩阵链填充表 *m* 到较长的矩阵链。也就是说，对于最优地加括号的链 *A[i]A*[*i*+1]
+    ⋯ *A[j]* 的子问题，将子问题大小考虑为链的长度 *j* − *i* + 1 是有意义的。
 - en: 'Now, let’s see how the MATRIX-CHAIN-ORDER procedure fills in the *m*[*i*, *j*]
     entries in order of increasing chain length. Lines 2–3 initialize *m*[*i*, *i*]
     = 0 for *i* = 1, 2, …, *n*, since any matrix chain with just one matrix requires
@@ -1014,8 +1483,16 @@
     *m*[1, *n*]. When lines 7–12 compute an *m*[*i*, *j*] cost, this cost depends
     only on table entries *m*[*i*, *k*] and *m*[*k* + 1, *j*], which have already
     been computed.'
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，让我们看看 MATRIX-CHAIN-ORDER 程序如何按照递增的链长度顺序填充 *m*[*i*, *j*] 条目。第 2–3 行初始化 *m*[*i*,
+    *i*] = 0，对于 *i* = 1, 2, …, *n*，因为只有一个矩阵的矩阵链不需要标量乘法。在第 4–12 行的 **for** 循环中，循环变量
+    *l* 表示正在计算最小代价的矩阵链的长度。这个循环的每次迭代使用递归（14.7）计算 *m*[*i*, *i* + *l* − 1]，对于 *i* = 1,
+    2, …, *n* − *l* + 1。在第一次迭代中，*l* = 2，因此循环计算 *i* = 1, 2, …, *n* − 1 的 *m*[*i*, *i*
+    + 1]：长度为 *l* = 2 的链的最小代价。第二次循环，它计算 *i* = 1, 2, …, *n* − 2 的 *m*[*i*, *i* + 2]：长度为
+    *l* = 3 的链的最小代价。依此类推，以单个矩阵链的长度 *l* = *n* 结尾，并计算 *m*[1, *n*]。当第 7–12 行计算 *m*[*i*,
+    *j*] 代价时，这个代价仅依赖于已经计算的表条目 *m*[*i*, *k*] 和 *m*[*k* + 1, *j*]。
 - en: '[Figure 14.5](chapter014.xhtml#Fig_14-5) illustrates the *m* and *s* tables,
     as filled in by the MATRIX-CHAIN-ORDER procedure on a chain of *n* = 6 matrices.
     Since *m*[*i*, *j*] is defined only for *i* ≤ *j*, only the portion of the table
@@ -1029,8 +1506,14 @@
     computes each entry *m*[*i*, *j*] using the products *p*[*i*−1] *p[k] p[j]* for
     *k* = *i*, *i* + 1, …, *j* − 1 and all entries southwest and southeast from *m*[*i*,
     *j*].'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 14.5](chapter014.xhtml#Fig_14-5) 展示了 MATRIX-CHAIN-ORDER 程序在 *n* = 6 个矩阵链上填充
+    *m* 和 *s* 表格的情况。由于 *m*[*i*, *j*] 仅在 *i* ≤ *j* 时定义，因此只使用��� *m* 主对角线上方或主对角线上的部分。图中显示了旋转表格以使主对角线水平运行。矩阵链列在底部。使用这种布局，乘法子链
+    *A[i]A*[*i*+1] ⋯ *A[j]* 的最小代价 *m*[*i*, *j*] 出现在从 *A[i]* 向东北和从 *A[j]* 向西北运行的线的交点处。横向阅读，表中的每条对角线包含相同长度的矩阵链的条目。MATRIX-CHAIN-ORDER
+    从底部向顶部计算行，并在每行内从左到右计算。它使用乘积 *p*[*i*−1] *p[k] p[j]* 计算每个条目 *m*[*i*, *j*]，其中 *k*
+    = *i*, *i* + 1, …, *j* − 1，以及 *m*[*i*, *j*] 的所有条目的西南和东南方向。'
 - en: A simple inspection of the nested loop structure of MATRIX-CHAIN-ORDER yields
     a running time of *O*(*n*³) for the algorithm. The loops are nested three deep,
     and each loop index (*l*, *i*, and *k*) takes on at most *n* − 1 values. Exercise
@@ -1038,34 +1521,51 @@
     Ω(*n*³). The algorithm requires Θ(*n*²) space to store the *m* and *s* tables.
     Thus, MATRIX-CHAIN-ORDER is much more efficient than the exponential-time method
     of enumerating all possible parenthesizations and checking each one.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 对MATRIX-CHAIN-ORDER的嵌套循环结构进行简单检查，得出算法的运行时间为*O*(*n*³)。循环嵌套三层，每个循环索引（*l*、*i*和*k*）最多取*n*
+    − 1个值。练习14.2-5要求您证明该算法的运行时间实际上也是Ω(*n*³)。该算法需要Θ(*n*²)的空间来存储*m*和*s*表。因此，MATRIX-CHAIN-ORDER比枚举所有可能的括号化并检查每个括号化的指数方法要高效得多。
 - en: '![art](images/Art_P460.jpg)'
+  id: totrans-200
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P460.jpg)'
 - en: '**Figure 14.5** The *m* and *s* tables computed by MATRIX-CHAIN-ORDER for *n*
     = 6 and the following matrix dimensions:'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 14.5** 由MATRIX-CHAIN-ORDER计算的*m*和*s*表，对于*n* = 6和以下矩阵维度：'
 - en: '| matrix | *A*[1] | *A*[2] | *A*[3] | *A*[4] | *A*[5] | *A*[6] |'
+  id: totrans-202
   prefs: []
   type: TYPE_TB
+  zh: '| 矩阵 | *A*[1] | *A*[2] | *A*[3] | *A*[4] | *A*[5] | *A*[6] |'
 - en: '| dimension | 30 × 35 | 35 × 15 | 15 × 5 | 5 × 10 | 10 × 20 | 20 × 25 |'
+  id: totrans-203
   prefs: []
   type: TYPE_TB
+  zh: '| 维度 | 30 × 35 | 35 × 15 | 15 × 5 | 5 × 10 | 10 × 20 | 20 × 25 |'
 - en: The tables are rotated so that the main diagonal runs horizontally. The *m*
     table uses only the main diagonal and upper triangle, and the *s* table uses only
     the upper triangle. The minimum number of scalar multiplications to multiply the
     6 matrices is *m*[1, 6] = 15,125\. Of the entries that are not tan, the pairs
     that have the same color are taken together in line 9 when computing
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 表格被旋转，使主对角线水平运行。*m*表仅使用主对角线和上三角形，*s*表仅使用上三角形。将6个矩阵相乘的最小标量乘法次数为*m*[1, 6] = 15,125。在不是tan的条目中，颜色相同的配对在计算第9行时一起进行
 - en: '![art](images/Art_P461.jpg)'
+  id: totrans-205
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P461.jpg)'
 - en: '**Step 4: Constructing an optimal solution**'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '**步骤 4：构建最优解**'
 - en: 'Although MATRIX-CHAIN-ORDER determines the optimal number of scalar multiplications
     needed to compute a matrix-chain product, it does not directly show how to multiply
     the matrices. The table *s*[1 : *n* − 1, 2 : *n*] provides the information needed
@@ -1083,89 +1583,143 @@
     parenthesization of the full matrix chain product *A*[1]*A*[2] ⋯ *A[n]*. In the
     example of [Figure 14.5](chapter014.xhtml#Fig_14-5), the call PRINT-OPTIMAL-PARENS(*s*,
     1, 6) prints the optimal parenthesization ((*A*[1](*A*[2]*A*[3]))((*A*[4]*A*[5])*A*[6])).'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: '尽管MATRIX-CHAIN-ORDER确定了计算矩阵链乘积所需的最优标量乘法次数，但它并不直接显示如何相乘矩阵。表格*s*[1 : *n* − 1,
+    2 : *n*]提供了所需的信息。每个条目*s*[*i*, *j*]记录一个值*k*，使得*A[i]A*[*i*+1] ⋯ *A[j]*的最优括号化将乘积分割在*A[k]*和*A*[*k*+1]之间。在计算*A*[1:*n*]时，最后的矩阵乘法是*A*[1:*s*[1,*n*]]*A*[*s*[1,*n*]+1:*n*]。表*s*包含确定更早矩阵乘法所需的信息，使用递归：*s*[1,
+    *s*[1, *n*]]确定计算*A*[1:*s*[1,*n*]]时的最后矩阵乘法，*s*[*s*[1,*n*] + 1, *n*]确定计算*A*[*s*[1,*n*]+1:*n*]时的最后矩阵乘法。面向页面的递归过程PRINT-OPTIMAL-PARENS打印由MATRIX-CHAIN-ORDER计算的*s*表和索引*i*和*j*给出的矩阵链乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*的最优括号化。初始调用PRINT-OPTIMAL-PARENS(*s*, 1, *n*)打印完整矩阵链乘积*A*[1]*A*[2] ⋯ *A[n]*的最优括号化。在[图
+    14.5](chapter014.xhtml#Fig_14-5)的示例中，调用PRINT-OPTIMAL-PARENS(*s*, 1, 6)打印最优括号化((*A*[1](*A*[2]*A*[3]))((*A*[4]*A*[5])*A*[6])。'
 - en: PRINT-OPTIMAL-PARENS(*s*, *i*, *j*)
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: PRINT-OPTIMAL-PARENS(*s*, *i*, *j*)
 - en: '| 1 | **if** *i* == *j* |'
+  id: totrans-209
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *i* == *j* |'
 - en: '| 2 | print “*A*”*[i]* |'
+  id: totrans-210
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | print “*A*”*[i]* |'
 - en: '| 3 | **else** print “(” |'
+  id: totrans-211
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **否则** print “(” |'
 - en: '| 4 | PRINT-OPTIMAL-PARENS(*s*, *i*, *s*[*i*, *j*]) |'
+  id: totrans-212
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | PRINT-OPTIMAL-PARENS(*s*, *i*, *s*[*i*, *j*]) |'
 - en: '| 5 | PRINT-OPTIMAL-PARENS(*s*, *s*[*i*, *j*] + 1, *j*) |'
+  id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | PRINT-OPTIMAL-PARENS(*s*, *s*[*i*, *j*] + 1, *j*) |'
 - en: '| 6 | print “)” |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | print “)” |'
 - en: '**Exercises**'
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***14.2-1***'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-1***'
 - en: Find an optimal parenthesization of a matrix-chain product whose sequence of
     dimensions is 〈5, 10, 3, 12, 5, 50, 6〉.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 找到一个最优的矩阵链乘积的括号化，其维度序列为 〈5, 10, 3, 12, 5, 50, 6〉。
 - en: '***14.2-2***'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-2***'
 - en: Give a recursive algorithm MATRIX-CHAIN-MULTIPLY(*A*, *s*, *i*, *j*) that actually
     performs the optimal matrix-chain multiplication, given the sequence of matrices
     〈*A*[1], *A*[2], …, *A[n]*〉, the *s* table computed by MATRIX-CHAIN-ORDER, and
     the indices *i* and *j*. (The initial call is MATRIX-CHAIN-MULTIPLY(*A*, *s*,
     1, *n*).) Assume that the call RECTANGULAR-MATRIX-MULTIPLY(*A*, *B*) returns the
     product of matrices *A* and *B*.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出一个递归算法MATRIX-CHAIN-MULTIPLY(*A*, *s*, *i*, *j*)，实际执行最优矩阵链乘法，给定矩阵序列 〈*A*[1],
+    *A*[2], …, *A[n]*〉，由MATRIX-CHAIN-ORDER计算的*s*表，以及索引*i*和*j*。（初始调用为MATRIX-CHAIN-MULTIPLY(*A*,
+    *s*, 1, *n*)。）假设调用RECTANGULAR-MATRIX-MULTIPLY(*A*, *B*)返回矩阵*A*和*B*的乘积。
 - en: '***14.2-3***'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-3***'
 - en: Use the substitution method to show that the solution to the recurrence (14.6)
     is Ω(2*^n*).
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用替换法证明递归（14.6）的解为Ω(2*^n*)。
 - en: '***14.2-4***'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-4***'
 - en: Describe the subproblem graph for matrix-chain multiplication with an input
     chain of length *n*. How many vertices does it have? How many edges does it have,
     and which edges are they?
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 描述具有长度为*n*的输入链的矩阵链乘法的子问题图。它有多少个顶点？它有多少条边，它们是哪些边？
 - en: '***14.2-5***'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-5***'
 - en: Let *R*(*i*, *j*) be the number of times that table entry *m*[*i*, *j*] is referenced
     while computing other table entries in a call of MATRIX-CHAIN-ORDER. Show that
     the total number of references for the entire table is
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 让*R*(*i*, *j*)表示在调用MATRIX-CHAIN-ORDER计算其他表项时表项*m*[*i*, *j*]被引用的次数。证明整个表的引用总数为
 - en: '![art](images/Art_P462.jpg)'
+  id: totrans-226
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P462.jpg)'
 - en: (*Hint:* You may find equation (A.4) on page 1141 useful.)
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: （*提示：*你可能会发现第1141页上方程（A.4）有用。）
 - en: '***14.2-6***'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: '***14.2-6***'
 - en: Show that a full parenthesization of an *n*-element expression has exactly *n*
     − 1 pairs of parentheses.
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明一个*n*元素表达式的完整括号化恰好有*n* − 1对括号。
 - en: '[**14.3    Elements of dynamic programming**](toc.xhtml#Rh1-83)'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**14.3    动态规划的要素**](toc.xhtml#Rh1-83)'
 - en: 'Although you have just seen two complete examples of the dynamic-programming
     method, you might still be wondering just when the method applies. From an engineering
     perspective, when should you look for a dynamic-programming solution to a problem?
@@ -1174,11 +1728,15 @@
     overlapping subproblems. We’ll also revisit and discuss more fully how memoization
     might help you take advantage of the overlapping-subproblems property in a top-down
     recursive approach.'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管你刚刚看到了动态规划方法的两个完整示例，你可能仍然想知道这种方法何时适用。从工程的角度来看，何时应该寻找一个问题的动态规划解决方案？在本节中，我们将检查一个优化问题必须具备的两个关键要素，以便动态规划适用：最优子结构和重叠子问题。我们还将重新审视并更充分地讨论如何利用记忆化来利用重叠子问题属性在自顶向下的递归方法中。
 - en: '**Optimal substructure**'
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: '**最优子结构**'
 - en: The first step in solving an optimization problem by dynamic programming is
     to characterize the structure of an optimal solution. Recall that a problem exhibits
     ***optimal substructure*** if an optimal solution to the problem contains within
@@ -1188,8 +1746,10 @@
     however.) Dynamic programming builds an optimal solution to the problem from optimal
     solutions to subproblems. Consequently, you must take care to ensure that the
     range of subproblems you consider includes those used in an optimal solution.
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过动态规划解决优化问题的第一步是描述最优解的结��。回想一下，如果一个问题表现出***最优子结构***，那么问题的最优解中包含了子问题的最优解。当一个问题表现出最优子结构时，这给了你一个很好的线索，表明动态规划可能适用。（正如[第15章](chapter015.xhtml)所讨论的，这也可能意味着贪婪策略适用。）动态规划通过子问题的最优解构建问题的最优解。因此，你必须确保你考虑的子问题范围包括在最优解中使用的子问题。
 - en: Optimal substructure was key to solving both of the previous problems in this
     chapter. In [Section 14.1](chapter014.xhtml#Sec_14.1), we observed that the optimal
     way of cutting up a rod of length *n* (if Serling Enterprises makes any cuts at
@@ -1198,28 +1758,41 @@
     of the matrix chain product *A[i]A*[*i*+1] ⋯ *A[j]* that splits the product between
     *A[k]* and *A*[*k*+1] contains within it optimal solutions to the problems of
     parenthesizing *A[i]A*[*i*+1] ⋯ *A[k]* and *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]*.
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 最优子结构是解决本章中前两个问题的关键。在[第14.1节](chapter014.xhtml#Sec_14.1)中，我们观察到，切割长度为*n*的棒子的最佳方式（如果Serling
+    Enterprises进行任何切割）涉及到对第一次切割后得到的两个部分进行最佳切割。在[第14.2节](chapter014.xhtml#Sec_14.2)中，我们注意到，矩阵链乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*的最佳括号化，在*A[k]*和*A*[*k*+1]之间分割乘积，其中包含了括号化*A[i]A*[*i*+1] ⋯ *A[k]*和*A*[*k*+1]*A*[*k*+2]
+    ⋯ *A[j]*的最优解。
 - en: 'You will find yourself following a common pattern in discovering optimal substructure:'
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 你会发现自己在发现最优子结构时遵循一个常见模式：
 - en: You show that a solution to the problem consists of making a choice, such as
     choosing an initial cut in a rod or choosing an index at which to split the matrix
     chain. Making this choice leaves one or more subproblems to be solved.
+  id: totrans-236
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 你展示了解决问题的一个方案是做出选择，比如在一根棒子上选择一个初始切割点或者在矩阵链中选择一个分割点。做出这个选择会留下一个或多个子问题需要解决。
 - en: You suppose that for a given problem, you are given the choice that leads to
     an optimal solution. You do not concern yourself yet with how to determine this
     choice. You just assume that it has been given to you.
+  id: totrans-237
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 假设对于一个给定的问题，你被给予了通往最优解的选择。你暂时不需要关心如何确定这个选择。你只是假设这个选择已经给出。
 - en: Given this choice, you determine which subproblems ensue and how to best characterize
     the resulting space of subproblems.
+  id: totrans-238
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 有了这个选择，你确定随之而来的子问题以及如何最好地描述所得到的子问题空间。
 - en: You show that the solutions to the subproblems used within an optimal solution
     to the problem must themselves be optimal by using a “cut-and-paste” technique.
     You do so by supposing that each of the subproblem solutions is not optimal and
@@ -1229,16 +1802,20 @@
     that you already had an optimal solution. If an optimal solution gives rise to
     more than one subproblem, they are typically so similar that you can modify the
     cut-and-paste argument for one to apply to the others with little effort.
+  id: totrans-239
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 你展示了在问题的最优解中使用的子问题的解决方案本身必须是最优的，通过使用“剪切和粘贴”的技术。你假设每个子问题的解决方案都不是最优的，然后推导出一个矛盾。特别是，通过“剪切掉”每个子问题的非最优解并“粘贴进”最优解，你展示了你可以得到一个更好的原问题解决方案，从而与你已经有最优解的假设相矛盾。如果一个最优解引起了多个子问题，它们通常是如此相似，以至于你可以轻松地将一个子问题的剪切和粘贴论证应用到其他子问题上。
 - en: To characterize the space of subproblems, a good rule of thumb says to try to
     keep the space as simple as possible and then expand it as necessary. For example,
     the space of subproblems for the rod-cutting problem contained the problems of
     optimally cutting up a rod of length *i* for each size *i*. This subproblem space
     worked well, and it was not necessary to try a more general space of subproblems.
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了描述子问题空间，一个很好的经验法则是尽量保持空间尽可能简单，然后根据需要扩展。例如，切割棒材问题的子问题空间包含了对每个长度为*i*的棒材进行最优切割的问题。这个子问题空间运作良好，不需要尝试更一般的子问题空间。
 - en: Conversely, suppose that you tried to constrain the subproblem space for matrix-chain
     multiplication to matrix products of the form *A*[1]*A*[2] ⋯ *A[j]*. As before,
     an optimal parenthesization must split this product between *A[k]* and *A*[*k*+1]
@@ -1249,20 +1826,31 @@
     need to allow the subproblems to vary at “both ends.” That is, both *i* and *j*
     need to vary in the subproblem of parenthesizing the product *A[i]A*[*i*+1] ⋯
     *A[j]*.
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，假设你试图将矩阵链乘法的子问题空间限制为形式为*A*[1]*A*[2] ⋯ *A[j]*的矩阵乘积。与以前一样，最优的加括号方案必须在某个1 ≤
+    *k* < *j*的位置将这个乘积分裂为*A[k]*和*A*[*k*+1]。除非你能保证*k*始终等于*j* − 1，否则你会发现你有形式为*A*[1]*A*[2]
+    ⋯ *A[k]*和*A*[*k*+1]*A*[*k*+2] ⋯ *A[j]*的子问题。此外，后一个子问题不具有形式*A*[1]*A*[2] ⋯ *A[j]*。为了通过动态规划解决这个问题，你需要允许子问题在“两端”变化。也就是说，加括号乘积*A[i]A*[*i*+1]
+    ⋯ *A[j]*的子问题需要*i*和*j*都变��。
 - en: 'Optimal substructure varies across problem domains in two ways:'
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 最优子结构在两个方面跨越问题领域：
 - en: how many subproblems an optimal solution to the original problem uses, and
+  id: totrans-243
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 最初问题的最优解使用了多少个子问题，和
 - en: how many choices you have in determining which subproblem(s) to use in an optimal
     solution.
+  id: totrans-244
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在确定在最优解中使用哪些子问题时，你有多少选择。
 - en: In the rod-cutting problem, an optimal solution for cutting up a rod of size
     *n* uses just one subproblem (of size *n* − *i*), but we have to consider *n*
     choices for *i* in order to determine which one yields an optimal solution. Matrix-chain
@@ -1272,8 +1860,13 @@
     *A*[*k*+1]*A*[*k*+2] ⋯ *A[j]*—and we have to solve *both* of them optimally. Once
     we determine the optimal solutions to subproblems, we choose from among *j* −
     *i* candidates for the index *k*.
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: 在切割棒材问题中，切割长度为*n*的棒材的最优解只使用一个子问题（大小为*n* − *i*），但我们必须考虑*n*个选择来确定哪一个产生最优解。矩阵链乘法中的子链*A[i]A*[*i*+1]
+    ⋯ *A[j]* 是一个具有两个子问题和*j* − *i*个选择的示例。对于给定的矩阵*A[k]*，其中乘积分裂，会出现两个子问题—给子链*A[i]A*[*i*+1]
+    ⋯ *A[k]*加括号和给子链*A*[*k*+1]*A*[*k*+2] ⋯ *A[j]*加括号—我们必须都以最优方式解决。一旦确定了子问题的最优解，我们就从*j*
+    − *i*个候选中选择索引*k*。
 - en: 'Informally, the running time of a dynamic-programming algorithm depends on
     the product of two factors: the number of subproblems overall and how many choices
     you look at for each subproblem. In rod cutting, we had Θ(*n*) subproblems overall,
@@ -1281,8 +1874,11 @@
     Matrix-chain multiplication had Θ(*n*²) subproblems overall, and each had at most
     *n* − 1 choices, giving an *O*(*n*³) running time (actually, a Θ(*n*³) running
     time, by Exercise 14.2-5).'
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 非正式地说，动态规划算法的运行时间取决于两个因素的乘积：总体子问题数量和每个子问题查看的选择数量。在切割棒材问题中，我们总共有Θ(*n*)个子问题，每个子问题最多检查*n*个选择，导致*O*(*n*²)的运行时间。矩阵链乘法总共有Θ(*n*²)个子问题，每个子问题最多有*n*
+    − 1个选择，给出*O*(*n*³)的运行时间（实际上，通过练习14.2-5，是一个Θ(*n*³)的运行时间）。
 - en: Usually, the subproblem graph gives an alternative way to perform the same analysis.
     Each vertex corresponds to a subproblem, and the choices for a subproblem are
     the edges incident from that subproblem. Recall that in rod cutting, the subproblem
@@ -1290,8 +1886,11 @@
     running time. For matrix-chain multiplication, if you were to draw the subproblem
     graph, it would have Θ(*n*²) vertices and each vertex would have degree at most
     *n* − 1, giving a total of *O*(*n*³) vertices and edges.
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，子问题图提供了执行相同分析的另一种方法。每个顶点对应一个子问题，而子问题的选择是从该子问题出发的边。回想一下，在切割棒材问题中，子问题图有*n*个顶点，每个顶点最多有*n*条边，导致*O*(*n*²)的运行时间。对于矩阵链乘法，如果你尝试绘制子问题图，它将有Θ(*n*²)个顶点，每个顶点最多有*n*
+    − 1条边，给出*O*(*n*³)的顶点和边。
 - en: Dynamic programming often uses optimal substructure in a bottom-up fashion.
     That is, you first find optimal solutions to subproblems and, having solved the
     subproblems, you find an optimal solution to the problem. Finding an optimal solution
@@ -1306,8 +1905,12 @@
     of subchains of *A[i]A*[*i*+1] ⋯ *A[j]*, and then we chose the matrix *A[k]* at
     which to split the product. The cost attributable to the choice itself is the
     term *p*[*i*−1] *p[k] p[j]*.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态规划通常以自底向上的方式使用最优子结构。也就是说，你首先找到子问题的最优解，解决了子问题后，再找到问题的最优解。找到问题的最优解涉及在解决问题时在子问题中做出选择。问题解的成本通常是子问题成本加上直接归因于选择本身的成本。例如，在切割钢条中，首先我们解决了确定长度为*i*的钢条的最佳切割方式的子问题，对于*i*
+    = 0, 1, …, *n* − 1，然后我们确定这些子问题中哪些产生了长度为*n*的钢条的最佳解，使用方程（14.2）。选择本身的成本是方程（14.2）中的*p[i]*项。在矩阵链乘法中，我们确定了*A[i]A*[*i*+1]
+    ⋯ *A[j]*的子链的最佳括号化，然后我们选择在哪里分割乘积的矩阵*A[k]*。选择本身的成本是*p*[*i*−1] *p[k] p[j]*项。
 - en: '[Chapter 15](chapter015.xhtml) explores “greedy algorithms,” which have many
     similarities to dynamic programming. In particular, problems to which greedy algorithms
     apply have optimal substructure. One major difference between greedy algorithms
@@ -1316,27 +1919,37 @@
     “greedy” choice—the choice that looks best at the time—and then solve a resulting
     subproblem, without bothering to solve all possible related smaller subproblems.
     Surprisingly, in some cases this strategy works!'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第15章](chapter015.xhtml)探讨了“贪婪算法”，它们与动态规划有许多相似之处。特别是，适用贪婪算法的问题具有最优子结构。贪婪算法和动态规划之间的一个主要区别是，贪婪算法首先做出“贪婪”选择——在当时看起来最好的选择，然后解决由此产生的子问题，而不必解决所有可能相关的较小子问题。令人惊讶的是，在某些情况下，这种策略是有效的！'
 - en: '***Subtleties***'
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: '***微妙之处***'
 - en: You should be careful not to assume that optimal substructure applies when it
     does not. Consider the following two problems whose input consists of a directed
     graph *G* = (*V*, *E*) and vertices *u*, *v* ∈ *V*.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 你应该小心，不要假设最优子结构适用于不适用的情况。考虑以下两个问题，其输入包括有向图*G* = (*V*, *E*)和顶点*u*，*v* ∈ *V*。
 - en: '**Unweighted shortest path:**^([5](#footnote_5)) Find a path from *u* to *v*
     consisting of the fewest edges. Such a path must be simple, since removing a cycle
     from a path produces a path with fewer edges.'
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: '**无权最短路径：**^([5](#footnote_5)) 找到从*u*到*v*的边最少的路径。这样的路径必须是简单的，因为从路径中移除一个循环会产生边更少的路径。'
 - en: '**Unweighted longest simple path:** Find a simple path from *u* to *v* consisting
     of the most edges. (Without the requirement that the path must be simple, the
     problem is undefined, since repeatedly traversing a cycle creates paths with an
     arbitrarily large number of edges.)'
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: '**无权最长简单路径：** 找到从*u*到*v*的最多边组成的简单路径。（如果不要求路径必须简单，则问题是未定义的，因为重复遍历循环会创建具有任意大数量边的路径。）'
 - en: 'The unweighted shortest-path problem exhibits optimal substructure. Here’s
     how. Suppose that *u* ≠ *v*, so that the problem is nontrivial. Then, any path
     *p* from *u* to *v* must contain an intermediate vertex, say *w*. (Note that *w*
@@ -1355,8 +1968,10 @@
     path. [Section 23.2](chapter023.xhtml#Sec_23.2) uses a variant of this observation
     of optimal substructure to find a shortest path between every pair of vertices
     on a weighted, directed graph.'
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 无权最短路径问题展示了最优子结构。下面是原因。假设*u* ≠ *v*，因此问题是非平凡的。那么，从*u*到*v*的任何路径*p*必须包含一个中间顶点，称为*w*。（注意*w*可能是*u*或*v*。）然后，我们可以将路径![art](images/upv.jpg)分解为子路径![art](images/up1wp2v.jpg)。路径*p*中的边数等于*p*[1]中的边数加上*p*[2]中的边数。我们声称，如果*p*是从*u*到*v*的最优（即最短）路径，则*p*[1]必须是从*u*到*w*的最短路径。为什么？如前所述，使用“剪切和粘贴”论证：如果存在另一条路径，比*p*[1]边数更少，比如![art](images/psubsup1prime.jpg)，从*u*到*w*，那��我们可以剪切掉*p*[1]并粘贴![art](images/psubsup1prime.jpg)以产生边数更少的路径![art](images/uwvp1primep2.jpg)，从而与*p*的最优性相矛盾。同样，*p*[2]必须是从*w*到*v*的最短路径。因此，要找到从*u*到*v*的最短路径，考虑所有中间顶点*w*，找到从*u*到*w*的最短路径和从*w*到*v*的最短路径，并选择一个中间顶点*w*，使得整体路径最短。[第23.2节](chapter023.xhtml#Sec_23.2)使用这种最优子结构观察的变体来找到加权有向图上每对顶点之间的最短路径。
 - en: You might be tempted to assume that the problem of finding an unweighted longest
     simple path exhibits optimal substructure as well. After all, if we decompose
     a longest simple path ![art](images/upv.jpg) into subpaths ![art](images/up1wp2v.jpg),
@@ -1367,9 +1982,11 @@
     for the path *q* → *s* → *t* → *r* is a simple path that is longer. Is *r* → *t*
     a longest simple path from *r* to *t*? No again, for the path *r* → *q* → *s*
     → *t* is a simple path that is longer.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P463.jpg)'
+  id: totrans-256
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.6** A directed graph showing that the problem of finding a longest
@@ -1377,6 +1994,7 @@
     The path *q* → *r* → *t* is a longest simple path from *q* to *t*, but the subpath
     *q* → *r* is not a longest simple path from *q* to *r*, nor is the subpath *r*
     → *t* a longest simple path from *r* to *t*.'
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
 - en: This example shows that for longest simple paths, not only does the problem
@@ -1389,6 +2007,7 @@
     has ever been found. In fact, this problem is NP-complete, which—as we shall see
     in [Chapter 34](chapter034.xhtml)—means that we are unlikely to find a way to
     solve it in polynomial time.
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
 - en: 'Why is the substructure of a longest simple path so different from that of
@@ -1412,6 +2031,7 @@
     both. Thus, we say that these subproblems are not independent. Looked at another
     way, using resources in solving one subproblem (those resources being vertices)
     renders them unavailable for the other subproblem.'
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
 - en: Why, then, are the subproblems independent for finding a shortest path? The
@@ -1428,6 +2048,7 @@
     to *x*, each of which contains at least one edge, path *p*′ contains at most *e*
     − 2 edges, which contradicts the assumption that *p* is a shortest path. Thus,
     we are assured that the subproblems for the shortest-path problem are independent.
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
 - en: The two problems examined in [Sections 14.1](chapter014.xhtml#Sec_14.1) and
@@ -1439,9 +2060,11 @@
     of length *i* for *i* = 0, 1, …, *n* − 1\. Because an optimal solution to the
     length-*n* problem includes just one of these subproblem solutions (after cutting
     off the first piece), independence of subproblems is not an issue.
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
 - en: '**Overlapping subproblems**'
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
 - en: The second ingredient that an optimization problem must have for dynamic programming
@@ -1456,20 +2079,24 @@
     of overlapping subproblems by solving each subproblem once and then storing the
     solution in a table where it can be looked up when needed, using constant time
     per lookup.
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P465.jpg)'
+  id: totrans-264
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.7** The recursion tree for the computation of RECURSIVE-MATRIX-CHAIN(*p*,
     1, 4). Each node contains the parameters *i* and *j*. The computations performed
     in a subtree shaded blue are replaced by a single table lookup in MEMOIZED-MATRIX-CHAIN.'
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
 - en: In [Section 14.1](chapter014.xhtml#Sec_14.1), we briefly examined how a recursive
     solution to rod cutting makes exponentially many calls to find solutions of smaller
     subproblems. The dynamic-programming solution reduces the running time from the
     exponential time of the recursive algorithm down to quadratic time.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
 - en: 'To illustrate the overlapping-subproblems property in greater detail, let’s
@@ -1486,6 +2113,7 @@
     shows the recursion tree produced by the call RECURSIVE-MATRIX-CHAIN(*p*, 1, 4).
     Each node is labeled by the values of the parameters *i* and *j*. Observe that
     some pairs of values occur many times.'
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
 - en: In fact, the time to compute *m*[1, *n*] by this recursive procedure is at least
@@ -1493,63 +2121,81 @@
     compute an optimal parenthesization of a chain of *n* matrices. Because the execution
     of lines 1–2 and of lines 6–7 each take at least unit time, as does the multiplication
     in line 5, inspection of the procedure yields the recurrence
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
 - en: RECURSIVE-MATRIX-CHAIN(*p*, *i*, *j*)
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
 - en: '| 1 | **if** *i* == *j* |'
+  id: totrans-270
   prefs: []
   type: TYPE_TB
 - en: '| 2 | **return** 0 |'
+  id: totrans-271
   prefs: []
   type: TYPE_TB
 - en: '| 3 | *m*[*i*, *j*] = ∞ |'
+  id: totrans-272
   prefs: []
   type: TYPE_TB
 - en: '| 4 | **for** *k* = *i* **to** *j* − 1 |'
+  id: totrans-273
   prefs: []
   type: TYPE_TB
 - en: '| 5 | *q* = RECURSIVE-MATRIX-CHAIN(*p*, *i*, *k*) |'
+  id: totrans-274
   prefs: []
   type: TYPE_TB
 - en: '| + RECURSIVE-MATRIX-CHAIN(*p*, *k* + 1, *j*) |'
+  id: totrans-275
   prefs: []
   type: TYPE_TB
 - en: '| + *p*[*i*−1] *p[k] p[j]* |'
+  id: totrans-276
   prefs: []
   type: TYPE_TB
 - en: '| 6 | **if** *q* < *m*[*i*, *j*] |'
+  id: totrans-277
   prefs: []
   type: TYPE_TB
 - en: '| 7 | *m*[*i*, *j*] = *q* |'
+  id: totrans-278
   prefs: []
   type: TYPE_TB
 - en: '| 8 | **return** *m*[*i*, *j*] |'
+  id: totrans-279
   prefs: []
   type: TYPE_TB
 - en: '![art](images/Art_P466.jpg)'
+  id: totrans-280
   prefs: []
   type: TYPE_IMG
 - en: Noting that for *i* = 1, 2, …, *n* − 1, each term *T*(*i*) appears once as *T*(*k*)
     and once as *T*(*n* − *k*), and collecting the *n* − 1 1s in the summation together
     with the 1 out front, we can rewrite the recurrence as
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P467.jpg)'
+  id: totrans-282
   prefs: []
   type: TYPE_IMG
 - en: Let’s prove that *T*(*n*) = Ω(2*^n*) using the substitution method. Specifically,
     we’ll show that *T*(*n*) ≥ 2^(*n*−1) for all *n* ≥ 1\. For the base case *n* =
     1, the summation is empty, and we get *T*(1) ≥ 1 = 2⁰. Inductively, for *n* ≥
     2 we have
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P468.jpg)'
+  id: totrans-284
   prefs: []
   type: TYPE_IMG
 - en: which completes the proof. Thus, the total amount of work performed by the call
     RECURSIVE-MATRIX-CHAIN(*p*, 1, *n*) is at least exponential in *n*.
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
 - en: Compare this top-down, recursive algorithm (without memoization) with the bottom-up
@@ -1561,14 +2207,17 @@
     natural recursive solution to a problem contains the same subproblem repeatedly,
     and the total number of distinct subproblems is small, dynamic programming can
     improve efficiency, sometimes dramatically.
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
 - en: '**Reconstructing an optimal solution**'
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
 - en: As a practical matter, you’ll often want to store in a separate table which
     choice you made in each subproblem so that you do not have to reconstruct this
     information from the table of costs.
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
 - en: For matrix-chain multiplication, the table *s*[*i*, *j*] saves a significant
@@ -1582,9 +2231,11 @@
     problem. Because MATRIX-CHAIN-ORDER stores in *s*[*i*, *j*] the index of the matrix
     at which it split the product *A[i]A*[*i*+1] ⋯ *A[j]*, the PRINT-OPTIMAL-PARENS
     procedure on page 381 can look up each choice in *O*(1) time.
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
 - en: '**Memoization**'
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
 - en: As we saw for the rod-cutting problem, there is an alternative approach to dynamic
@@ -1593,6 +2244,7 @@
     natural, but inefficient, recursive algorithm. As in the bottom-up approach, you
     maintain a table with subproblem solutions, but the control structure for filling
     in the table is more like the recursive algorithm.
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
 - en: A memoized recursive algorithm maintains an entry in a table for the solution
@@ -1601,62 +2253,81 @@
     as the recursive algorithm unfolds, its solution is computed and then stored in
     the table. Each subsequent encounter of this subproblem simply looks up the value
     stored in the table and returns it.^([7](#footnote_7))
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
 - en: The procedure MEMOIZED-MATRIX-CHAIN is a memoized version of the procedure RECURSIVE-MATRIX-CHAIN
     on page 389\. Note where it resembles the memoized top-down method on page 369
     for the rod-cutting problem.
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
 - en: MEMOIZED-MATRIX-CHAIN(*p*, *n*)
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
 - en: '| 1 | let *m*[1 : *n*, 1 : *n*] be a new table |'
+  id: totrans-295
   prefs: []
   type: TYPE_TB
 - en: '| 2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-296
   prefs: []
   type: TYPE_TB
 - en: '| 3 | **for** *j* = *i* **to** *n* |'
+  id: totrans-297
   prefs: []
   type: TYPE_TB
 - en: '| 4 | *m*[*i*, *j*] = ∞ |'
+  id: totrans-298
   prefs: []
   type: TYPE_TB
 - en: '| 5 | **return** LOOKUP-CHAIN(*m*, *p*, 1, *n*) |'
+  id: totrans-299
   prefs: []
   type: TYPE_TB
 - en: LOOKUP-CHAIN(*m*, *p*, *i*, *j*)
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
 - en: '| 1 | **if** *m*[*i*, *j*] < ∞ |'
+  id: totrans-301
   prefs: []
   type: TYPE_TB
 - en: '| 2 | **return** *m*[*i*, *j*] |'
+  id: totrans-302
   prefs: []
   type: TYPE_TB
 - en: '| 3 | **if** *i* == *j* |'
+  id: totrans-303
   prefs: []
   type: TYPE_TB
 - en: '| 4 | *m*[*i*, *j*] = 0 |'
+  id: totrans-304
   prefs: []
   type: TYPE_TB
 - en: '| 5 | **else for** *k* = *i* **to** *j* − 1 |'
+  id: totrans-305
   prefs: []
   type: TYPE_TB
 - en: '| 6 | *q* = LOOKUP-CHAIN(*m*, *p*, *i*, *k*) |'
+  id: totrans-306
   prefs: []
   type: TYPE_TB
 - en: '| + LOOKUP-CHAIN(*m*, *p*, *k* + 1, *j*) + *p*[*i*−1] *p[k] p[j]* |'
+  id: totrans-307
   prefs: []
   type: TYPE_TB
 - en: '| 7 | **if** *q* < *m*[*i*, *j*] |'
+  id: totrans-308
   prefs: []
   type: TYPE_TB
 - en: '| 8 | *m*[*i*, *j*] = *q* |'
+  id: totrans-309
   prefs: []
   type: TYPE_TB
 - en: '| 9 | **return** *m*[*i*, *j*] |'
+  id: totrans-310
   prefs: []
   type: TYPE_TB
 - en: 'The MEMOIZED-MATRIX-CHAIN procedure, like the bottom-up MATRIX-CHAIN-ORDER
@@ -1672,20 +2343,24 @@
     values of *i* and *j*. [Figure 14.7](chapter014.xhtml#Fig_14-7) illustrates how
     MEMOIZED-MATRIX-CHAIN saves time compared with RECURSIVE-MATRIX-CHAIN. Subtrees
     shaded blue represent values that are looked up rather than recomputed.'
+  id: totrans-311
   prefs: []
   type: TYPE_NORMAL
 - en: 'Like the bottom-up procedure MATRIX-CHAIN-ORDER, the memoized procedure MEMOIZED-MATRIX-CHAIN
     runs in *O*(*n*³) time. To begin with, line 4 of MEMOIZED-MATRIX-CHAIN executes
     Θ(*n*²) times, which dominates the running time outside of the call to LOOKUP-CHAIN
     in line 5\. We can categorize the calls of LOOKUP-CHAIN into two types:'
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
 - en: calls in which *m*[*i*, *j*] = ∞, so that lines 3–9 execute, and
+  id: totrans-313
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
 - en: calls in which *m*[*i*, *j*] < ∞, so that LOOKUP-CHAIN simply returns in line
     2.
+  id: totrans-314
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
@@ -1697,6 +2372,7 @@
     time plus the time spent in its recursive calls. The total time, therefore, is
     *O*(*n*³). Memoization thus turns an Ω(2*^n*)-time algorithm into an *O*(*n*³)-time
     algorithm.
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
 - en: We have seen how to solve the matrix-chain multiplication problem by either
@@ -1706,6 +2382,7 @@
     in total, and either of these methods computes the solution to each subproblem
     only once. Without memoization, the natural recursive algorithm runs in exponential
     time, since solved subproblems are repeatedly solved.
+  id: totrans-316
   prefs: []
   type: TYPE_NORMAL
 - en: In general practice, if all subproblems must be solved at least once, a bottom-up
@@ -1717,38 +2394,47 @@
     in certain situations, some of the subproblems in the subproblem space might not
     need to be solved at all. In that case, the memoized solution has the advantage
     of solving only those subproblems that are definitely required.
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
 - en: '**Exercises**'
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.3-1***'
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
 - en: 'Which is a more efficient way to determine the optimal number of multiplications
     in a matrix-chain multiplication problem: enumerating all the ways of parenthesizing
     the product and computing the number of multiplications for each, or running RECURSIVE-MATRIX-CHAIN?
     Justify your answer.'
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.3-2***'
+  id: totrans-321
   prefs: []
   type: TYPE_NORMAL
 - en: Draw the recursion tree for the MERGE-SORT procedure from [Section 2.3.1](chapter002.xhtml#Sec_2.3.1)
     on an array of 16 elements. Explain why memoization fails to speed up a good divide-and-conquer
     algorithm such as MERGE-SORT.
+  id: totrans-322
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.3-3***'
+  id: totrans-323
   prefs: []
   type: TYPE_NORMAL
 - en: Consider the antithetical variant of the matrix-chain multiplication problem
     where the goal is to parenthesize the sequence of matrices so as to maximize,
     rather than minimize, the number of scalar multiplications. Does this problem
     exhibit optimal substructure?
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.3-4***'
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
 - en: As stated, in dynamic programming, you first solve the subproblems and then
@@ -1760,18 +2446,22 @@
     the quantity *p*[*i*−1] *p[k] p[j]*) before solving the subproblems. Find an instance
     of the matrix-chain multiplication problem for which this greedy approach yields
     a suboptimal solution.
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.3-5***'
+  id: totrans-327
   prefs: []
   type: TYPE_NORMAL
 - en: Suppose that the rod-cutting problem of [Section 14.1](chapter014.xhtml#Sec_14.1)
     also had a limit *l[i]* on the number of pieces of length *i* allowed to be produced,
     for *i* = 1, 2, …, *n*. Show that the optimal-substructure property described
     in [Section 14.1](chapter014.xhtml#Sec_14.1) no longer holds.
+  id: totrans-328
   prefs: []
   type: TYPE_NORMAL
 - en: '[**14.4    Longest common subsequence**](toc.xhtml#Rh1-84)'
+  id: totrans-329
   prefs: []
   type: TYPE_NORMAL
 - en: Biological applications often need to compare the DNA of two (or more) different
@@ -1794,6 +2484,7 @@
     *S*[2]. These bases must appear in the same order, but not necessarily consecutively.
     The longer the strand *S*[3] we can find, the more similar *S*[1] and *S*[2] are.
     In our example, the longest strand *S*[3] is GTCGTCGGAAGCCGGCCGAA.
+  id: totrans-330
   prefs: []
   type: TYPE_NORMAL
 - en: We formalize this last notion of similarity as the longest-common-subsequence
@@ -1804,6 +2495,7 @@
     indices of *X* such that for all *j* = 1, 2, …, *k*, we have ![art](images/Art_P469.jpg).
     For example, *Z* = 〈*B*, *C*, *D*, *B*〉 is a subsequence of *X* = 〈*A*, *B*, *C*,
     *B*, *D*, *A*, *B*〉 with corresponding index sequence 〈2, 3, 5, 7〉.
+  id: totrans-331
   prefs: []
   type: TYPE_NORMAL
 - en: Given two sequences *X* and *Y*, we say that a sequence *Z* is a ***common subsequence***
@@ -1815,15 +2507,18 @@
     which is also common to both sequences *X* and *Y*, has length 4\. The sequence
     〈*B*, *C*, *B*, *A*〉 is an LCS of *X* and *Y*, as is the sequence 〈*B*, *D*, *A*,
     *B*〉, since *X* and *Y* have no common subsequence of length 5 or greater.
+  id: totrans-332
   prefs: []
   type: TYPE_NORMAL
 - en: In the ***longest-common-subsequence problem***, the input is two sequences
     *X* = 〈*x*[1], *x*[2], …, *x[m]*〉 and *Y* = 〈*y*[1], *y*[2], …, *y[n]*〉, and the
     goal is to find a maximum-length common subsequence of *X* and *Y*. This section
     shows how to efficiently solve the LCS problem using dynamic programming.
+  id: totrans-333
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 1: Characterizing a longest common subsequence**'
+  id: totrans-334
   prefs: []
   type: TYPE_NORMAL
 - en: 'You can solve the LCS problem with a brute-force approach: enumerate all subsequences
@@ -1831,6 +2526,7 @@
     keeping track of the longest subsequence you find. Each subsequence of *X* corresponds
     to a subset of the indices {1, 2, …, *m*} of *X*. Because *X* has 2*^m* subsequences,
     this approach requires exponential time, making it impractical for long sequences.'
+  id: totrans-335
   prefs: []
   type: TYPE_NORMAL
 - en: The LCS problem has an optimal-substructure property, however, as the following
@@ -1840,27 +2536,33 @@
     *i* = 0, 1, …, *m*, as *X[i]* = 〈*x*[1], *x*[2], …, *x[i]*〉. For example, if *X*
     = 〈*A*, *B*, *C*, *B*, *D*, *A*, *B*〉, then *X*[4] = 〈*A*, *B*, *C*, *B*〉 and
     *X*[0] is the empty sequence.
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
 - en: '***Theorem 14.1 (Optimal substructure of an LCS)***'
+  id: totrans-337
   prefs: []
   type: TYPE_NORMAL
 - en: Let *X* = 〈*x*[1], *x*[2], …, *x[m]*〉 and *Y* = 〈*y*[1], *y*[2], …, *y[n]*〉
     be sequences, and let *Z* = 〈*z*[1], *z*[2], …, *z[k]*〉 be any LCS of *X* and
     *Y*.
+  id: totrans-338
   prefs: []
   type: TYPE_NORMAL
 - en: If *x[m]* = *y[n]*, then *z[k]* = *x[m]* = *y[n]* and *Z*[*k*−1] is an LCS of
     *X*[*m*−1] and *Y*[*n*−1].
+  id: totrans-339
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
 - en: If *x[m]* ≠ *y[n]* and *z[k]* ≠ *x[m]*, then *Z* is an LCS of *X*[*m*−1] and
     *Y*.
+  id: totrans-340
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
 - en: If *x[m]* ≠ *y[n]* and *z[k]* ≠ *y[n]*, then *Z* is an LCS of *X* and *Y*[*n*−1].
+  id: totrans-341
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
@@ -1873,27 +2575,33 @@
     subsequence *W* of *X*[*m*−1] and *Y*[*n*−1] with length greater than *k* − 1\.
     Then, appending *x[m]* = *y[n]* to *W* produces a common subsequence of *X* and
     *Y* whose length is greater than *k*, which is a contradiction.'
+  id: totrans-342
   prefs: []
   type: TYPE_NORMAL
 - en: (2) If *z[k]* ≠ *x[m]*, then *Z* is a common subsequence of *X*[*m*−1] and *Y*.
     If there were a common subsequence *W* of *X*[*m*−1] and *Y* with length greater
     than *k*, then *W* would also be a common subsequence of *X[m]* and *Y*, contradicting
     the assumption that *Z* is an LCS of *X* and *Y*.
+  id: totrans-343
   prefs: []
   type: TYPE_NORMAL
 - en: (3) The proof is symmetric to (2).
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
 - en: ▪
+  id: totrans-345
   prefs: []
   type: TYPE_NORMAL
 - en: The way that Theorem 14.1 characterizes longest common subsequences says that
     an LCS of two sequences contains within it an LCS of prefixes of the two sequences.
     Thus, the LCS problem has an optimal-substructure property. A recursive solution
     also has the overlapping-subproblems property, as we’ll see in a moment.
+  id: totrans-346
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 2: A recursive solution**'
+  id: totrans-347
   prefs: []
   type: TYPE_NORMAL
 - en: 'Theorem 14.1 implies that you should examine either one or two subproblems
@@ -1904,12 +2612,14 @@
     and *Y* and finding an LCS of *X* and *Y*[*n*−1]. Whichever of these two LCSs
     is longer is an LCS of *X* and *Y*. Because these cases exhaust all possibilities,
     one of the optimal subproblem solutions must appear within an LCS of *X* and *Y*.'
+  id: totrans-348
   prefs: []
   type: TYPE_NORMAL
 - en: The LCS problem has the overlapping-subproblems property. Here’s how. To find
     an LCS of *X* and *Y*, you might need to find the LCSs of *X* and *Y*[*n*−1] and
     of *X*[*m*−1] and *Y*. But each of these subproblems has the subsubproblem of
     finding an LCS of *X*[*m*−1] and *Y*[*n*−1]. Many other subproblems share subsubproblems.
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
 - en: As in the matrix-chain multiplication problem, solving the LCS problem recursively
@@ -1918,9 +2628,11 @@
     If either *i* = 0 or *j* = 0, one of the sequences has length 0, and so the LCS
     has length 0\. The optimal substructure of the LCS problem gives the recursive
     formula
+  id: totrans-350
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P470.jpg)'
+  id: totrans-351
   prefs: []
   type: TYPE_IMG
 - en: In this recursive formulation, a condition in the problem restricts which subproblems
@@ -1932,15 +2644,18 @@
     due to conditions in the problem. Finding an LCS is not the only dynamic-programming
     algorithm that rules out subproblems based on conditions in the problem. For example,
     the edit-distance problem (see Problem 14-5) has this characteristic.
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 3: Computing the length of an LCS**'
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
 - en: Based on equation (14.9), you could write an exponential-time recursive algorithm
     to compute the length of an LCS of two sequences. Since the LCS problem has only
     Θ(*mn*) distinct subproblems (computing *c*[*i*, *j*] for 0 ≤ *i* ≤ *m* and 0
     ≤ *j* ≤ *n*), dynamic programming can compute the solutions bottom up.
+  id: totrans-354
   prefs: []
   type: TYPE_NORMAL
 - en: 'The procedure LCS-LENGTH on the next page takes two sequences *X* = 〈*x*[1],
@@ -1956,88 +2671,116 @@
     produced by LCS-LENGTH on the sequences *X* = 〈*A*, *B*, *C*, *B*, *D*, *A*, *B*〉
     and *Y* = 〈*B*, *D*, *C*, *A*, *B*, *A*〉. The running time of the procedure is
     Θ(*mn*), since each table entry takes Θ(1) time to compute.'
+  id: totrans-355
   prefs: []
   type: TYPE_NORMAL
 - en: LCS-LENGTH(*X*, *Y*, *m*, *n*)
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
 - en: '|   1 | let *b*[1 : *m*, 1 : *n*] and *c*[0 : *m*, 0 : *n*] be new tables |'
+  id: totrans-357
   prefs: []
   type: TYPE_TB
 - en: '|   2 | **for** *i* = 1 **to** *m* |  |'
+  id: totrans-358
   prefs: []
   type: TYPE_TB
 - en: '|   3 | *c*[*i*, 0] = 0 |  |'
+  id: totrans-359
   prefs: []
   type: TYPE_TB
 - en: '|   4 | **for** *j* = 0 **to** *n* |  |'
+  id: totrans-360
   prefs: []
   type: TYPE_TB
 - en: '|   5 | *c*[0, *j*] = 0 |  |'
+  id: totrans-361
   prefs: []
   type: TYPE_TB
 - en: '|   6 | **for** *i* = 1 **to** *m* | **//** compute table entries in row-major
     order |'
+  id: totrans-362
   prefs: []
   type: TYPE_TB
 - en: '|   7 | **for** *j* = 1 **to** *n* |'
+  id: totrans-363
   prefs: []
   type: TYPE_TB
 - en: '|   8 | **if** *x[i]* == *y[j]* |'
+  id: totrans-364
   prefs: []
   type: TYPE_TB
 - en: '|   9 | *c*[*i*, *j*] = *c*[*i* − 1, *j* − 1] + 1 |'
+  id: totrans-365
   prefs: []
   type: TYPE_TB
 - en: '| 10 | *b*[*i*, *j*] = “↖” |'
+  id: totrans-366
   prefs: []
   type: TYPE_TB
 - en: '| 11 | **elseif** *c*[*i* − 1, *j*] ≥ *c*[*i*, *j* − 1] |'
+  id: totrans-367
   prefs: []
   type: TYPE_TB
 - en: '| 12 | *c*[*i*, *j*] = *c*[*i* − 1, *j*] |'
+  id: totrans-368
   prefs: []
   type: TYPE_TB
 - en: '| 13 | *b*[*i*, *j*] = “↑” |'
+  id: totrans-369
   prefs: []
   type: TYPE_TB
 - en: '| 14 | **else** *c*[*i*, *j*] = *c*[*i*, *j* − 1] |'
+  id: totrans-370
   prefs: []
   type: TYPE_TB
 - en: '| 15 | *b*[*i*, *j*] = “←” |'
+  id: totrans-371
   prefs: []
   type: TYPE_TB
 - en: '| 16 | **return** *c* and *b* |'
+  id: totrans-372
   prefs: []
   type: TYPE_TB
 - en: '| PRINT-LCS(*b*, *X*, *i*, *j*) |'
+  id: totrans-373
   prefs: []
   type: TYPE_TB
 - en: '|   1 | **if** *i* == 0 or *j* == 0 |'
+  id: totrans-374
   prefs: []
   type: TYPE_TB
 - en: '|   2 | **return** | **//** the LCS has length 0 |'
+  id: totrans-375
   prefs: []
   type: TYPE_TB
 - en: '|   3 | **if** *b*[*i*, *j*] == “↖” |'
+  id: totrans-376
   prefs: []
   type: TYPE_TB
 - en: '|   4 | PRINT-LCS(*b*, *X*, *i* − 1, *j* − 1) |'
+  id: totrans-377
   prefs: []
   type: TYPE_TB
 - en: '|   5 | print *x[i]* | **//** same as *y[j]* |'
+  id: totrans-378
   prefs: []
   type: TYPE_TB
 - en: '|   6 | **elseif** *b*[*i*, *j*] == “↑” |'
+  id: totrans-379
   prefs: []
   type: TYPE_TB
 - en: '|   7 | PRINT-LCS(*b*, *X*, *i* − 1, *j*) |'
+  id: totrans-380
   prefs: []
   type: TYPE_TB
 - en: '|   8 | **else** PRINT-LCS(*b*, *X*, *i*, *j* − 1) |'
+  id: totrans-381
   prefs: []
   type: TYPE_TB
 - en: '**Step 4: Constructing an LCS**'
+  id: totrans-382
   prefs: []
   type: TYPE_NORMAL
 - en: With the *b* table returned by LCS-LENGTH, you can quickly construct an LCS
@@ -2047,9 +2790,11 @@
     of the LCS that LCS-LENGTH found. This method gives you the elements of this LCS
     in reverse order. The recursive procedure PRINT-LCS prints out an LCS of *X* and
     *Y* in the proper, forward order.
+  id: totrans-383
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P471.jpg)'
+  id: totrans-384
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.8** The *c* and *b* tables computed by LCS-LENGTH on the sequences
@@ -2064,21 +2809,25 @@
     lower right-hand corner, as shown by the sequence shaded blue. Each “↖” on the
     shaded-blue sequence corresponds to an entry (highlighted) for which *x[i]* =
     *y[j]* is a member of an LCS.'
+  id: totrans-385
   prefs: []
   type: TYPE_NORMAL
 - en: The initial call is PRINT-LCS(*b*, *X*, *m*, *n*). For the *b* table in [Figure
     14.8](chapter014.xhtml#Fig_14-8), this procedure prints *BCBA*. The procedure
     takes *O*(*m* + *n*) time, since it decrements at least one of *i* and *j* in
     each recursive call.
+  id: totrans-386
   prefs: []
   type: TYPE_NORMAL
 - en: '**Improving the code**'
+  id: totrans-387
   prefs: []
   type: TYPE_NORMAL
 - en: Once you have developed an algorithm, you will often find that you can improve
     on the time or space it uses. Some changes can simplify the code and improve constant
     factors but otherwise yield no asymptotic improvement in performance. Others can
     yield substantial asymptotic savings in time and space.
+  id: totrans-388
   prefs: []
   type: TYPE_NORMAL
 - en: 'In the LCS algorithm, for example, you can eliminate the *b* table altogether.
@@ -2090,6 +2839,7 @@
     14.4-2 asks you to give the pseudocode.) Although this method saves Θ(*mn*) space,
     the auxiliary space requirement for computing an LCS does not asymptotically decrease,
     since the *c* table takes Θ(*mn*) space anyway.'
+  id: totrans-389
   prefs: []
   type: TYPE_NORMAL
 - en: 'You can, however, reduce the asymptotic space requirements for LCS-LENGTH,
@@ -2099,47 +2849,60 @@
     This improvement works if you need only the length of an LCS. If you need to reconstruct
     the elements of an LCS, the smaller table does not keep enough information to
     retrace the algorithm’s steps in *O*(*m* + *n*) time.'
+  id: totrans-390
   prefs: []
   type: TYPE_NORMAL
 - en: '**Exercises**'
+  id: totrans-391
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.4-1***'
+  id: totrans-392
   prefs: []
   type: TYPE_NORMAL
 - en: Determine an LCS of 〈1, 0, 0, 1, 0, 1, 0, 1〉 and 〈0, 1, 0, 1, 1, 0, 1, 1, 0〉.
+  id: totrans-393
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.4-2***'
+  id: totrans-394
   prefs: []
   type: TYPE_NORMAL
 - en: Give pseudocode to reconstruct an LCS from the completed *c* table and the original
     sequences *X* = 〈*x*[1], *x*[2], …, *x[m]*〉 and *Y* = 〈*y*[1], *y*[2], …, *y[n]*〉
     in *O*(*m* + *n*) time, without using the *b* table.
+  id: totrans-395
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.4-3***'
+  id: totrans-396
   prefs: []
   type: TYPE_NORMAL
 - en: Give a memoized version of LCS-LENGTH that runs in *O*(*mn*) time.
+  id: totrans-397
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.4-4***'
+  id: totrans-398
   prefs: []
   type: TYPE_NORMAL
 - en: Show how to compute the length of an LCS using only 2 · min {*m*, *n*} entries
     in the *c* table plus *O*(1) additional space. Then show how to do the same thing,
     but using min {*m*, *n*} entries plus *O*(1) additional space.
+  id: totrans-399
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.4-5***'
+  id: totrans-400
   prefs: []
   type: TYPE_NORMAL
 - en: Give an *O*(*n*²)-time algorithm to find the longest monotonically increasing
     subsequence of a sequence of *n* numbers.
+  id: totrans-401
   prefs: []
   type: TYPE_NORMAL
 - en: ★ ***14.4-6***
+  id: totrans-402
   prefs: []
   type: TYPE_NORMAL
 - en: Give an *O*(*n* lg *n*)-time algorithm to find the longest monotonically increasing
@@ -2147,9 +2910,11 @@
     subsequence of length *i* is at least as large as the last element of a candidate
     subsequence of length *i* −1\. Maintain candidate subsequences by linking them
     through the input sequence.)
+  id: totrans-403
   prefs: []
   type: TYPE_NORMAL
 - en: '[**14.5    Optimal binary search trees**](toc.xhtml#Rh1-85)'
+  id: totrans-404
   prefs: []
   type: TYPE_NORMAL
 - en: Suppose that you are designing a program to translate text from English to Latvian.
@@ -2170,6 +2935,7 @@
     search tree at all. How can you organize a binary search tree so as to minimize
     the number of nodes visited in all searches, given that you know how often each
     word occurs?
+  id: totrans-405
   prefs: []
   type: TYPE_NORMAL
 - en: What you need is an ***optimal binary search tree***. Formally, given a sequence
@@ -2186,29 +2952,37 @@
     internal node, and each dummy key *d[i]* is a leaf. Since every search is either
     successful (finding some key *k[i]*) or unsuccessful (finding some dummy key *d[i]*),
     we have
+  id: totrans-406
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P472.jpg)'
+  id: totrans-407
   prefs: []
   type: TYPE_IMG
 - en: '![art](images/Art_P473.jpg)'
+  id: totrans-408
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.9** Two binary search trees for a set of *n* = 5 keys with the
     following probabilities:'
+  id: totrans-409
   prefs: []
   type: TYPE_NORMAL
 - en: '| *i* | 0 | 1 | 2 | 3 | 4 | 5 |'
+  id: totrans-410
   prefs: []
   type: TYPE_TB
 - en: '| *p[i]* |  | 0.15 | 0.10 | 0.05 | 0.10 | 0.20 |'
+  id: totrans-411
   prefs: []
   type: TYPE_TB
 - en: '| *q[i]* | 0.05 | 0.10 | 0.05 | 0.05 | 0.05 | 0.10 |'
+  id: totrans-412
   prefs: []
   type: TYPE_TB
 - en: '**(a)** A binary search tree with expected search cost 2.80\. **(b)** A binary
     search tree with expected search cost 2.75\. This tree is optimal.'
+  id: totrans-413
   prefs: []
   type: TYPE_NORMAL
 - en: Knowing the probabilities of searches for each key and each dummy key allows
@@ -2216,14 +2990,17 @@
     Let us assume that the actual cost of a search equals the number of nodes examined,
     which is the depth of the node found by the search in *T*, plus 1\. Then the expected
     cost of a search in *T* is
+  id: totrans-414
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P474.jpg)'
+  id: totrans-415
   prefs: []
   type: TYPE_IMG
 - en: where depth*[T]* denotes a node’s depth in the tree *T*. The last equation follows
     from equation (14.10). [Figure 14.9](chapter014.xhtml#Fig_14-9) shows how to calculate
     the expected search cost node by node.
+  id: totrans-416
   prefs: []
   type: TYPE_NORMAL
 - en: For a given set of probabilities, your goal is to construct a binary search
@@ -2237,6 +3014,7 @@
     key *k*[5] has the greatest search probability of any key, yet the root of the
     optimal binary search tree shown is *k*[2]. (The lowest expected cost of any binary
     search tree with *k*[5] at the root is 2.85.)
+  id: totrans-417
   prefs: []
   type: TYPE_NORMAL
 - en: As with matrix-chain multiplication, exhaustive checking of all possibilities
@@ -2247,9 +3025,11 @@
     you would need to examine an exponential number of binary search trees to perform
     an exhaustive search. We’ll see how to solve this problem more efficiently with
     dynamic programming.
+  id: totrans-418
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 1: The structure of an optimal binary search tree**'
+  id: totrans-419
   prefs: []
   type: TYPE_NORMAL
 - en: To characterize the optimal substructure of optimal binary search trees, we
@@ -2257,6 +3037,7 @@
     tree. It must contain keys in a contiguous range *k[i]*, …, *k[j]*, for some 1
     ≤ *i* ≤ *j* ≤ *n*. In addition, a subtree that contains keys *k[i]*, …, *k[j]*
     must also have as its leaves the dummy keys *d*[*i*−1], …, *d[j]*.
+  id: totrans-420
   prefs: []
   type: TYPE_NORMAL
 - en: 'Now we can state the optimal substructure: if an optimal binary search tree
@@ -2266,6 +3047,7 @@
     were a subtree *T*″ whose expected cost is lower than that of *T*′, then cutting
     *T*′ out of *T* and pasting in *T*″ would result in a binary search tree of lower
     expected cost than *T*, thus contradicting the optimality of *T*.'
+  id: totrans-421
   prefs: []
   type: TYPE_NORMAL
 - en: With the optimal substructure in hand, here is how to construct an optimal solution
@@ -2278,6 +3060,7 @@
     determine all optimal binary search trees containing *k[i]*, …, *k*[*r*−1] and
     those containing *k*[*r*+1], …, *k[j]*, you are guaranteed to find an optimal
     binary search tree.
+  id: totrans-422
   prefs: []
   type: TYPE_NORMAL
 - en: 'There is one technical detail worth understanding about “empty” subtrees. Suppose
@@ -2289,9 +3072,11 @@
     if you select *k[j]* as the root, then *k[j]*’s right subtree contains the keys
     *k*[*j*+1], …, *k[j]*. This right subtree contains no actual keys, but it does
     contain the dummy key *d[j]*.'
+  id: totrans-423
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 2: A recursive solution**'
+  id: totrans-424
   prefs: []
   type: TYPE_NORMAL
 - en: To define the value of an optimal solution recursively, the subproblem domain
@@ -2301,10 +3086,12 @@
     cost of searching an optimal binary search tree containing the keys *k[i]*, …,
     *k[j]*. Your goal is to compute *e*[1, *n*], the expected cost of searching an
     optimal binary search tree for all the actual and dummy keys.
+  id: totrans-425
   prefs: []
   type: TYPE_NORMAL
 - en: The easy case occurs when *j* = *i* − 1\. Then the subproblem consists of just
     the dummy key *d*[*i*−1]. The expected search cost is *e*[*i*, *i* − 1] = *q*[*i*−1].
+  id: totrans-426
   prefs: []
   type: TYPE_NORMAL
 - en: When *j* ≥ *i*, you need to select a root *k[r]* from among *k[i]*, …, *k[j]*
@@ -2315,37 +3102,47 @@
     by 1\. By equation (14.11), the expected search cost of this subtree increases
     by the sum of all the probabilities in the subtree. For a subtree with keys *k[i]*,
     …, *k[j]*, denote this sum of probabilities as
+  id: totrans-427
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P475.jpg)'
+  id: totrans-428
   prefs: []
   type: TYPE_IMG
 - en: Thus, if *k[r]* is the root of an optimal subtree containing keys *k[i]*, …,
     *k[j]*, we have
+  id: totrans-429
   prefs: []
   type: TYPE_NORMAL
 - en: '*e*[*i*, *j*] = *p[r]* + (*e*[*i*, *r* − 1] + *w*(*i*, *r* − 1)) + (*e*[*r*
     + 1, *j*] + *w*(*r* + 1, *j*)).'
+  id: totrans-430
   prefs: []
   type: TYPE_NORMAL
 - en: Noting that
+  id: totrans-431
   prefs: []
   type: TYPE_NORMAL
 - en: '*w*(*i*, *j*) = *w*(*i*, *r* − 1) + *p[r]* + *w*(*r* + 1, *j*),'
+  id: totrans-432
   prefs: []
   type: TYPE_NORMAL
 - en: we rewrite *e*[*i*, *j*] as
+  id: totrans-433
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P476.jpg)'
+  id: totrans-434
   prefs: []
   type: TYPE_IMG
 - en: 'The recursive equation (14.13) assumes that you know which node *k[r]* to use
     as the root. Of course, you choose the root that gives the lowest expected search
     cost, giving the final recursive formulation:'
+  id: totrans-435
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P477.jpg)'
+  id: totrans-436
   prefs: []
   type: TYPE_IMG
 - en: The *e*[*i*, *j*] values give the expected search costs in optimal binary search
@@ -2354,9 +3151,11 @@
     is the root of an optimal binary search tree containing keys *k[i]*, …, *k[j]*.
     Although we’ll see how to compute the values of *root*[*i*, *j*], the construction
     of an optimal binary search tree from these values is left as Exercise 14.5-1.
+  id: totrans-437
   prefs: []
   type: TYPE_NORMAL
 - en: '**Step 3: Computing the expected search cost of an optimal binary search tree**'
+  id: totrans-438
   prefs: []
   type: TYPE_NORMAL
 - en: 'At this point, you may have noticed some similarities between our characterizations
@@ -2372,6 +3171,7 @@
     *j*] for which *j* ≥ *i* − 1 are filled in. The table *root*[*i*, *j*] records
     the root of the subtree containing keys *k[i]*, …, *k[j]* and uses only the entries
     for which 1 ≤ *i* ≤ *j* ≤ *n*.'
+  id: totrans-439
   prefs: []
   type: TYPE_NORMAL
 - en: 'One other table makes the dynamic-programming algorithm a little faster. Instead
@@ -2379,12 +3179,15 @@
     *j*], which would take Θ(*j* − *i*) additions, store these values in a table *w*[1
     : *n* + 1, 0 : *n*]. For the base case, compute *w*[*i*, *i* − 1] = *q*[*i*−1]
     for 1 ≤ *i* ≤ *n* + 1\. For *j* ≥ *i*, compute'
+  id: totrans-440
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P478.jpg)'
+  id: totrans-441
   prefs: []
   type: TYPE_IMG
 - en: Thus, you can compute the Θ(*n*²) values of *w*[*i*, *j*] in Θ(1) time each.
+  id: totrans-442
   prefs: []
   type: TYPE_NORMAL
 - en: The OPTIMAL-BST procedure on the next page takes as inputs the probabilities
@@ -2402,59 +3205,77 @@
     as the root of an optimal binary search tree containing keys *k[i]*, …, *k[j]*.
     This **for** loop saves the current value of the index *r* in *root*[*i*, *j*]
     whenever it finds a better key to use as the root.
+  id: totrans-443
   prefs: []
   type: TYPE_NORMAL
 - en: OPTIMAL-BST(*p*, *q*, *n*)
+  id: totrans-444
   prefs: []
   type: TYPE_NORMAL
 - en: '|   1 | let *e*[1 : *n* + 1, 0 : *n*], *w*[1 : *n* + 1, 0 : *n*], |'
+  id: totrans-445
   prefs: []
   type: TYPE_TB
 - en: '|  | and *root*[1 : *n*, 1 : *n*] be new tables |'
+  id: totrans-446
   prefs: []
   type: TYPE_TB
 - en: '|   2 | **for** *i* = 1 **to** *n* + 1 | **//** base cases |'
+  id: totrans-447
   prefs: []
   type: TYPE_TB
 - en: '|   3 | *e*[*i*, *i* − 1] = *q*[*i*−1] | **//** equation (14.14) |'
+  id: totrans-448
   prefs: []
   type: TYPE_TB
 - en: '|   4 | *w*[*i*, *i* − 1] = *q*[*i*−1] |'
+  id: totrans-449
   prefs: []
   type: TYPE_TB
 - en: '|   5 | **for** *l* = 1 **to** *n* |'
+  id: totrans-450
   prefs: []
   type: TYPE_TB
 - en: '|   6 | **for** *i* = 1 **to** *n* − *l* + 1 |'
+  id: totrans-451
   prefs: []
   type: TYPE_TB
 - en: '|   7 | *j* = *i* + *l* − 1 |'
+  id: totrans-452
   prefs: []
   type: TYPE_TB
 - en: '|   8 | *e*[*i*, *j*] = ∞ |'
+  id: totrans-453
   prefs: []
   type: TYPE_TB
 - en: '|   9 | *w*[*i*, *j*] = *w*[*i*, *j* − 1] + *p[j]* + *q[j]* | **//** equation
     (14.15) |'
+  id: totrans-454
   prefs: []
   type: TYPE_TB
 - en: '| 10 | **for** *r* = *i* **to** *j* | **//** try all possible roots *r* |'
+  id: totrans-455
   prefs: []
   type: TYPE_TB
 - en: '| 11 | *t* = *e*[*i*, *r* − 1] + *e*[*r* + 1, *j*] + *w*[*i*, *j*] **//** equation
     (14.14) |'
+  id: totrans-456
   prefs: []
   type: TYPE_TB
 - en: '| 12 | **if** *t* < *e*[*i*, *j*] | **//** new minimum? |'
+  id: totrans-457
   prefs: []
   type: TYPE_TB
 - en: '| 13 | *e*[*i*, *j*] = *t* |'
+  id: totrans-458
   prefs: []
   type: TYPE_TB
 - en: '| 14 | *root*[*i*, *j*] = *r* |'
+  id: totrans-459
   prefs: []
   type: TYPE_TB
 - en: '| 15 | **return** *e* and *root* |'
+  id: totrans-460
   prefs: []
   type: TYPE_TB
 - en: '[Figure 14.10](chapter014.xhtml#Fig_14-10) shows the tables *e*[*i*, *j*],
@@ -2463,6 +3284,7 @@
     matrix-chain multiplication example of [Figure 14.5](chapter014.xhtml#Fig_14-5),
     the tables are rotated to make the diagonals run horizontally. OPTIMAL-BST computes
     the rows from bottom to top and from left to right within each row.'
+  id: totrans-461
   prefs: []
   type: TYPE_NORMAL
 - en: The OPTIMAL-BST procedure takes Θ(*n*³) time, just like MATRIX-CHAIN-ORDER.
@@ -2471,102 +3293,131 @@
     not have exactly the same bounds as those in MATRIX-CHAIN-ORDER, but they are
     within at most 1 in all directions. Thus, like MATRIX-CHAIN-ORDER, the OPTIMAL-BST
     procedure takes Ω(*n*³) time.
+  id: totrans-462
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P479.jpg)'
+  id: totrans-463
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.10** The tables *e*[*i*, *j*], *w*[*i*, *j*], and *root*[*i*, *j*]
     computed by OPTIMAL-BST on the key distribution shown in [Figure 14.9](chapter014.xhtml#Fig_14-9).
     The tables are rotated so that the diagonals run horizontally.'
+  id: totrans-464
   prefs: []
   type: TYPE_NORMAL
 - en: '**Exercises**'
+  id: totrans-465
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.5-1***'
+  id: totrans-466
   prefs: []
   type: TYPE_NORMAL
 - en: 'Write pseudocode for the procedure CONSTRUCT-OPTIMAL-BST(*root, n*) which,
     given the table *root*[1 : *n*, 1 : *n*], outputs the structure of an optimal
     binary search tree. For the example in [Figure 14.10](chapter014.xhtml#Fig_14-10),
     your procedure should print out the structure'
+  id: totrans-467
   prefs: []
   type: TYPE_NORMAL
 - en: '*k*[2] is the root'
+  id: totrans-468
   prefs: []
   type: TYPE_NORMAL
 - en: '*k*[1] is the left child of *k*[2]'
+  id: totrans-469
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[0] is the left child of *k*[1]'
+  id: totrans-470
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[1] is the right child of *k*[1]'
+  id: totrans-471
   prefs: []
   type: TYPE_NORMAL
 - en: '*k*[5] is the right child of *k*[2]'
+  id: totrans-472
   prefs: []
   type: TYPE_NORMAL
 - en: '*k*[4] is the left child of *k*[5]'
+  id: totrans-473
   prefs: []
   type: TYPE_NORMAL
 - en: '*k*[3] is the left child of *k*[4]'
+  id: totrans-474
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[2] is the left child of *k*[3]'
+  id: totrans-475
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[3] is the right child of *k*[3]'
+  id: totrans-476
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[4] is the right child of *k*[4]'
+  id: totrans-477
   prefs: []
   type: TYPE_NORMAL
 - en: '*d*[5] is the right child of *k*[5]'
+  id: totrans-478
   prefs: []
   type: TYPE_NORMAL
 - en: corresponding to the optimal binary search tree shown in [Figure 14.9(b)](chapter014.xhtml#Fig_14-9).
+  id: totrans-479
   prefs: []
   type: TYPE_NORMAL
 - en: '***14.5-2***'
+  id: totrans-480
   prefs: []
   type: TYPE_NORMAL
 - en: 'Determine the cost and structure of an optimal binary search tree for a set
     of *n* = 7 keys with the following probabilities:'
+  id: totrans-481
   prefs: []
   type: TYPE_NORMAL
 - en: '| *i* | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |'
+  id: totrans-482
   prefs: []
   type: TYPE_TB
 - en: '| *p[i]* |  | 0.04 | 0.06 | 0.08 | 0.02 | 0.10 | 0.12 | 0.14 |'
+  id: totrans-483
   prefs: []
   type: TYPE_TB
 - en: '| *q[i]* | 0.06 | 0.06 | 0.06 | 0.06 | 0.05 | 0.05 | 0.05 | 0.05 |'
+  id: totrans-484
   prefs: []
   type: TYPE_TB
 - en: '***14.5-3***'
+  id: totrans-485
   prefs: []
   type: TYPE_NORMAL
 - en: Suppose that instead of maintaining the table *w*[*i*, *j*], you computed the
     value of *w*(*i*, *j*) directly from equation (14.12) in line 9 of OPTIMAL-BST
     and used this computed value in line 11\. How would this change affect the asymptotic
     running time of OPTIMAL-BST?
+  id: totrans-486
   prefs: []
   type: TYPE_NORMAL
 - en: ★ ***14.5-4***
+  id: totrans-487
   prefs: []
   type: TYPE_NORMAL
 - en: Knuth [[264](bibliography001.xhtml#endnote_264)] has shown that there are always
     roots of optimal subtrees such that *root*[*i*, *j* − 1] ≤ *root*[*i*, *j*] ≤
     *root*[*i* + 1, *j*] for all 1 ≤ *i* < *j* ≤ *n*. Use this fact to modify the
     OPTIMAL-BST procedure to run in Θ(*n*²) time.
+  id: totrans-488
   prefs: []
   type: TYPE_NORMAL
 - en: '**Problems**'
+  id: totrans-489
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-1     Longest simple path in a directed acyclic graph***'
+  id: totrans-490
   prefs: []
   type: TYPE_NORMAL
 - en: You are given a directed acyclic graph *G* = (*V*, *E*) with real-valued edge
@@ -2574,41 +3425,50 @@
     is the sum of the weights of the edges in the path. Describe a dynamic-programming
     approach for finding a longest weighted simple path from *s* to *t*. What is the
     running time of your algorithm?
+  id: totrans-491
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-2     Longest palindrome subsequence***'
+  id: totrans-492
   prefs: []
   type: TYPE_NORMAL
 - en: A ***palindrome*** is a nonempty string over some alphabet that reads the same
     forward and backward. Examples of palindromes are all strings of length 1, civic,
     racecar, and aibohphobia (fear of palindromes).
+  id: totrans-493
   prefs: []
   type: TYPE_NORMAL
 - en: Give an efficient algorithm to find the longest palindrome that is a subsequence
     of a given input string. For example, given the input character, your algorithm
     should return carac. What is the running time of your algorithm?
+  id: totrans-494
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-3     Bitonic euclidean traveling-salesperson problem***'
+  id: totrans-495
   prefs: []
   type: TYPE_NORMAL
 - en: In the ***euclidean traveling-salesperson problem***, you are given a set of
     *n* points in the plane, and your goal is to find the shortest closed tour that
     connects all *n* points.
+  id: totrans-496
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P480.jpg)'
+  id: totrans-497
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.11** Seven points in the plane, shown on a unit grid. **(a)** The
     shortest closed tour, with length approximately 24.89\. This tour is not bitonic.
     **(b)** The shortest bitonic tour for the same set of points. Its length is approximately
     25.58.'
+  id: totrans-498
   prefs: []
   type: TYPE_NORMAL
 - en: '[Figure 14.11(a)](chapter014.xhtml#Fig_14-11) shows the solution to a 7-point
     problem. The general problem is NP-hard, and its solution is therefore believed
     to require more than polynomial time (see [Chapter 34](chapter034.xhtml)).'
+  id: totrans-499
   prefs: []
   type: TYPE_NORMAL
 - en: J. L. Bentley has suggested simplifying the problem by considering only ***bitonic
@@ -2616,15 +3476,18 @@
     to the rightmost point, and then go strictly leftward back to the starting point.
     [Figure 14.11(b)](chapter014.xhtml#Fig_14-11) shows the shortest bitonic tour
     of the same 7 points. In this case, a polynomial-time algorithm is possible.
+  id: totrans-500
   prefs: []
   type: TYPE_NORMAL
 - en: Describe an *O*(*n*²)-time algorithm for determining an optimal bitonic tour.
     You may assume that no two points have the same *x*-coordinate and that all operations
     on real numbers take unit time. (*Hint:* Scan left to right, maintaining optimal
     possibilities for the two parts of the tour.)
+  id: totrans-501
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-4     Printing neatly***'
+  id: totrans-502
   prefs: []
   type: TYPE_NORMAL
 - en: Consider the problem of neatly printing a paragraph with a monospaced font (all
@@ -2640,9 +3503,11 @@
     space characters at the ends of lines. Give a dynamic-programming algorithm to
     print a paragraph of *n* words neatly. Analyze the running time and space requirements
     of your algorithm.
+  id: totrans-503
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-5     Edit distance***'
+  id: totrans-504
   prefs: []
   type: TYPE_NORMAL
 - en: 'In order to transform a source string of text *x*[1 : *m*] to a target string
@@ -2655,44 +3520,53 @@
     are allowed to alter *z* and these indices. Initially, *i* = *j* = 1\. Every character
     in *x* must be examined during the transformation, which means that at the end
     of the sequence of transformation operations, *i* = *m* + 1.'
+  id: totrans-505
   prefs: []
   type: TYPE_NORMAL
 - en: 'You may choose from among six transformation operations, each of which has
     a constant cost that depends on the operation:'
+  id: totrans-506
   prefs: []
   type: TYPE_NORMAL
 - en: '**Copy** a character from *x* to *z* by setting *z*[*j*] = *x*[*i*] and then
     incrementing both *i* and *j*. This operation examines *x*[*i*] and has cost *Q[C]*.'
+  id: totrans-507
   prefs: []
   type: TYPE_NORMAL
 - en: '**Replace** a character from *x* by another character *c*, by setting *z*[*j*]
     = *c*, and then incrementing both *i* and *j*. This operation examines *x*[*i*]
     and has cost *Q[R]*.'
+  id: totrans-508
   prefs: []
   type: TYPE_NORMAL
 - en: '**Delete** a character from *x* by incrementing *i* but leaving *j* alone.
     This operation examines *x*[*i*] and has cost *Q[D]*.'
+  id: totrans-509
   prefs: []
   type: TYPE_NORMAL
 - en: '**Insert** the character *c* into *z* by setting *z*[*j*] = *c* and then incrementing
     *j*, but leaving *i* alone. This operation examines no characters of *x* and has
     cost *Q[I]*.'
+  id: totrans-510
   prefs: []
   type: TYPE_NORMAL
 - en: '**Twiddle** (i.e., exchange) the next two characters by copying them from *x*
     to *z* but in the opposite order: setting *z*[*j*] = *x*[*i* + 1] and *z*[*j*
     + 1] = *x*[*i*], and then setting *i* = *i* + 2 and *j* = *j* + 2\. This operation
     examines *x*[*i*] and *x*[*i* + 1] and has cost *Q[T]*.'
+  id: totrans-511
   prefs: []
   type: TYPE_NORMAL
 - en: '**Kill** the remainder of *x* by setting *i* = *m* + 1\. This operation examines
     all characters in *x* that have not yet been examined. This operation, if performed,
     must be the final operation. It has cost *Q[K]*.'
+  id: totrans-512
   prefs: []
   type: TYPE_NORMAL
 - en: '[Figure 14.12](chapter014.xhtml#Fig_14-12) gives one way to transform the source
     string algorithm to the target string altruistic. Several other sequences of transformation
     operations can transform algorithm to altruistic.'
+  id: totrans-513
   prefs: []
   type: TYPE_NORMAL
 - en: Assume that *Q[C]* < *Q[D]* + *Q[I]* and *Q[R]* < *Q[D]* + *Q[I]*, since otherwise,
@@ -2700,6 +3574,7 @@
     of transformation operations is the sum of the costs of the individual operations
     in the sequence. For the sequence above, the cost of transforming algorithm to
     altruistic is 3*Q[C]* + *Q[R]* + *Q[D]* + 4*Q[I]* + *Q[T]* + *Q[K]*.
+  id: totrans-514
   prefs: []
   type: TYPE_NORMAL
 - en: '***a.*** Given two sequences *x*[1 : *m*] and *y*[1 : *n*] and the costs of
@@ -2708,14 +3583,17 @@
     a dynamic-programming algorithm that finds the edit distance from *x*[1 : *m*]
     to *y*[1 : *n*] and prints an optimal operation sequence. Analyze the running
     time and space requirements of your algorithm.'
+  id: totrans-515
   prefs: []
   type: TYPE_NORMAL
 - en: '![art](images/Art_P482.jpg)'
+  id: totrans-516
   prefs: []
   type: TYPE_IMG
 - en: '**Figure 14.12** A sequence of operations that transforms the source algorithm
     to the target string altruistic. The underlined characters are *x*[*i*] and *z*[*j*]
     after the operation.'
+  id: totrans-517
   prefs: []
   type: TYPE_NORMAL
 - en: 'The edit-distance problem generalizes the problem of aligning two DNA sequences
@@ -2727,39 +3605,48 @@
     *x*′ and *y*′ have the same length but do not have a space in the same position
     (i.e., for no position *j* are both *x*′[*j*] and *y*′[*j*] a space). Then we
     assign a “score” to each position. Position *j* receives a score as follows:'
+  id: totrans-518
   prefs: []
   type: TYPE_NORMAL
 - en: +1 if *x*′[*j*] = *y*′[*j*] and neither is a space,
+  id: totrans-519
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: −1 if *x*′[*j*] ≠ *y*′[*j*] and neither is a space,
+  id: totrans-520
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: −2 if either *x*′[*j*] or *y*′[*j*] is a space.
+  id: totrans-521
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: The score for the alignment is the sum of the scores of the individual positions.
     For example, given the sequences *x* = GATCGGCAT and *y* = CAATGTGAATC, one alignment
     is
+  id: totrans-522
   prefs: []
   type: TYPE_NORMAL
 - en: '| G ATCG GCATCAAT GTGAATC-*++*+*+-++* |'
+  id: totrans-523
   prefs: []
   type: TYPE_TB
 - en: A + under a position indicates a score of +1 for that position, a - indicates
     a score of −1, and a * indicates a score of −2, so that this alignment has a total
     score of 6 · 1 − 2 · 1 − 4 · 2 = −4.
+  id: totrans-524
   prefs: []
   type: TYPE_NORMAL
 - en: '***b.*** Explain how to cast the problem of finding an optimal alignment as
     an edit-distance problem using a subset of the transformation operations copy,
     replace, delete, insert, twiddle, and kill.'
+  id: totrans-525
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-6     Planning a company party***'
+  id: totrans-526
   prefs: []
   type: TYPE_NORMAL
 - en: Professor Blutarsky is consulting for the president of a corporation that is
@@ -2768,6 +3655,7 @@
     department has ranked each employee with a conviviality rating, which is a real
     number. In order to make the party fun for all attendees, the president does not
     want both an employee and his or her immediate supervisor to attend.
+  id: totrans-527
   prefs: []
   type: TYPE_NORMAL
 - en: Professor Blutarsky is given the tree that describes the structure of the corporation,
@@ -2776,9 +3664,11 @@
     and that employee’s conviviality ranking. Describe an algorithm to make up a guest
     list that maximizes the sum of the conviviality ratings of the guests. Analyze
     the running time of your algorithm.
+  id: totrans-528
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-7     Viterbi algorithm***'
+  id: totrans-529
   prefs: []
   type: TYPE_NORMAL
 - en: Dynamic programming on a directed graph can play a part in speech recognition.
@@ -2788,6 +3678,7 @@
     graph starting from a distinguished vertex *v*[0] ∈ *V* corresponds to a possible
     sequence of sounds produced by the model, with the label of a path being the concatenation
     of the labels of the edges on that path.
+  id: totrans-530
   prefs: []
   type: TYPE_NORMAL
 - en: '***a.*** Describe an efficient algorithm that, given an edge-labeled directed
@@ -2796,6 +3687,7 @@
     *s* as its label, if any such path exists. Otherwise, the algorithm should return
     NO-SUCH-PATH. Analyze the running time of your algorithm. (*Hint:* You may find
     concepts from [Chapter 20](chapter020.xhtml) useful.)'
+  id: totrans-531
   prefs: []
   type: TYPE_NORMAL
 - en: Now suppose that every edge (*u*, *v*) ∈ *E* has an associated nonnegative probability
@@ -2806,14 +3698,17 @@
     a “random walk” beginning at *v*[0] follows the specified path, where the edge
     leaving a vertex *u* is taken randomly, according to the probabilities of the
     available edges leaving *u*.
+  id: totrans-532
   prefs: []
   type: TYPE_NORMAL
 - en: '***b.*** Extend your answer to part (a) so that if a path is returned, it is
     a *most probable path* starting at vertex *v*[0] and having label *s*. Analyze
     the running time of your algorithm.'
+  id: totrans-533
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-8     Image compression by seam carving***'
+  id: totrans-534
   prefs: []
   type: TYPE_NORMAL
 - en: 'Suppose that you are given a color picture consisting of an *m*×*n* array *A*[1
@@ -2824,10 +3719,12 @@
     two adjacent rows must lie in either the same column or adjacent columns. In this
     way, the pixels removed form a “seam” from the top row to the bottom row, where
     successive pixels in the seam are adjacent vertically or diagonally.'
+  id: totrans-535
   prefs: []
   type: TYPE_NORMAL
 - en: '***a.*** Show that the number of such possible seams grows at least exponentially
     in *m*, assuming that *n* > 1.'
+  id: totrans-536
   prefs: []
   type: TYPE_NORMAL
 - en: '***b.*** Suppose now that along with each pixel *A*[*i*, *j*], you are given
@@ -2835,13 +3732,16 @@
     be to remove pixel *A*[*i*, *j*]. Intuitively, the lower a pixel’s disruption
     measure, the more similar the pixel is to its neighbors. Define the disruption
     measure of a seam as the sum of the disruption measures of its pixels.'
+  id: totrans-537
   prefs: []
   type: TYPE_NORMAL
 - en: Give an algorithm to find a seam with the lowest disruption measure. How efficient
     is your algorithm?
+  id: totrans-538
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-9     Breaking a string***'
+  id: totrans-539
   prefs: []
   type: TYPE_NORMAL
 - en: A certain string-processing programming language allows you to break a string
@@ -2859,6 +3759,7 @@
     8 time units, totaling 38 time units. In yet another order, you could break first
     at 8 (costing 20), then break the left piece at 2 (costing another 8), and finally
     the right piece at 10 (costing 12), for a total cost of 40.
+  id: totrans-540
   prefs: []
   type: TYPE_NORMAL
 - en: 'Design an algorithm that, given the numbers of characters after which to break,
@@ -2866,9 +3767,11 @@
     array *L*[1 : *m*] containing the break points for a string of *n* characters,
     compute the lowest cost for a sequence of breaks, along with a sequence of breaks
     that achieves this cost.'
+  id: totrans-541
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-10     Planning an investment strategy***'
+  id: totrans-542
   prefs: []
   type: TYPE_NORMAL
 - en: Your knowledge of algorithms helps you obtain an exciting job with a hot startup,
@@ -2889,6 +3792,7 @@
     *f*[2] > *f*[1]. You pay the fee once per year at the end of the year, and it
     is the same amount, *f*[2], whether you move money in and out of only one investment,
     or in and out of many investments.
+  id: totrans-543
   prefs: []
   type: TYPE_NORMAL
 - en: '***a.*** The problem, as stated, allows you to invest your money in multiple
@@ -2896,23 +3800,28 @@
     that, in each year, puts all the money into a single investment. (Recall that
     an optimal investment strategy maximizes the amount of money after 10 years and
     is not concerned with any other objectives, such as minimizing risk.)'
+  id: totrans-544
   prefs: []
   type: TYPE_NORMAL
 - en: '***b.*** Prove that the problem of planning your optimal investment strategy
     exhibits optimal substructure.'
+  id: totrans-545
   prefs: []
   type: TYPE_NORMAL
 - en: '***c.*** Design an algorithm that plans your optimal investment strategy. What
     is the running time of your algorithm?'
+  id: totrans-546
   prefs: []
   type: TYPE_NORMAL
 - en: '***d.*** Suppose that Luvcache’s company imposes the additional restriction
     that, at any point, you can have no more than $15,000 in any one investment. Show
     that the problem of maximizing your income at the end of 10 years no longer exhibits
     optimal substructure.'
+  id: totrans-547
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-11     Inventory planning***'
+  id: totrans-548
   prefs: []
   type: TYPE_NORMAL
 - en: The Rinky Dink Company makes machines that resurface ice rinks. The demand for
@@ -2928,14 +3837,17 @@
     at the end of a month, it must pay inventory costs. The company can hold up to
     *D* machines, with the cost for holding *j* machines given as a function *h*(*j*)
     for *j* = 1, 2, …, *D* that monotonically increases with *j*.
+  id: totrans-549
   prefs: []
   type: TYPE_NORMAL
 - en: Give an algorithm that calculates a plan for the company that minimizes its
     costs while fulfilling all the demand. The running time should be polynomial in
     *n* and *D*.
+  id: totrans-550
   prefs: []
   type: TYPE_NORMAL
 - en: '***14-12     Signing free-agent baseball players***'
+  id: totrans-551
   prefs: []
   type: TYPE_NORMAL
 - en: Suppose that you are the general manager for a major-league baseball team. During
@@ -2943,6 +3855,7 @@
     owner has given you a budget of $*X* to spend on free agents. You are allowed
     to spend less than $*X*, but the owner will fire you if you spend any more than
     $*X*.
+  id: totrans-552
   prefs: []
   type: TYPE_NORMAL
 - en: You are considering *N* different positions, and for each position, *P* free-agent
@@ -2951,6 +3864,7 @@
     each position you may sign at most one free agent who plays that position. (If
     you do not sign any players at a particular position, then you plan to stick with
     the players you already have at that position.)
+  id: totrans-553
   prefs: []
   type: TYPE_NORMAL
 - en: To determine how valuable a player is going to be, you decide to use a sabermetric
@@ -2959,20 +3873,25 @@
     not necessarily more expensive to sign a player with a higher WAR than a player
     with a lower WAR, because factors other than a player’s value determine how much
     it costs to sign them.
+  id: totrans-554
   prefs: []
   type: TYPE_NORMAL
 - en: 'For each available free-agent player *p*, you have three pieces of information:'
+  id: totrans-555
   prefs: []
   type: TYPE_NORMAL
 - en: the player’s position,
+  id: totrans-556
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '*p.cost*, the amount of money it costs to sign the player, and'
+  id: totrans-557
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '*p.war*, the player’s WAR.'
+  id: totrans-558
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
@@ -2981,9 +3900,11 @@
     of $100,000\. Your algorithm should output the total WAR of the players you sign,
     the total amount of money you spend, and a list of which players you sign. Analyze
     the running time and space requirement of your algorithm.
+  id: totrans-559
   prefs: []
   type: TYPE_NORMAL
 - en: '**Chapter notes**'
+  id: totrans-560
   prefs: []
   type: TYPE_NORMAL
 - en: Bellman [[44](bibliography001.xhtml#endnote_44)] began the systematic study
@@ -2992,6 +3913,7 @@
     solution method. Although optimization techniques incorporating elements of dynamic
     programming were known earlier, Bellman provided the area with a solid mathematical
     basis.
+  id: totrans-561
   prefs: []
   type: TYPE_NORMAL
 - en: Galil and Park [[172](bibliography001.xhtml#endnote_172)] classify dynamic-programming
@@ -3001,11 +3923,13 @@
     For example, the matrix-chain multiplication algorithm in [Section 14.2](chapter014.xhtml#Sec_14.2)
     is 2*D*/1*D*, and the longest-common-subsequence algorithm in [Section 14.4](chapter014.xhtml#Sec_14.4)
     is 2*D*/0*D*.
+  id: totrans-562
   prefs: []
   type: TYPE_NORMAL
 - en: The MATRIX-CHAIN-ORDER algorithm on page 378 is by Muraoka and Kuck [[339](bibliography001.xhtml#endnote_339)].
     Hu and Shing [[230](bibliography001.xhtml#endnote_230), [231](bibliography001.xhtml#endnote_231)]
     give an *O*(*n* lg *n*)-time algorithm for the matrix-chain multiplication problem.
+  id: totrans-563
   prefs: []
   type: TYPE_NORMAL
 - en: The *O*(*mn*)-time algorithm for the longest-common-subsequence problem appears
@@ -3018,6 +3942,7 @@
     [[425](bibliography001.xhtml#endnote_425)] shows how to solve the problem in *O*((*n*
     + *m*) lg(*n* + *m*)) time. Many of these results extend to the problem of computing
     string edit distances (Problem 14-5).
+  id: totrans-564
   prefs: []
   type: TYPE_NORMAL
 - en: An early paper on variable-length binary encodings by Gilbert and Moore [[181](bibliography001.xhtml#endnote_181)],
@@ -3032,11 +3957,13 @@
     which all probabilities *p[i]* are 0 that uses *O*(*n*²) time and *O*(*n*) space.
     Subsequently, Knuth [[261](bibliography001.xhtml#endnote_261)] reduced the time
     to *O*(*n* lg *n*).
+  id: totrans-565
   prefs: []
   type: TYPE_NORMAL
 - en: Problem 14-8 is due to Avidan and Shamir [[30](bibliography001.xhtml#endnote_30)],
     who have posted on the web a wonderful video illustrating this image-compression
     technique.
+  id: totrans-566
   prefs: []
   type: TYPE_NORMAL
 - en: '[¹](#footnote_ref_1) If pieces are required to be cut in order of monotonically
@@ -3046,27 +3973,32 @@
     equal to ![art](images/Art_P484.jpg). This quantity is less than 2^(*n*−1), but
     still much greater than any polynomial in *n*. We won’t pursue this line of inquiry
     further, however.'
+  id: totrans-567
   prefs: []
   type: TYPE_NORMAL
 - en: '[²](#footnote_ref_2) The technical term “memoization” is not a misspelling
     of “memorization.” The word “memoization” comes from “memo,” since the technique
     consists of recording a value to be looked up later.'
+  id: totrans-568
   prefs: []
   type: TYPE_NORMAL
 - en: '[³](#footnote_ref_3) None of the three methods from [Sections 4.1](chapter004.xhtml#Sec_4.1)
     and [Section 4.2](chapter004.xhtml#Sec_4.2) can be used directly, because they
     apply only to square matrices.'
+  id: totrans-569
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁴](#footnote_ref_4) The ![art](images/subsupn2.jpg) term counts all pairs
     in which *i* < *j*. Because *i* and *j* may be equal, we need to add in the *n*
     term.'
+  id: totrans-570
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁵](#footnote_ref_5) We use the term “unweighted” to distinguish this problem
     from that of finding shortest paths with weighted edges, which we shall see in
     [Chapters 22](chapter022.xhtml) and [23](chapter023.xhtml). You can use the breadth-first
     search technique of [Chapter 20](chapter020.xhtml) to solve the unweighted problem.'
+  id: totrans-571
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁶](#footnote_ref_6) It may seem strange that dynamic programming relies on
@@ -3075,19 +4007,23 @@
     points on the same axis. Two subproblems of the same problem are independent if
     they do not share resources. Two subproblems are overlapping if they are really
     the same subproblem that occurs as a subproblem of different problems.'
+  id: totrans-572
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁷](#footnote_ref_7) This approach presupposes that you know the set of all
     possible subproblem parameters and that you have established the relationship
     between table positions and subproblems. Another, more general, approach is to
     memoize by using hashing with the subproblem parameters as keys.'
+  id: totrans-573
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁸](#footnote_ref_8) If the subject of the text is ancient Rome, you might
     want *naumachia* to appear near the root.'
+  id: totrans-574
   prefs: []
   type: TYPE_NORMAL
 - en: '[⁹](#footnote_ref_9) Yes, *naumachia* has a Latvian counterpart: *nomačija*.'
+  id: totrans-575
   prefs: []
   type: TYPE_NORMAL
 - en: '[^(10)](#footnote_ref_10) Although there are nine positions on a baseball team,
@@ -3097,10 +4033,12 @@
     well as starting pitchers, long relief pitchers (relief pitchers who can pitch
     several innings), and short relief pitchers (relief pitchers who normally pitch
     at most only one inning).'
+  id: totrans-576
   prefs: []
   type: TYPE_NORMAL
 - en: '[^(11)](#footnote_ref_11) ***Sabermetrics*** is the application of statistical
     analysis to baseball records. It provides several ways to compare the relative
     values of individual players.'
+  id: totrans-577
   prefs: []
   type: TYPE_NORMAL

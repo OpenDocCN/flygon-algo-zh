@@ -1,6 +1,8 @@
 - en: '[**3          Characterizing Running Times**](toc.xhtml#chap-3)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**3          ��征运行时间**](toc.xhtml#chap-3)'
 - en: The order of growth of the running time of an algorithm, defined in [Chapter
     2](chapter002.xhtml), gives a simple way to characterize the algorithm’s efficiency
     and also allows us to compare it with alternative algorithms. Once the input size
@@ -11,16 +13,21 @@
     worth the effort of computing it. For large enough inputs, the multiplicative
     constants and lower-order terms of an exact running time are dominated by the
     effects of the input size itself.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 算法的运行时间增长阶数，在[第2章](chapter002.xhtml)中定义，提供了一种简单的方式来表征算法的效率，并且还允许我们将其与替代算法进行比较。一旦输入大小*n*足够大，具有Θ(*n*
+    lg *n*)最坏情况运行时间的归并排序将击败插入排序，其最坏情况运行时间为Θ(*n*²)。虽然我们有时可以确定算法的确切运行时间，就像我们在[第2章](chapter002.xhtml)中为插入排序所做的那样，但额外的精度很少值得计算。对于足够大的输入，精确运行时间的乘法常数和低阶项都被输入大小本身的影响所主导。
 - en: When we look at input sizes large enough to make relevant only the order of
     growth of the running time, we are studying the ***asymptotic*** efficiency of
     algorithms. That is, we are concerned with how the running time of an algorithm
     increases with the size of the input *in the limit*, as the size of the input
     increases without bound. Usually, an algorithm that is asymptotically more efficient
     is the best choice for all but very small inputs.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们研究使得只有运行时间增长阶数相关的足够大的输入大小时，我们正在研究算法的***渐近***效率。也就是说，我们关心算法的运行时间如何随着输入大小的增长而“极限”增加，即输入大小无限增加时。通常，渐近效率更高的算法是除了非常小的输入外的最佳选择。
 - en: This chapter gives several standard methods for simplifying the asymptotic analysis
     of algorithms. The next section presents informally the three most commonly used
     types of “asymptotic notation,” of which we have already seen an example in Θ-notation.
@@ -28,18 +35,26 @@
     running time of insertion sort. Then we look at asymptotic notations more formally
     and present several notational conventions used throughout this book. The last
     section reviews the behavior of functions that commonly arise when analyzing algorithms.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了几种简化算法渐近分析的标准方法。下一节非正式地介绍了三种最常用的“渐近符号”类型，我们已经在Θ-符号中看到了一个例子。它还展示了如何使用这些渐近符号来推断插入排序的最坏情况运行时间。然后我们更正式地看待渐近符号，并介绍了本书中使用的几种符号约定。最后一节回顾了在分析算法时常见的函数行为。
 - en: '[**3.1      *O*-notation, Ω-notation, and Θ-notation**](toc.xhtml#Rh1-11)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**3.1      *O*-符号，Ω-符号和Θ-符号**](toc.xhtml#Rh1-11)'
 - en: When we analyzed the worst-case running time of insertion sort in [Chapter 2](chapter002.xhtml),
     we started with the complicated expression
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们分析插入排序在[第2章](chapter002.xhtml)的最坏情况运行时间时，我们从复杂的表达式开始。
 - en: '![art](images/Art_P33.jpg)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P33.jpg)'
 - en: 'We then discarded the lower-order terms (*c*[1] + *c*[2] + *c*[4] + *c*[5]/2
     – *c*[6]/2 – *c*[7]/2 + *c*[8])*n* and *c*[2] + *c*[4] + *c*[5] + *c*[8], and
     we also ignored the coefficient *c*[5]/2 + *c*[6]/2 + *c*[7]/2 of *n*². That left
@@ -47,26 +62,35 @@
     to characterize running times of algorithms: discard the lower-order terms and
     the coefficient of the leading term, and use a notation that focuses on the rate
     of growth of the running time.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后我们放弃了低阶项（*c*[1] + *c*[2] + *c*[4] + *c*[5]/2 – *c*[6]/2 – *c*[7]/2 + *c*[8])*n*和*c*[2]
+    + *c*[4] + *c*[5] + *c*[8]，我们也忽略了*n*²的系数*c*[5]/2 + *c*[6]/2 + *c*[7]/2。这样就只剩下因子*n*²，我们将其放入Θ-符号中作为Θ(*n*²)。我们使用这种风格来表征算法的运行时间：舍弃低阶项和主导项的系数，并使用一个侧重于运行时间增长速度的符号。
 - en: Θ-notation is not the only such “asymptotic notation.” In this section, we’ll
     see other forms of asymptotic notation as well. We start with intuitive looks
     at these notations, revisiting insertion sort to see how we can apply them. In
     the next section, we’ll see the formal definitions of our asymptotic notations,
     along with conventions for using them.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: Θ-符号并不是唯一的“渐近符号”。在本节中，我们将看到其他形式的渐近符号。我们从直观地看这些符号开始，重新审视插入排序以了解如何应用它们。在下一节中，我们将看到我们渐近符号的正式定义，以及使用它们的惯例。
 - en: Before we get into specifics, bear in mind that the asymptotic notations we’ll
     see are designed so that they characterize functions in general. It so happens
     that the functions we are most interested in denote the running times of algorithms.
     But asymptotic notation can apply to functions that characterize some other aspect
     of algorithms (the amount of space they use, for example), or even to functions
     that have nothing whatsoever to do with algorithms.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们深入具体内容之前，请记住，我们将看到的渐近符号是设计用来表征一般函数的。碰巧我们最感兴趣的函数表示算法的运行时间。但是渐近符号可以应用于表征算法的其他方面的函数（例如它们使用的空间量），甚至可以应用于与算法毫不相关的函数。
 - en: '***O*-notation**'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '***O*-符号**'
 - en: '*O*-notation characterizes an *upper bound* on the asymptotic behavior of a
     function. In other words, it says that a function grows *no faster* than a certain
     rate, based on the highest-order term. Consider, for example, the function 7*n*³
@@ -77,71 +101,111 @@
     the function grows more slowly than *n*⁴, we are correct in saying that it grows
     no faster. As you might have guessed, this function is also *O*(*n*⁵), *O*(*n*⁶),
     and so on. More generally, it is *O*(*n^c*) for any constant *c* ≥ 3.'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '*O*-notation 描述了函数渐近行为的*上界*。换句话说，它表示函数不会以某种速率*更快*增长，基于最高阶项。例如，考虑函数 7*n*³ +
+    100*n*² – 20*n* + 6。它的最高阶项是 7*n*³，因此我们说这个函数的增长速率是*n*³。因为这个函数不会比*n*³增长更快，我们可以写成它是*O*(*n*³)。你可能会惊讶地发现我们也可以写成函数
+    7*n*³ + 100*n*² – 20*n* + 6 是*O*(*n*⁴)。为什么？因为这个函数增长速度比*n*⁴慢，我们正确地说它不会增长更快。正如你可能猜到的，这个函数也是*O*(*n*⁵)、*O*(*n*⁶)，等等。更一般地说，对于任何常数*c*
+    ≥ 3，它是*O*(*n^c*)。'
 - en: '**Ω-notation**'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '**Ω-notation**'
 - en: Ω-notation characterizes a *lower bound* on the asymptotic behavior of a function.
     In other words, it says that a function grows *at least as fast* as a certain
     rate, based — as in *O*-notation—on the highest-order term. Because the highest-order
     term in the function 7*n*³ + 100*n*² – 20*n* + 6 grows at least as fast as *n*³,
     this function is Ω(*n*³). This function is also Ω(*n*²) and Ω(*n*). More generally,
     it is Ω(*n^c*) for any constant *c* ≤ 3.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: Ω-notation 描述了函数渐近行为的*下界*。换句话说，它表示函数至少以某种速率*增长*，基于最高���项，就像*O*-notation一样。因为函数
+    7*n*³ + 100*n*² – 20*n* + 6 中的最高阶项至少以*n*³速率增长，所以这个函数是Ω(*n*³)。这个函数也是Ω(*n*²)和Ω(*n*)。更一般地说，对于任何常数*c*
+    ≤ 3，它是Ω(*n^c*)。
 - en: '**Θ-notation**'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '**Θ-notation**'
 - en: Θ-notation characterizes a *tight bound* on the asymptotic behavior of a function.
     It says that a function grows *precisely* at a certain rate, based—once again—on
     the highest-order term. Put another way, Θ-notation characterizes the rate of
     growth of the function to within a constant factor from above and to within a
     constant factor from below. These two constant factors need not be equal.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: Θ-notation 描述了函数渐近行为的*紧密界限*。它表示函数以某种速率*精确地*增长，再次基于最高阶项。换句话说，Θ-notation 从上方和下方各一个常数因子的范围内描述了函数的增长速率。这两个常数因子不一定相等。
 - en: If you can show that a function is both *O*(*f* (*n*)) and Ω(*f* (*n*)) for
     some function *f* (*n*), then you have shown that the function is Θ(*f* (*n*)).
     (The next section states this fact as a theorem.) For example, since the function
     7*n*³ + 100*n*² – 20*n* + 6 is both *O*(*n*³) and Ω(*n*³), it is also Θ(*n*³).
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你能证明一个函数既是*O*(*f* (*n*))又是Ω(*f* (*n*))，对于某个函数*f* (*n*)，那么你已经证明了该函数是Θ(*f* (*n*))。（下一节将这个事实陈述为一个定理。）例如，由于函数
+    7*n*³ + 100*n*² – 20*n* + 6 既是*O*(*n*³)又是Ω(*n*³)，它也是Θ(*n*³)。
 - en: '**Example: Insertion sort**'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '**示例：插入排序**'
 - en: 'Let’s revisit insertion sort and see how to work with asymptotic notation to
     characterize its Θ(*n*²) worst-case running time without evaluating summations
     as we did in [Chapter 2](chapter002.xhtml). Here is the INSERTION-SORT procedure
     once again:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们重新审视插入排序，并看看如何使用渐近符号来描述其Θ(*n*²)最坏情况运行时间，而不像我们在[第2章](chapter002.xhtml)中评估求和那样。这里是INSERTION-SORT过程：
 - en: INSERTION-SORT(*A*, *n*)
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: INSERTION-SORT(*A*, *n*)
 - en: '| 1 | **for** *i* = 2 **to** *n* |'
+  id: totrans-20
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **for** *i* = 2 **to** *n* |'
 - en: '| 2 | *key* = *A*[*i*] |'
+  id: totrans-21
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *key* = *A*[*i*] |'
 - en: '| 3 | **//** Insert *A*[*i*] into the sorted subarray *A*[1 : *i* – 1]. |'
+  id: totrans-22
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **//** 将*A*[*i*]插入已排序子数组*A*[1 : *i* – 1]中。|'
 - en: '| 4 | *j* = *i* – 1 |'
+  id: totrans-23
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *j* = *i* – 1 |'
 - en: '| 5 | **while** *j* > 0 and *A*[*j*] > *key* |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **while** *j* > 0 and *A*[*j*] > *key* |'
 - en: '| 6 | *A*[*j* + 1] = *A*[*j*] |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *A*[*j* + 1] = *A*[*j*] |'
 - en: '| 7 | *j* = *j* – 1 |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *j* = *j* – 1 |'
 - en: '| 8 | *A*[*j* + 1] = *key* |'
+  id: totrans-27
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | *A*[*j* + 1] = *key* |'
 - en: What can we observe about how the pseudocode operates? The procedure has nested
     loops. The outer loop is a **for** loop that runs *n* – 1 times, regardless of
     the values being sorted. The inner loop is a **while** loop, but the number of
@@ -150,19 +214,26 @@
     0 or *A*[*j*] ≤ *key*. For a given value of *i*, the **while** loop might iterate
     0 times, *i* – 1 times, or anywhere in between. The body of the **while** loop
     (lines 6–7) takes constant time per iteration of the **while** loop.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们能观察到伪代码是如何运作的吗？该过程有嵌套循环。外部循环是一个**for**循环，无论被排序的值如何，都会运行*n* – 1次。内部循环是一个**while**循环，但它的迭代次数取决于被排序的值。循环变量*j*从*i*
+    – 1开始，并在每次迭代中减1，直到它达到0或*A*[*j*] ≤ *key*。对于给定的*i*值，**while**循环可能迭代0次，*i* – 1次，或者在中间。**while**循环的主体（第6-7行）每次迭代都需要恒定时间。
 - en: '![art](images/Art_P34.jpg)'
+  id: totrans-29
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P34.jpg)'
 - en: '**Figure 3.1** The Ω(*n*²) lower bound for insertion sort. If the first *n*/3
     positions contain the *n*/3 largest values, each of these values must move through
     each of the middle *n*/3 positions, one position at a time, to end up somewhere
     in the last *n*/3 positions. Since each of *n*/3 values moves through at least
     each of *n*/3 positions, the time taken in this case is at least proportional
     to (*n*/3)(*n*/3) = *n*²/9, or Ω(*n*²).'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 3.1** 插入排序的Ω(*n*²) 下界。如果前*n*/3个位置包含*n*/3个最大值，每个值都必须通过中间的*n*/3个位置，逐个位置地移动，最终到达最后的*n*/3个位置之一。因为每个*n*/3个值都至少通过每个*n*/3个位置，所以在这种情况下所花费的时间至少与(*n*/3)(*n*/3)成比例，即Ω(*n*²)。'
 - en: These observations suffice to deduce an *O*(*n*²) running time for any case
     of INSERTION-SORT, giving us a blanket statement that covers all inputs. The running
     time is dominated by the inner loop. Because each of the *n* – 1 iterations of
@@ -171,16 +242,21 @@
     (*n* – 1)(*n* – 1), which is less than *n*². Since each iteration of the inner
     loop takes constant time, the total time spent in the inner loop is at most a
     constant times *n*², or *O*(*n*²).
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些观察足以推断出对于任何INSERTION-SORT情况的*O*(*n*²)运行时间，给我们一个涵盖所有输入的总体陈述。运行时间由内循环主导。因为外循环的*n*
+    – 1次迭代使内循环最多迭代*i* – 1次，而*i*最多为*n*，内循环的总迭代次数最多为(*n* – 1)(*n* – 1)，小于*n*²。由于内循环的每次迭代都需要恒定时间，内循环中花费的总时间最多为一个常数乘以*n*²，即*O*(*n*²)。
 - en: With a little creativity, we can also see that the worst-case running time of
     INSERTION-SORT is Ω(*n*²). By saying that the worst-case running time of an algorithm
     is Ω(*n*²), we mean that for every input size *n* above a certain threshold, there
     is at least one input of size *n* for which the algorithm takes at least *cn*²
     time, for some positive constant *c*. It does not necessarily mean that the algorithm
     takes at least *cn*² time for all inputs.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过一点创造力，我们还可以看到INSERTION-SORT的最坏情况运行时间是Ω(*n*²)。当我们说一个算法的最坏情况运行时间是Ω(*n*²)时，我们的意思是对于某个阈值以上的每个输入大小*n*，存在至少一个大小为*n*的输入，使得算法至少需要*cn*²时间，其中*c*是某个正常数。这并不一定意味着算法对所有输入都需要至少*cn*²时间。
 - en: 'Let’s now see why the worst-case running time of INSERTION-SORT is Ω(*n*²).
     For a value to end up to the right of where it started, it must have been moved
     in line 6\. In fact, for a value to end up *k* positions to the right of where
@@ -197,8 +273,12 @@
     *n*/3 values have to pass through at least *n*/3 positions, the time taken by
     INSERTION-SORT in the worst case is at least proportional to (*n*/3)(*n*/3) =
     *n*²/9, which is Ω(*n*²).'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '现在让我们看看为什么INSERTION-SORT的最坏情况运行时间是Ω(*n*²)。为了使一个值最终出现在其起始位置的右侧，它必须在第6行中被移动。实际上，为了使一个值最终出现在其起始位置的右侧*k*个位置，第6行必须执行*k*次。正如[图3.1](chapter003.xhtml#Fig_3-1)所示，让我们假设*n*是3的倍数，这样我们可以将数组*A*分成*n*/3个位置的组。假设在输入到INSERTION-SORT中，*n*/3个最大值占据了数组的前*n*/3个位置*A*[1
+    : *n*/3]。（它们在前*n*/3个位置内的相对顺序并不重要。）一旦数组被排序，这*n*/3个值中的每一个最终都会出现在最后*n*/3个位置*A*[2*n*/3
+    + 1 : *n*]中的某个位置。为了实现这一点，这*n*/3个值中的每一个都必须通过中间*n*/3个位置*A*[*n*/3 + 1 : 2*n*/3]中的每一个位置。这*n*/3个值中的每一个都通过这些中间*n*/3个位置，每次通过一个位置，至少执行*n*/3次第6行。因为至少有*n*/3个值必须通过至少*n*/3个位置，所以INSERTION-SORT在最坏情况下所花费的时间至少与(*n*/3)(*n*/3)成比例，即*n*²/9，这是Ω(*n*²)。'
 - en: Because we have shown that INSERTION-SORT runs in *O*(*n*²) time in all cases
     and that there is an input that makes it take Ω(*n*²) time, we can conclude that
     the worst-case running time of INSERTION-SORT is Θ(*n*²). It does not matter that
@@ -207,50 +287,73 @@
     (discounting lower-order terms). This argument does not show that INSERTION-SORT
     runs in Θ(*n*²) time in *all* cases. Indeed, we saw in [Chapter 2](chapter002.xhtml)
     that the best-case running time is Θ(*n*).
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为我们已经证明了INSERTION-SORT在所有情况下都以*O*(*n*²)时间运行，并且有一个使其花费Ω(*n*²)时间的输入，我们可以得出结论，INSERTION-SORT的最坏情况运行时间是Θ(*n*²)。上界和下界的常数因子可能不同并不重要。重要的是我们已经在常数因子内表征了最坏情况运行时间（忽略低阶项）。这个论证并不表明INSERTION-SORT在*所有*情况下都以Θ(*n*²)时间运行。事实上，我们在[第2章](chapter002.xhtml)中看到最佳情况运行时间是Θ(*n*)。
 - en: '**Exercises**'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***3.1-1***'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.1-1***'
 - en: Modify the lower-bound argument for insertion sort to handle input sizes that
     are not necessarily a multiple of 3.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改插入排序的下界论证，以处理不一定是3的倍数的输入大小。
 - en: '***3.1-2***'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.1-2***'
 - en: Using reasoning similar to what we used for insertion sort, analyze the running
     time of the selection sort algorithm from Exercise 2.2-2.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用类似于插入排序的推理，分析练习2.2-2中选择排序算法的运行时间。
 - en: '***3.1-3***'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.1-3***'
 - en: Suppose that *α* is a fraction in the range 0 < *α* < 1\. Show how to generalize
     the lower-bound argument for insertion sort to consider an input in which the
     *αn* largest values start in the first *αn* positions. What additional restriction
     do you need to put on *α*? What value of *α* maximizes the number of times that
     the *αn* largest values must pass through each of the middle (1 – 2*α*)*n* array
     positions?
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设*α*是范围0 < *α* < 1内的一个分数。展示如何将插入排序的下界论证推广到考虑一个输入，其中*αn*个最大值从前*αn*个位置开始。你需要对*α*加上什么额外限制？什么值的*α*最大化了*αn*个最大值必须通过每个中间(1
+    – 2*α*)*n*数组位置的次数？
 - en: '[**3.2      Asymptotic notation: formal definitions**](toc.xhtml#Rh1-12)'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**3.2      渐近符号：正式定义**](toc.xhtml#Rh1-12)'
 - en: Having seen asymptotic notation informally, let’s get more formal. The notations
     we use to describe the asymptotic running time of an algorithm are defined in
     terms of functions whose domains are typically the set N of natural numbers or
     the set R of real numbers. Such notations are convenient for describing a running-time
     function *T* (*n*). This section defines the basic asymptotic notations and also
     introduces some common “proper” notational abuses.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 在非正式地了解渐近符号后，让我们更正式一些。我们用来描述算法渐近运行时间的符号是以通常为自然数集合N或实数集合R为定义域的函数为基础的。这些符号方便描述运行时间函数*T*(*n*)。本节定义了基本的渐近符号，并介绍了一些常见的“正确”符号滥用。
 - en: '![art](images/Art_P35.jpg)'
+  id: totrans-44
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P35.jpg)'
 - en: '**Figure 3.2** Graphic examples of the *O*, Ω, and Θ notations. In each part,
     the value of *n*[0] shown is the minimum possible value, but any greater value
     also works. **(a)** *O*-notation gives an upper bound for a function to within
@@ -264,33 +367,49 @@
     exist positive constants *n*[0], *c*[1], and *c*[2] such that at and to the right
     of *n*[0], the value of *f* (*n*) always lies between *c*[1]*g*(*n*) and *c*[2]*g*(*n*)
     inclusive.'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 3.2** *O*、Ω和Θ符号的图形示例。在每个部分中，所示的*n*[0]的值是最小可能值，但任何更大的值也适用。**(a)** *O*符号给出函数的上界，即在一个常数因子内。我们写作*f*(*n*)
+    = *O*(*g*(*n*))，如果存在正常数*n*[0]和*c*，使得在*n*[0]及其右侧，*f*(*n*)的值始终在或低于*cg*(*n*)。**(b)**
+    Ω符号给出函数的下界，即在一个常数因子内。我们写作*f*(*n*) = Ω(*g*(*n*))，如果存在正常数*n*[0]和*c*，使得在*n*[0]及其右侧，*f*(*n*)的值始终在或高于*cg*(*n*)。**(c)**
+    Θ符号将函数限制在常数因子内。我们写作*f*(*n*) = Θ(*g*(*n*))，如果存在正常数*n*[0]、*c*[1]和*c*[2]，使得在*n*[0]及其右侧，*f*(*n*)的值始终在*c*[1]*g*(*n*)和*c*[2]*g*(*n*)之间（包括边界）。'
 - en: '***O*-notation**'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: '***O*符号**'
 - en: As we saw in [Section 3.1](chapter003.xhtml#Sec_3.1), *O*-notation describes
     an ***asymptotic upper bound***. We use *O*-notation to give an upper bound on
     a function, to within a constant factor.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们在[第3.1节](chapter003.xhtml#Sec_3.1)中看到的，*O*符号描述了一个***渐近上界***。我们使用*O*符号给出函数的上界，即在一个常数因子内。
 - en: Here is the formal definition of *O*-notation. For a given function *g*(*n*),
     we denote by *O*(*g*(*n*)) (pronounced “big-oh of *g* of *n*” or sometimes just
     “oh of *g* of *n*”) the *set of functions*
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是*O*符号的正式定义。对于给定的函数*g*(*n*)，我们用*O*(*g*(*n*))（读作“*g*的*O*”或有时只是“*g*的*O*”）表示*函数集合*。
 - en: '| *O*(*g*(*n*)) = {*f* (*n*) |  :  | there exist positive constants *c* and
     *n*[0] such that 0 ≤ *f* (*n*) ≤ *cg*(*n*) for all *n* ≥ *n*[0]}.^([1](#footnote_1))
     |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| *O*(*g*(*n*)) = {*f*(*n*) |  :  | 存在正常数*c*和*n*[0]，使得对所有*n* ≥ *n*[0]，都有0 ≤
+    *f*(*n*) ≤ *cg*(*n*)}。^([1](#footnote_1)) |'
 - en: A function *f* (*n*) belongs to the set *O*(*g*(*n*)) if there exists a positive
     constant *c* such that *f* (*n*) ≤ *cg*(*n*) for sufficiently large *n*. [Figure
     3.2(a)](chapter003.xhtml#Fig_3-2) shows the intuition behind *O*-notation. For
     all values *n* at and to the right of *n*[0], the value of the function *f* (*n*)
     is on or below *cg*(*n*).
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果存在正常数*c*，使得对足够大的*n*，*f*(*n*) ≤ *cg*(*n*)，则函数*f*(*n*)属于集合*O*(*g*(*n*))。[图3.2(a)](chapter003.xhtml#Fig_3-2)展示了*O*符号背后的直觉。对于所有在*n*[0]及其右侧的值*n*，函数*f*(*n*)的值在或低于*cg*(*n*)。
 - en: 'The definition of *O*(*g*(*n*)) requires that every function *f* (*n*) in the
     set *O*(*g*(*n*)) be ***asymptotically nonnegative***: *f* (*n*) must be nonnegative
     whenever *n* is sufficiently large. (An ***asymptotically positive*** function
@@ -299,16 +418,21 @@
     is empty. We therefore assume that every function used within *O*-notation is
     asymptotically nonnegative. This assumption holds for the other asymptotic notations
     defined in this chapter as well.'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '*O*(*g*(*n*))的定义要求集合*O*(*g*(*n*))中的每个函数*f*(*n*)都是***渐近非负***的：当*n*足够大时，*f*(*n*)必须是非负的。（***渐近正***函数是指对所有足够大的*n*都是正的函数。）因此，函数*g*(*n*)本身必须是渐近非负的，否则集合*O*(*g*(*n*))为空。因此，我们假设在*O*符号中使用的每个函数都是渐近非负的。这个假设对本章中定义的其他渐近符号也成立。'
 - en: You might be surprised that we define *O*-notation in terms of sets. Indeed,
     you might expect that we would write “*f* (*n*) ∈ *O*(*g*(*n*))” to indicate that
     *f* (*n*) belongs to the set *O*(*g*(*n*)). Instead, we usually write “*f* (*n*)
     = *O*(*g*(*n*))” and say “*f* (*n*) is big-oh of *g*(*n*)” to express the same
     notion. Although it may seem confusing at first to abuse equality in this way,
     we’ll see later in this section that doing so has its advantages.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能会惊讶我们用集合来定义*O*符号。实际上，你可能期望我们会写“*f*(*n*) ∈ *O*(*g*(*n*))”来表示*f*(*n*)属于集合*O*(*g*(*n*))。相反，我们通常写“*f*(*n*)
+    = *O*(*g*(*n*))”，并说“*f*(*n*)是*O*(*g*(*n*))”来表达相同的概念。虽然一开始滥用等号可能看起来令人困惑，但我们将在本节后面看到这样做的优点。
 - en: Let’s explore an example of how to use the formal definition of *O*-notation
     to justify our practice of discarding lower-order terms and ignoring the constant
     coefficient of the highest-order term. We’ll show that 4*n*² + 100*n* + 500 =
@@ -319,8 +443,14 @@
     of *c* and *n*[0]. For example, if we choose *n*[0] = 1, then this inequality
     holds for *c* = 604\. If we choose *n*[0] = 10, then *c* = 19 works, and choosing
     *n*[0] = 100 allows us to use *c* = 5.05.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们探讨如何使用 *O*-符号的形式定义来证明我们丢弃低阶项并忽略最高阶项的常数系数的做法。我们将证明 4*n*² + 100*n* + 500 =
+    *O*(*n*²)，即使低阶项的系数比主导项大得多。我们需要找到正常数 *c* 和 *n*[0]，使得对于所有 *n* ≥ *n*[0]，有 4*n*² +
+    100*n* + 500 ≤ *cn*²。将两边都除以 *n*² 得到 4 + 100/*n* + 500/*n*² ≤ *c*。这个不等式对于许多 *c*
+    和 *n*[0] 的选择都成立。例如，如果我们选择 *n*[0] = 1，那么这个不等式对于 *c* = 604 成立。如果我们选择 *n*[0] = 10，那么
+    *c* = 19 有效，选择 *n*[0] = 100 允许我们使用 *c* = 5.05。
 - en: We can also use the formal definition of *O*-notation to show that the function
     *n*³ – 100*n*² does not belong to the set *O*(*n*²), even though the coefficient
     of *n*² is a large negative number. If we had *n*³ – 100*n*² = *O*(*n*²), then
@@ -328,33 +458,53 @@
     for all *n* ≥ *n*[0]. Again, we divide both sides by *n*², giving *n* – 100 ≤
     *c*. Regardless of what value we choose for the constant *c*, this inequality
     does not hold for any value of *n* > *c* + 100.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也可以使用 *O*-符号的形式定义来证明函数 *n*³ – 100*n*² 不属于集合 *O*(*n*²)，即使 *n*² 的系数是一个较大的负数。如果
+    *n*³ – 100*n*² = *O*(*n*²)，那么就会存在正常数 *c* 和 *n*[0]，使得对于所有 *n* ≥ *n*[0]，有 *n*³ –100*n*²
+    ≤ *cn*²。再次，我们将两边都除以 *n*²，得到 *n* – 100 ≤ *c*。无论我们选择常数 *c* 的值是多少，这个不等式对于任何 *n* >
+    *c* + 100 的值都不成立。
 - en: '**Ω-notation**'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: '**Ω-符号**'
 - en: Just as *O*-notation provides an asymptotic *upper* bound on a function, Ω-notation
     provides an ***asymptotic lower bound***. For a given function *g*(*n*), we denote
     by Ω(*g*(*n*)) (pronounced “big-omega of *g* of *n*” or sometimes just “omega
     of *g* of *n*”) the set of functions
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像 *O*-符号为函数提供了一个渐近*上限*，Ω-符号提供了一个***渐近下限***。对于给定函数 *g*(*n*)，我们用 Ω(*g*(*n*))（读作“*g*
+    of *n* 的大omega”或有时只是“*g* of *n* 的omega”）表示函数集合
 - en: '| Ω(*g*(*n*)) = {*f* (*n*) |  :  | there exist positive constants *c* and *n*[0]
     such that 0 ≤ *cg*(*n*) ≤ *f* (*n*) for all *n* ≥ *n*[0]}. |'
+  id: totrans-57
   prefs: []
   type: TYPE_TB
+  zh: '| Ω(*g*(*n*)) = {*f* (*n*) |  :  | 存在正常数 *c* 和 *n*[0]，使得对于所有 *n* ≥ *n*[0]，有
+    0 ≤ *cg*(*n*) ≤ *f* (*n*)}. |'
 - en: '[Figure 3.2(b)](chapter003.xhtml#Fig_3-2) shows the intuition behind Ω-notation.
     For all values *n* at or to the right of *n*[0], the value of *f* (*n*) is on
     or above *cg*(*n*).'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 3.2(b)](chapter003.xhtml#Fig_3-2) 展示了Ω-符号背后的直觉。对于所有大于等于 *n*[0] 的 *n* 值，*f*
+    (*n*) 的值位于或高于 *cg*(*n*)。'
 - en: We’ve already shown that 4*n*² + 100*n* + 500 = *O*(*n*²). Now let’s show that
     4*n*² + 100*n* + 500 = Ω(*n*²). We need to find positive constants *c* and *n*[0]
     such that 4*n*² + 100*n* + 500 ≥ *cn*² for all *n* ≥ *n*[0]. As before, we divide
     both sides by *n*², giving 4 + 100/*n* + 500/*n*² ≥ *c*. This inequality holds
     when *n*[0] is any positive integer and *c* = 4.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经证明了 4*n*² + 100*n* + 500 = *O*(*n*²)。现在让我们证明 4*n*² + 100*n* + 500 = Ω(*n*²)。我们需要找到正常数
+    *c* 和 *n*[0]，使得对于所有 *n* ≥ *n*[0]，有 4*n*² + 100*n* + 500 ≥ *cn*²。与之前一样，我们将两边都除以
+    *n*²，得到 4 + 100/*n* + 500/*n*² ≥ *c*。当 *n*[0] 是任意正整数且 *c* = 4 时，这个不等式成立。
 - en: What if we had subtracted the lower-order terms from the 4*n*² term instead
     of adding them? What if we had a small coefficient for the *n*² term? The function
     would still be Ω(*n*²). For example, let’s show that *n*²/100 – 100*n* – 500 =
@@ -365,62 +515,96 @@
     we can also increase *c*. For example, if *n*[0] = 100,000, then we can choose
     *c* = 0.0089\. The higher the value of *n*[0], the closer to the coefficient 1/100
     we can choose *c*.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们从 4*n*² 项中减去低阶项而不是加上它们会怎样？如果 *n*² 项的系数很小会怎样？这个函数仍然是 Ω(*n*²)。例如，让我们证明 *n*²/100
+    – 100*n* – 500 = Ω(*n*²)。将其除以 *n*² 得到 1/100 – 100/*n* – 500/*n*² ≥ *c*。我们可以选择任何大于等于
+    10,005 的 *n*[0] 值，并找到一个正值的 *c*。例如，当 *n*[0] = 10,005 时，我们可以选择 *c* = 2.49 × 10^(–9)。是的，这是一个很小的
+    *c* 值，但它是正的。如果我们选择更大的 *n*[0] 值，我们也可以增加 *c*。例如，如果 *n*[0] = 100,000，那么我们可以选择 *c*
+    = 0.0089。*n*[0] 的值越高，我们就可以选择越接近 1/100 系数的 *c*。
 - en: '**Θ-notation**'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '**Θ-符号**'
 - en: We use Θ-notation for ***asymptotically tight bounds***. For a given function
     *g*(*n*), we denote by Θ(*g*(*n*)) (“theta of *g* of *n*”) the set of functions
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用 Θ-符号表示***渐近紧密界***。对于给定函数 *g*(*n*)，我们用 Θ(*g*(*n*))（读作“*g* of *n* 的theta”）表示函数集合
 - en: '| Θ(*g*(*n*)) = {*f* (*n*) |  :  | there exist positive constants *c*[1], *c*[2],
     and *n*[0] such that 0 ≤ *c*[1]*g*(*n*) ≤ *f* (*n*) ≤ *c*[2]*g*(*n*) for all *n*
     ≥ *n*[0]}. |'
+  id: totrans-63
   prefs: []
   type: TYPE_TB
+  zh: '| Θ(*g*(*n*)) = {*f* (*n*) |  :  | 存在正常数 *c*[1]、*c*[2] 和 *n*[0]，使得对于所有 *n*
+    ≥ *n*[0]，有 0 ≤ *c*[1]*g*(*n*) ≤ *f* (*n*) ≤ *c*[2]*g*(*n*)}. |'
 - en: '[Figure 3.2(c)](chapter003.xhtml#Fig_3-2) shows the intuition behind Θ-notation.
     For all values of *n* at and to the right of *n*[0], the value of *f* (*n*) lies
     at or above *c*[1]*g*(*n*) and at or below *c*[2]*g*(*n*). In other words, for
     all *n* ≥ *n*[0], the function *f* (*n*) is equal to *g*(*n*) to within constant
     factors.'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 3.2(c)](chapter003.xhtml#Fig_3-2) 展示了Θ-符号背后的直觉。对于所有大于等于 *n*[0] 的 *n* 值，*f*
+    (*n*) 的值位于或高于 *c*[1]*g*(*n*)，且位于或低于 *c*[2]*g*(*n*)。换句话说，对于所有 *n* ≥ *n*[0]，函数 *f*
+    (*n*) 与 *g*(*n*) 之间存在常数因子的关系。'
 - en: The definitions of *O*-, Ω-, and Θ-notations lead to the following theorem,
     whose proof we leave as Exercise 3.2-4.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '*O*-、Ω- 和 Θ-符号的定义导致了以下定理，其证明我们留作练习 3.2-4。'
 - en: '***Theorem 3.1***'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 3.1***'
 - en: For any two functions *f* (*n*) and *g*(*n*), we have *f* (*n*) = Θ(*g*(*n*))
     if and only if *f* (*n*) = *O*(*g*(*n*)) and *f* (*n*) = Ω(*g*(*n*)).
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意两个函数 *f* (*n*) 和 *g*(*n*)，当且仅当 *f* (*n*) = *O*(*g*(*n*)) 且 *f* (*n*) = Ω(*g*(*n*))
+    时，我们有 *f* (*n*) = Θ(*g*(*n*))。
 - en: ▪
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: We typically apply Theorem 3.1 to prove asymptotically tight bounds from asymptotic
     upper and lower bounds.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们通常应用定理3.1来从渐近上界和下界中证明渐近紧密界限。
 - en: '**Asymptotic notation and running times**'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '**渐近符号和运行时间**'
 - en: When you use asymptotic notation to characterize an algorithm’s running time,
     make sure that the asymptotic notation you use is as precise as possible without
     overstating which running time it applies to. Here are some examples of using
     asymptotic notation properly and improperly to characterize running times.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你使用渐近符号来描述算法的运行时间时，确保你使用的渐近符号尽可能精确，而不要夸大适用于哪种运行时间。以下是一些正确和不正确地使用渐近符号来描述运行时间的例子。
 - en: Let’s start with insertion sort. We can correctly say that insertion sort’s
     worst-case running time is *O*(*n*²), Ω(*n*²), and—due to Theorem 3.1—Θ(*n*²).
     Although all three ways to characterize the worst-case running times are correct,
     the Θ(*n*²) bound is the most precise and hence the most preferred. We can also
     correctly say that insertion sort’s best-case running time is *O*(*n*), Ω(*n*),
     and Θ(*n*), again with Θ(*n*) the most precise and therefore the most preferred.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们以插入排序开始。我们可以正确地说插入排序的最坏情况运行时间是*O*(*n*²)，Ω(*n*²)，并且—由定理3.1—Θ(*n*²)。尽管这三种方式来描述最坏情况的运行时间都是正确的，但Θ(*n*²)界限是最精确和最受欢迎的。我们也可以正确地说插入排序的最佳情况运行时间是*O*(*n*)，Ω(*n*)，并且Θ(*n*)，同样Θ(*n*)是最精确和因此最受欢迎的。
 - en: 'Here is what we *cannot* correctly say: insertion sort’s running time is Θ(*n*²).
     That is an overstatement because by omitting “worst-case” from the statement,
     we’re left with a blanket statement covering all cases. The error here is that
@@ -431,13 +615,17 @@
     in having cases whose running time grows more slowly than *n*². Likewise, we cannot
     correctly say that insertion sort’s running time is Θ(*n*), but we can say that
     its running time is Ω(*n*).'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是我们*不能*正确说的：插入排序的运行时间是Θ(*n*²)。这是一个夸大，因为通过从陈述中省略“最坏情况”，我们得到了一个涵盖所有情况的笼统陈述。错误在于插入排序并不在所有情况下都以Θ(*n*²)时间运行，因为正如我们所见，它在最佳情况下以Θ(*n*)时间运行。然而，我们可以正确地说插入排序的运行时间是*O*(*n*²)，因为在所有情况下，它的运行时间增长不会比*n*²更快。当我们说*O*(*n*²)而不是Θ(*n*²)时，没有问题出现在其运行时间增长得更慢的情况。同样，我们不能正确地说插入排序的运行时间是Θ(*n*)，但我们可以说它的运行时间是Ω(*n*)。
 - en: How about merge sort? Since merge sort runs in Θ(*n* lg *n*) time in all cases,
     we can just say that its running time is Θ(*n* lg *n*) without specifying worst-case,
     best-case, or any other case.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么归并排序呢？由于归并排序在所有情况下的运行时间都是Θ(*n* lg *n*)，我们可以简单地说它的运行时间是Θ(*n* lg *n*)，而不指定最坏情况、最佳情况或其他情况。
 - en: People occasionally conflate *O*-notation with Θ-notation by mistakenly using
     *O*-notation to indicate an asymptotically tight bound. They say things like “an
     *O*(*n* lg *n*)-time algorithm runs faster than an *O*(*n*²)-time algorithm.”
@@ -445,8 +633,10 @@
     upper bound, that so-called *O*(*n*²)-time algorithm might actually run in Θ(*n*)
     time. You should be careful to choose the appropriate asymptotic notation. If
     you want to indicate an asymptotically tight bound, use Θ-notation.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时人们会错误地将*O*符号与Θ符号混淆，通过错误地使用*O*符号来表示渐近紧密界限。他们会说类似“一个*O*(*n* lg *n*)时间复杂度的算法比一个*O*(*n*²)时间复杂度的算法运行得更快。”也许是这样，也许不是。由于*O*符号仅表示一个渐近上界，所谓的*O*(*n*²)时间复杂度的算法实际上可能在Θ(*n*)时间内运行。你应该谨慎选择适当的渐近符号。如果你想表示一个渐近紧密界限，使用Θ符号。
 - en: 'We typically use asymptotic notation to provide the simplest and most precise
     bounds possible. For example, if an algorithm has a running time of 3*n*² + 20*n*
     in all cases, we use asymptotic notation to write that its running time is Θ(*n*²).
@@ -461,17 +651,27 @@
     some other functions, such as exponentials, lg lg *n*, and lg^**n* (see [Section
     3.3](chapter003.xhtml#Sec_3.3)). It is usually fairly easy to compare the rates
     of growth of these functions. Problem 3-3 gives you good practice.'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们通常使用渐近符号来提供最简单和最精确的界限。例如，如果一个算法在所有情况下的运行时间是3*n*² + 20*n*，我们使用渐近符号写出它的运行时间是Θ(*n*²)。严格来说，我们也可以写出运行时间是*O*(*n*³)或Θ(3*n*²
+    + 20*n*)。然而，在这种情况下，这些表达都不如写Θ(*n*²)有用：*O*(*n*³)比Θ(*n*²)不够精确，如果运行时间是3*n*² + 20*n*，而Θ(3*n*²
+    + 20*n*)引入了复杂性，使增长顺序变得模糊。通过写出最简单和最精确的界限，如Θ(*n*²)，我们可以对不同的算法进行分类和比较。在整本书中，你会看到几乎所有基于多项式和对数的渐近运行时间：例如*n*，*n*
+    lg² *n*，*n*² lg *n*，或*n*^(1/2)。你还会看到一些其他函数，如指数函数，lg lg *n*，和lg^**n*（见[第3.3节](chapter003.xhtml#Sec_3.3)）。通常很容易比较这些函数的增长速度。问题3-3会给你很好的练习。
 - en: '**Asymptotic notation in equations and inequalities**'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '**方程和不等式中的渐近符号**'
 - en: Although we formally define asymptotic notation in terms of sets, we use the
     equal sign (=) instead of the set membership sign (∈) within formulas. For example,
     we wrote that 4*n*² + 100*n* + 500 = *O*(*n*²). We might also write 2*n*² + 3*n*
     + 1 = 2*n*² + Θ(*n*). How do we interpret such formulas?
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管我们在形式上是用集合来定义渐近符号，但在公式中我们使用等号(=)而不是集合成员符号(∈)。例如，我们写道4*n*² + 100*n* + 500 =
+    *O*(*n*²)。我们也可以写成2*n*² + 3*n* + 1 = 2*n*² + Θ(*n*)。我们如何解释这样的公式？
 - en: 'When the asymptotic notation stands alone (that is, not within a larger formula)
     on the right-hand side of an equation (or inequality), as in 4*n*² + 100*n* +
     500 = *O*(*n*²), the equal sign means set membership: 4*n*² + 100*n* + 500 ∈ *O*(*n*²).
@@ -480,40 +680,61 @@
     the formula 2*n*² + 3*n* + 1 = 2*n*² + Θ(*n*) means that 2*n*² + 3*n* + 1 = 2*n*²
     + *f* (*n*), where *f* (*n*) ∈ Θ(*n*). In this case, we let *f* (*n*) = 3*n* +
     1, which indeed belongs to Θ(*n*).'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 当渐近符号单独出现（即不在更大的公式中）在等式（或不等式）的右侧时，如4*n*² + 100*n* + 500 = *O*(*n*²)，等号表示集合成员关系：4*n*²
+    + 100*n* + 500 ∈ *O*(*n*²)。然而，一般情况下，当渐近符号出现在公式中时，我们将其解释为代表一些我们不愿意命名的匿名函���。例如，公式2*n*²
+    + 3*n* + 1 = 2*n*² + Θ(*n*)意味着2*n*² + 3*n* + 1 = 2*n*² + *f*(*n*)，其中*f*(*n*) ∈
+    Θ(*n*)。在这种情况下，我们让*f*(*n*) = 3*n* + 1，这确实属于Θ(*n*)。
 - en: Using asymptotic notation in this manner can help eliminate inessential detail
     and clutter in an equation. For example, in [Chapter 2](chapter002.xhtml) we expressed
     the worst-case running time of merge sort as the recurrence
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 以这种方式使用渐近符号可以帮助消除等式中不必要的细节和混乱。例如，在[第2章](chapter002.xhtml)中，我们将归并排序的最坏情况运行时间表达为递归
 - en: '*T* (*n*) = 2*T* (*n*/2) + Θ(*n*).'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '*T*(*n*) = 2*T*(*n*/2) + Θ(*n*).'
 - en: If we are interested only in the asymptotic behavior of *T* (*n*), there is
     no point in specifying all the lower-order terms exactly, because they are all
     understood to be included in the anonymous function denoted by the term Θ(*n*).
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们只对*T*(*n*)的渐近行为感兴趣，那么没有必要准确指定所有低阶项，因为它们都被理解为包含在由Θ(*n*)表示的匿名函数中。
 - en: The number of anonymous functions in an expression is understood to be equal
     to the number of times the asymptotic notation appears. For example, in the expression
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 表达式中匿名函数的数量被理解为渐近符号出现的次数。例如，在表达式
 - en: '![art](images/Art_P36.jpg)'
+  id: totrans-84
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P36.jpg)'
 - en: there is only a single anonymous function (a function of *i*). This expression
     is thus *not* the same as *O*(1) + *O*(2) + ⋯ + *O*(*n*), which doesn’t really
     have a clean interpretation.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 只有一个匿名函数（一个关于*i*的函数）。因此，这个表达式与*O*(1) + *O*(2) + ⋯ + *O*(*n*)不同，后者没有一个清晰的解释。
 - en: In some cases, asymptotic notation appears on the left-hand side of an equation,
     as in
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些情况下，渐近符号出现在等式的左侧，如
 - en: 2*n*² + Θ(*n*) = Θ(*n*²).
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 2*n*² + Θ(*n*) = Θ(*n*²).
 - en: 'Interpret such equations using the following rule: *No matter how the anonymous
     functions are chosen on the left of the equal sign, there is a way to choose the
     anonymous functions on the right of the equal sign to make the equation valid*.
@@ -521,17 +742,26 @@
     function *g*(*n*) ∈ Θ(*n*²) such that 2*n*² + *f* (*n*) = *g*(*n*) for all *n*.
     In other words, the right-hand side of an equation provides a coarser level of
     detail than the left-hand side.'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用以下规则解释这样的方程：*无论左侧等号上如何选择匿名函数，都可以选择右侧等号上的匿名函数使方程成立*。因此，我们的例子意味着对于任何函数*f*(*n*)
+    ∈ Θ(*n*)，存在一个函数*g*(*n*) ∈ Θ(*n*²)，使得对于所有*n*，2*n*² + *f*(*n*) = *g*(*n*)。换句话说，等式的右侧提供了比左侧更粗略的细节。
 - en: We can chain together a number of such relationships, as in
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以将多个这样的关系链接在一起，如
 - en: '| 2*n*² + 3*n* + 1 |  =  | 2*n*² + Θ(*n*) |'
+  id: totrans-90
   prefs: []
   type: TYPE_TB
+  zh: '| 2*n*² + 3*n* + 1 |  =  | 2*n*² + Θ(*n*) |'
 - en: '|  |  =  | Θ(*n*²). |'
+  id: totrans-91
   prefs: []
   type: TYPE_TB
+  zh: '|  |  =  | Θ(*n*²). |'
 - en: By the rules above, interpret each equation separately. The first equation says
     that there is *some* function *f* (*n*) ∈ Θ(*n*) such that 2*n*² + 3*n* + 1 =
     2*n*² + *f* (*n*) for all *n*. The second equation says that for *any* function
@@ -539,11 +769,17 @@
     *h*(*n*) ∈ Θ(*n*²) such that 2*n*² + *g*(*n*) = *h*(*n*) for all *n*. This interpretation
     implies that 2*n*² + 3*n* + 1 = Θ(*n*²), which is what the chaining of equations
     intuitively says.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据上述规则，分别解释每个方程。第一个方程表示存在一个函数*f*(*n*) ∈ Θ(*n*)，使得对于所有*n*，2*n*² + 3*n* + 1 =
+    2*n*² + *f*(*n*)。第二个方程表示对于任何函数*g*(*n*) ∈ Θ(*n*)（例如刚提到的*f*(*n*)），存在一个函数*h*(*n*)
+    ∈ Θ(*n*²)，使得对于所有*n*，2*n*² + *g*(*n*) = *h*(*n*)。这种解释意味着2*n*² + 3*n* + 1 = Θ(*n*²)，这就是方程链的直观含义。
 - en: '**Proper abuses of asymptotic notation**'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '**渐近符号的正确使用**'
 - en: Besides the abuse of equality to mean set membership, which we now see has a
     precise mathematical interpretation, another abuse of asymptotic notation occurs
     when the variable tending toward ∞ must be inferred from context. For example,
@@ -551,8 +787,10 @@
     *g*(*n*) as *n* grows, and if we say *O*(*g*(*m*)) we’re talking about the growth
     of *g*(*m*) as *m* grows. The free variable in the expression indicates what variable
     is going to ∞.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了将等号滥用为集合成员之外，我们现在看到有一个精确的数学解释，另一个滥用渐近符号的情况是当趋向于∞的变量必须从上下文中推断出来。例如，当我们说*O*(*g*(*n*))时，我们可以假设我们对*g*(*n*)随着*n*增长的增长感兴趣，如果我们说*O*(*g*(*m*))，我们谈论的是*g*(*m*)随着*m*增长的增长。表达式中的自由变量指示了哪个变量将趋于∞。
 - en: 'The most common situation requiring contextual knowledge of which variable
     tends to ∞ occurs when the function inside the asymptotic notation is a constant,
     as in the expression *O*(1). We cannot infer from the expression which variable
@@ -566,8 +804,13 @@
     indicated the variable tending to ∞ in the asymptotic notation itself, but that
     would clutter the notation. Instead, we simply ensure that the context makes it
     clear which variable (or variables) tend to ∞.'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 当渐近符号内部的函数是一个常数时，最常见需要上下文知识的情况是，如在表达式 *O*(1) 中。我们无法从表达式中推断哪个变量趋于 ∞，因为那里没有出现任何变量。上下文必须消除歧义。例如，如果使用渐近符号的方程是
+    *f* (*n*) = *O*(1)，那么很明显我们感兴趣的变量是 *n*。然而，从上下文中知道感兴趣的变量是 *n*，允许我们通过使用 *O*-符号的正式定义来完全理解表达式：表达式
+    *f* (*n*) = *O*(1) 意味着函数 *f* (*n*) 在 *n* 趋于 ∞ 时被一个常数上界限制。从技术上讲，如果在渐近符号本身明确指出趋于
+    ∞ 的变量可能会更少歧义，但那会使符号混乱。相反，我们只需确保上下文清楚指出哪个变量（或变量）趋于 ∞。
 - en: When the function inside the asymptotic notation is bounded by a positive constant,
     as in *T* (*n*) = *O*(1), we often abuse asymptotic notation in yet another way,
     especially when stating recurrences. We may write something like *T* (*n*) = *O*(1)
@@ -577,8 +820,14 @@
     *T* (*n*) for *n* < *n*[0] need not be so bounded. Thus, in the example *T* (*n*)
     = *O*(1) for *n* < 3, we cannot infer any constraint on *T* (*n*) when *n* < 3,
     because it might be that *n*[0] > 3.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 当渐近符号内部的函数被一个正常数限制时，如 *T* (*n*) = *O*(1)，我们经常以另一种方式滥用渐近符号，特别是在陈述递归时。我们可能会写类似
+    *T* (*n*) = *O*(1) for *n* < 3。根据 *O*-符号的正式定义，这个陈述是没有意义的，因为定义只说对于某个 *n*[0] > 0，*T*
+    (*n*) 被一个正常数 *c* 限制，对于所有 *n* ≥ *n*[0]。当 *T* (*n*) 对于 *n* < *n*[0] 时的值不一定被这样限制。因此，在例子
+    *T* (*n*) = *O*(1) for *n* < 3 中，我们无法推断 *n* < 3 时对 *T* (*n*) 的任何约束，因为可能 *n*[0]
+    > 3。
 - en: What is conventionally meant when we say *T* (*n*) = *O*(1) for *n* < 3 is that
     there exists a positive constant *c* such that *T* (*n*) ≤ *c* for *n* < 3\. This
     convention saves us the trouble of naming the bounding constant, allowing it to
@@ -586,8 +835,12 @@
     abuses occur with the other asymptotic notations. For example, *T* (*n*) = Θ(1)
     for *n* < 3 means that *T* (*n*) is bounded above and below by positive constants
     when *n* < 3.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们说 *T* (*n*) = *O*(1) for *n* < 3 时，传统上意味着存在一个正常数 *c*，使得 *T* (*n*) ≤ *c* 对于
+    *n* < 3。这种约定使我们免去了命名边界常数的麻烦，允许它保持匿名，同时我们专注于分析中更重要的变量。其他渐近符号也存在类似的滥用。例如，*T* (*n*)
+    = Θ(1) for *n* < 3 意味着当 *n* < 3 时，*T* (*n*) 被正常数上下界限制。
 - en: Occasionally, the function describing an algorithm’s running time may not be
     defined for certain input sizes, for example, when an algorithm assumes that the
     input size is an exact power of 2\. We still use asymptotic notation to describe
@@ -598,318 +851,509 @@
     holds for all *n* ≥ *n*[0] over the domain of *f* (*n*), that is, where *f* (*n*)
     is defined. This abuse is rarely pointed out, since what is meant is generally
     clear from context.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时，描述算法运行时间的函数可能对于某些输入大小未定义，例如，当算法假设输入大小是精确的 2 的幂时。我们仍然使用渐近符号来描述运行时间的增长，理解任何约束仅适用于函数被定义时。例如，假设
+    *f* (*n*) 仅在自然数或非负实数的子集上定义。那么 *f* (*n*) = *O*(*g*(*n*)) 意味着在 *f* (*n*) 的定义域上，即
+    *f* (*n*) 被定义的地方，对于所有 *n* ≥ *n*[0]，定义 *O*-符号中的上界 0 ≤ *T* (*n*) ≤ *cg*(*n*) 成立。这种滥用很少被指出，因为通常从上下文中可以清楚地理解意思。
 - en: In mathematics, it’s okay — and often desirable — to abuse a notation, as long
     as we don’t misuse it. If we understand precisely what is meant by the abuse and
     don’t draw incorrect conclusions, it can simplify our mathematical language, contribute
     to our higher-level understanding, and help us focus on what really matters.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 在数学中，��用符号是可以接受的 — 而且通常是可取的 — 只要我们不误用它。如果我们准确理解滥用的含义，并且不得出错误的结论，它可以简化我们的数学语言，有助于我们更高层次的理解，并帮助我们专注于真正重要的事情。
 - en: '***o*-notation**'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: '***o*-符号**'
 - en: The asymptotic upper bound provided by *O*-notation may or may not be asymptotically
     tight. The bound 2*n*² = *O*(*n*²) is asymptotically tight, but the bound 2*n*
     = *O*(*n*²) is not. We use *o*-notation to denote an upper bound that is not asymptotically
     tight. We formally define *o*(*g*(*n*)) (“little-oh of *g* of *n*”) as the set
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '*O*-符号提供的渐近上界可能是渐近紧的，也可能不是。边界 2*n*² = *O*(*n*²) 是渐近紧的，但边界 2*n* = *O*(*n*²)
+    不是。我们使用 *o*-符号来表示不是渐近紧的上界。我们正式定义 *o*(*g*(*n*))（“*g* 的 *n* 的小 *o*”）为集合'
 - en: '| *o*(*g*(*n*)) = {*f* (*n*) |  :  | for any positive constant *c* > 0, there
     exists a constant *n*[0] > 0 such that 0 ≤ *f* (*n*) < *cg*(*n*) for all *n* ≥
     *n*[0]}. |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '| *o*(*g*(*n*)) = {*f* (*n*) |  :  | 对于任意正常数 *c* > 0，存在一个常数 *n*[0] > 0，使得对于所有
+    *n* ≥ *n*[0]，都有 0 ≤ *f* (*n*) < *cg*(*n*)}。|'
 - en: For example, 2*n* = *o*(*n*²), but 2*n*² ≠ *o*(*n*²).
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，2*n* = *o*(*n*²)，但 2*n*² ≠ *o*(*n*²)。
 - en: 'The definitions of *O*-notation and *o*-notation are similar. The main difference
     is that in *f* (*n*) = *O*(*g*(*n*)), the bound 0 ≤ *f* (*n*) ≤ *cg*(*n*) holds
     for *some* constant *c* > 0, but in *f* (*n*) = *o*(*g*(*n*)), the bound 0 ≤ *f*
     (*n*) < *cg*(*n*) holds for *all* constants *c* > 0\. Intuitively, in *o*-notation,
     the function *f* (*n*) becomes insignificant relative to *g*(*n*) as *n* gets
     large:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '*O*符号和*o*符号的定义类似。主要区别在于，在*f* (*n*) = *O*(*g*(*n*))中，对于*某个*常数*c* > 0，有0 ≤ *f*
+    (*n*) ≤ *cg*(*n*)，但在*f* (*n*) = *o*(*g*(*n*))中，对于*所有*常数*c* > 0，有0 ≤ *f* (*n*)
+    < *cg*(*n*)。直观上，在*o*符号中，随着*n*变大，函数*f* (*n*)相对于*g*(*n*)变得微不足道：'
 - en: '![art](images/Art_P37.jpg)'
+  id: totrans-105
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P37.jpg)'
 - en: Some authors use this limit as a definition of the *o*-notation, but the definition
     in this book also restricts the anonymous functions to be asymptotically nonnegative.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 有些作者将这个极限作为*o*符号的定义，但本书中的定义也将匿名函数限制为渐进非负。
 - en: '***ω*-notation**'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '***ω*-符号**'
 - en: By analogy, *ω*-notation is to Ω-notation as *o*-notation is to *O*-notation.
     We use *ω*-notation to denote a lower bound that is not asymptotically tight.
     One way to define it is by
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 类比地，*ω*符号对应于Ω符号，就像*o*符号对应于*O*符号一样。我们使用*ω*符号来表示一个不是渐进紧密的下界。一种定义方法是通过
 - en: '*f* (*n*) ∈ *ω*(*g*(*n*)) if and only if *g*(*n*) ∈ *o*(*f* (*n*)).'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '*f* (*n*) ∈ *ω*(*g*(*n*)) 当且仅当 *g*(*n*) ∈ *o*(*f* (*n*)).'
 - en: Formally, however, we define *ω*(*g*(*n*)) (“little-omega of *g* of *n*”) as
     the set
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 但在形式上，我们将*ω*(*g*(*n*))（“*g*的小omega”）定义为集合
 - en: '| *ω*(*g*(*n*)) = {*f* (*n*) |  :  | for any positive constant *c* > 0, there
     exists a constant *n*[0] > 0 such that 0 ≤ *cg*(*n*) < *f* (*n*) for all *n* ≥
     *n*[0]}. |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| *ω*(*g*(*n*)) = {*f* (*n*) |  :  | 对于任意正常数*c* > 0，存在一个常数*n*[0] > 0，使得对所有*n*
+    ≥ *n*[0]，有0 ≤ *cg*(*n*) < *f* (*n*)}. |'
 - en: 'Where the definition of *o*-notation says that *f* (*n*) < *cg*(*n*), the definition
     of *ω*-notation says the opposite: that *cg*(*n*) < *f* (*n*). For examples of
     *ω*-notation, we have *n*²/2 = *ω*(*n*), but *n*²/2 ≠ *ω*(*n*²). The relation
     *f* (*n*) = *ω*(*g*(*n*)) implies that'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在*o*符号的定义中，*f* (*n*) < *cg*(*n*)，而在*ω*符号的定义中，相反：*cg*(*n*) < *f* (*n*)。例如，对于*ω*符号，我们有*n*²/2
+    = *ω*(*n*)，但*n*²/2 ≠ *ω*(*n*²)。关系*f* (*n*) = *ω*(*g*(*n*))意味着
 - en: '![art](images/Art_P38.jpg)'
+  id: totrans-113
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P38.jpg)'
 - en: if the limit exists. That is, *f* (*n*) becomes arbitrarily large relative to
     *g*(*n*) as *n* gets large.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果极限存在。也就是说，随着*n*变大，*f* (*n*)相对于*g*(*n*)变得任意大。
 - en: '**Comparing functions**'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '**比较函数**'
 - en: Many of the relational properties of real numbers apply to asymptotic comparisons
     as well. For the following, assume that *f* (*n*) and *g*(*n*) are asymptotically
     positive.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多实数的关系性质也适用于渐进比较。在以下内容中，假设*f* (*n*)和*g*(*n*)是渐进正的。
 - en: '**Transitivity:**'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '**传递性：**'
 - en: '| *f* (*n*) = Θ(*g*(*n*)) | and | *g*(*n*) = Θ(*h*(*n*)) | imply | *f* (*n*)
     = Θ(*h*(*n*)), |'
+  id: totrans-118
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Θ(*g*(*n*)) | 和 | *g*(*n*) = Θ(*h*(*n*)) | 意味着 | *f* (*n*) =
+    Θ(*h*(*n*)), |'
 - en: '| *f* (*n*) = *O*(*g*(*n*)) | and | *g*(*n*) = *O*(*h*(*n*)) | imply | *f*
     (*n*) = *O*(*h*(*n*)), |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *O*(*g*(*n*)) | 和 | *g*(*n*) = *O*(*h*(*n*)) | 意味着 | *f* (*n*)
+    = *O*(*h*(*n*)), |'
 - en: '| *f* (*n*) = Ω(*g*(*n*)) | and | *g*(*n*) = Ω(*h*(*n*)) | imply | *f* (*n*)
     = Ω(*h*(*n*)), |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Ω(*g*(*n*)) | 和 | *g*(*n*) = Ω(*h*(*n*)) | 意味着 | *f* (*n*) =
+    Ω(*h*(*n*)), |'
 - en: '| *f* (*n*) = *o*(*g*(*n*)) | and | *g*(*n*) = *o*(*h*(*n*)) | imply | *f*
     (*n*) = *o*(*h*(*n*)), |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *o*(*g*(*n*)) | 和 | *g*(*n*) = *o*(*h*(*n*)) | 意味着 | *f* (*n*)
+    = *o*(*h*(*n*)), |'
 - en: '| *f* (*n*) = *ω*(*g*(*n*)) | and | *g*(*n*) = *ω*(*h*(*n*)) | imply | *f*
     (*n*) = *ω*(*h*(*n*)). |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *ω*(*g*(*n*)) | 和 | *g*(*n*) = *ω*(*h*(*n*)) | 意味着 | *f* (*n*)
+    = *ω*(*h*(*n*)). |'
 - en: '**Reflexivity:**'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '**自反性：**'
 - en: '| *f* (*n*) = Θ(*f* (*n*)), |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Θ(*f* (*n*)), |'
 - en: '| *f* (*n*) = *O*(*f* (*n*)), |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *O*(*f* (*n*)), |'
 - en: '| *f* (*n*) = Ω(*f* (*n*)). |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Ω(*f* (*n*)). |'
 - en: '**Symmetry:**'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '**对称性：**'
 - en: '*f* (*n*) = Θ(*g*(*n*)) if and only if *g*(*n*) = Θ(*f* (*n*)).'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*f* (*n*) = Θ(*g*(*n*))，当且仅当*g*(*n*) = Θ(*f* (*n*)).
 - en: '**Transpose symmetry:**'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '**转置对称性：**'
 - en: '| *f* (*n*) = *O*(*g*(*n*)) | if and only if | *g*(*n*) = Ω(*f* (*n*)), |'
+  id: totrans-130
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *O*(*g*(*n*)) | 当且仅当 | *g*(*n*) = Ω(*f* (*n*)), |'
 - en: '| *f* (*n*) = *o*(*g*(*n*)) | if and only if | *g*(*n*) = *ω*(*f* (*n*)). |'
+  id: totrans-131
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *o*(*g*(*n*)) | 当且仅当 | *g*(*n*) = *ω*(*f* (*n*)). |'
 - en: 'Because these properties hold for asymptotic notations, we can draw an analogy
     between the asymptotic comparison of two functions *f* and *g* and the comparison
     of two real numbers *a* and *b*:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于这些性质适用于渐进符号，我们可以将两个函数*f*和*g*的渐进比较与两个实数*a*和*b*的比较进行类比：
 - en: '| *f* (*n*) = *O*(*g*(*n*)) | is like | *a* ≤ *b*, |'
+  id: totrans-133
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *O*(*g*(*n*)) | 就像 | *a* ≤ *b*, |'
 - en: '| *f* (*n*) = Ω(*g*(*n*)) | is like | *a* ≥ *b*, |'
+  id: totrans-134
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Ω(*g*(*n*)) | 就像 | *a* ≥ *b*, |'
 - en: '| *f* (*n*) = Θ(*g*(*n*)) | is like | *a* = *b*, |'
+  id: totrans-135
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = Θ(*g*(*n*)) | 就像 | *a* = *b*, |'
 - en: '| *f* (*n*) = *o*(*g*(*n*)) | is like | *a* < *b*, |'
+  id: totrans-136
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *o*(*g*(*n*)) | 就像 | *a* < *b*， |'
 - en: '| *f* (*n*) = *ω*(*g*(*n*)) | is like | *a* > *b*. |'
+  id: totrans-137
   prefs: []
   type: TYPE_TB
+  zh: '| *f* (*n*) = *ω*(*g*(*n*)) | 就像 | *a* > *b*。 |'
 - en: We say that *f* (*n*) is ***asymptotically smaller*** than *g*(*n*) if *f* (*n*)
     = *o*(*g*(*n*)), and *f* (*n*) is ***asymptotically larger*** than *g*(*n*) if
     *f* (*n*) = *ω*(*g*(*n*)).
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们说*f* (*n*)比*g*(*n*)***渐进小***，如果*f* (*n*) = *o*(*g*(*n*))，而*f* (*n*)比*g*(*n*)***渐进大***，如果*f*
+    (*n*) = *ω*(*g*(*n*))。
 - en: 'One property of real numbers, however, does not carry over to asymptotic notation:'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，实数的一个性质并不适用于渐进符号：
 - en: '**Trichotomy:** For any two real numbers *a* and *b*, exactly one of the following
     must hold: *a* < *b*, *a* = *b*, or *a* > *b*.'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '**三歧性：** 对于任意两个实数*a*和*b*，以下三者中恰好有一个成立：*a* < *b*，*a* = *b*，或*a* > *b*。'
 - en: Although any two real numbers can be compared, not all functions are asymptotically
     comparable. That is, for two functions *f* (*n*) and *g*(*n*), it may be the case
     that neither *f* (*n*) = *O*(*g*(*n*)) nor *f* (*n*) = Ω(*g*(*n*)) holds. For
     example, we cannot compare the functions *n* and *n*^(1 + sin *n*) using asymptotic
     notation, since the value of the exponent in *n*^(1 + sin *n*) oscillates between
     0 and 2, taking on all values in between.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管任意两个实数可以比较，但并非所有函数都是渐进可比的。也就是说，对于两个函数*f* (*n*)和*g*(*n*)，可能存在既不是*f* (*n*) =
+    *O*(*g*(*n*))也不是*f* (*n*) = Ω(*g*(*n*))的情况。例如，我们无法使用渐进符号比较函数*n*和*n*^(1 + sin *n*)，因为*n*^(1
+    + sin *n*)中的指数值在0和2之间振荡，取得这两个值之间的所有值。
 - en: '**Exercises**'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***3.2-1***'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-1***'
 - en: Let *f* (*n*) and *g*(*n*) be asymptotically nonnegative functions. Using the
     basic definition of Θ-notation, prove that max {*f* (*n*), *g*(*n*)} = Θ(*f* (*n*)
     + *g*(*n*)).
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 让*f*(*n*)和*g*(*n*)是渐近非负函数。使用Θ-符号的基本定义，证明max{*f*(*n*), *g*(*n*)} = Θ(*f*(*n*)
+    + *g*(*n*)).
 - en: '***3.2-2***'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-2***'
 - en: Explain why the statement, “The running time of algorithm *A* is at least *O*(*n*²),”
     is meaningless.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 解释为什么说“算法*A*的运行时间至少为*O*(*n*²)”是没有意义的。
 - en: '***3.2-3***'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-3***'
 - en: Is 2^(*n* + 1) = *O*(2*^n*)? Is 2^(2*n*) = *O*(2*^n*)?
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 2^(*n* + 1) = *O*(2*^n*)吗？2^(2*n*) = *O*(2*^n*)吗？
 - en: '***3.2-4***'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-4***'
 - en: Prove Theorem 3.1.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明定理3.1。
 - en: '***3.2-5***'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-5***'
 - en: Prove that the running time of an algorithm is Θ(*g*(*n*)) if and only if its
     worst-case running time is *O*(*g*(*n*)) and its best-case running time is Ω(*g*(*n*)).
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明一个算法的运行时间是Θ(*g*(*n*))当且仅当其最坏情况运行时间是*O*(*g*(*n*))且最佳情况运行时间是Ω(*g*(*n*))。
 - en: '***3.2-6***'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-6***'
 - en: Prove that *o*(*g*(*n*)) ∩ *ω*(*g*(*n*)) is the empty set.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明*o*(*g*(*n*)) ∩ *ω*(*g*(*n*))是空集。
 - en: '***3.2-7***'
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.2-7***'
 - en: We can extend our notation to the case of two parameters *n* and *m* that can
     go to ∞ independently at different rates. For a given function *g*(*n*, *m*),
     we denote by *O*(*g*(*n*, *m*)) the set of functions
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以将我们的符号扩展到两个参数*n*和*m*可以以不同速率独立地趋向于∞的情况。对于给定函数*g*(*n*, *m*)，我们用*O*(*g*(*n*,
+    *m*))表示函数的集合
 - en: '| *O*(*g*(*n*, *m*)) = {*f* (*n*, *m*) |  :  | there exist positive constants
     *c*, *n*[0], and *m*[0] such that 0 ≤ *f* (*n*, *m*) ≤ *cg*(*n*, *m*) for all
     *n* ≥ *n*[0] or *m* ≥ *m*[0]}. |'
+  id: totrans-157
   prefs: []
   type: TYPE_TB
+  zh: '| *O*(*g*(*n*, *m*)) = {*f*(*n*, *m*) |  :  | 存在正常数*c*，*n*[0]和*m*[0]使得对于所有*n*
+    ≥ *n*[0]或*m* ≥ *m*[0]，0 ≤ *f*(*n*, *m*) ≤ *cg*(*n*, *m*)}。 |'
 - en: Give corresponding definitions for Ω(*g*(*n*, *m*)) and Θ(*g*(*n*, *m*)).
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出Ω(*g*(*n*, *m*))和Θ(*g*(*n*, *m*))的相应定义。
 - en: '[**3.3      Standard notations and common functions**](toc.xhtml#Rh1-13)'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**3.3      标准符号和常见函数**](toc.xhtml#Rh1-13)'
 - en: This section reviews some standard mathematical functions and notations and
     explores the relationships among them. It also illustrates the use of the asymptotic
     notations.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节回顾了一些标准数学函数和符号，并探讨了它们之间的关系。它还说明了渐近符号的使用。
 - en: '**Monotonicity**'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '**单调性**'
 - en: A function *f* (*n*) is ***monotonically increasing*** if *m* ≤ *n* implies
     *f* (*m*) ≤ *f* (*n*). Similarly, it is ***monotonically decreasing*** if *m*
     ≤ *n* implies *f* (*m*) ≥ *f* (*n*). A function *f* (*n*) is ***strictly increasing***
     if *m* < *n* implies *f* (*m*) < *f* (*n*) and ***strictly decreasing*** if *m*
     < *n* implies *f* (*m*) > *f* (*n*).
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个函数*f*(*n*)是***单调递增***的，如果*m* ≤ *n*意味着*f*(*m*) ≤ *f*(*n*)。类似地，如果*m* ≤ *n*意味着*f*(*m*)
+    ≥ *f*(*n*)，则它是***单调递减***的。一个函数*f*(*n*)是***严格递增***的，如果*m* < *n*意味着*f*(*m*) < *f*(*n*)，如果*m*
+    < *n*意味着*f*(*m*) > *f*(*n*)，则它是***严格递减***的。
 - en: '**Floors and ceilings**'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: '**地板和天花板**'
 - en: For any real number *x*, we denote the greatest integer less than or equal to
     *x* by ⌊*x*⌋ (read “the floor of *x*”) and the least integer greater than or equal
     to *x* by ⌈*x*⌉ (read “the ceiling of *x*”). The floor function is monotonically
     increasing, as is the ceiling function.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意实数*x*，我们用⌊*x*⌋（读作“*x*的地板”）表示小于或等于*x*的最大整数，用⌈*x*⌉（读作“*x*的天花板”）表示大于或等于*x*的最小整数。地板函数是单调递增的，天花板函数也是如此。
 - en: Floors and ceilings obey the following properties. For any integer *n*, we have
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 地板和天花板遵守以下性质。对于任意整数*n*，我们有
 - en: '![art](images/Art_P39.jpg)'
+  id: totrans-166
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P39.jpg)'
 - en: For all real *x*, we have
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于所有实数*x*，我们有
 - en: '![art](images/Art_P40.jpg)'
+  id: totrans-168
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P40.jpg)'
 - en: We also have
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还有
 - en: '![art](images/Art_P41.jpg)'
+  id: totrans-170
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P41.jpg)'
 - en: or equivalently,
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者等价地，
 - en: '![art](images/Art_P42.jpg)'
+  id: totrans-172
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P42.jpg)'
 - en: For any real number *x* ≥ 0 and integers *a*, *b* > 0, we have
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意实数*x* ≥ 0和整数*a*，*b* > 0，我们有
 - en: '![art](images/Art_P43.jpg)'
+  id: totrans-174
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P43.jpg)'
 - en: For any integer *n* and real number *x*, we have
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意整数*n*和实数*x*，我们有
 - en: '![art](images/Art_P44.jpg)'
+  id: totrans-176
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P44.jpg)'
 - en: '**Modular arithmetic**'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '**模算术**'
 - en: 'For any integer *a* and any positive integer *n*, the value *a* mod *n* is
     the ***remainder*** (or ***residue***) of the quotient *a*/*n*:'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任意整数*a*和任意正整数*n*，值*a* mod *n*是商*a*/*n*的***余数***（或***剩余***）：
 - en: '![art](images/Art_P45.jpg)'
+  id: totrans-179
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P45.jpg)'
 - en: It follows that
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 由此可知
 - en: '![art](images/Art_P46.jpg)'
+  id: totrans-181
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P46.jpg)'
 - en: even when *a* is negative.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使*a*是负数时。
 - en: Given a well-defined notion of the remainder of one integer when divided by
     another, it is convenient to provide special notation to indicate equality of
     remainders. If (*a* mod *n*) = (*b* mod *n*), we write *a* = *b* (mod *n*) and
@@ -917,18 +1361,28 @@
     (mod *n*) if *a* and *b* have the same remainder when divided by *n*. Equivalently,
     *a* = *b* (mod *n*) if and only if *n* is a divisor of *b* – *a*. We write *a*
     ≠ *b* (mod *n*) if *a* is not equivalent to *b*, modulo *n*.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个明确定义的一个整数除以另一个整数的余数的概念，方便起见，我们提供特殊符号来表示余数的相等性。如果(*a* mod *n*) = (*b* mod
+    *n*)，我们写成*a* = *b* (mod *n*)，并说*a*在模*n*下***等价***于*b*。换句话说，*a* = *b* (mod *n*)当且仅当*a*和*b*被*n*整除的余数相同。等价地，*a*
+    = *b* (mod *n*)当且仅当*n*是*b* – *a*的除数。我们写成*a* ≠ *b* (mod *n*)如果*a*不等价于*b*，模*n*。
 - en: '**Polynomials**'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: '**多项式**'
 - en: Given a nonnegative integer *d*, a ***polynomial in n of degree d*** is a function
     *p*(*n*) of the form
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个非负整数*d*，一个***度为d的n的多项式***是一个形式为*p*(*n*)的函数
 - en: '![art](images/Art_P47.jpg)'
+  id: totrans-186
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P47.jpg)'
 - en: where the constants *a*[0], *a*[1], … , *a[d]* are the ***coefficients*** of
     the polynomial and *a[d]* ≠ 0\. A polynomial is asymptotically positive if and
     only if *a[d]* > 0\. For an asymptotically positive polynomial *p*(*n*) of degree
@@ -936,212 +1390,341 @@
     *n^a* is monotonically increasing, and for any real constant *a* ≤ 0, the function
     *n^a* is monotonically decreasing. We say that a function *f* (*n*) is ***polynomially
     bounded*** if *f* (*n*) = *O*(*n^k*) for some constant *k*.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中常数*a*[0]，*a*[1]，…，*a[d]*是多项式的***系数***，且*a[d]* ≠ 0。多项式是渐近正的当且仅当*a[d]* > 0。对于一个度为*d*的渐近正多项式*p*(*n*)，我们有*p*(*n*)
+    = Θ(*n^d*)。对于任意实常数*a* ≥ 0，函数*n^a*是单调递增的，对于任意实常数*a* ≤ 0，函数*n^a*是单调递减的。我们说一个函数*f*(*n*)是***多项式有界***的，如果*f*(*n*)
+    = *O*(*n^k*)，其中*k*是某个常数。
 - en: '**Exponentials**'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: '**指数**'
 - en: 'For all real *a* > 0, *m*, and *n*, we have the following identities:'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于所有实数 *a* > 0，*m* 和 *n*，我们有以下恒等式：
 - en: '| *a*⁰ | = | 1, |'
+  id: totrans-190
   prefs: []
   type: TYPE_TB
+  zh: '| *a*⁰ | = | 1, |'
 - en: '| *a*¹ | = | *a*, |'
+  id: totrans-191
   prefs: []
   type: TYPE_TB
+  zh: '| *a*¹ | = | *a*, |'
 - en: '| *a*^(–1) | = | 1/*a*, |'
+  id: totrans-192
   prefs: []
   type: TYPE_TB
+  zh: '| *a*^(–1) | = | 1/*a*, |'
 - en: '| (*a^m*)^(*n*) | = | *a^(mn)*, |'
+  id: totrans-193
   prefs: []
   type: TYPE_TB
+  zh: '| (*a^m*)^(*n*) | = | *a^(mn)*, |'
 - en: '| (*a^m*)^(*n*) | = | (*a^n*)*^m*, |'
+  id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| (*a^m*)^(*n*) | = | (*a^n*)*^m*, |'
 - en: '| *a^ma^n* | = | *a*^(*m*+*n*). |'
+  id: totrans-195
   prefs: []
   type: TYPE_TB
+  zh: '| *a^ma^n* | = | *a*^(*m*+*n*). |'
 - en: For all *n* and *a* ≥ 1, the function *a^n* is monotonically increasing in *n*.
     When convenient, we assume that 0⁰ = 1.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于所有 *n* 和 *a* ≥ 1，函数 *a^n* 在 *n* 中单调递增。在方便的情况下，我们假设 0⁰ = 1。
 - en: We can relate the rates of growth of polynomials and exponentials by the following
     fact. For all real constants *a* > 1 and *b*, we have
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过以下事实来关联多项式和指数的增长速率。对于所有实常数 *a* > 1 和 *b*，我们有
 - en: '![art](images/Art_P48.jpg)'
+  id: totrans-198
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P48.jpg)'
 - en: from which we can conclude that
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 由此我们可以得出
 - en: '![art](images/Art_P49.jpg)'
+  id: totrans-200
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P49.jpg)'
 - en: Thus, any exponential function with a base strictly greater than 1 grows faster
     than any polynomial function.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，任何底数严格大于 1 的指数函数都比任何多项式函数增长更快。
 - en: Using *e* to denote 2.71828 …, the base of the natural-logarithm function, we
     have for all real *x*,
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用 *e* 表示 2.71828 …，自然对数函数的底数，我们对于所有实数 *x* 有
 - en: '![art](images/Art_P50.jpg)'
+  id: totrans-203
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P50.jpg)'
 - en: where “!” denotes the factorial function defined later in this section. For
     all real *x*, we have the inequality
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中“！”表示稍后在本节中定义的阶乘函数。对于所有实数 *x*，我们有不等式
 - en: '![art](images/Art_P51.jpg)'
+  id: totrans-205
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P51.jpg)'
 - en: where equality holds only when *x* = 0\. When |*x*| ≤ 1, we have the approximation
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 当且仅当 *x* = 0 时等号成立。当 |*x*| ≤ 1 时，我们有近似值
 - en: '![art](images/Art_P52.jpg)'
+  id: totrans-207
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P52.jpg)'
 - en: 'When *x* → 0, the approximation of *e^x* by 1 + *x* is quite good:'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 当 *x* → 0 时，*e^x* 由 1 + *x* 的近似是相当不错的：
 - en: '*e^x* = 1 + *x* + Θ(*x*²).'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '*e^x* = 1 + *x* + Θ(*x*²).'
 - en: (In this equation, the asymptotic notation is used to describe the limiting
     behavior as *x* → 0 rather than as *x* → ∞.) We have for all *x*,
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: （在这个方程中，渐近符号用于描述当 *x* → 0 而不是当 *x* → ∞ 时的极限行为。）对于所有 *x*，我们有
 - en: '![art](images/Art_P53.jpg)'
+  id: totrans-211
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P53.jpg)'
 - en: '**Logarithms**'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '**对数**'
 - en: 'We use the following notations:'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用以下符号：
 - en: '| lg *n* | = | log[2] *n* | (binary logarithm), |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| lg *n* | = | log[2] *n* | (二进制对数), |'
 - en: '| ln *n* | = | log[*e*] *n* | (natural logarithm), |'
+  id: totrans-215
   prefs: []
   type: TYPE_TB
+  zh: '| ln *n* | = | log[*e*] *n* | (自然对数), |'
 - en: '| lg^(*k*) *n* | = | (lg *n*)*^k* | (exponentiation), |'
+  id: totrans-216
   prefs: []
   type: TYPE_TB
+  zh: '| lg^(*k*) *n* | = | (lg *n*)*^k* | (指数运算), |'
 - en: '| lg lg *n* | = | lg(lg *n*) | (composition). |'
+  id: totrans-217
   prefs: []
   type: TYPE_TB
+  zh: '| lg lg *n* | = | lg(lg *n*) | (复合). |'
 - en: 'We adopt the following notational convention: in the absence of parentheses,
     *a logarithm function applies only to the next term in the formula*, so that lg
     *n* + 1 means (lg *n*) + 1 and not lg(*n* + 1).'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们采用以下符号约定：在没有括号的情况下，*对数函数仅适用于公式中的下一个项*，因此 lg *n* + 1 意味着 (lg *n*) + 1 而不是 lg(*n*
+    + 1)。
 - en: For any constant *b* > 1, the function log*[b] n* is undefined if *n* ≤ 0, strictly
     increasing if *n* > 0, negative if 0 < *n* < 1, positive if *n* > 1, and 0 if
     *n* = 1\. For all real *a* > 0, *b* > 0, *c* > 0, and *n*, we have
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任何常数 *b* > 1，如果 *n* ≤ 0，则函数 log*[b] n* 未定义，如果 *n* > 0，则严格递增，如果 0 < *n* < 1，则为负，如果
+    *n* > 1，则为正，如果 *n* = 1，则为 0。对于所有实数 *a* > 0，*b* > 0，*c* > 0 和 *n*，我们有
 - en: '![art](images/Art_P54.jpg)'
+  id: totrans-220
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P54.jpg)'
 - en: where, in each equation above, logarithm bases are not 1.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上述每个方程中，对数的底数不是 1。
 - en: By equation (3.19), changing the base of a logarithm from one constant to another
     changes the value of the logarithm by only a constant factor. Consequently, we
     often use the notation “lg *n*” when we don’t care about constant factors, such
     as in *O*-notation. Computer scientists find 2 to be the most natural base for
     logarithms because so many algorithms and data structures involve splitting a
     problem into two parts.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据方程（3.19），将对数的底从一个常数更改为另一个常数仅将对数的值更改为一个常数因子。因此，当我们不关心常数因子时，我们经常使用“lg *n*”这种表示法，比如在
+    *O* -notation 中。计算机科学家发现 2 是对数最自然的底数，因为许多算法和数据结构涉及将问题分成两部分。
 - en: 'There is a simple series expansion for ln(1 + *x*) when |*x*| < 1:'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 当 |*x*| < 1 时，ln(1 + *x*) 的一个简单级数展开为：
 - en: '![art](images/Art_P55.jpg)'
+  id: totrans-224
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P55.jpg)'
 - en: 'We also have the following inequalities for *x* > – 1:'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 *x* > – 1，我们还有以下不等式：
 - en: '![art](images/Art_P56.jpg)'
+  id: totrans-226
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P56.jpg)'
 - en: where equality holds only for *x* = 0.
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 当且仅当 *x* = 0 时等号成立。
 - en: We say that a function *f* (*n*) is ***polylogarithmically bounded*** if *f*
     (*n*) = *O*(lg*^k n*) for some constant *k*. We can relate the growth of polynomials
     and polylogarithms by substituting lg *n* for *n* and 2*^a* for *a* in equation
     (3.13). For all real constants *a* > 0 and *b*, we have
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果存在某个常数 *k*，使得 *f* (*n*) = *O*(lg*^k n*)，我们称函数 *f* (*n*) 为***多对数边界***。通过在方程（3.13）中将
+    lg *n* 替换为 *n*，将 2*^a* 替换为 *a*，我们可以关联多项式和多对数的增长。对于所有实常数 *a* > 0 和 *b*，我们有
 - en: '![art](images/Art_P57.jpg)'
+  id: totrans-229
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P57.jpg)'
 - en: Thus, any positive polynomial function grows faster than any polylogarithmic
     function.
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，任何正多项式函数都比任何多对数函数增长更快。
 - en: '**Factorials**'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: '**阶乘**'
 - en: The notation *n*! (read “*n* factorial”) is defined for integers *n* ≥ 0 as
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号 *n*!（读作“*n* 阶乘”）对于整数 *n* ≥ 0 定义为
 - en: '![art](images/Art_P58.jpg)'
+  id: totrans-233
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P58.jpg)'
 - en: Thus, *n*! = 1 · 2 · 3 ⋯ *n*.
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，*n*! = 1 · 2 · 3 ⋯ *n*。
 - en: A weak upper bound on the factorial function is *n*! ≤ *n^n*, since each of
     the *n* terms in the factorial product is at most *n*. ***Stirling’s approximation***,
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 阶乘函数的一个弱上界是 *n*! ≤ *n^n*，因为阶乘乘积中的每个 *n* 项最多为 *n*。***斯特林逼近***，
 - en: '![art](images/Art_P59.jpg)'
+  id: totrans-236
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P59.jpg)'
 - en: where *e* is the base of the natural logarithm, gives us a tighter upper bound,
     and a lower bound as well. Exercise 3.3-4 asks you to prove the three facts
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 当 *e* 是自然对数的底时，给出了一个更紧的上界和一个下界。练习 3.3-4 要求你证明三个事实
 - en: '![art](images/Art_P60.jpg)'
+  id: totrans-238
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P60.jpg)'
 - en: 'where Stirling’s approximation is helpful in proving equation (3.28). The following
     equation also holds for all *n* ≥ 1:'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 斯特林逼近在证明方程（3.28）中很有帮助。对于所有 *n* ≥ 1，以下方程也成立：
 - en: '![art](images/Art_P61.jpg)'
+  id: totrans-240
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P61.jpg)'
 - en: where
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中
 - en: '![art](images/Art_P62.jpg)'
+  id: totrans-242
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P62.jpg)'
 - en: '**Functional iteration**'
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: '**函数迭代**'
 - en: We use the notation *f*^((*i*)) (*n*) to denote the function *f* (*n*) iteratively
     applied *i* times to an initial value of *n*. Formally, let *f* (*n*) be a function
     over the reals. For nonnegative integers *i*, we recursively define
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用符号 *f*^((*i*)) (*n*) 来表示函数 *f* (*n*) 迭代应用 *i* 次到初始值 *n*。形式上，让 *f* (*n*)
+    是实数上的一个函数。对于非负整数 *i*，我们递归定义
 - en: '![art](images/Art_P63.jpg)'
+  id: totrans-245
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P63.jpg)'
 - en: For example, if *f* (*n*) = 2*n*, then *f*^((*i*)) (*n*) = 2*^in*.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果 *f* (*n*) = 2*n*，那么 *f*^((*i*)) (*n*) = 2*^in*。
 - en: '**The iterated logarithm function**'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: '**迭代对数函数**'
 - en: We use the notation lg^**n* (read “log star of *n*”) to denote the iterated
     logarithm, defined as follows. Let lg^((*i*)) *n* be as defined above, with *f*
     (*n*) = lg *n*. Because the logarithm of a nonpositive number is undefined, lg*^((i))
@@ -1149,417 +1732,676 @@
     (the logarithm function applied *i* times in succession, starting with argument
     *n*) from lg*^i n* (the logarithm of *n* raised to the *i*th power). Then we define
     the iterated logarithm function as
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用符号 lg^**n*（读作“*n*的对数星”）来表示迭代对数，定义如下。让 lg^((*i*)) *n* 如上所定义，其中 *f* (*n*)
+    = lg *n*。因为非正数的对数是未定义的，只有当 lg^((*i*–1)) *n* > 0 时，lg*^((i)) n* 才被定义。一定要区分 lg^((*i*)) *n*（连续应用
+    *i* 次的对数函数，从参数 *n* 开始）和 lg*^i n*（对 *n* 的对数提升到第 *i* 次幂）。然后我们定义迭代对数函数为
 - en: 'lg^**n* = min {*i* ≥ 0 : lg^((*i*)) *n* ≤ 1}.'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 'lg^**n* = min {*i* ≥ 0 : lg^((*i*)) *n* ≤ 1}。'
 - en: 'The iterated logarithm is a *very* slowly growing function:'
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 迭代对数是一个*非常*缓慢增长的函数：
 - en: '| lg^* 2 | = | 1, |'
+  id: totrans-251
   prefs: []
   type: TYPE_TB
+  zh: '| lg^* 2 | = | 1, |'
 - en: '| lg^* 4 | = | 2, |'
+  id: totrans-252
   prefs: []
   type: TYPE_TB
+  zh: '| lg^* 4 | = | 2, |'
 - en: '| lg^* 16 | = | 3, |'
+  id: totrans-253
   prefs: []
   type: TYPE_TB
+  zh: '| lg^* 16 | = | 3, |'
 - en: '| lg^* 65536 | = | 4, |'
+  id: totrans-254
   prefs: []
   type: TYPE_TB
+  zh: '| lg^* 65536 | = | 4, |'
 - en: '| lg^* (2^(65536)) | = | 5. |'
+  id: totrans-255
   prefs: []
   type: TYPE_TB
+  zh: '| lg^* (2^(65536)) | = | 5. |'
 - en: Since the number of atoms in the observable universe is estimated to be about
     10^(80), which is much less than 2^(65536) = 10^(65536/lg 10) ≈ 10^(19,728), we
     rarely encounter an input size *n* for which lg^* *n* > 5.
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于可观测宇宙中的原子数量估计约为 10^(80)，远远小于 2^(65536) = 10^(65536/lg 10) ≈ 10^(19,728)，我们很少遇到
+    lg^* *n* > 5 的输入大小 *n*。
 - en: '**Fibonacci numbers**'
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: '**斐波那契数**'
 - en: 'We define the ***Fibonacci numbers*** *F[i]*, for *i* ≥ 0, as follows:'
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将***斐波那契数*** *F[i]*，对于 *i* ≥ 0，定义如下：
 - en: '![art](images/Art_P64.jpg)'
+  id: totrans-259
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P64.jpg)'
 - en: Thus, after the first two, each Fibonacci number is the sum of the two previous
     ones, yielding the sequence
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在前两个之后，每个斐波那契数都是前两个数的和，得到序列
 - en: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, ….
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, ….
 - en: Fibonacci numbers are related to the ***golden ratio*** *ϕ* and its conjugate
     ![art](images/phic.jpg), which are the two roots of the equation
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: 斐波那契数与***黄金比例*** *ϕ* 及其共轭 ![艺术](images/phic.jpg) 相关，它们是方程的两个根
 - en: '*x*² = *x* + 1.'
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: '*x*² = *x* + 1。'
 - en: As Exercise 3.3-7 asks you to prove, the golden ratio is given by
+  id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 如练习 3.3-7 所要求的，黄金比例由以下方程给出
 - en: '![art](images/Art_P65.jpg)'
+  id: totrans-265
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P65.jpg)'
 - en: and its conjugate, by
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 及其共轭，由
 - en: '![art](images/Art_P66.jpg)'
+  id: totrans-267
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P66.jpg)'
 - en: Specifically, we have
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: 具体来说，我们有
 - en: '![art](images/Art_P67.jpg)'
+  id: totrans-269
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P67.jpg)'
 - en: which can be proved by induction (Exercise 3.3-8). Since ![art](images/Art_P68.jpg),
     we have
+  id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可以通过归纳法证明（练习 3.3-8）。由于 ![艺术](images/Art_P68.jpg)，我们有
 - en: '![art](images/Art_P69.jpg)'
+  id: totrans-271
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P69.jpg)'
 - en: which implies that
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 这意味着
 - en: '![art](images/Art_P70.jpg)'
+  id: totrans-273
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P70.jpg)'
 - en: which is to say that the *i*th Fibonacci number *F[i]* is equal to ![art](images/Art_P71.jpg)
     rounded to the nearest integer. Thus, Fibonacci numbers grow exponentially.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: 这就是说，第 *i* 个斐波那契数 *F[i]* 等于 ![艺术](images/Art_P71.jpg) 四舍五入到最接近整数。因此，斐波那契数呈指数增长。
 - en: '**Exercises**'
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***3.3-1***'
+  id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-1***'
 - en: Show that if *f* (*n*) and *g*(*n*) are monotonically increasing functions,
     then so are the functions *f* (*n*) + *g*(*n*) and *f* (*g*(*n*)), and if *f*
     (*n*) and *g*(*n*) are in addition nonnegative, then *f* (*n*) · *g*(*n*) is monotonically
     increasing.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示如果 *f* (*n*) 和 *g*(*n*) 是单调增函数，那么 *f* (*n*) + *g*(*n*) 和 *f* (*g*(*n*)) 也是单调增函数，如果
+    *f* (*n*) 和 *g*(*n*) 此外是非负的，那么 *f* (*n*) · *g*(*n*) 是单调增函数。
 - en: '***3.3-2***'
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-2***'
 - en: Prove that ⌊*αn*⌋ + ⌈(1 – *α*)*n*⌉ = *n* for any integer *n* and real number
     *α* in the range 0 ≤ *α* ≤ 1.
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明对于任何整数 *n* 和范围在 0 ≤ *α* ≤ 1 的实数 *α*，⌊*αn*⌋ + ⌈(1 – *α*)*n*⌉ = *n*。
 - en: '***3.3-3***'
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-3***'
 - en: Use equation (3.14) or other means to show that (*n* + *o*(*n*))*^k* = Θ(*n^k*)
     for any real constant *k*. Conclude that ⌈*n*⌉*^k* = Θ(*n^k*) and ⌊*n*⌋*^k* =
     Θ(*n^k*).
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用方程 (3.14) 或其他方法来展示 (*n* + *o*(*n*))*^k* = Θ(*n^k*) 对于任何实常数 *k*。得出结论 ⌈*n*⌉*^k*
+    = Θ(*n^k*) 和 ⌊*n*⌋*^k* = Θ(*n^k*)。
 - en: '***3.3-4***'
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-4***'
 - en: 'Prove the following:'
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明以下内容：
 - en: '***a.*** Equation (3.21).'
+  id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 方程 (3.21)。'
 - en: '***b.*** Equations (3.26)–(3.28).'
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 方程 (3.26)–(3.28)。'
 - en: '***c.*** lg(Θ(*n*)) = Θ(lg *n*).'
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** lg(Θ(*n*)) = Θ(lg *n*)。'
 - en: ★ ***3.3-5***
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***3.3-5***
 - en: Is the function ⌈lg *n*⌉! polynomially bounded? Is the function ⌈lg lg *n*⌉!
     polynomially bounded?
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数 ⌈lg *n*⌉! 是多项式有界的吗？函数 ⌈lg lg *n*⌉! 是多项式有界的吗？
 - en: ★ ***3.3-6***
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***3.3-6***
 - en: 'Which is asymptotically larger: lg(lg^* *n*) or lg^*(lg *n*)?'
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: 哪个渐近更大：lg(lg^* *n*) 还是 lg^*(lg *n*)？
 - en: '***3.3-7***'
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-7***'
 - en: Show that the golden ratio *ϕ* and its conjugate ![art](images/phic.jpg) both
     satisfy the equation *x*² = *x* + 1.
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示黄金比例 *ϕ* 及其共轭 ![艺术](images/phic.jpg) 都满足方程 *x*² = *x* + 1。
 - en: '***3.3-8***'
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-8***'
 - en: Prove by induction that the *i*th Fibonacci number satisfies the equation
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过归纳法证明第 *i* 个斐波那契数满足方程
 - en: '![art](images/Art_P72.jpg)'
+  id: totrans-295
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P72.jpg)'
 - en: where *ϕ* is the golden ratio and ![art](images/phic.jpg) is its conjugate.
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中 *ϕ* 是黄金比例，![艺术](images/phic.jpg) 是其共轭。
 - en: '***3.3-9***'
+  id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3.3-9***'
 - en: Show that *k* lg *k* = Θ(*n*) implies *k* = Θ(*n*/lg *n*).
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示 *k* lg *k* = Θ(*n*) 意味着 *k* = Θ(*n*/lg *n*)。
 - en: '**Problems**'
+  id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***3-1     Asymptotic behavior of polynomials***'
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-1     多项式的渐近行为***'
 - en: Let
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 让
 - en: '![art](images/Art_P73.jpg)'
+  id: totrans-302
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P73.jpg)'
 - en: where *a[d]* > 0, be a degree-*d* polynomial in *n*, and let *k* be a constant.
     Use the definitions of the asymptotic notations to prove the following properties.
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中 *a[d]* > 0，是 *n* 的 *d* 次多项式，*k* 是一个常数。使用渐近符号的定义来证明以下性质。
 - en: '***a.*** If *k* ≥ *d*, then *p*(*n*) = *O*(*n^k*).'
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 如果 *k* ≥ *d*，那么 *p*(*n*) = *O*(*n^k*)。'
 - en: '***b.*** If *k* ≤ *d*, then *p*(*n*) = Ω(*n^k*).'
+  id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 如果 *k* ≤ *d*，那么 *p*(*n*) = Ω(*n^k*)。'
 - en: '***c.*** If *k* = *d*, then *p*(*n*) = Θ(*n^k*).'
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 如果 *k* = *d*，那么 *p*(*n*) = Θ(*n^k*)。'
 - en: '***d.*** If *k* > *d*, then *p*(*n*) = *o*(*n^k*).'
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 如果 *k* > *d*，那么 *p*(*n*) = *o*(*n^k*).'
 - en: '***e.*** If *k* < *d*, then *p*(*n*) = *ω*(*n^k*).'
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 如果 *k* < *d*，那么 *p*(*n*) = *ω*(*n^k*).'
 - en: '***3-2     Relative asymptotic growths***'
+  id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-2     相对渐近增长***'
 - en: Indicate, for each pair of expressions (*A*, *B*) in the table below whether
     *A* is *O*, *o*, Ω, *ω*, or Θ of *B*. Assume that *k* ≥ 1, *ϵ* > 0, and *c* >
     1 are constants. Write your answer in the form of the table with “yes” or “no”
     written in each box.
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于下表中每对表达式 (*A*, *B*)，指出 *A* 是 *O*、*o*、Ω、*ω* 还是 Θ 的关系。假设 *k* ≥ 1，*ϵ* > 0，*c*
+    > 1 是常数。在每个方框中写上“yes”或“no”。
 - en: '![art](images/Art_P74.jpg)'
+  id: totrans-311
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P74.jpg)'
 - en: '***3-3     Ordering by asymptotic growth rates***'
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-3     按渐近增长率排序***'
 - en: '***a.*** Rank the following functions by order of growth. That is, find an
     arrangement *g*[1], *g*[2], … , *g*[30] of the functions satisfying *g*[1] = Ω(*g*[2]),
     *g*[2] = Ω(*g*[3]), … , *g*[29] = Ω(*g*[30]). Partition your list into equivalence
     classes such that functions *f* (*n*) and *g*(*n*) belong to the same class if
     and only if *f* (*n*) = Θ(*g*(*n*)).'
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 按增长顺序排列以下函数。也就是说，找到一个排列 *g*[1]，*g*[2]，…，*g*[30]，满足 *g*[1] = Ω(*g*[2])，*g*[2]
+    = Ω(*g*[3])，…，*g*[29] = Ω(*g*[30])。将列表分成等价类，使得函数 *f* (*n*) 和 *g*(*n*) 属于同一类当且仅当
+    *f* (*n*) = Θ(*g*(*n*)).'
 - en: '| lg(lg^* *n*) | 2^(lg* *n*) | ![art](images/Art_P75.jpg) | *n*² | *n*! | (lg
     *n*)! |'
+  id: totrans-314
   prefs: []
   type: TYPE_TB
+  zh: '| lg(lg^* *n*) | 2^(lg* *n*) | ![art](images/Art_P75.jpg) | *n*² | *n*! | (lg
+    *n*)! |'
 - en: '| (3/2)*^n* | *n*³ | lg² *n* | lg(*n*!) | ![art](images/Art_P76.jpg) | *n*^(1/lg
     *n*) |'
+  id: totrans-315
   prefs: []
   type: TYPE_TB
+  zh: '| (3/2)*^n* | *n*³ | lg² *n* | lg(*n*!) | ![art](images/Art_P76.jpg) | *n*^(1/lg
+    *n*) |'
 - en: '| ln ln *n* | lg^* *n* | *n* · 2*^n* | *n*^(lg lg *n*) | ln *n* | 1 |'
+  id: totrans-316
   prefs: []
   type: TYPE_TB
+  zh: '| ln ln *n* | lg^* *n* | *n* · 2*^n* | *n*^(lg lg *n*) | ln *n* | 1 |'
 - en: '| 2^(lg *n*) | (lg *n*)^(lg *n*) | *e^n* | 4^(lg *n*) | (*n* + 1)! | ![art](images/Art_P77.jpg)
     |'
+  id: totrans-317
   prefs: []
   type: TYPE_TB
+  zh: '| 2^(lg *n*) | (lg *n*)^(lg *n*) | *e^n* | 4^(lg *n*) | (*n* + 1)! | ![art](images/Art_P77.jpg)
+    |'
 - en: '| lg^*(lg *n*) | ![art](images/Art_P78.jpg) | *n* | 2*^n* | *n* lg *n* | ![art](images/Art_P79.jpg)
     |'
+  id: totrans-318
   prefs: []
   type: TYPE_TB
+  zh: '| lg^*(lg *n*) | ![art](images/Art_P78.jpg) | *n* | 2*^n* | *n* lg *n* | ![art](images/Art_P79.jpg)
+    |'
 - en: '***b.*** Give an example of a single nonnegative function *f* (*n*) such that
     for all functions *g[i]*(*n*) in part (a), *f* (*n*) is neither *O*(*g[i]*(*n*))
     nor Ω(*g[i]*(*n*)).'
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 给出一个单一非负函数 *f* (*n*) 的例子，使得对于部分 (a) 中的所有函数 *g[i]*(*n*)，*f* (*n*) 既不是
+    *O*(*g[i]*(*n*)) 也不是 Ω(*g[i]*(*n*))。'
 - en: '***3-4     Asymptotic notation properties***'
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-4     渐近符号性质***'
 - en: Let *f* (*n*) and *g*(*n*) be asymptotically positive functions. Prove or disprove
     each of the following conjectures.
+  id: totrans-321
   prefs: []
   type: TYPE_NORMAL
+  zh: 设 *f* (*n*) 和 *g*(*n*) 是渐近正函数。证明或证伪以下猜想。
 - en: '***a.*** *f* (*n*) = *O*(*g*(*n*)) implies *g*(*n*) = *O*(*f* (*n*)).'
+  id: totrans-322
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** *f* (*n*) = *O*(*g*(*n*)) 意味着 *g*(*n*) = *O*(*f* (*n*)).'
 - en: '***b.*** *f* (*n*) + *g*(*n*) = Θ(min {*f* (*n*), *g*(*n*)}).'
+  id: totrans-323
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** *f* (*n*) + *g*(*n*) = Θ(min {*f* (*n*), *g*(*n*)}).'
 - en: '***c.*** *f* (*n*) = *O*(*g*(*n*)) implies lg *f* (*n*) = *O*(lg *g*(*n*)),
     where lg *g*(*n*) ≥ 1 and *f* (*n*) ≥ 1 for all sufficiently large *n*.'
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** *f* (*n*) = *O*(*g*(*n*)) 意味着 lg *f* (*n*) = *O*(lg *g*(*n*))，其中 lg
+    *g*(*n*) ≥ 1，对于所有足够大的 *n*，*f* (*n*) ≥ 1。'
 - en: '***d.*** *f* (*n*) = *O*(*g*(*n*)) implies 2^(*f*(*n*)) = *O* (2^(*g*(*n*))).'
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** *f* (*n*) = *O*(*g*(*n*)) 意味着 2^(*f*(*n*)) = *O* (2^(*g*(*n*))).'
 - en: '***e.*** *f* (*n*) = *O* ((*f* (*n*))²).'
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** *f* (*n*) = *O* ((*f* (*n*))²).'
 - en: '***f.*** *f* (*n*) = *O*(*g*(*n*)) implies *g*(*n*) = Ω(*f* (*n*)).'
+  id: totrans-327
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** *f* (*n*) = *O*(*g*(*n*)) 意味着 *g*(*n*) = Ω(*f* (*n*)).'
 - en: '***g.*** *f* (*n*) = Θ(*f* (*n*/2)).'
+  id: totrans-328
   prefs: []
   type: TYPE_NORMAL
+  zh: '***g.*** *f* (*n*) = Θ(*f* (*n*/2)).'
 - en: '***h.*** *f* (*n*) + *o*(*f* (*n*)) = Θ(*f* (*n*)).'
+  id: totrans-329
   prefs: []
   type: TYPE_NORMAL
+  zh: '***h.*** *f* (*n*) + *o*(*f* (*n*)) = Θ(*f* (*n*)).'
 - en: '***3-5     Manipulating asymptotic notation***'
+  id: totrans-330
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-5     操作渐近符号***'
 - en: 'Let *f* (*n*) and *g*(*n*) be asymptotically positive functions. Prove the
     following identities:'
+  id: totrans-331
   prefs: []
   type: TYPE_NORMAL
+  zh: 设 *f* (*n*) 和 *g*(*n*) 是渐近正函数。证明以下恒等式：
 - en: '***a.*** Θ(Θ(*f* (*n*))) = Θ(*f* (*n*)).'
+  id: totrans-332
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** Θ(Θ(*f* (*n*))) = Θ(*f* (*n*)).'
 - en: '***b.*** Θ(*f* (*n*)) + *O*(*f* (*n*)) = Θ(*f* (*n*)).'
+  id: totrans-333
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** Θ(*f* (*n*)) + *O*(*f* (*n*)) = Θ(*f* (*n*)).'
 - en: '***c.*** Θ(*f* (*n*)) + Θ(*g*(*n*)) = Θ(*f* (*n*) + *g*(*n*)).'
+  id: totrans-334
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** Θ(*f* (*n*)) + Θ(*g*(*n*)) = Θ(*f* (*n*) + *g*(*n*)).'
 - en: '***d.*** Θ(*f* (*n*)) · Θ(*g*(*n*)) = Θ(*f* (*n*) · *g*(*n*)).'
+  id: totrans-335
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** Θ(*f* (*n*)) · Θ(*g*(*n*)) = Θ(*f* (*n*) · *g*(*n*)).'
 - en: '***e.*** Argue that for any real constants *a*[1], *b*[1] > 0 and integer constants
     *k*[1], *k*[2], the following asymptotic bound holds:'
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 论证对于任意实常数 *a*[1]，*b*[1] > 0 和整数常数 *k*[1]，*k*[2]，以下渐近界成立：'
 - en: '![art](images/Art_P80.jpg)'
+  id: totrans-337
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P80.jpg)'
 - en: ★ ***f.*** Prove that for *S* ⊆ Z, we have
+  id: totrans-338
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***f.*** 证明对于 *S* ⊆ Z，我们有
 - en: '![art](images/Art_P81.jpg)'
+  id: totrans-339
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P81.jpg)'
 - en: assuming that both sums converge.
+  id: totrans-340
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设两个和都收敛。
 - en: '★ ***g.*** Show that for *S* ⊆ Z, the following asymptotic bound does not necessarily
     hold, even assuming that both products converge, by giving a counterexample:'
+  id: totrans-341
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***g.*** 证明对于 *S* ⊆ Z，即使假设两个乘积收敛，以下渐近界不一定成立，给出一个反例：
 - en: '![art](images/Art_P82.jpg)'
+  id: totrans-342
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P82.jpg)'
 - en: '***3-6     Variations on O and Ω***'
+  id: totrans-343
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-6     O 和 Ω 的变体***'
 - en: Some authors define Ω-notation in a slightly different way than this textbook
     does. We’ll use the nomenclature ![art](images/Art_P83.jpg) (read “omega infinity”)
     for this alternative definition. We say that ![art](images/Art_P84.jpg) if there
     exists a positive constant *c* such that *f* (*n*) ≥ *cg*(*n*) ≥ 0 for infinitely
     many integers *n*.
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些作者对Ω-符号的定义与本教科书略有不同。我们将使用命名约定 ![art](images/Art_P83.jpg)（读作“omega infinity”）来表示这种替代定义。我们说
+    ![art](images/Art_P84.jpg) 如果存在一个正常数 *c*，使得对于无限多个整数 *n*，*f* (*n*) ≥ *cg*(*n*)
+    ≥ 0。
 - en: '***a.*** Show that for any two asymptotically nonnegative functions *f* (*n*)
     and *g*(*n*), we have *f* (*n*) = *O*(*g*(*n*)) or ![art](images/Art_P85.jpg)
     (or both).'
+  id: totrans-345
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 证明对于任意两个渐近非负函数 *f* (*n*) 和 *g*(*n*)，我们有 *f* (*n*) = *O*(*g*(*n*))
+    或 ![art](images/Art_P85.jpg)（或两者皆有）。'
 - en: '***b.*** Show that there exist two asymptotically nonnegative functions *f*
     (*n*) and *g*(*n*) for which neither *f* (*n*) = *O*(*g*(*n*)) nor *f* (*n*) =
     Ω(*g*(*n*)) holds.'
+  id: totrans-346
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明存在两个渐近非负函数 *f* (*n*) 和 *g*(*n*)，既不满足 *f* (*n*) = *O*(*g*(*n*)) 也不满足
+    *f* (*n*) = Ω(*g*(*n*))。'
 - en: '***c.*** Describe the potential advantages and disadvantages of using ![art](images/Art_P86.jpg)-notation
     instead of Ω-notation to characterize the running times of programs.'
+  id: totrans-347
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 描述使用 ![art](images/Art_P86.jpg)-符号而不是Ω-符号来表征程序运行时间的潜在优势和劣势。'
 - en: 'Some authors also define *O* in a slightly different manner. We’ll use *O*^′
     for the alternative definition: *f* (*n*) = *O*^′(*g*(*n*)) if and only if |*f*
     (*n*)| = *O*(*g*(*n*)).'
+  id: totrans-348
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些作者还以稍微不同的方式定义*O*。我们将使用*O*^′表示另一种定义：*f* (*n*) = *O*^′(*g*(*n*))当且仅当|*f* (*n*)|
+    = *O*(*g*(*n*)).
 - en: '***d.*** What happens to each direction of the “if and only if” in Theorem
     3.1 on page 56 if we substitute *O*^′ for *O* but still use Ω?'
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 如果我们用*O*^′替换*O*但仍然使用Ω，定理3.1在第56页的“当且仅当”各个方向会发生什么变化？'
 - en: 'Some authors define ![art](images/Otilde.jpg) (read “soft-oh”) to mean *O*
     with logarithmic factors ignored:'
+  id: totrans-350
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些作者将![艺术](images/Otilde.jpg)（读作“软-oh”）定义为忽略对数因子的*O*：
 - en: '| ![art](images/Art_P87.jpg) |  :  | there exist positive constants *c*, *k*,
     and *n*[0] such that 0 ≤ *f* (*n*) ≤ *cg*(*n*) lg*^k*(*n*) for all *n* ≥ *n*[0]}.
     |'
+  id: totrans-351
   prefs: []
   type: TYPE_TB
+  zh: '| ![艺术](images/Art_P87.jpg) |  :  | 存在正常数*c*、*k*和*n*[0]，使得对于所有*n* ≥ *n*[0]，都有0
+    ≤ *f* (*n*) ≤ *cg*(*n*) lg*^k*(*n*)。 |'
 - en: '***e.*** Define ![art](images/Art_P88.jpg) and ![art](images/Art_P89.jpg) in
     a similar manner. Prove the corresponding analog to Theorem 3.1.'
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 以类似的方式定义![艺术](images/Art_P88.jpg)和![艺术](images/Art_P89.jpg)。证明定理3.1的对应类比。'
 - en: '***3-7     Iterated functions***'
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: '***3-7     迭代函数***'
 - en: We can apply the iteration operator ^* used in the lg^* function to any monotonically
     increasing function *f* (*n*) over the reals. For a given constant *c* ∈ R, we
     define the iterated function ![art](images/Art_P90.jpg) by
+  id: totrans-354
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以将用于lg^*函数的迭代运算符^*应用于实数上的任何单调增函数*f* (*n*)。对于给定的常数*c* ∈ R，我们通过以下方式定义迭代函数![艺术](images/Art_P90.jpg)：
 - en: '![art](images/Art_P91.jpg)'
+  id: totrans-355
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P91.jpg)'
 - en: which need not be well defined in all cases. In other words, the quantity ![art](images/Art_P92.jpg)
     is the minimum number of iterated applications of the function *f* required to
     reduce its argument down to *c* or less.
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些情况下，这可能并不是明确定义的。换句话说，数量![艺术](images/Art_P92.jpg)是将函数*f*迭代应用到其参数减少到*c*或更少所需的最小次数。
 - en: For each of the functions *f* (*n*) and constants *c* in the table below, give
     as tight a bound as possible on ![art](images/Art_P93.jpg). If there is no *i*
     such that *f*^((*i*))(*n*) ≤ *c*, write “undefined” as your answer.
+  id: totrans-357
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于下表中的每个���数*f* (*n*)和常数*c*，尽可能紧密地给出![艺术](images/Art_P93.jpg)的上界。如果没有*i*使得*f*^((*i*))(*n*)
+    ≤ *c*，请将“未定义”写为您的答案。
 - en: '|  | *f* (*n*) | *c* | ![art](images/Art_P94.jpg) |'
+  id: totrans-358
   prefs: []
   type: TYPE_TB
+  zh: '|  | *f* (*n*) | *c* | ![艺术](images/Art_P94.jpg) |'
 - en: '| ***a.*** | *n* – 1 | 0 |  |'
+  id: totrans-359
   prefs: []
   type: TYPE_TB
+  zh: '| ***a.*** | *n* – 1 | 0 |  |'
 - en: '| ***b.*** | lg *n* | 1 |  |'
+  id: totrans-360
   prefs: []
   type: TYPE_TB
+  zh: '| ***b.*** | lg *n* | 1 |  |'
 - en: '| ***c.*** | *n*/2 | 1 |  |'
+  id: totrans-361
   prefs: []
   type: TYPE_TB
+  zh: '| ***c.*** | *n*/2 | 1 |  |'
 - en: '| ***d.*** | *n*/2 | 2 |  |'
+  id: totrans-362
   prefs: []
   type: TYPE_TB
+  zh: '| ***d.*** | *n*/2 | 2 |  |'
 - en: '| ***e.*** | ![art](images/Art_P95.jpg) | 2 |  |'
+  id: totrans-363
   prefs: []
   type: TYPE_TB
+  zh: '| ***e.*** | ![艺术](images/Art_P95.jpg) | 2 |  |'
 - en: '| ***f.*** | ![art](images/Art_P96.jpg) | 1 |  |'
+  id: totrans-364
   prefs: []
   type: TYPE_TB
+  zh: '| ***f.*** | ![艺术](images/Art_P96.jpg) | 1 |  |'
 - en: '| ***g.*** | *n*^(1/3) | 2 |  |'
+  id: totrans-365
   prefs: []
   type: TYPE_TB
+  zh: '| ***g.*** | *n*^(1/3) | 2 |  |'
 - en: '**Chapter notes**'
+  id: totrans-366
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: Knuth [[259](bibliography001.xhtml#endnote_259)] traces the origin of the *O*-notation
     to a number-theory text by P. Bachmann in 1892\. The *o*-notation was invented
     by E. Landau in 1909 for his discussion of the distribution of prime numbers.
@@ -1575,14 +2417,22 @@
     in Problem 3-6, this statement is not true. Further discussion of the history
     and development of asymptotic notations appears in works by Knuth [[259](bibliography001.xhtml#endnote_259),
     [265](bibliography001.xhtml#endnote_265)] and Brassard and Bratley [[70](bibliography001.xhtml#endnote_70)].
+  id: totrans-367
   prefs: []
   type: TYPE_NORMAL
+  zh: Knuth [[259](bibliography001.xhtml#endnote_259)]追溯了*O*符号的起源，起源于1892年P. Bachmann的一个数论文本。*o*符号是由E.
+    Landau在1909年发明的，用于讨论素数的分布。Ω和Θ符号是由Knuth [[265](bibliography001.xhtml#endnote_265)]提倡的，以纠正文献中使用*O*符号表示上下界的流行但技术上不严谨的做法。正如本章前面提到的，许多人继续使用*O*符号，而Θ符号在技术上更加精确。问题3-6中的软-oh符号![艺术](images/Otilde.jpg)是由Babai、Luks和Seress
+    [[31](bibliography001.xhtml#endnote_31)]引入的，尽管最初写成*O*~。一些作者现在将![艺术](images/Art_P97.jpg)定义为忽略在*g*(*n*)中对数的因子，而不是在*n*中。根据这个定义，我们可以说![艺术](images/Art_P98.jpg)，但根据问题3-6中的定义，这个说法是不正确的。Knuth
+    [[259](bibliography001.xhtml#endnote_259), [265](bibliography001.xhtml#endnote_265)]和Brassard与Bratley
+    [[70](bibliography001.xhtml#endnote_70)]的作品中进一步讨论了渐近符号的历史和发展。
 - en: Not all authors define the asymptotic notations in the same way, although the
     various definitions agree in most common situations. Some of the alternative definitions
     encompass functions that are not asymptotically nonnegative, as long as their
     absolute values are appropriately bounded.
+  id: totrans-368
   prefs: []
   type: TYPE_NORMAL
+  zh: 并非所有作者都以相同的方式定义渐近符号，尽管各种定义在大多数常见情况下是一致的。一些替代定义包括函数，只要它们的绝对值受到适当限制，就不是渐近非负的。
 - en: Equation (3.29) is due to Robbins [[381](bibliography001.xhtml#endnote_381)].
     Other properties of elementary mathematical functions can be found in any good
     mathematical reference, such as Abramowitz and Stegun [[1](bibliography001.xhtml#endnote_1)]
@@ -1591,8 +2441,12 @@
     Knuth [[259](bibliography001.xhtml#endnote_259)] and Graham, Knuth, and Patashnik
     [[199](bibliography001.xhtml#endnote_199)] contain a wealth of material on discrete
     mathematics as used in computer science.
+  id: totrans-369
   prefs: []
   type: TYPE_NORMAL
+  zh: 方程（3.29）是由罗宾斯提出的[[381](bibliography001.xhtml#endnote_381)]。其他基本数学函数的性质可以在任何优秀的数学参考书中找到，比如阿布拉莫维茨和斯特根[[1](bibliography001.xhtml#endnote_1)]，或者在微积分书籍中找到，比如阿波斯托尔[[19](bibliography001.xhtml#endnote_19)]或托马斯等人[[433](bibliography001.xhtml#endnote_433)]。克努特[[259](bibliography001.xhtml#endnote_259)]和格雷厄姆、克努特和帕塔什尼克[[199](bibliography001.xhtml#endnote_199)]包含了大量关于计算机科学中使用的离散数学的材料。
 - en: '[¹](#footnote_ref_1) Within set notation, a colon means “such that.”'
+  id: totrans-370
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 在集合符号中，冒号表示“使得”。'

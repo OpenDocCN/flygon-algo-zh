@@ -1,6 +1,8 @@
 - en: '[**9          Medians and Order Statistics**](toc.xhtml#chap-9)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**9          中位数和顺序统计量**](toc.xhtml#chap-9)'
 - en: The *i*th ***order statistic*** of a set of *n* elements is the *i*th smallest
     element. For example, the ***minimum*** of a set of elements is the first order
     statistic (*i* = 1), and the ***maximum*** is the *n*th order statistic (*i* =
@@ -11,28 +13,41 @@
     of *n*, medians occur at *i* = ⌊(*n* + 1)/2⌋ and *i* = ⌈(*n* + 1)/2⌉. For simplicity
     in this text, however, we consistently use the phrase “the median” to refer to
     the lower median.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 一组*n*个元素的第*i*个***顺序统计量***是第*i*小的元素。例如，一组元素的***最小值***是第一个顺序统计量(*i* = 1)，***最大值***是第*n*个顺序统计量(*i*
+    = *n*)。一个***中位数***，非正式地说，是集合的“中间点”。当*n*为奇数时，中位数是唯一的，出现在*i* = (*n* + 1)/2处。当*n*为偶数时，存在两个中位数，***下中位数***出现在*i*
+    = *n*/2处，***上中位数***出现在*i* = *n*/2 + 1处。因此，无论*n*的奇偶性如何，中位数出现在*i* = ⌊(*n* + 1)/2⌋和*i*
+    = ⌈(*n* + 1)/2⌉处。然而，在本文中为简单��见，我们始终使用短语“中位数”来指代下中位数。
 - en: 'This chapter addresses the problem of selecting the *i*th order statistic from
     a set of *n* distinct numbers. We assume for convenience that the set contains
     distinct numbers, although virtually everything that we do extends to the situation
     in which a set contains repeated values. We formally specify the ***selection
     problem*** as follows:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章讨论了从一组*n*个不同数字中选择第*i*个顺序统计量的问题。为方便起见，我们假设集合包含不同的数字，尽管我们所做的几乎都可以扩展到集合包含重复值的情况。我们正式规定***选择问题***如下：
 - en: '**Input:** A set *A* of *n* distinct numbers^([1](#footnote_1)) and an integer
     *i*, with 1 ≤ *i* ≤ *n*.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '**输入:** 一组*n*个不同数字^([1](#footnote_1))和一个整数*i*，其中1 ≤ *i* ≤ *n*。'
 - en: '**Output:** The element *x* ∈ *A* that is larger than exactly *i* – 1 other
     elements of *A*.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '**输出:** 元素*x* ∈ *A*，比*A*中恰好*i* – 1个元素大。'
 - en: We can solve the selection problem in *O*(*n* lg *n*) time simply by sorting
     the numbers using heapsort or merge sort and then outputting the *i*th element
     in the sorted array. This chapter presents asymptotically faster algorithms.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过使用堆排序或归并排序对数字进行排序，然后输出排序数组中的第*i*个元素，以*O*(*n* lg *n*)的时间解决选择问题。本章介绍了渐近更快的算法。
 - en: '[Section 9.1](chapter009.xhtml#Sec_9.1) examines the problem of selecting the
     minimum and maximum of a set of elements. More interesting is the general selection
     problem, which we investigate in the subsequent two sections. [Section 9.2](chapter009.xhtml#Sec_9.2)
@@ -40,38 +55,59 @@
     time, assuming distinct elements. [Section 9.3](chapter009.xhtml#Sec_9.3) contains
     an algorithm of more theoretical interest that achieves the *O*(*n*) running time
     in the worst case.'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第9.1节](chapter009.xhtml#Sec_9.1)讨论了选择一组元素的最小值和最大值的问题。更有趣的是一般的选择问题，我们将在随后的两节中进行研究。[第9.2节](chapter009.xhtml#Sec_9.2)分析了一个实用的随机算法，假设元素不同，可以实现*O*(*n*)的期望运行时间。[第9.3节](chapter009.xhtml#Sec_9.3)包含一个更具理论意义的算法，在最坏情况下实现*O*(*n*)的运行时间。'
 - en: '[**9.1      Minimum and maximum**](toc.xhtml#Rh1-51)'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**9.1      最小值和最大值**](toc.xhtml#Rh1-51)'
 - en: 'How many comparisons are necessary to determine the minimum of a set of *n*
     elements? To obtain an upper bound of *n* – 1 comparisons, just examine each element
     of the set in turn and keep track of the smallest element seen so far. The MINIMUM
     procedure assumes that the set resides in array *A*[1 : *n*].'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '确定一组*n*个元素的最小值需要多少次比较？为了得到*n* – 1次比较的上界，只需依次检查集合中的每个元素，并跟踪到目前为止看到的最小元素。MINIMUM过程假定集合驻留在数组*A*[1
+    : *n*]中。'
 - en: MINIMUM(*A*, *n*)
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: MINIMUM(*A*, *n*)
 - en: '| 1 | *min* = *A*[1] |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *min* = *A*[1] |'
 - en: '| 2 | **for** *i* = 2 **to** *n* |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *i* = 2 **to** *n* |'
 - en: '| 3 | **if** *min* > *A*[*i*] |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **if** *min* > *A*[*i*] |'
 - en: '| 4 | *min* = *A*[*i*] |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *min* = *A*[*i*] |'
 - en: '| 5 | **return** *min* |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **return** *min* |'
 - en: It’s no more difficult to find the maximum with *n* – 1 comparisons.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 用*n* – 1次比较找到最大值并不更困难。
 - en: Is this algorithm for minimum the best we can do? Yes, because it turns out
     that there’s a lower bound of *n* – 1 comparisons for the problem of determining
     the minimum. Think of any algorithm that determines the minimum as a tournament
@@ -80,23 +116,33 @@
     at least one match, we can conclude that *n* – 1 comparisons are necessary to
     determine the minimum. Hence the algorithm MINIMUM is optimal with respect to
     the number of comparisons performed.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个最小值算法是我们能做到的最好吗？是的，因为事实证明，确定最小值的问题存在*n* – 1次比较的下界。将确定最小值的任何算法视为元素之间的锦标赛。每次比较都是锦标赛中的一场比赛，较小的元素获胜。由于除了获胜者之外的每个元素都必须至少输掉一场比赛，我们可以得出结论，确定最小值需要*n*
+    – 1次比较。因此，MINIMUM算法在执行的比较次数方面是最优的。
 - en: '**Simultaneous minimum and maximum**'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '**同时找到最小值和最大值**'
 - en: Some applications need to find both the minimum and the maximum of a set of
     *n* elements. For example, a graphics program may need to scale a set of (*x*,
     *y*) data to fit onto a rectangular display screen or other graphical output device.
     To do so, the program must first determine the minimum and maximum value of each
     coordinate.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 有些应用需要找到一组*n*个元素的最小值和最大值。例如，图形程序可能需要将一组(*x*, *y*)数据缩放以适应矩形显示屏或其他图形输出设备。为此，程序必须首先确定每个坐标的最小值和最大值。
 - en: Of course, we can determine both the minimum and the maximum of *n* elements
     using Θ(*n*) comparisons. We simply find the minimum and maximum independently,
     using *n* – 1 comparisons for each, for a total of 2*n* – 2 = Θ(*n*) comparisons.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，我们可以使用Θ(*n*)次比较确定*n*个元素的最小值和最大值。我们只需独立找到最小值和最大值，每个使用*n* – 1次比较，总共2*n* – 2
+    = Θ(*n*)次比较。
 - en: Although 2*n* – 2 comparisons is asymptotically optimal, it is possible to improve
     the leading constant. We can find both the minimum and the maximum using at most
     3 ⌊*n*/2⌋ comparisons. The trick is to maintain both the minimum and maximum elements
@@ -105,61 +151,88 @@
     process elements in pairs. Compare pairs of elements from the input first *with
     each other*, and then compare the smaller with the current minimum and the larger
     to the current maximum, at a cost of 3 comparisons for every 2 elements.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管2*n* – 2次比较在渐进意义上是最优的，但可以改进主导常数。我们可以使用最多3 ⌊*n*/2⌋次比较找到最小值和最大值。关键是保持迄今为止看到的最小值和最大值元素。而不是通过将每个输入元素与当前最小值和最大值进行比较来处理输入的每个元素，每个元素的成本为2次比较，可以成对处理元素。首先将输入的元素成对比较*彼此*，然后将较小的元素与当前最小值比较，将较大的元素与当前最大值比较，每2个元素的成本为3次比较。
 - en: How you set up initial values for the current minimum and maximum depends on
     whether *n* is odd or even. If *n* is odd, set both the minimum and maximum to
     the value of the first element, and then process the rest of the elements in pairs.
     If *n* is even, perform 1 comparison on the first 2 elements to determine the
     initial values of the minimum and maximum, and then process the rest of the elements
     in pairs as in the case for odd *n*.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 如何设置当前最小值和最大值的初始值取决于*n*是奇数还是偶数。如果*n*是奇数，则将最小值和最大值都设置为第一个元素的值，然后以成对的方式处理其余元素。如果*n*是偶数，则对前两个元素进行1次比较，以确定最小值和最大值的初始值，然后像奇数*n*的情况一样以成对方式处理其余元素。
 - en: Let’s count the total number of comparisons. If *n* is odd, then 3 ⌊*n*/2⌋ comparisons
     occur. If *n* is even, 1 initial comparison occurs, followed by another 3(*n*
     – 2)/2 comparisons, for a total of 3*n*/2 – 2\. Thus, in either case, the total
     number of comparisons is at most 3 ⌊*n*/2⌋.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们来计算总共的比较次数。如果*n*是奇数，则会发生3 ⌊*n*/2⌋次比较。如果*n*是偶数，则会有1次初始比较，然后是另外3(*n* – 2)/2次比较，总共为3*n*/2
+    – 2。因此，在任何情况下，总比较次数最多为3 ⌊*n*/2⌋。
 - en: '**Exercises**'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***9.1-1***'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.1-1***'
 - en: Show that the second smallest of *n* elements can be found with *n* + ⌈lg *n*⌉
     – 2 comparisons in the worst case. (*Hint:* Also find the smallest element.)
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在最坏情况下，*n*个元素中第二小的元素可以在*n* + ⌈lg *n*⌉ – 2次比较中找到。（*提示：同时找到最小元素。）
 - en: '***9.1-2***'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.1-2***'
 - en: Given *n* > 2 distinct numbers, you want to find a number that is neither the
     minimum nor the maximum. What is the smallest number of comparisons that you need
     to perform?
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定*n* > 2个不同的数字，你想找到一个既不是最小值也不是最大值的数字。你需要执行的最少比较次数是多少？
 - en: '***9.1-3***'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.1-3***'
 - en: A racetrack can run races with five horses at a time to determine their relative
     speeds. For 25 horses, it takes six races to determine the fastest horse, assuming
     transitivity (see page 1159). What’s the minimum number of races it takes to determine
     the fastest three horses out of 25?
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个赛马场可以同时比赛五匹马，以确定它们的相对速度。对于25匹马，假设具有传递性（见第1159页），需要进行六场比赛才能确定最快的马。确定25匹马中最快的三匹马最少需要多少场比赛？
 - en: ★ ***9.1-4***
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***9.1-4***
 - en: Prove the lower bound of ⌈3*n*/2⌉ – 2 comparisons in the worst case to find
     both the maximum and minimum of *n* numbers. (*Hint:* Consider how many numbers
     are potentially either the maximum or minimum, and investigate how a comparison
     affects these counts.)
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在最坏情况下找到*n*个数字的最大值和最小值需要⌈3*n*/2⌉ – 2次比较的下界。（*提示：考虑有多少个数字可能是最大值或最小值，并研究比较如何影响这些计数。）
 - en: '[**9.2      Selection in expected linear time**](toc.xhtml#Rh1-52)'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**9.2      期望线性时间选择**](toc.xhtml#Rh1-52)'
 - en: 'The general selection problem—finding the *i*th order statistic for any value
     of *i*—appears more difficult than the simple problem of finding a minimum. Yet,
     surprisingly, the asymptotic running time for both problems is the same: Θ(*n*).
@@ -171,46 +244,73 @@
     up in the analysis: whereas quicksort has an expected running time of Θ(*n* lg
     *n*), the expected running time of RANDOMIZED-SELECT is Θ(*n*), assuming that
     the elements are distinct.'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 一般的选择问题——找到任何*i*值的顺序统计量比找到最小值的简单问题更困难。然而，令人惊讶的是，这两个问题的渐进运行时间是相同的：Θ(*n*)。本节介绍了选择问题的分治算法。算法RANDOMIZED-SELECT是根据[第7章](chapter007.xhtml)快速排序算法建模的。像快速排序一样，它递归地对输入数组进行分区。但与快速排序不同，快速排序递归处理分区的两侧，而RANDOMIZED-SELECT只处理分区的一侧。这种差异体现在分析中：快速排序的期望运行时间为Θ(*n*
+    lg *n*)，而RANDOMIZED-SELECT的期望运行时间为Θ(*n*)，假设元素是不同的。
 - en: 'RANDOMIZED-SELECT uses the procedure RANDOMIZED-PARTITION introduced in [Section
     7.3](chapter007.xhtml#Sec_7.3). Like RANDOMIZED-QUICKSORT, it is a randomized
     algorithm, since its behavior is determined in part by the output of a random-number
     generator. The RANDOMIZED-SELECT procedure returns the *i*th smallest element
     of the array *A*[*p* : *r*], where 1 ≤ *i* ≤ *r* – *p* + 1.'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 'RANDOMIZED-SELECT使用了[第7.3节](chapter007.xhtml#Sec_7.3)介绍的RANDOMIZED-PARTITION过程。像RANDOMIZED-QUICKSORT一样，它是一个随机算法，因为它的行为部分取决于随机数生成器的输出。RANDOMIZED-SELECT过程返回数组*A*[*p*
+    : *r*]中第*i*小的元素，其中1 ≤ *i* ≤ *r* – *p* + 1。'
 - en: RANDOMIZED-SELECT(*A*, *p*, *r*, *i*)
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: RANDOMIZED-SELECT(*A*, *p*, *r*, *i*)
 - en: '| 1 | **if** *p* == *r* |'
+  id: totrans-36
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **if** *p* == *r* |'
 - en: '| 2 | **return** *A*[*p*] | **//** 1 ≤ *i* ≤ *r* – *p* + 1 when *p* == *r*
     means that *i* = 1 |'
+  id: totrans-37
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **return** *A*[*p*] | **//** 当*p* == *r*时，1 ≤ *i* ≤ *r* – *p* + 1意味着*i*
+    = 1 |'
 - en: '| 3 | *q* = RANDOMIZED-PARTITION(*A*, *p*, *r*) |'
+  id: totrans-38
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = RANDOMIZED-PARTITION(*A*, *p*, *r*) |'
 - en: '| 4 | *k* = *q* – *p* + 1 |'
+  id: totrans-39
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *k* = *q* – *p* + 1 |'
 - en: '| 5 | **if** *i* == *k* |'
+  id: totrans-40
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **if** *i* == *k* |'
 - en: '| 6 | **return** *A*[*q*] | **//** the pivot value is the answer |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **return** *A*[*q*] | **//** 枢轴值就是答案 |'
 - en: '| 7 | **elseif** *i* < *k* |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **elseif** *i* < *k* |'
 - en: '| 8 | **return** RANDOMIZED-SELECT(*A*, *p*, *q* – 1, *i*) |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **返回** RANDOMIZED-SELECT(*A*, *p*, *q*–1, *i*) |'
 - en: '| 9 | **else return** RANDOMIZED-SELECT(*A*, *q* + 1, *r*, *i* – *k*) |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '| 9 | **否则返回** RANDOMIZED-SELECT(*A*, *q* + 1, *r*, *i* – *k*) |'
 - en: '[Figure 9.1](chapter009.xhtml#Fig_9-1) illustrates how the RANDOMIZED-SELECT
     procedure works. Line 1 checks for the base case of the recursion, in which the
     subarray *A*[*p* : *r*] consists of just one element. In this case, *i* must equal
@@ -235,11 +335,15 @@
     : *r*], which line 9 finds recursively. The code appears to allow recursive calls
     to subarrays with 0 elements, but Exercise 9.2-1 asks you to show that this situation
     cannot happen.'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 9.1](chapter009.xhtml#Fig_9-1)展示了RANDOMIZED-SELECT过程的工作原理。第1行检查递归的基本情况，即子数组*A*[*p*:*r*]只包含一个元素。在这种情况下，*i*必须等于1，第2行简单地将*A*[*p*]作为第*i*小的元素返回。否则，第3行中对RANDOMIZED-PARTITION的调用将数组*A*[*p*:*r*]划分为两个（可能为空）子数组*A*[*p*:*q*-1]和*A*[*q*+1:*r*]，使得*A*[*p*:*q*-1]的每个元素小于或等于*A*[*q*]，而*A*[*q*]又小于*A*[*q*+1:*r*]的每个元素。（尽管我们的分析假设元素是不同的，但即使存在相等的元素，该过程仍会产生正确的结果。）与快速排序一样，我们将*A*[*q*]称为***枢轴***元素。第4行计算子数组*A*[*p*:*q*]中的元素数*k*，即划分低侧的元素数，再加上1个枢轴元素。然后第5行检查*A*[*q*]是否是第*i*小的元素。如果是，则第6行返回*A*[*q*]。否则，算法确定第*i*小的元素位于*A*[*p*:*q*-1]和*A*[*q*+1:*r*]中的哪一个子数组中。如果*i*<*k*，则所需元素位于划分的低侧，第8行从子数组中递归选择它。然而，如果*i*>*k*，则所需元素位于划分的高侧。由于我们已经知道比*A*[*p*:*r*]中第*i*小的元素更小的*k*个值，即*A*[*p*:*q*]的元素，所需元素是*A*[*q*+1:*r*]中第(*i*-*k*)小的元素，第9行通过递归找到它。代码似乎允许对具有0个元素的子数组进行递归调用，但习题9.2-1要求您证明这种情况不会发生。'
 - en: '![art](images/Art_P340.jpg)'
+  id: totrans-46
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P340.jpg)'
 - en: '**Figure 9.1** The action of RANDOMIZED-SELECT as successive partitionings
     narrow the subarray *A*[*p*: *r*], showing the values of the parameters *p*, *r*,
     and *i* at each recursive call. The subarray *A*[*p* : *r*] in each recursive
@@ -248,8 +352,10 @@
     tan element in the bottom array, where *p* = *r* = 5 and *i* = 1\. The array designations
     *A*^((0)), *A*^((1)), … , *A*^((5)), the partitioning numbers, and whether the
     partitioning is helpful are explained on the following page.'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 9.1** 随着连续划分缩小子数组*A*[*p*:*r*]的过程，展示了RANDOMIZED-SELECT的作用，显示了每个递归调用时参数*p*、*r*和*i*的值。每个递归步骤中的子数组*A*[*p*:*r*]显示为棕色，选择的深棕色元素作为下一次划分的枢轴。蓝色元素在*A*[*p*:*r*]之外。答案是底���数组中的棕色元素，其中*p**r*=5且*i*=1。数组标记*A*^((0))、*A*^((1))、…、*A*^((5))、划分数字以及划分是否有帮助的说明在下一页解释。'
 - en: 'The worst-case running time for RANDOMIZED-SELECT is Θ(*n*²), even to find
     the minimum, because it could be extremely unlucky and always partition around
     the largest remaining element before identifying the *i*th smallest when only
@@ -259,8 +365,10 @@
     (*n*) = *T* (*n* – 1) + Θ(*n*), with the solution *T* (*n*) = Θ(*n*²). We’ll see
     that the algorithm has a linear expected running time, however, and because it
     is randomized, no particular input elicits the worst-case behavior.'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: RANDOMIZED-SELECT的最坏情况运行时间为Θ(*n*²)，即使是找到最小值，因为在只剩下一个元素时，它可能非常不幸，总是围绕剩余的最大元素进行划分，然后才能确定第*i*小的元素。在这种最坏情况下，每个递归步骤只移除考虑中的枢轴。因为对*n*个元素进行划分需要Θ(*n*)的时间，最坏情况运行时间的递归与QUICKSORT相同：*T*(*n*)=*T*(*n*-1)+Θ(*n*)，解为*T*(*n*)=Θ(*n*²)。然而，我们将看到该算法具有线性的期望运行时间，并且由于它是随机的，没有特定的输入会引发最坏情况的行为。
 - en: 'To see the intuition behind the linear expected running time, suppose that
     each time the algorithm randomly selects a pivot element, the pivot lies somewhere
     within the second and third quartiles—the “middle half”—of the remaining elements
@@ -275,8 +383,11 @@
     takes Θ(*n*) time on a subarray of *n* elements, the recurrence for the worst-case
     running time is *T* (*n*) = *T* (3*n*/4) + Θ(*n*). By case 3 of the master method
     (Theorem 4.1 on page 102), this recurrence has solution *T* (*n*) = Θ(*n*).'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 要了解线性预期运行时间背后的直觉，假设每次算法随机选择一个枢轴元素时，枢轴位于排序后剩余元素的第二和第三四分位数之间——“中间一半”。如果第*i*小的元素小于枢轴，则所有大于枢轴的元素在所有未来递归调用中都被忽略。这些被忽略的元素包括至少最上面的四分之一，��能更多。同样，如果第*i*小的元素大于枢轴，则所有小于枢轴的元素——至少是第一个四分之一——在所有未来递归调用中都被忽略。因此，无论如何，在所有未来递归调用中至少有剩余元素的1/4被忽略，最多剩余元素的3/4***在游戏中***：驻留在子数组*A*[*p*:*r*]中。由于在*n*元素的子数组上RANDOMIZED-PARTITION需要Θ(*n*)时间，因此最坏情况下运行时间的递归为*T*(*n*)
+    = *T*(3*n*/4) + Θ(*n*)。根据主方法的第3种情况（第102页的定理4.1），此递归的解为*T*(*n*) = Θ(*n*)。
 - en: 'Of course, the pivot does not necessarily fall into the middle half every time.
     Since the pivot is selected at random, the probability that it falls into the
     middle half is about 1/2 each time. We can view the process of selecting the pivot
@@ -289,8 +400,11 @@
     number of partitionings at most doubles from the case when the pivot always falls
     into the middle half. The cost of each extra partitioning is less than the one
     that preceded it, so that the expected running time is still Θ(*n*).'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，枢轴并不一定每次都落入中间一半。由于枢轴是随机选择的，它每次落入中间一半的概率约为1/2。我们可以将选择枢轴的过程视为伯努利试验（参见[第 C.4
+    节](appendix003.xhtml#Sec_C.4)），其中成功表示枢轴位于中间一半。因此，成功所需的平均试验次数由几何分布给出：平均只需两次试验（第1197页的方程(C.36)）。换句话说，我们期望一半的分区将游戏中的元素数量减少至少3/4，而另一半的分区则不会帮助太多。因此，预期的分区数量最多是枢轴总是落入中间一半的情况的两倍。每次额外分区的成本低于前一次，因此预期运行时间仍然是Θ(*n*)。
 - en: 'To make the above argument rigorous, we start by defining the random variable
     *A*^((*j*)) as the set of elements of *A* that are still in play after *j* partitionings
     (that is, within the subarray *A*[*p* : *r*] after *j* calls of RANDOMIZED-SELECT),
@@ -299,21 +413,29 @@
     |*A*^((1))|, |*A*^((2))|, … strictly decreases. Set *A*^((*j*–1)) is in play before
     the *j* th partitioning, and set *A*^((*j*)) remains in play afterward. For convenience,
     assume that the initial set *A*^((0)) is the result of a 0th “dummy” partitioning.'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使上述论点严谨化，我们首先定义随机变量*A*^((*j*))为在*j*次分区后仍在游戏中的*A*元素的集合（即，在RANDOMIZED-SELECT调用*j*次后的子数组*A*[*p*:*r*]中），因此*A*^((0))由*A*中的所有元素组成。由于每次分区至少移除一个元素——枢轴——不在游戏中，序列|*A*^((0))|，|*A*^((1))|，|*A*^((2))|，…严格递减。在第*j*次分区之前，集合*A*^((*j*–1))在游戏中，而集合*A*^((*j*))在分区后仍在游戏中。为方便起见，假设初始集合*A*^((0))是第0次“虚拟”分区的结果。
 - en: Let’s call the *j* th partitioning ***helpful*** if |*A*^((*j*))| ≤ (3/4)|*A*^((*j*–1))|.
     [Figure 9.1](chapter009.xhtml#Fig_9-1) shows the sets *A*^((*j*)) and whether
     partitionings are helpful for an example array. A helpful partitioning corresponds
     to a successful Bernoulli trial. The following lemma shows that a partitioning
     is at least as likely to be helpful as not.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果|*A*^((*j*))| ≤ (3/4)|*A*^((*j*–1))|，则称第*j*次分区为***有益***。[图 9.1](chapter009.xhtml#Fig_9-1)展示了示例数组的集合*A*^((*j*))以及分区是否有帮助。有益的分区对应于成功的伯努利试验。以下引理表明，分区有益的概率至少与不有益的概率相同。
 - en: '***Lemma 9.1***'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 9.1***'
 - en: A partitioning is helpful with probability at least 1/2.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 分区有益的概率至少为1/2。
 - en: '***Proof***   Whether a partitioning is helpful depends on the randomly chosen
     pivot. We discussed the “middle half” in the informal argument above. Let’s more
     precisely define the middle half of an *n*-element subarray as all but the smallest
@@ -322,8 +444,11 @@
     if the pivot falls into the middle half, then the pivot leads to a helpful partitioning,
     and we’ll also prove that the probability of the pivot falling into the middle
     half is at least 1/2.'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 分区是否有帮助取决于随机选择的枢轴。我们在上面的非正式论证中讨论了“中间一半”。让我们更精确地定义*n*元素子数组的中间一半，即除了最小的⌈*n*/4⌉
+    – 1和最大的⌈*n*/4⌉ – 1个元素之外的所有元素（即，如果子数组排序，则除了第一个⌈*n*/4⌉ – 1和最后一个⌈*n*/4⌉ – 1个元素）。我们将证明，如果枢轴落入中间一半，则枢轴会导致有益的分区，并且我们还将证明，枢轴落入中间一半的概率至少为1/2。'
 - en: Regardless of where the pivot falls, either all the elements greater than it
     or all the elements less than it, along with the pivot itself, will no longer
     be in play after partitioning. If the pivot falls into the middle half, therefore,
@@ -332,33 +457,50 @@
     That is, at least ⌈*n*/4⌉ elements will no longer be in play. The number of elements
     remaining in play will be at most *n* – ⌈*n*/4⌉, which equals ⌊3*n*/4⌋ by Exercise
     3.3-2 on page 70\. Since ⌊3*n*/4⌋ ≤ 3*n*/4, the partitioning is helpful.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论枢纽落在哪里，大于它的所有元素或小于它的所有元素以及枢纽本身在分区后都不再参与游戏。因此，如���枢纽落在中间一半，至少有⌈*n*/4⌉ – 1个小于枢纽或大于枢纽的元素，加上枢纽本身，在分区后将不再参与游戏。也就是说，至少有⌈*n*/4⌉个元素将不再参与游戏。剩下的元素数量最多为*n*
+    – ⌈*n*/4⌉，即通过第70页上的练习3.3-2，等于⌊3*n*/4⌋。由于⌊3*n*/4⌋ ≤ 3*n*/4，分区是有用的。
 - en: To determine a lower bound on the probability that a randomly chosen pivot falls
     into the middle half, we determine an upper bound on the probability that it does
     not. That probability is
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了确定随机选择的枢纽落入中间一半的概率的下限，我们确定它不落入的概率的上限。该概率为
 - en: '![art](images/Art_P341.jpg)'
+  id: totrans-58
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P341.jpg)'
 - en: Thus, the pivot has a probability of at least 1/2 of falling into the middle
     half, and so the probability is at least 1/2 that a partitioning is helpful.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，枢纽有至少1/2的概率落入中间一半，因此分区有至少1/2的概率是有用的。
 - en: ▪
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: We can now bound the expected running time of RANDOMIZED-SELECT.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们可以限定RANDOMIZED-SELECT的期望运行时间。
 - en: '***Theorem 9.2***'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理9.2***'
 - en: The procedure RANDOMIZED-SELECT on an input array of *n* distinct elements has
     an expected running time of Θ(*n*).
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 输入数组为*n*个不同元素的RANDOMIZED-SELECT过程的期望运行时间为Θ(*n*)。
 - en: '***Proof***   Since not every partitioning is necessarily helpful, let’s give
     each partitioning an index starting at 0 and denote by 〈*h*[0], *h*[1], *h*[2],
     … , *h[m]*〉 the sequence of partitionings that are helpful, so that the *h[k]*th
@@ -371,11 +513,18 @@
     decrease, we have ![art](images/Art_P343.jpg) for *k* = 1, 2, … , *m*. By iterating
     *n[k]* ≤ (3/4) *n*[*k*–1], we have that *n[k]* ≤ (3/4)*^kn*[0] for *k* = 0, 1,
     2, … , *m*.'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 由于并非每次分区都是有用的，让我们从0开始为每次分区编号，并用〈*h*[0], *h*[1], *h*[2], … , *h[m]*〉表示有用的分区序列，使得第*k*个分区对*k*
+    = 0, 1, 2, … , *m* 有效。尽管有用分区的数量*m*是一个随机变量，但我们可以对其进行限制，因为在至多⌈log[4/3] *n*⌉个有用分区之后，只剩下一个元素。考虑虚拟的第0个分区是有用的，因此*h*[0]
+    = 0。将*n[k]*表示为 ![art](images/Art_P342.jpg)，其中*n*[0] = |*A*^((0))| 是原始问题的大小。由于第*h[k]*个分区是有用的且集合*A*^((*j*))的大小严格减小，我们有*k*
+    = 1, 2, … , *m*。通过迭代*n[k]* ≤ (3/4) *n*[*k*–1]，我们有*k* = 0, 1, 2, … , *m*。'
 - en: '![art](images/Art_P344.jpg)'
+  id: totrans-65
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P344.jpg)'
 - en: '**Figure 9.2** The sets within each generation in the proof of Theorem 9.2\.
     Vertical lines represent the sets, with the height of each line indicating the
     size of the set, which equals the number of elements in play. Each generation
@@ -386,8 +535,13 @@
     ![art](images/Art_P345.jpg). The sets ![art](images/ahk.jpg) are defined so that
     ![art](images/Art_P346.jpg). If the partitioning gets all the way to generation
     *h[m]*, set ![art](images/Art_P347.jpg) has at most one element in play.'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图9.2** 定理9.2证明中每一代中的集合。垂直线代表集合，每条线的高度表示集合的大小，即玩家数量。每一代以一个集合 ![art](images/ahk.jpg)
+    开始，这是一个有用的分区的结果。这些集合用黑色绘制，最多只有左侧集合大小的3/4。橙色绘制的集合不是每一代中的第一个。一代可能只包含一个集合。第*k*代的集合为
+    ![art](images/ahk.jpg)，![art](images/Art_P345.jpg)。集合 ![art](images/ahk.jpg) 被定义为
+    ![art](images/Art_P346.jpg)。如果分区一直到第*h[m]*代，集合 ![art](images/Art_P347.jpg) 最多只有一个玩家。'
 - en: As [Figure 9.2](chapter009.xhtml#Fig_9-2) depicts, we break up the sequence
     of sets *A*^((*j*)) into *m* ***generations*** consisting of consecutively partitioned
     sets, starting with the result ![art](images/ahk.jpg) of a helpful partitioning
@@ -395,27 +549,41 @@
     partitioning, so that the sets in generation *k* are ![art](images/ahk.jpg), ![art](images/Art_P349.jpg).
     Then for each set of elements *A*^((*j*)) in the *k*th generation, we have that
     ![art](images/Art_P350.jpg).
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 如[图9.2](chapter009.xhtml#Fig_9-2)所示，我们将集合序列 *A*^((*j*)) 分解为包含连续分区集合的*m* ***代***，从有用分区的结果
+    ![art](images/ahk.jpg) 开始，到下一个有用分区之前的最后一个集合 ![art](images/Art_P348.jpg]，因此第*k*代中的集合为
+    ![art](images/ahk.jpg)，![art](images/Art_P349.jpg)。然后对于第*k*代中的元素集合 *A*^((*j*))，我们有
+    ![art](images/Art_P350.jpg)。
 - en: Next, we define the random variable
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们定义随机变量
 - en: '*X[k]* = *h*[*k* + 1] – *h[k]*'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '*X[k]* = *h*[*k* + 1] – *h[k]*'
 - en: for *k* = 0, 1, 2, … , *m* – 1\. That is, *X[k]* is the number of sets in the
     *k*th generation, so that the sets in the *k*th generation are ![art](images/ahk.jpg),
     ![art](images/Art_P351.jpg).
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*k* = 0, 1, 2, … , *m* – 1。也就是说，*X[k]* 是第*k*代中集合的数量，因此第*k*代中的集合为 ![art](images/ahk.jpg)，![art](images/Art_P351.jpg)。
 - en: By Lemma 9.1, the probability that a partitioning is helpful is at least 1/2\.
     The probability is actually even higher, since a partitioning is helpful even
     if the pivot does not fall into the middle half but the *i*th smallest element
     happens to lie in the smaller side of the partitioning. We’ll just use the lower
     bound of 1/2, however, and then equation (C.36) gives that E [*X[k]*] ≤ 2 for
     *k* = 0, 1, 2, … , *m* – 1.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据引理9.1，分区有帮助的概率至少为1/2。实际上，概率甚至更高，因为即使枢轴不落在中间一半，但第*i*小的元素恰好位于分区的较小一侧，分区仍然有帮助。然而，我们只使用1/2的下限，然后方程(C.36)给出了对于*k*
+    = 0, 1, 2, … , *m* – 1，E [*X[k]*] ≤ 2。
 - en: Let’s derive an upper bound on how many comparisons are made altogether during
     partitioning, since the running time is dominated by the comparisons. Since we
     are calculating an upper bound, assume that the recursion goes all the way until
@@ -424,62 +592,96 @@
     |*A*^((*j*–1))| – 1 elements, so that the *j*th partitioning makes fewer than
     |*A*^((*j*–1))| comparisons. The sets in the *k*th generation have sizes ![art](images/Art_P352.jpg).
     Thus, the total number of comparisons during partitioning is less than
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们推导一下在分区过程中总共进行了多少比较的上界，因为运行时间主要由比较决定。由于我们在计算上界，假设递归一直进行，直到只剩下一个元素。第*j*次分区取出参与的元素集合*A*^((*j*–1))，并将随机选择的枢轴与其他|*A*^((*j*–1))|
+    – 1个元素进行比较，因此第*j*次分区进行的比较次数少于|*A*^((*j*–1))|。第*k*代的集合大小为![art](images/Art_P352.jpg)。因此，在分区过程中进行的比较总数少于
 - en: '![art](images/Art_P354.jpg)'
+  id: totrans-73
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P354.jpg)'
 - en: Since E [*X[k]*] ≤ 2, we have that the expected total number of comparisons
     during partitioning is less than
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于E [*X[k]*] ≤ 2，我们得出分区过程中期望的总比较次数少于
 - en: '![art](images/Art_P355.jpg)'
+  id: totrans-75
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P355.jpg)'
 - en: Since *n*[0] is the size of the original array *A*, we conclude that the expected
     number of comparisons, and thus the expected running time, for RANDOMIZED-SELECT
     is *O*(*n*). All *n* elements are examined in the first call of RANDOMIZED-PARTITION,
     giving a lower bound of Ω(*n*). Hence the expected running time is Θ(*n*).
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于*n*[0]是原始数组*A*的大小，我们得出结论，RANDOMIZED-SELECT的期望比较次数，因此期望运行时间为*O*(*n*)。在第一次调用RANDOMIZED-PARTITION时检查了所有*n*个元素，给出了Ω(*n*)的下界。因此，期望运行时间为Θ(*n*)。
 - en: ▪
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Exercises**'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***9.2-1***'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.2-1***'
 - en: Show that RANDOMIZED-SELECT never makes a recursive call to a 0-length array.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明RANDOMIZED-SELECT永远不会对长度为0的数组进行递归调用。
 - en: '***9.2-2***'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.2-2***'
 - en: Write an iterative version of RANDOMIZED-SELECT.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写RANDOMIZED-SELECT的迭代版本。
 - en: '***9.2-3***'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.2-3***'
 - en: Suppose that RANDOMIZED-SELECT is used to select the minimum element of the
     array *A* = 〈2, 3, 0, 5, 7, 9, 1, 8, 6, 4〉. Describe a sequence of partitions
     that results in a worst-case performance of RANDOMIZED-SELECT.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设使用RANDOMIZED-SELECT选择数组*A* = 〈2, 3, 0, 5, 7, 9, 1, 8, 6, 4〉的最小元素。描述导致RANDOMIZED-SELECT最坏情况性能的一系列分区。
 - en: '***9.2-4***'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.2-4***'
 - en: 'Argue that the expected running time of RANDOMIZED-SELECT does not depend on
     the order of the elements in its input array *A*[*p* : *r*]. That is, the expected
     running time is the same for any permutation of the input array *A*[*p* : *r*].
     (*Hint:* Argue by induction on the length *n* of the input array.)'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '论证RANDOMIZED-SELECT的期望运行时间不取决于输入数组*A*[*p* : *r*]中元素的顺序。也就是说，对于输入数组*A*[*p* :
+    *r*]的任何排列，期望运行时间都是相同的。（*提示：*通过对输入数组长度*n*进行归纳来论证。）'
 - en: '[**9.3      Selection in worst-case linear time**](toc.xhtml#Rh1-53)'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**9.3      最坏情况下的线性时间选择**](toc.xhtml#Rh1-53)'
 - en: We’ll now examine a remarkable and theoretically interesting selection algorithm
     whose running time is Θ(*n*) in the worst case. Although the RANDOMIZED-SELECT
     algorithm from [Section 9.2](chapter009.xhtml#Sec_9.2) achieves linear expected
@@ -487,8 +689,10 @@
     algorithm presented in this section achieves linear time in the worst case, but
     it is not nearly as practical as RANDOMIZED-SELECT. It is mostly of theoretical
     interest.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们将研究一个在最坏情况下运行时间为Θ(*n*)的显著且理论上有趣的选择算法。尽管来自[第9.2节](chapter009.xhtml#Sec_9.2)的RANDOMIZED-SELECT算法实现了线性期望时间，但我们看到其在最坏情况下的运行时间是二次的。本节介绍的选择算法在最坏情况下实现了线性时间，但实际上并不像RANDOMIZED-SELECT那样实用。它主要是出于理论兴趣。
 - en: 'Like the expected linear-time RANDOMIZED-SELECT, the worst-case linear-time
     algorithm SELECT finds the desired element by recursively partitioning the input
     array. Unlike RANDOMIZED-SELECT, however, SELECT *guarantees* a good split by
@@ -496,102 +700,160 @@
     the algorithm is that it finds the pivot recursively. Thus, there are two invocations
     of SELECT: one to find a good pivot, and a second to recursively find the desired
     order statistic.'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 与期望的线性时间RANDOMIZED-SELECT不同，最坏情况下线性时间算法SELECT通过递归地对输入数组进行分区来找到所需的元素。与RANDOMIZED-SELECT不同，SELECT在分区数组时选择一个经过证明的好枢轴，从而*保证*了一个良好的分割。算法的巧妙之处���于它通过递归地找到枢轴。因此，SELECT有两次调用：一次用于找到一个好的枢轴，另一次用于递归地找到所需的顺序统计量。
 - en: The partitioning algorithm used by SELECT is like the deterministic partitioning
     algorithm PARTITION from quicksort (see [Section 7.1](chapter007.xhtml#Sec_7.1)),
     but modified to take the element to partition around as an additional input parameter.
     Like PARTITION, the PARTITION-AROUND algorithm returns the index of the pivot.
     Since it’s so similar to PARTITION, the pseudocode for PARTITION-AROUND is omitted.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: SELECT使用的分区算法类似于快速排序中的确定性分区算法PARTITION（参见[第7.1节](chapter007.xhtml#Sec_7.1)），但修改为将要围绕的元素作为额外的输入参数。与PARTITION一样，PARTITION-AROUND算法返回枢轴的索引。由于它与PARTITION如此相似，因此省略了PARTITION-AROUND的伪代码。
 - en: 'The SELECT procedure takes as input a subarray *A*[*p* : *r*] of *n* = *r*
     – *p* + 1 elements and an integer *i* in the range 1 ≤ *i* ≤ *n*. It returns the
     *i*th smallest element of *A*. The pseudocode is actually more understandable
     than it might appear at first.'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 'SELECT 程序的输入是一个包含 *n* = *r* – *p* + 1 个元素的子数组 *A*[*p* : *r*] 和一个范围在 1 ≤ *i*
+    ≤ *n* 的整数 *i*。它返回 *A* 的第 *i* 小元素。伪代码实际上比起一开始看起来的要容易理解。'
 - en: SELECT(*A*, *p*, *r*, *i*)
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: SELECT(*A*, *p*, *r*, *i*)
 - en: '|   1 | **while** (*r* – *p* + 1) mod 5 ≠ 0 |  |'
+  id: totrans-93
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **当** (*r* – *p* + 1) mod 5 ≠ 0 **时** |  |'
 - en: '|   2 | **for** *j* = *p* + 1 **to** *r* | **//** put the minimum into *A*[*p*]
     |'
+  id: totrans-94
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **对于** *j* = *p* + 1 **到** *r* | **//** 将最小值放入 *A*[*p*] |'
 - en: '|   3 | **if** *A*[*p*] > *A*[*j*] |  |'
+  id: totrans-95
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **如果** *A*[*p*] > *A*[*j*] |  |'
 - en: '|   4 | exchange *A*[*p*] with *A*[*j*] |  |'
+  id: totrans-96
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | 交换 *A*[*p*] 和 *A*[*j*] |  |'
 - en: '|   5 | **//** If we want the minimum of *A*[*p* : *r*], we’re done. |'
+  id: totrans-97
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **//** 如果我们想要 *A*[*p* : *r*] 的最小值，那么我们已经完成了。 |'
 - en: '|   6 | **if** *i* == 1 |  |'
+  id: totrans-98
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **如果** *i* == 1 |  |'
 - en: '|   7 | **return** *A*[*p*] |  |'
+  id: totrans-99
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **返回** *A*[*p*] |  |'
 - en: '|   8 | **//** Otherwise, we want the (*i* – 1)st element of *A*[*p* + 1 :
     *r*]. |'
+  id: totrans-100
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **//** 否则，我们想要 *A*[*p* + 1 : *r*] 的第 (*i* – 1) 个元素。 |'
 - en: '|   9 | *p* = *p* + 1 |  |'
+  id: totrans-101
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *p* = *p* + 1 |  |'
 - en: '| 10 | *i* = *i* – 1 |  |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *i* = *i* – 1 |  |'
 - en: '| 11 | *g* = (*r* – *p* + 1)/5 | **//** number of 5-element groups |'
+  id: totrans-103
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *g* = (*r* – *p* + 1)/5 | **//** 5 元素组的数量 |'
 - en: '| 12 | **for** *j* = *p* **to** *p* + *g* – 1 | **//** sort each group |'
+  id: totrans-104
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | **对于** *j* = *p* **到** *p* + *g* – 1 | **//** 对每个组进行排序 |'
 - en: '| 13 | sort 〈*A*[*j*], *A*[*j* + *g*], *A*[*j* + 2*g*], *A*[*j* + 3*g*], *A*[*j*
     + 4*g*]〉 in place |'
+  id: totrans-105
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | 就地对 〈*A*[*j*], *A*[*j* + *g*], *A*[*j* + 2*g*], *A*[*j* + 3*g*], *A*[*j*
+    + 4*g*]〉 进行排序 |'
 - en: '| 14 | **//** All group medians now lie in the middle fifth of *A*[*p* : *r*].
     |'
+  id: totrans-106
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | **//** 所有组中位数现在位于 *A*[*p* : *r*] 的中间五分之一。 |'
 - en: '| 15 | **//** Find the pivot *x* recursively as the median of the group medians.
     |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | **//** 递归地找到枢轴 *x* 作为组中位数的中位数。 |'
 - en: '| 16 | *x* = SELECT(*A*, *p* + 2*g*, *p* + 3*g* – 1, ⌈*g*/2⌉) |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | *x* = SELECT(*A*, *p* + 2*g*, *p* + 3*g* – 1, ⌈*g*/2⌉) |'
 - en: '| 17 | *q* = PARTITION-AROUND(*A*, *p*, *r*, *x*) | **//** partition around
     the pivot |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | *q* = PARTITION-AROUND(*A*, *p*, *r*, *x*) | **//** 围绕枢轴进行分区 |'
 - en: '| 18 | **//** The rest is just like lines 3–9 of RANDOMIZED-SELECT. |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| 18 | **//** 其余部分与 RANDOMIZED-SELECT 的第 3–9 行类似。 |'
 - en: '| 19 | *k* = *q* – *p* + 1 |  |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| 19 | *k* = *q* – *p* + 1 |  |'
 - en: '| 20 | **if** *i* == *k* |  |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| 20 | **如果** *i* == *k* |  |'
 - en: '| 21 | **return** *A*[*q*] | **//** the pivot value is the answer |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '| 21 | **返回** *A*[*q*] | **//** 枢轴值就是答案 |'
 - en: '| 22 | **elseif** *i* < *k* |  |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '| 22 | **否则如果** *i* < *k* |  |'
 - en: '| 23 | **return** SELECT(*A*, *p*, *q* – 1, *i*) |  |'
+  id: totrans-115
   prefs: []
   type: TYPE_TB
+  zh: '| 23 | **返回** SELECT(*A*, *p*, *q* – 1, *i*) |  |'
 - en: '| 24 | **else return** SELECT(*A*, *q* + 1, *r*, *i* – *k*) |  |'
+  id: totrans-116
   prefs: []
   type: TYPE_TB
+  zh: '| 24 | **否则返回** SELECT(*A*, *q* + 1, *r*, *i* – *k*) |  |'
 - en: 'The pseudocode starts by executing the **while** loop in lines 1–10 to reduce
     the number *r* – *p* + 1 of elements in the subarray until it is divisible by
     5\. The **while** loop executes 0 to 4 times, each time rearranging the elements
@@ -603,11 +865,19 @@
     all of its iterations without returning a result, the procedure executes the core
     of the algorithm in lines 11–24, assured that the number *r* – *p* + 1 of elements
     in *A*[*p* : *r*] is evenly divisible by 5.'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '伪代码从执行第 1–10 行的 **当** 循环开始，以减少子数组中的元素数量 *r* – *p* + 1，直到可以被 5 整除。**当** 循环执行
+    0 到 4 次，每次重新排列 *A*[*p* : *r*] 的元素，使得 *A*[*p*] 包含最小元素。如果 *i* = 1，意味着我们实际上想要最小元素，那么程序在第
+    7 行简单地返回它。否则，SELECT 从子数组 *A*[*p* : *r*] 中消除最小值，并迭代以找到 *A*[*p* + 1 : *r*] 中的第 (*i*
+    – 1) 个元素。第 9–10 行通过增加 *p* 和减少 *i* 来实现这一点。如果 **当** 循环在没有返回结果的情况下完成了所有迭代，那么程序在确保
+    *A*[*p* : *r*] 中的元素数量 *r* – *p* + 1 能够被 5 整除的情况下，执行算法的核心部分，即第 11–24 行。'
 - en: '![art](images/Art_P356.jpg)'
+  id: totrans-118
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P356.jpg)'
 - en: '**Figure 9.3** The relationships between elements (shown as circles) immediately
     after line 17 of the selection algorithm SELECT. There are *g* = (*r* – *p* +
     1)/5 groups of 5 elements, each of which occupies a column. For example, the leftmost
@@ -621,74 +891,119 @@
     and cannot fall into the low side of the partition around *x*. The pivot *x* belongs
     to both the blue and yellow regions and is shown on a green background. The elements
     on the white background could lie on either side of the partition.'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 9.3** 选择算法 SELECT 在第 17 行之后元素之间的关系（显示为圆圈）。有 *g* = (*r* – *p* + 1)/5 个包含
+    5 个元素的组，每个组占据一列。例如，最左侧的列包含元素 *A*[*p*], *A*[*p* + *g*], *A*[*p* + 2*g*], *A*[*p*
+    + 3*g*], *A*[*p* + 4*g*]，下一列包含 *A*[*p* + 1], *A*[*p* + *g* + 1], *A*[*p* + 2*g*
+    + 1], *A*[*p* + 3*g* + 1], *A*[*p* + 4*g* + 1]。组的中位数为红色，枢轴 *x* 被标记。箭头从较小的元素指向较大的元素。蓝色背景上的元素都已知小于或等于
+    *x*，不能落入围绕 *x* 的分区的高侧。黄色背景上的元素已知大于或等于 *x*，不能落入围绕 *x* 的低侧。枢轴 *x* 同时属于蓝色和黄色区域，并显示在绿色背景上。白色背景上的元素可能位于分区的任一侧。'
 - en: 'The next part of the algorithm implements the following idea, illustrated in
     [Figure 9.3](chapter009.xhtml#Fig_9-3). Divide the elements in *A*[*p* : *r*]
     into *g* = (*r* – *p* + 1)/5 groups of 5 elements each. The first 5-element group
     is'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '算法的下一部分实现了以下想法，如 [图 9.3](chapter009.xhtml#Fig_9-3) 所示。将 *A*[*p* : *r*] 中的元素分成
+    *g* = (*r* – *p* + 1)/5 个包含 5 个元素的组。第一个 5 元素组是'
 - en: 〈*A*[*p*], *A*[*p* + *g*], *A*[*p* + 2*g*], *A*[*p* + 3*g*], *A*[*p* + 4*g*]〉,
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 〈*A*[*p*], *A*[*p* + *g*], *A*[*p* + 2*g*], *A*[*p* + 3*g*], *A*[*p* + 4*g*]〉,
 - en: the second is
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个是
 - en: 〈*A*[*p* + 1], *A*[*p* + *g* + 1], *A*[*p* + 2*g* + 1], *A*[*p* + 3*g* + 1],
     *A*[*p* + 4*g* + 1]〉,
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 〈*A*[*p* + 1]*，*A*[*p* + *g* + 1]*，*A*[*p* + 2*g* + 1]*，*A*[*p* + 3*g* + 1]*，*A*[*p*
+    + 4*g* + 1]〉，
 - en: and so forth until the last, which is
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 依此类推，直到最后一句，即
 - en: 〈*A*[*p* + *g* – 1], *A*[*p* + 2*g* – 1], *A*[*p* + 3*g* – 1], *A*[*p* + 4*g*
     – 1], *A*[*r*]〉.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 〈*A*[*p* + *g* – 1]*，*A*[*p* + 2*g* – 1]*，*A*[*p* + 3*g* – 1]*，*A*[*p* + 4*g*
+    – 1]*，*A*[*r*]〉。
 - en: (Note that *r* = *p* + 5*g* – 1.) Line 13 puts each group in order using, for
     example, insertion sort ([Section 2.1](chapter002.xhtml#Sec_2.1)), so that for
     *j* = *p*, *p* + 1, … , *p* + *g* – 1, we have
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: （注意*r* = *p* + 5*g* – 1。）第13行使用插入排序（例如，[第2.1节](chapter002.xhtml#Sec_2.1)）对每个组进行排序，因此对于*j*
+    = *p*，*p* + 1，…，*p* + *g* – 1，我们有
 - en: A[*j*] ≤ *A*[*j* + *g*] ≤ *A*[*j* + 2*g*] ≤ *A*[*j* + 3*g*] ≤ *A*[*j* + 4*g*].
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '*A*[*j*] ≤ *A*[*j* + *g*] ≤ *A*[*j* + 2*g*] ≤ *A*[*j* + 3*g*] ≤ *A*[*j* + 4*g*]。'
 - en: 'Each vertical column in [Figure 9.3](chapter009.xhtml#Fig_9-3) depicts a sorted
     group of 5 elements. The median of each 5-element group is *A*[*j* + 2*g*], and
     thus all the 5-element medians, shown in red, lie in the range *A*[*p* + 2*g*
     : *p* + 3*g* – 1].'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图9.3](chapter009.xhtml#Fig_9-3)中的每个垂直列都描绘了一个由5个元素组成的排序组。每个5元素组的中位数是*A*[*j*
+    + 2*g*]，因此所有5元素中位数（用红色显示）位于*A*[*p* + 2*g* : *p* + 3*g* – 1]*范围内。'
 - en: 'Next, line 16 determines the pivot *x* by recursively calling SELECT to find
     the median (specifically, the ⌈*g*/2⌉th smallest) of the *g* group medians. Line
     17 uses the modified PARTITION-AROUND algorithm to partition the elements of *A*[*p*
     : *r*] around *x*, returning the index *q* of *x*, so that *A*[*q*] = *x*, elements
     in *A*[*p* : *q*] are all at most *x*, and elements in *A*[*q* : *r*] are greater
     than or equal to *x*.'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '接下来，第16行通过递归调用SELECT确定枢轴*x*，以找到*g*组中位数（具体来说，第⌈*g*/2⌉小的元素）。第17行使用修改后的PARTITION-AROUND算法将*A*[*p*
+    : *r*]的元素围绕*x*进行分区，返回*x*的索引*q*，使得*A*[*q*] = *x*，*A*[*p* : *q*]*中的元素都小于*x*，而*A*[*q*
+    : *r*]*中的元素大于或等于*x*。'
 - en: 'The remainder of the code mirrors that of RANDOMIZED-SELECT. If the pivot *x*
     is the *i*th largest, the procedure returns it. Otherwise, the procedure recursively
     calls itself on either *A*[*p* : *q* – 1] or *A*[*q* + 1 : *r*], depending on
     the value of *i*.'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '代码的其余部分与RANDOMIZED-SELECT相似。如果枢轴*x*是第*i*大的元素，则该过程返回它。否则，该过程根据*i*的值递归调用自身，要么在*A*[*p*
+    : *q* – 1]*上，要么在*A*[*q* + 1 : *r*]*上。'
 - en: Let’s analyze the running time of SELECT and see how the judicious choice of
     the pivot *x* plays into a guarantee on its worst-case running time.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们分析SELECT的运行时间，并看看枢轴*x*的明智选择如何保证其最坏情况运行时间。
 - en: '***Theorem 9.3***'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 9.3***'
 - en: The running time of SELECT on an input of *n* elements is Θ(*n*).
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 在*n*个元素的输入上，SELECT的运行时间为Θ(*n*)。
 - en: '***Proof***   Define *T* (*n*) as the worst-case time to run SELECT on any
     input subarray *A*[*p* : *r*] of size at most *n*, that is, for which *r* – *p*
     + 1 ≤ *n*. By this definition, *T* (*n*) is monotonically increasing.'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 定义*T* (*n*)为在大小不超过*n*的任何输入子数组*A*[*p* : *r*]上运行SELECT的最坏情况时间，即，对于*r*
+    – *p* + 1 ≤ *n*的情况。根据这个定义，*T* (*n*)是单调递增的。'
 - en: We first determine an upper bound on the time spent outside the recursive calls
     in lines 16, 23, and 24\. The **while** loop in lines 1–10 executes 0 to 4 times,
     which is *O*(1) times. Since the dominant time within the loop is the computation
@@ -700,8 +1015,13 @@
     partition in line 17 is Θ(*n*), as Exercise 7.1-3 on page 187 asks you to show.
     Because the remaining bookkeeping only costs Θ(1) time, the total amount of time
     spent outside of the recursive calls is *O*(*n*) + Θ(*n*) + Θ(*n*) + Θ(1) = Θ(*n*).
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先确定在第16、23和24行的递归调用之外花费的时间上限。第1-10行的**while**循环执行0到4次，即*O*(1)次。由于循环内的主要时间是第2-4行中的最小值计算，需要Θ(*n*)时间，因此第1-10行在*O*(1)
+    · Θ(*n*) = *O*(*n*)时间内执行。第12-13行对5元素组进行排序需要Θ(*n*)时间，因为每个5元素组排序需要Θ(1)时间（即使使用渐进低效的排序算法，如插入排序），而有*g*个元素需要排序，其中*n*/5
+    – 1 < *g* ≤ *n*/5。最后，第17行的分区时间为Θ(*n*)，正如第187页的练习7.1-3要求您展示的那样。由于剩余的簿记只需Θ(1)时间，因此在递归调用之外花费的总时间为*O*(*n*)
+    + Θ(*n*) + Θ(*n*) + Θ(1) = Θ(*n*)。
 - en: Now let’s determine the running time for the recursive calls. The recursive
     call to find the pivot in line 16 takes *T* (*g*) ≤ *T* (*n*/5) time, since *g*
     ≤ *n*/5 and *T* (*n*) monotonically increases. Of the two recursive calls in lines
@@ -711,8 +1031,12 @@
     for lines 23 and 24 is at most *T* (7*n*/10). Let’s now show that the machinations
     with group medians and the choice of the pivot *x* as the median of the group
     medians guarantees this property.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在让我们确定递归调用的运行时间。第16行中找到枢轴的递归调用花费*T* (*g*) ≤ *T* (*n*/5)的时间，因为*g* ≤ *n*/5且*T*
+    (*n*)单调递增。在第23和24行的两个递归调用中，最多只有一个会执行。但我们将看到，无论这两个SELECT中的哪一个实际执行，递归调用中的元素数量最多为7*n*/10，因此第23和24行的最坏情况成本最多为*T*
+    (7*n*/10)。现在让我们展示，通过组中位数的操作和选择枢轴*x*作为组中位数的中位数来保证这一属性。
 - en: '[Figure 9.3](chapter009.xhtml#Fig_9-3) helps to visualize what’s going on.
     There are *g* ≤ *n*/5 groups of 5 elements, with each group shown as a column
     sorted from bottom to top. The arrows show the ordering of elements within the
@@ -727,16 +1051,22 @@
     horizontal arrows leaving *x*). Thus, the yellow region contains elements that
     we know are greater than or equal to *x*, and the blue region contains elements
     that we know are less than or equal to *x*.'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图9.3](chapter009.xhtml#Fig_9-3)有助于直观理解。有*g* ≤ *n*/5个包含5个元素的组，每个组都按从底部到顶部排序的列显示。箭头显示了列内元素的顺序。列从左到右排序，左侧的组的组中位数小于*x*，右侧的组的组中位数大于*x*。虽然每个组内的相对顺序很重要，但左侧组之间的相对顺序并不重要，右侧组之间的相对顺序也不重要。重要的是左侧组的组中位数小于*x*（由水平箭头进入*x*表示），右侧组的组中位数大于*x*（由水平箭头离开*x*表示）。因此，黄色区域包含我们知道大于或等于*x*的元素，蓝色区域包含我们知道小于或等于*x*的元素。'
 - en: These two regions each contain at least 3*g*/2 elements. The number of group
     medians in the yellow region is ⌊*g*/2⌋ + 1, and for each group median, two additional
     elements are greater than it, making a total of 3(⌊*g*/2⌋ + 1) ≥ 3*g*/2 elements.
     Similarly, the number of group medians in the blue region is ⌈*g*/2⌉, and for
     each group median, two additional elements are less than it, making a total of
     3 ⌈*g*/2 ⌉ ≥ 3*g*/2.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个区域每个至少包含3*g*/2个元素。黄色区域中的组中位数数量为⌊*g*/2⌋ + 1，对于每个组中位数，比它大的两个额外元素，总共有3(⌊*g*/2⌋
+    + 1) ≥ 3*g*/2个元素。类似地，蓝色区域中的组中位数数量为⌈*g*/2⌉，对于每个组中位数，比它小的两个额外元素，总共有3 ⌈*g*/2 ⌉ ≥
+    3*g*/2。
 - en: The elements in the yellow region cannot fall into the low side of the partition
     around *x*, and those in the blue region cannot fall into the high side. The elements
     in neither region—those lying on a white background—could fall into either side
@@ -746,43 +1076,66 @@
     elements. Likewise, the high side of the partition excludes the elements in the
     blue region, and a similar calculation shows that it also contains at most 7*n*/10
     elements.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 黄色区域中的元素不能落入围绕*x*的分区的低侧，蓝色区域中的元素也不能落入高侧。两个区域中的元素——位于白色背景上的元素——可能落入分区的任一侧。但由于低侧分区排除了黄色区域中的元素，总共有5*g*个元素，我们知道低侧分区最多可以包含5*g*
+    – 3*g*/2 = 7*g*/2 ≤ 7*n*/10个元素。同样，高侧分区排除了蓝色区域中的元素，类似的计算表明高侧分区也最多包含7*n*/10个元素。
 - en: 'All of which leads to the following recurrence for the worst-case running time
     of SELECT:'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些导致了SELECT最坏情况运行时间的以下递推式：
 - en: '![art](images/Art_P357.jpg)'
+  id: totrans-141
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P357.jpg)'
 - en: We can show that *T* (*n*) = *O*(*n*) by substitution.^([2](#footnote_2)) More
     specifically, we’ll prove that *T* (*n*) ≤ *cn* for some suitably large constant
     *c* > 0 and all *n* > 0\. Substituting this inductive hypothesis into the right-hand
     side of recurrence (9.1) and assuming that *n* ≥ 5 yields
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过代入证明*T* (*n*) = *O*(*n*)。^([2](#footnote_2)) 更具体地，我们将证明对于某个合适大的常数*c* >
+    0 和所有*n* > 0，*T* (*n*) ≤ *cn*。将这个归纳假设代入递推式(9.1)的右侧，并假设*n* ≥ 5，得到
 - en: '| *T* (*n*) | ≤ | *c*(*n*/5) + *c*(7*n*/10) + Θ(*n*) |'
+  id: totrans-143
   prefs: []
   type: TYPE_TB
+  zh: '| *T* (*n*) | ≤ | *c*(*n*/5) + *c*(7*n*/10) + Θ(*n*) |'
 - en: '|  | ≤ | 9*cn*/10 + Θ(*n*) |'
+  id: totrans-144
   prefs: []
   type: TYPE_TB
+  zh: '|  | ≤ | 9*cn*/10 + Θ(*n*) |'
 - en: '|  | = | *cn* – *cn*/10 + Θ(*n*) |'
+  id: totrans-145
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | *cn* – *cn*/10 + Θ(*n*) |'
 - en: '|  | ≤ | *cn* |'
+  id: totrans-146
   prefs: []
   type: TYPE_TB
+  zh: '|  | ≤ | *cn* |'
 - en: if *c* is chosen large enough that *c*/10 dominates the upper-bound constant
     hidden by the Θ(*n*). In addition to this constraint, we can pick *c* large enough
     that *T* (*n*) ≤ *cn* for all *n* ≤ 4, which is the base case of the recursion
     within SELECT. The running time of SELECT is therefore *O*(*n*) in the worst case,
     and because line 13 alone takes Θ(*n*) time, the total time is Θ(*n*).
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果选择足够大的*c*，使得*c*/10支配了被Θ(*n*)隐藏的上界常数。除了这个约束条件，我们可以选择足够大的*c*，使得对于所有*n* ≤ 4，*T*
+    (*n*) ≤ *cn*，这是SELECT中递归的基本情况。因此，SELECT的运行时间在最坏情况下是*O*(*n*)，因为仅第13行就需要Θ(*n*)时间，总时间为Θ(*n*)。
 - en: ▪
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: As in a comparison sort (see [Section 8.1](chapter008.xhtml#Sec_8.1)), SELECT
     and RANDOMIZED-SELECT determine information about the relative order of elements
     only by comparing elements. Recall from [Chapter 8](chapter008.xhtml) that sorting
@@ -796,68 +1149,105 @@
     all the elements. Thus, solving the selection problem by sorting and indexing,
     as presented in the introduction to this chapter, is asymptotically inefficient
     in the comparison model.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像比较排序中（参见[第8.1节](chapter008.xhtml#Sec_8.1)），SELECT和RANDOMIZED-SELECT仅通过比较元素来确定元素的相对顺序信息。回顾一下[第8章](chapter008.xhtml)中的内容，排序在比较模型中需要Ω(*n*
+    lg *n*)的时间，即使是平均情况下也是如此（参见问题8-1）。[第8章](chapter008.xhtml)中的线性时间排序算法对输入的类型做出了假设。相比之下，本章中的线性时间选择算法不需要对输入的类型做任何假设，只需要元素是不同的，并且可以根据线性顺序进行成对比较。本章中的算法不受Ω(*n*
+    lg *n*)下界的限制，因为它们成功解决了选择问题，而无需对所有元素进行排序。因此，在比较模型中，通过排序和索引解决选择问题的方法在渐近意义上是低效的。
 - en: '**Exercises**'
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***9.3-1***'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-1***'
 - en: In the algorithm SELECT, the input elements are divided into groups of 5\. Show
     that the algorithm works in linear time if the input elements are divided into
     groups of 7 instead of 5.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 在算法SELECT中，输入元素被分成5个一组。展示如果将输入元素分成7个而不是5个，则算法可以在线性时��内工作。
 - en: '***9.3-2***'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-2***'
 - en: 'Suppose that the preprocessing in lines 1–10 of SELECT is replaced by a base
     case for *n* ≥ *n*[0], where *n*[0] is a suitable constant; that *g* is chosen
     as ⌊*r* – *p* + 1)/5⌋; and that the elements in *A*[5*g* : *n*] belong to no group.
     Show that although the recurrence for the running time becomes messier, it still
     solves to Θ(*n*).'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '假设SELECT中第1-10行的预处理被替换为*n* ≥ *n*[0]的基本情况，其中*n*[0]是一个合适的常数；选择*g*为⌊*r* - *p*
+    + 1)/5⌋；并且*A*[5*g* : *n*]中的元素不属于任何组。展示尽管运行时间的递归变得更加混乱，但仍然解决为Θ(*n*)。'
 - en: '***9.3-3***'
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-3***'
 - en: Show how to use SELECT as a subroutine to make quicksort run in *O*(*n* lg *n*)
     time in the worst case, assuming that all elements are distinct.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示如何使用SELECT作为一个子程序，使得快速排序在最坏情况下以*O*(*n* lg *n*)的时间运行，假设所有元素都是不同的。
 - en: '![art](images/Art_P358.jpg)'
+  id: totrans-157
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P358.jpg)'
 - en: '**Figure 9.4** Professor Olay needs to determine the position of the east-west
     oil pipeline that minimizes the total length of the north-south spurs.'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图9.4** Olay教授需要确定东西向石油管道的位置，以最小化南北向支管的总长度。'
 - en: ★ ***9.3-4***
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***9.3-4***
 - en: Suppose that an algorithm uses only comparisons to find the *i*th smallest element
     in a set of *n* elements. Show that it can also find the *i* – 1 smaller elements
     and the *n* – *i* larger elements without performing any additional comparisons.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设一个算法只使用比较来找到一组*n*个元素中的第*i*小元素。展示它也可以在不进行任何额外比较的情况下找到第*i* - 1小的元素和第*n* - *i*大的元素。
 - en: '***9.3-5***'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-5***'
 - en: Show how to determine the median of a 5-element set using only 6 comparisons.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示如何仅使用6次比较确定一个5元素集合的中位数。
 - en: '***9.3-6***'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-6***'
 - en: You have a “black-box” worst-case linear-time median subroutine. Give a simple,
     linear-time algorithm that solves the selection problem for an arbitrary order
     statistic.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一个“黑匣子”最坏情况下线性时间复杂度的中位数子程序。给出一个简单的线性时间算法，解决任意顺序统计的选择问题。
 - en: '***9.3-7***'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-7***'
 - en: Professor Olay is consulting for an oil company, which is planning a large pipeline
     running east to west through an oil field of *n* wells. The company wants to connect
     a spur pipeline from each well directly to the main pipeline along a shortest
@@ -865,370 +1255,577 @@
     Given the *x*- and *y*-coordinates of the wells, how should the professor pick
     an optimal location of the main pipeline to minimize the total length of the spurs?
     Show how to determine an optimal location in linear time.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: Olay教授正在为一家石油公司提供建议，该公司计划在一个拥有*n*口井的油田中从东到西铺设一条大型管道。公司希望将每口井的支管管道直接连接到主管道上，沿着最短路径（向北或向南），如[图9.4所示。](chapter009.xhtml#Fig_9-4)给定井的*x*和*y*坐标，教授应该如何选择主管道的最佳位置以最小化支管的总长度？展示如何在线性时间内确定最佳位置。
 - en: '***9.3-8***'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-8***'
 - en: The *k*th ***quantiles*** of an *n*-element set are the *k* – 1 order statistics
     that divide the sorted set into *k* equal-sized sets (to within 1). Give an *O*(*n*
     lg *k*)-time algorithm to list the *k*th quantiles of a set.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个*n*元素集合的第*k*个***分位数***是将排序后的集合分成*k*个大小相等的集合（误差不超过1）的*k* - 1次序统计。给出一个*O*(*n*
+    lg *k*)时间复杂度的算法，列出集合的第*k*个分位数。
 - en: '***9.3-9***'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-9***'
 - en: Describe an *O*(*n*)-time algorithm that, given a set *S* of *n* distinct numbers
     and a positive integer *k* ≤ *n*, determines the *k* numbers in *S* that are closest
     to the median of *S*.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 描述一个*O*(*n*)时间复杂度的算法，给定一个包含*n*个不同数字和一个小于等于*n*的正整数*k*，确定*S*中距离*S*的中位数最近的*k*个数字。
 - en: '***9.3-10***'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9.3-10***'
 - en: 'Let *X*[1 : *n*] and *Y* [1 : *n*] be two arrays, each containing *n* numbers
     already in sorted order. Give an *O*(lg *n*)-time algorithm to find the median
     of all 2*n* elements in arrays *X* and *Y*. Assume that all 2*n* numbers are distinct.'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: '让*X*[1 : *n*]和*Y* [1 : *n*]是两个数组，每个数组包含已经按顺序排列的*n*个数字。给出一个*O*(lg *n*)时间复杂度的算法，找到数组*X*和*Y*中所有2*n*个元素的中位数。假设所有2*n*个数字都是不同的。'
 - en: '**Problems**'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***9-1     Largest i numbers in sorted order***'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-1     排序后的最大i个数字***'
 - en: You are given a set of *n* numbers, and you wish to find the *i* largest in
     sorted order using a comparison-based algorithm. Describe the algorithm that implements
     each of the following methods with the best asymptotic worst-case running time,
     and analyze the running times of the algorithms in terms of *n* and *i*.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一组*n*个数字，您希望使用基于比较的算法按排序顺序找到第*i*大的数字。描述实现以下每种方法的算法，其具有最佳渐近最坏情况运行时间，并分析算法的运行时间与*n*和*i*的关系。
 - en: '***a.*** Sort the numbers, and list the *i* largest.'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 对数字进行排序，并列出最大的*i*个数字。'
 - en: '***b.*** Build a max-priority queue from the numbers, and call EXTRACT-MAX *i*
     times.'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 从数字构建最大优先队列，并调用EXTRACT-MAX *i*次。'
 - en: '***c.*** Use an order-statistic algorithm to find the *i*th largest number,
     partition around that number, and sort the *i* largest numbers.'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 使用顺序统计算法找到第*i*大的数字，围绕该数字进行分区，并对最大的*i*个数字进行排序。'
 - en: '***9-2     Variant of randomized selection***'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-2     随机选择的变体***'
 - en: Professor Mendel has proposed simplifying RANDOMIZED-SELECT by eliminating the
     check for whether *i* and *k* are equal. The simplified procedure is SIMPLER-RANDOMIZED-SELECT.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 孟德尔教授建议通过消除*i*和*k*是否相等的检查来简化RANDOMIZED-SELECT。简化的过程是SIMPLER-RANDOMIZED-SELECT。
 - en: SIMPLER-RANDOMIZED-SELECT(*A*, *p*, *r*, *i*)
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: SIMPLER-RANDOMIZED-SELECT(*A*, *p*, *r*, *i*)
 - en: '| 1 | **if** *p* == *r* |'
+  id: totrans-182
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *p* == *r* |'
 - en: '| 2 | **return** *A*[*p*] | **//** 1 ≤ *i* ≤ *r* – *p* + 1 means that *i* =
     1 |'
+  id: totrans-183
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **返回** *A*[*p*] | **//** 1 ≤ *i* ≤ *r* – *p* + 1 意味着*i* = 1 |'
 - en: '| 3 | *q* = RANDOMIZED-PARTITION(*A*, *p*, *r*) |'
+  id: totrans-184
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *q* = RANDOMIZED-PARTITION(*A*, *p*, *r*) |'
 - en: '| 4 | *k* = *q* – *p* + 1 |'
+  id: totrans-185
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *k* = *q* – *p* + 1 |'
 - en: '| 5 | **if** *i* ≤ *k* |'
+  id: totrans-186
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **如果** *i* ≤ *k* |'
 - en: '| 6 | **return** SIMPLER-RANDOMIZED-SELECT(*A*, *p*, *q*, *i*) |'
+  id: totrans-187
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **返回** SIMPLER-RANDOMIZED-SELECT(*A*, *p*, *q*, *i*) |'
 - en: '| 7 | **else return** SIMPLER-RANDOMIZED-SELECT(*A*, *q* + 1, *r*, *i* – *k*)
     |'
+  id: totrans-188
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **否则返回** SIMPLER-RANDOMIZED-SELECT(*A*, *q* + 1, *r*, *i* – *k*) |'
 - en: '***a.*** Argue that in the worst case, SIMPLER-RANDOMIZED-SELECT never terminates.'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 论证在最坏情况下，SIMPLER-RANDOMIZED-SELECT永远不会终止。'
 - en: '***b.*** Prove that the expected running time of SIMPLER-RANDOMIZED-SELECT
     is still *O*(*n*).'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明SIMPLER-RANDOMIZED-SELECT的期望运行时间仍然是*O*(*n*)。'
 - en: '***9-3     Weighted median***'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-3     加权中位数***'
 - en: Consider *n* elements *x*[1], *x*[2], … , *x[n]* with positive weights *w*[1],
     *w*[2], … , *w[n]* such that ![art](images/Art_P359.jpg). The ***weighted (lower)
     median*** is an element *x[k]* satisfying
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑具有正权重*w*[1], *w*[2], … , *w*[n]*的*n*个元素*x*[1], *x*[2], … , *x[n]*，使得![art](images/Art_P359.jpg)。***加权（下）中位数***是满足条件的元素*x[k]*
 - en: '![art](images/Art_P360.jpg)'
+  id: totrans-193
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P360.jpg)'
 - en: and
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 和
 - en: '![art](images/Art_P361.jpg)'
+  id: totrans-195
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P361.jpg)'
 - en: 'For example, consider the following elements *x[i]* and weights *w[i]*:'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，考虑以下元素*x[i]*和权重*w[i]*：
 - en: '| *i* | 1 | 2 | 3 | 4 | 5 | 6 | 7 |'
+  id: totrans-197
   prefs: []
   type: TYPE_TB
+  zh: '| *i* | 1 | 2 | 3 | 4 | 5 | 6 | 7 |'
 - en: '| *x[i]* | 3 | 8 | 2 | 5 | 4 | 1 | 6 |'
+  id: totrans-198
   prefs: []
   type: TYPE_TB
+  zh: '| *x[i]* | 3 | 8 | 2 | 5 | 4 | 1 | 6 |'
 - en: '| *w[i]* | 0.12 | 0.35 | 0.025 | 0.08 | 0.15 | 0.075 | 0.2 |'
+  id: totrans-199
   prefs: []
   type: TYPE_TB
+  zh: '| *w[i]* | 0.12 | 0.35 | 0.025 | 0.08 | 0.15 | 0.075 | 0.2 |'
 - en: For these elements, the median is *x*[5] = 4, but the weighted median is *x*[7]
     = 6\. To see why the weighted median is *x*[7], observe that the elements less
     than *x*[7] are *x*[1], *x*[3], *x*[4], *x*[5], and *x*[6], and the sum *w*[1]
     + *w*[3] + *w*[4] + *w*[5] + *w*[6] = 0.45, which is less than 1/2\. Furthermore,
     only element *x*[2] is greater than *x*[7], and *w*[2] = 0.35, which is no greater
     than 1/2.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于这些元素，中位数是*x*[5] = 4，但加权中位数是*x*[7] = 6。要了解为什么加权中位数是*x*[7]，观察小于*x*[7]的元素是*x*[1],
+    *x*[3], *x*[4], *x*[5]和*x*[6]，而和*w*[1] + *w*[3] + *w*[4] + *w*[5] + *w*[6] = 0.45，小于1/2。此外，只有元素*x*[2]大于*x*[7]，*w*[2]
+    = 0.35，不大于1/2。
 - en: '***a.*** Argue that the median of *x*[1], *x*[2], … , *x[n]* is the weighted
     median of the *x[i]* with weights *w[i]* = 1/*n* for *i* = 1, 2, … , *n*.'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 论证*x*[1], *x*[2], … , *x[n]*的中位数是带有权重*w[i]* = 1/*n*的*x[i]*的加权中位数，其中*i*
+    = 1, 2, … , *n*。'
 - en: '***b.*** Show how to compute the weighted median of *n* elements in *O*(*n*
     lg *n*) worst-case time using sorting.'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 展示如何使用排序在*O*(*n* lg *n*)最坏情况时间内计算*n*个元素的加权中位数。'
 - en: '***c.*** Show how to compute the weighted median in Θ(*n*) worst-case time
     using a linear-time median algorithm such as SELECT from [Section 9.3](chapter009.xhtml#Sec_9.3).'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 展示如何使用线性时间中位数算法（如[第9.3节](chapter009.xhtml#Sec_9.3)中的SELECT）在Θ(*n*)最坏情况时间内计算加权中位数。'
 - en: The ***post-office location problem*** is defined as follows. The input is *n*
     points *p*[1], *p*[2], … , *p[n]* with associated weights *w*[1], *w*[2], … ,
     *w[n]*. A solution is a point *p* (not necessarily one of the input points) that
     minimizes the sum ![art](images/Art_P362.jpg), where *d*(*a*, *b*) is the distance
     between points *a* and *b*.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: '***邮局选址问题***的定义如下。输入是带有相关权重*w*[1], *w*[2], … , *w[n]*的*n*个点*p*[1], *p*[2],
+    … , *p[n]*。解决方案是一个点*p*（不一定是输入点之一），使得总和最小![art](images/Art_P362.jpg)，其中*d*(*a*,
+    *b*)是点*a*和*b*之间的距离。'
 - en: '***d.*** Argue that the weighted median is a best solution for the one-dimensional
     post-office location problem, in which points are simply real numbers and the
     distance between points *a* and *b* is *d*(*a*, *b*) = |*a* – *b*|.'
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 论证加权中位数是一维邮局选址问题的最佳解，其中点仅为实数，点*a*和*b*之间的距离是*d*(*a*, *b*) = |*a* –
+    *b*|。'
 - en: '***e.*** Find the best solution for the two-dimensional post-office location
     problem, in which the points are (*x*, *y*) coordinate pairs and the distance
     between points *a* = (*x*[1], *y*[1]) and *b* = (*x*[2], *y*[2]) is the ***Manhattan
     distance*** given by *d*(*a*, *b*) = |*x*[1] – *x*[2]| + |*y*[1] – *y*[2]|.'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 找到二维邮局选址问题的最佳解，其中点是(*x*, *y*)坐标对，点*a* = (*x*[1], *y*[1])和*b* = (*x*[2],
+    *y*[2])之间的距离是由*d*(*a*, *b*) = |*x*[1] – *x*[2]| + |*y*[1] – *y*[2]|给出的***曼哈顿距离***。'
 - en: '***9-4     Small order statistics***'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-4     小顺序统计量***'
 - en: Let’s denote by *S*(*n*) the worst-case number of comparisons used by SELECT
     to select the *i*th order statistic from *n* numbers. Although *S*(*n*) = Θ(*n*),
     the constant hidden by the Θ-notation is rather large. When *i* is small relative
     to *n*, there is an algorithm that uses SELECT as a subroutine but makes fewer
     comparisons in the worst case.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们用*S*(*n*)表示SELECT用于从*n*个数字中选择第*i*顺序统计量时使用的最坏情况比较次数。虽然*S*(*n*) = Θ(*n*)，但Θ-符号隐藏的常数相当大。当*i*相对于*n*较小时，有一种算法可以使用SELECT作为子例程，但在最坏情况下进行更少的比较。
 - en: '***a.*** Describe an algorithm that uses *U[i]*(*n*) comparisons to find the
     *i*th smallest of *n* elements, where'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 描述一个算法，使用*U[i]*(*n*)次比较来找到*n*个元素中的第*i*小元素，其中'
 - en: '![art](images/Art_P363.jpg)'
+  id: totrans-210
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P363.jpg)'
 - en: (*Hint:* Begin with ⌊*n*/2⌋ disjoint pairwise comparisons, and recurse on the
     set containing the smaller element from each pair.)
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: （提示：从⌊*n*/2⌋个不相交的成对比较开始，并在包含每对中较小元素的集合上递归。）
 - en: '***b.*** Show that, if *i* < *n*/2, then *U[i]*(*n*) = *n* + *O*(*S*(2*i*)
     lg(*n*/*i*)).'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明，如果*i* < *n*/2，则*U[i]*(*n*) = *n* + *O*(*S*(2*i*) lg(*n*/*i*)).'
 - en: '***c.*** Show that if *i* is a constant less than *n*/2, then *U[i]*(*n*) =
     *n* + *O*(lg *n*).'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明如果*i*是小于*n*/2的常数，则*U[i]*(*n*) = *n* + *O*(lg *n*)。'
 - en: '***d.*** Show that if *i* = *n*/*k* for *k* ≥ 2, then *U[i]*(*n*) = *n* + *O*(*S*(2*n*/*k*)
     lg *k*).'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明如果*i* = *n*/*k*，其中*k* ≥ 2，则*U[i]*(*n*) = *n* + *O*(*S*(2*n*/*k*)
+    lg *k*)。'
 - en: '***9-5     Alternative analysis of randomized selection***'
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-5     随机选择的替代分析***'
 - en: In this problem, you will use indicator random variables to analyze the procedure
     RANDOMIZED-SELECT in a manner akin to our analysis of RANDOMIZED-QUICKSORT in
     [Section 7.4.2](chapter007.xhtml#Sec_7.4.2).
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个问题中，您将使用指示器随机变量来分析类似于我们对RANDOMIZED-QUICKSORT在[Section 7.4.2](chapter007.xhtml#Sec_7.4.2)中的分析的RANDOMIZED-SELECT过程。
 - en: As in the quicksort analysis, we assume that all elements are distinct, and
     we rename the elements of the input array *A* as *z*[1], *z*[2], … , *z[n]*, where
     *z[i]* is the *i*th smallest element. Thus the call RANDOMIZED-SELECT(*A*, 1,
     *n*, *i*) returns *z[i]*.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 与快速排序分析一样，我们假设所有元素都是不同的，并将输入数组*A*的元素重命名为*z*[1]、*z*[2]、…，*z[n]*，其中*z[i]*是第*i*小的元素。因此，调用RANDOMIZED-SELECT(*A*,
+    1, *n*, *i*)返回*z[i]*。
 - en: For 1 ≤ *j* < *k* ≤ *n*, let
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于1 ≤ *j* < *k* ≤ *n*，让
 - en: '| *X[ijk]* | = | I {*z[j]* is compared with *z[k]* sometime during the execution
     of the algorithm to find *z[i]*}. |'
+  id: totrans-219
   prefs: []
   type: TYPE_TB
+  zh: '| *X[ijk]* | = | I {*z[j]*在查找*z[i]*的执行过程中某个时候与*z[k]*进行比较}。 |'
 - en: '***a.*** Give an exact expression for E [*X[ijk]*]. (*Hint:* Your expression
     may have different values, depending on the values of *i*, *j*, and *k*.)'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 给出一个E [*X[ijk]*]的确切表达式。(*提示：您的表达式可能具有不同的值，具体取决于*i*、*j*和*k*的值。*)'
 - en: '***b.*** Let *X[i]* denote the total number of comparisons between elements
     of array *A* when finding *z[i]*. Show that'
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 让*X[i]*表示在查找*z[i]*时数组*A*的元素之间的比较总数。证明'
 - en: '![art](images/Art_P364.jpg)'
+  id: totrans-222
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P364.jpg)'
 - en: '***c.*** Show that E [*X[i]*] ≤ 4*n*.'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明 E [*X[i]*] ≤ 4*n*。'
 - en: '***d.*** Conclude that, assuming all elements of array *A* are distinct, RANDOMIZED-SELECT
     runs in *O*(*n*) expected time.'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 假设数组*A*的所有元素都不同，证明 RANDOMIZED-SELECT 期望时间为*O*(*n*)。'
 - en: '***9-6     Select with groups of 3***'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: '***9-6     三个一组选择***'
 - en: Exercise 9.3-1 asks you to show that the SELECT algorithm still runs in linear
     time if the elements are divided into groups of 7\. This problem asks about dividing
     into groups of 3.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习9.3-1要求您证明如果将元素分成7个一组，则SELECT算法仍然在线性时间内运行。这个问题问的是分成3组。
 - en: '***a.*** Show that SELECT runs in linear time if you divide the elements into
     groups whose size is any odd constant greater than 3.'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 如果将元素分成任意大于3的奇数常数大小的组，证明 SELECT 在线性时间内运行。'
 - en: '***b.*** Show that SELECT runs in *O*(*n* lg *n*) time if you divide the elements
     into groups of size 3.'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明如果将元素分成大小为3的组，SELECT 在*O*(*n* lg *n*)时间内运行。'
 - en: Because the bound in part (b) is just an upper bound, we do not know whether
     the groups-of-3 strategy actually runs in *O*(*n*) time. But by repeating the
     groups-of-3 idea on the middle group of medians, we can pick a pivot that guarantees
     *O*(*n*) time. The SELECT3 algorithm on the next page determines the *i*th smallest
     of an input array of *n* > 1 distinct elements.
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为部分（b）中的界限只是一个上界，我们不知道三个一组的策略是否实际上以 *O*(*n*) 时间运行。但通过在中间中位数组上重复三个一组的想法，我们可以选择一个保证
+    *O*(*n*) 时间的枢轴。下一页的SELECT3算法确定了一个由*n* > 1个不同元素组成的输入数组中的第*i*小元素。
 - en: '***c.*** Describe in English how the SELECT3 algorithm works. Include in your
     description one or more suitable diagrams.'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 用英语描述SELECT3算法的工作原理。在描述中包含一个或多个适当的图表。'
 - en: '***d.*** Show that SELECT3 runs in *O*(*n*) time in the worst case.'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明 SELECT3 在最坏情况下以 *O*(*n*) 时间运行。'
 - en: '**Chapter notes**'
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: The worst-case linear-time median-finding algorithm was devised by Blum, Floyd,
     Pratt, Rivest, and Tarjan [[62](bibliography001.xhtml#endnote_62)]. The fast randomized
     version is due to Hoare [[218](bibliography001.xhtml#endnote_218)]. Floyd and
     Rivest [[147](bibliography001.xhtml#endnote_147)] have developed an improved randomized
     version that partitions around an element recursively selected from a small sample
     of the elements.
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 最坏情况下的线性时间中位数查找算法是由Blum、Floyd、Pratt、Rivest和Tarjan [[62](bibliography001.xhtml#endnote_62)]
+    设计的。快速随机版本归功于Hoare [[218](bibliography001.xhtml#endnote_218)]。Floyd和Rivest [[147](bibliography001.xhtml#endnote_147)]
+    开发了一个改进的随机版本，该版本递归地围绕从元素的一个小样本中选择的元素进行分区。
 - en: SELECT3(*A*, *p*, *r*, *i*)
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: SELECT3(*A*, *p*, *r*, *i*)
 - en: '|   1 | **while** (*r* – *p* + 1) mod 9 ≠ 0 |'
+  id: totrans-235
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **当** (*r* – *p* + 1) mod 9 ≠ 0 |'
 - en: '|   2 | **for** *j* = *p* + 1 **to** *r* | **//** put the minimum into *A*[*p*]
     |'
+  id: totrans-236
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **对于** *j* = *p* + 1 **到** *r* | **//** 将最小值放入 *A*[*p*] |'
 - en: '|   3 | **if** *A*[*p*] > *A*[*j*] |'
+  id: totrans-237
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **如果** *A*[*p*] > *A*[*j*] |'
 - en: '|   4 | exchange *A*[*p*] with *A*[*j*] |'
+  id: totrans-238
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | 交换 *A*[*p*] 和 *A*[*j*] |'
 - en: '|   5 | **//** If we want the minimum of *A*[*p* : *r*], we’re done. |'
+  id: totrans-239
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **//** 如果我们想要*A*[*p* : *r*]的最小值，我们已经完成了。 |'
 - en: '|   6 | **if** *i* == 1 |'
+  id: totrans-240
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **如果** *i* == 1 |'
 - en: '|   7 | **return** *A*[*p*] |'
+  id: totrans-241
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **返回** *A*[*p*] |'
 - en: '|   8 | **//** Otherwise, we want the (*i* – 1)st element of *A*[*p* + 1 :
     *r*]. |'
+  id: totrans-242
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | **//** 否则，我们想要*A*[*p* + 1 : *r*]的第(*i* – 1)个元素。 |'
 - en: '|   9 | *p* = *p* + 1 |'
+  id: totrans-243
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *p* = *p* + 1 |'
 - en: '| 10 | *i* = *i* – 1 |'
+  id: totrans-244
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *i* = *i* – 1 |'
 - en: '| 11 | *g* = (*r* – *p* + 1)/3 | **//** number of 3-element groups |'
+  id: totrans-245
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *g* = (*r* – *p* + 1)/3 | **//** 3个元素组的数量 |'
 - en: '| 12 | **for** *j* = *p* **to** *p* + *g* – 1 | **//** run through the groups
     |'
+  id: totrans-246
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | **对于** *j* = *p* **到** *p* + *g* – 1 | **//** 遍历组 |'
 - en: '| 13 | sort 〈*A*[*j*], *A*[*j* + *g*], *A*[*j* + 2*g*]〉 in place |'
+  id: totrans-247
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | 将〈*A*[*j*], *A*[*j* + *g*], *A*[*j* + 2*g*]〉就地排序 |'
 - en: '| 14 | **//** All group medians now lie in the middle third of *A*[*p* : *r*].
     |'
+  id: totrans-248
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | **//** 所有组中位数现在位于*A*[*p* : *r*]的中间三分之一处。 |'
 - en: '| 15 | *g′* = *g*/3 | **//** number of 3-element subgroups |'
+  id: totrans-249
   prefs: []
   type: TYPE_TB
+  zh: '| 15 | *g′* = *g*/3 | **//** 3个元素子组的数量 |'
 - en: '| 16 | **for** *j* = *p* + *g* **to** *p* + *g* + *g′* – 1 | **//** sort the
     subgroups |'
+  id: totrans-250
   prefs: []
   type: TYPE_TB
+  zh: '| 16 | **对于** *j* = *p* + *g* **到** *p* + *g* + *g′* – 1 | **//** 对子组进行排序 |'
 - en: '| 17 | sort 〈*A*[*j*], *A*[*j* + *g′*], *A*[*j* + 2*g′*]〉 in place |'
+  id: totrans-251
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | 将〈*A*[*j*], *A*[*j* + *g′*], *A*[*j* + 2*g′*]〉就地排序 |'
 - en: '| 18 | **//** All subgroup medians now lie in the middle ninth of *A*[*p* :
     *r*]. |'
+  id: totrans-252
   prefs: []
   type: TYPE_TB
+  zh: '| 18 | **//** 所有子组中位数现在位于*A*[*p* : *r*]的中间九分之一处。 |'
 - en: '| 19 | **//** Find the pivot *x* recursively as the median of the subgroup
     medians. |'
+  id: totrans-253
   prefs: []
   type: TYPE_TB
+  zh: '| 19 | **//** 递归地将枢轴*x*作为子组中位数的中位数。 |'
 - en: '| 20 | *x* = SELECT3(*A*, *p* + 4*g′*, *p* + 5*g′* – 1, ⌈*g′*/2⌉) |'
+  id: totrans-254
   prefs: []
   type: TYPE_TB
+  zh: '| 20 | *x* = SELECT3(*A*, *p* + 4*g′*, *p* + 5*g′* – 1, ⌈*g′*/2⌉) |'
 - en: '| 21 | *q* = PARTITION-AROUND(*A*, *p*, *r*, *x*) | **//** partition around
     the pivot |'
+  id: totrans-255
   prefs: []
   type: TYPE_TB
+  zh: '| 21 | *q* = PARTITION-AROUND(*A*, *p*, *r*, *x*) | **//** 围绕枢轴进行分区 |'
 - en: '| 22 | **//** The rest is just like lines 19–24 of SELECT. |'
+  id: totrans-256
   prefs: []
   type: TYPE_TB
+  zh: '| 22 | **//** 其余部分与SELECT的第19-24行类似。 |'
 - en: '| 23 | *k* = *q* – *p* + 1 |'
+  id: totrans-257
   prefs: []
   type: TYPE_TB
+  zh: '| 23 | *k* = *q* – *p* + 1 |'
 - en: '| 24 | **if** *i* == *k* |'
+  id: totrans-258
   prefs: []
   type: TYPE_TB
+  zh: '| 24 | **如果** *i* == *k* |'
 - en: '| 25 | **return** *A*[*q*] | **//** the pivot value is the answer |'
+  id: totrans-259
   prefs: []
   type: TYPE_TB
+  zh: '| 25 | **返回** *A*[*q*] | **//** 枢轴值是答案 |'
 - en: '| 26 | **elseif** *i* < *k* |'
+  id: totrans-260
   prefs: []
   type: TYPE_TB
+  zh: '| 26 | **否则** *i* < *k* |'
 - en: '| 27 | **return** SELECT3(*A*, *p*, *q* – 1, *i*) |'
+  id: totrans-261
   prefs: []
   type: TYPE_TB
+  zh: '| 27 | **返回** SELECT3(*A*, *p*, *q* – 1, *i*) |'
 - en: '| 28 | **else return** SELECT3(*A*, *q* + 1, *r*, *i* – *k*) |'
+  id: totrans-262
   prefs: []
   type: TYPE_TB
+  zh: '| 28 | **否则返回** SELECT3(*A*, *q* + 1, *r*, *i* – *k*) |'
 - en: It is still unknown exactly how many comparisons are needed to determine the
     median. Bent and John [[48](bibliography001.xhtml#endnote_48)] gave a lower bound
     of 2*n* comparisons for median finding, and Schönhage, Paterson, and Pippenger
@@ -1239,19 +1836,32 @@
     on related work by Dor et al. [[122](bibliography001.xhtml#endnote_122)]. Paterson
     [[354](bibliography001.xhtml#endnote_354)] describes some of these results along
     with other related work.
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前尚不清楚确定中位数需要多少比较。Bent和John [[48](bibliography001.xhtml#endnote_48)] 给出了中位数查找需要2*n*次比较的下界，而Schönhage、Paterson和Pippenger
+    [[397](bibliography001.xhtml#endnote_397)] 给出了3*n*次比较的上界。Dor和Zwick改进了这两个界限。他们的上界
+    [[123](bibliography001.xhtml#endnote_123)] 稍低于2.95*n*，而下界 [[124](bibliography001.xhtml#endnote_124)]
+    是(2 + *ϵ*)*n*，其中*ϵ*是一个小正常数，从而略微改进了Dor等人的相关工作 [[122](bibliography001.xhtml#endnote_122)]。Paterson
+    [[354](bibliography001.xhtml#endnote_354)] 描述了其中一些结果以及其他相关工作。
 - en: Problem 9-6 was inspired by a paper by Chen and Dumitrescu [[84](bibliography001.xhtml#endnote_84)].
+  id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题9-6受到了Chen和Dumitrescu的一篇论文的启发 [[84](bibliography001.xhtml#endnote_84)]。
 - en: '[¹](#footnote_ref_1) As in the footnote on page 182, you can enforce the assumption
     that the numbers are distinct by converting each input value *A*[*i*] to an ordered
     pair (*A*[*i*], *i*) with (*A*[*i*], *i*) < (*A*[*j*], *j*) if either *A*[*i*]
     < *A*[*j*] or *A*[*i*] = *A*[*j*] and *i* < *j*.'
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 如第182页的脚注中所述，您可以通过将每个输入值*A*[*i*]转换为有序对(*A*[*i*], *i*)，并且如果*A*[*i*]
+    < *A*[*j*]或*A*[*i*] = *A*[*j*]且*i* < *j*，则使(*A*[*i*], *i*) < (*A*[*j*], *j*)来强制执行假设数字是不同的。'
 - en: '[²](#footnote_ref_2) We could also use the Akra-Bazzi method from [Section
     4.7](chapter004.xhtml#Sec_4.7), which involves calculus, to solve this recurrence.
     Indeed, a similar recurrence (4.24) on page 117 was used to illustrate that method.'
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: '[²](#footnote_ref_2) 我们也可以使用来自[第4.7节](chapter004.xhtml#Sec_4.7)的Akra-Bazzi方法，其中涉及微积分，来解决这个递归。事实上，117页上使用了类似的递归(4.24)来说明该方法。'

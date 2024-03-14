@@ -1,44 +1,61 @@
 - en: '[**8          Sorting in Linear Time**](toc.xhtml#chap-8)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**8          线性时间排序**](toc.xhtml#chap-8)'
 - en: We have now seen a handful of algorithms that can sort *n* numbers in *O*(*n*
     lg *n*) time. Whereas merge sort and heapsort achieve this upper bound in the
     worst case, quicksort achieves it on average. Moreover, for each of these algorithms,
     we can produce a sequence of *n* input numbers that causes the algorithm to run
     in Ω(*n* lg *n*) time.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现在已经看到了一些可以在*O*(*n* lg *n*)时间内对*n*个数字进行排序的算法。虽然归并排序和堆排序在最坏情况下达到了这个上界，快速排序在平均情况下达到了这个上界。此外，对于这些算法中的每一个，我们可以产生一个*n*个输入数字的序列，使得算法在Ω(*n*
+    lg *n*)时间内运行。
 - en: 'These algorithms share an interesting property: *the sorted order they determine
     is based only on comparisons between the input elements*. We call such sorting
     algorithms ***comparison sorts***. All the sorting algorithms introduced thus
     far are comparison sorts.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些算法共享一个有趣的特性：*它们确定的排序顺序仅基于输入元素之间的比较*。我们称这样的排序算法为***比较排序***。到目前为止，所有介绍的排序算法都是比较排序。
 - en: In [Section 8.1](chapter008.xhtml#Sec_8.1), we’ll prove that any comparison
     sort must make Ω(*n* lg *n*) comparisons in the worst case to sort *n* elements.
     Thus, merge sort and heapsort are asymptotically optimal, and no comparison sort
     exists that is faster by more than a constant factor.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[第8.1节](chapter008.xhtml#Sec_8.1)中，我们将证明任何比较排序在最坏情况下必须进行Ω(*n* lg *n*)次比较才能对*n*个元素进行排序。因此，归并排序和堆排序在渐近意义上是最优的，没有比较排序存在比一个常数因子更快的情况。
 - en: '[Sections 8.2](chapter008.xhtml#Sec_8.2), [8.3](chapter008.xhtml#Sec_8.3),
     and [8.4](chapter008.xhtml#Sec_8.4) examine three sorting algorithms—counting
     sort, radix sort, and bucket sort—that run in linear time on certain types of
     inputs. Of course, these algorithms use operations other than comparisons to determine
     the sorted order. Consequently, the Ω(*n* lg *n*) lower bound does not apply to
     them.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第8.2节](chapter008.xhtml#Sec_8.2)，[第8.3节](chapter008.xhtml#Sec_8.3)和[第8.4节](chapter008.xhtml#Sec_8.4)讨论了三种排序算法——计数排序、基数排序和桶排序——它们在某些类型的输入上以线性时间运行。当然，这些算法使用除比较之外的操作来确定排序顺序。因此，Ω(*n*
+    lg *n*)的下界不适用于它们。'
 - en: '[**8.1      Lower bounds for sorting**](toc.xhtml#Rh1-45)'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**8.1      排序的下界**](toc.xhtml#Rh1-45)'
 - en: A comparison sort uses only comparisons between elements to gain order information
     about an input sequence 〈*a*[1], *a*[2], … , *a[n]*〉. That is, given two elements
     *a[i]* and *a[j]*, it performs one of the tests *a[i]* < *a[j]*, *a[i]* ≤ *a[j]*,
     *a[i]* = *a[j]*, *a[i]* ≥ *a[j]*, or *a[i]* > *a[j]* to determine their relative
     order. It may not inspect the values of the elements or gain order information
     about them in any other way.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较排序仅使用元素之间的比较来获取关于输入序列〈*a*[1], *a*[2], … , *a[n]*〉的顺序信息。也就是说，给定两个元素*a[i]*和*a[j]*，它执行*a[i]*
+    < *a[j]*，*a[i]* ≤ *a[j]*，*a[i]* = *a[j]*，*a[i]* ≥ *a[j]*或*a[i]* > *a[j]*中的一个测试来确定它们的相对顺序。它可能不检查元素的值或以其他方式获取关于它们的顺序信息。
 - en: Since we are proving a lower bound, we assume without loss of generality in
     this section that all the input elements are distinct. After all, a lower bound
     for distinct elements applies when elements may or may not be distinct. Consequently,
@@ -47,11 +64,18 @@
     ≤ *a[j]*, *a[i]* ≥ *a[j]*, *a[i]* > *a[j]*, and *a[i]* < *a[j]* are all equivalent
     in that they yield identical information about the relative order of *a[i]* and
     *a[j]*. We therefore assume that all comparisons have the form *a[i]* ≤ *a[j]*.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们正在证明一个下界，我们在本节中假设所有输入元素都是不同的，不失一般性。毕竟，对于不同元素的下界适用于元素可能是不同的情况。因此，形如*a[i]*
+    = *a[j]*的比较是无用的，这意味着我们可以假设不存在精确相等的比较。此外，比较*a[i]* ≤ *a[j]*，*a[i]* ≥ *a[j]*，*a[i]*
+    > *a[j]*和*a[i]* < *a[j]*在于它们提供了关于*a[i]*和*a[j]*相对顺序的相同信息。因此，我们假设所有比较都采用*a[i]* ≤
+    *a[j]*的形式。
 - en: '![art](images/Art_P323.jpg)'
+  id: totrans-8
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P323.jpg)'
 - en: '**Figure 8.1** The decision tree for insertion sort operating on three elements.
     An internal node (shown in blue) annotated by *i* : *j* indicates a comparison
     between *a[i]* and *a[j]*. A leaf annotated by the permutation 〈*π*(1), *π*(2),
@@ -63,11 +87,19 @@
     > *a*[3]. Therefore, we have the ordering *a*[3] ≤ *a*[1] ≤ *a*[2], as indicated
     in the leaf labeled 〈3, 1, 2〉. Because the three input elements have 3! = 6 possible
     permutations, the decision tree must have at least 6 leaves.'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图8.1** 插入排序在三个元素上运行的决策树。一个内部节点（蓝色显示）上标有*i*：*j*表示*a[i]*��*a[j]*之间的比较。一个由排列〈*π*(1),
+    *π*(2), … , *π*(*n*)〉标注的叶子表示顺序*a*[*π*(1)] ≤ *a*[*π*(2)] ≤ ⋯ ≤ *a*[*π*(*n*)]。突出显示的路径表示在对输入序列〈*a*[1]
+    = 6, *a*[2] = 8, *a*[3] = 5〉进行排序时所做的决策。从根节点，标记为1:2，向左移动表示*a*[1] ≤ *a*[2]。从标记为2:3的节点向右移动表示*a*[2]
+    > *a*[3]。从标记为1:3的节点向右移动表示*a*[1] > *a*[3]。因此，我们有顺序*a*[3] ≤ *a*[1] ≤ *a*[2]，如叶子标记的〈3,
+    1, 2〉所示。因为三个输入元素有3! = 6种可能的排列，决策树必须至少有6个叶子。'
 - en: '**The decision-tree model**'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '**决策树模型**'
 - en: We can view comparison sorts abstractly in terms of decision trees. A ***decision
     tree*** is a full binary tree (each node is either a leaf or has both children)
     that represents the comparisons between elements that are performed by a particular
@@ -75,8 +107,11 @@
     and all other aspects of the algorithm are ignored. [Figure 8.1](chapter008.xhtml#Fig_8-1)
     shows the decision tree corresponding to the insertion sort algorithm from [Section
     2.1](chapter002.xhtml#Sec_2.1) operating on an input sequence of three elements.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以抽象地将比较排序视为决策树。一个***决策树***是一个完全二叉树（每个节点要么是叶子节点，要么有两个子节点），它表示特定排序算法在给定大小的输入上执行的元素之间的比较。控制、数据移动和算法的所有其他方面都被忽略。[图
+    8.1](chapter008.xhtml#Fig_8-1)展示了对三个元素的输入序列进行插入排序算法的决策树。
 - en: 'A decision tree has each internal node annotated by *i* : *j* for some *i*
     and *j* in the range 1 ≤ *i*, *j* ≤ *n*, where *n* is the number of elements in
     the input sequence. We also annotate each leaf by a permutation 〈*π*(1), *π*(2),
@@ -96,11 +131,19 @@
     to an actual execution of the comparison sort. (We call such leaves “reachable.”)
     Thus, we consider only decision trees in which each permutation appears as a reachable
     leaf.'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '决策树的每个内部节点都用 *i* : *j* 注释，其中 *i* 和 *j* 在范围 1 ≤ *i*, *j* ≤ *n* 内，*n* 是输入序列中元素的数量。我们还用排列
+    〈*π*(1), *π*(2), … , *π*(*n*)〉 注释每个叶子。（有关排列的背景，请参阅[附录 C.1](appendix003.xhtml#Sec_C.1)。）内部节点和叶子中的索引始终指的是排序算法开始时数组元素的原始位置。比较排序算法的执行对应于从决策树的根向下追踪到叶子的简单路径。每个内部节点表示一个比较
+    *a[i]* ≤ *a[j]*。左子树然后在我们知道 *a[i]* ≤ *a[j]* 时指示后续比较，右子树在 *a[i]* > *a[j]* 时指示后续比较。到达叶子时，排序算法已经建立了顺序
+    *a*[*π*(1)] ≤ *a*[*π*(2)] ≤ ⋯ ≤ *a*[*π*(*n*)]。因为任何正确的排序算法必须能够产生其输入的每个排列，所以对于比较排序正确性，*n*
+    个元素的 *n*! 排列中的每一个必须至少出现在决策树的一个叶子中。此外，每个这些叶子必须可以通过从根向下对应于比较排序的实际执行的路径到达。（我们称这样的叶子为“可达”）因此，我们只考虑每个排列都作为可达叶子出现在决策树中的情况。'
 - en: '**A lower bound for the worst case**'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '**最坏情况的下界**'
 - en: The length of the longest simple path from the root of a decision tree to any
     of its reachable leaves represents the worst-case number of comparisons that the
     corresponding sorting algorithm performs. Consequently, the worst-case number
@@ -109,81 +152,127 @@
     permutation appears as a reachable leaf is therefore a lower bound on the running
     time of any comparison sort algorithm. The following theorem establishes such
     a lower bound.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 从决策树的根到其可达叶子中最长简单路径的长度代表了相应排序算法执行的最坏情况比较次数。因此，给定比较排序算法的最坏情况比较次数等于其决策树的高度。在每个排列出现为可达叶子的所有决策树的高度的下界因此是任何比较排序算法运行时间的下界。以下定理建立了这样一个下界。
 - en: '***Theorem 8.1***'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理 8.1***'
 - en: Any comparison sort algorithm requires Ω(*n* lg *n*) comparisons in the worst
     case.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何比较排序算法在最坏情况下需要 Ω(*n* lg *n*) 次比较。
 - en: '***Proof***   From the preceding discussion, it suffices to determine the height
     of a decision tree in which each permutation appears as a reachable leaf. Consider
     a decision tree of height *h* with *l* reachable leaves corresponding to a comparison
     sort on *n* elements. Because each of the *n*! permutations of the input appears
     as one or more leaves, we have *n*! ≤ *l*. Since a binary tree of height *h* has
     no more than 2*^h* leaves, we have'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   根据前面的讨论，确定每个排列作为可达叶子出现的决策树的高度就足够了。考虑高度为 *h*，具有 *l* 个可达叶子的决策树，对应于
+    *n* 元素的比较排序。因为输入的 *n*! 排列中的每一个都出现为一个或多个叶子，我们有 *n*! ≤ *l*。由于高度为 *h* 的二叉树最多有 2*^h*
+    个叶子，我们有'
 - en: '*n*! ≤ *l* ≤ 2*^h*,'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '*n*! ≤ *l* ≤ 2*^h*，'
 - en: which, by taking logarithms, implies
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过取对数，这意味着
 - en: '| *h* | ≥ | lg(*n*!) | (since the lg function is monotonically increasing)
     |'
+  id: totrans-20
   prefs: []
   type: TYPE_TB
+  zh: '| *h* | ≥ | lg(*n*!) |（因为 lg 函数是单调递增的）|'
 - en: '|  | = | Ω (*n* lg *n*) | (by equation (3.28) on page 67). |'
+  id: totrans-21
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | Ω (*n* lg *n*) |（根据第 67 页的方程式 (3.28)）。 |'
 - en: ▪
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '***Corollary 8.2***'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '***推论 8.2***'
 - en: Heapsort and merge sort are asymptotically optimal comparison sorts.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆排序和归并排序是渐进最优的比较排序算法。
 - en: '***Proof***   The *O*(*n* lg *n*) upper bounds on the running times for heapsort
     and merge sort match the Ω(*n* lg *n*) worst-case lower bound from Theorem 8.1.'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   堆排序和归并排序的*O*(*n* lg *n*)运行时间上界与定理 8.1 中的Ω(*n* lg *n*)最坏情况下界相匹配。'
 - en: ▪
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Exercises**'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***8.1-1***'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.1-1***'
 - en: What is the smallest possible depth of a leaf in a decision tree for a comparison
     sort?
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于比较排序的决策树中叶子的最小可能深度是多少？
 - en: '***8.1-2***'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.1-2***'
 - en: Obtain asymptotically tight bounds on lg(*n*!) without using Stirling’s approximation.
     Instead, evaluate the summation ![art](images/Art_P324.jpg) using techniques from
     [Section A.2](appendix001.xhtml#Sec_A.2).
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在不使用斯特林逼近的情况下，获得关于 lg(*n*!) 的渐近紧密界。而是使用来自[附录 A.2](appendix001.xhtml#Sec_A.2)的技术评估求和式
+    ![art](images/Art_P324.jpg)。
 - en: '***8.1-3***'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.1-3***'
 - en: Show that there is no comparison sort whose running time is linear for at least
     half of the *n*! inputs of length *n*. What about a fraction of 1/*n* of the inputs
     of length *n*? What about a fraction 1/2*^n*?
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明对于长度为 *n* 的至少一半的 *n*! 输入，不存在线性运行时间的比较排序。对于长度为 *n* 的输入的 1/*n* 部分呢？对于 1/2*^n*
+    的部分呢？
 - en: '***8.1-4***'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.1-4***'
 - en: You are given an *n*-element input sequence, and you know in advance that it
     is partly sorted in the following sense. Each element initially in position *i*
     such that *i* mod 4 = 0 is either already in its correct position, or it is one
@@ -192,78 +281,123 @@
     no advance information about the other elements, in positions *i* where *i* mod
     4 ≠ 0\. Show that an Ω(*n* lg *n*) lower bound on comparison-based sorting still
     holds in this case.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个 *n* 元素输入序列，并且你事先知道它在某种意义上是部分排序���。初始位置为 *i* 的每个元素，满足 *i* mod 4 = 0 的元素要么已经在正确的位置，要么离正确位置只有一步之遥。例如，你知道排序后，初始位置为
+    12 的元素应该在位置 11、12 或 13。对于其他位置 *i* 满足 *i* mod 4 ≠ 0 的元素，你没有任何事先信息。证明在这种情况下，基于比较的排序的Ω(*n*
+    lg *n*)下界仍然成立。
 - en: '[**8.2      Counting sort**](toc.xhtml#Rh1-46)'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**8.2      计数排序**](toc.xhtml#Rh1-46)'
 - en: '***Counting sort*** assumes that each of the *n* input elements is an integer
     in the range 0 to *k*, for some integer *k*. It runs in Θ(*n* + *k*) time, so
     that when *k* = *O*(*n*), counting sort runs in Θ(*n*) time.'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '***计数排序*** 假设每个 *n* 个输入元素都是范围在 0 到 *k* 之间的整数，其中 *k* 是某个整数。它的运行时间为 Θ(*n* + *k*)，因此当
+    *k* = *O*(*n*) 时，计数排序的运行时间为 Θ(*n*)。'
 - en: Counting sort first determines, for each input element *x*, the number of elements
     less than or equal to *x*. It then uses this information to place element *x*
     directly into its position in the output array. For example, if 17 elements are
     less than or equal to *x*, then *x* belongs in output position 17\. We must modify
     this scheme slightly to handle the situation in which several elements have the
     same value, since we do not want them all to end up in the same position.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 计数排序首先确定每个输入元素 *x* 小于或等于 *x* 的元素数量。然后使用这些信息将元素 *x* 直接放入输出数组中的正确位置。例如，如果有 17
+    个元素小于或等于 *x*，那么 *x* 应该在输出位置 17。我们必须稍微修改这个方案来处理具有相同值的多个元素的情况，因为我们不希望它们全部都在同一个位置结束。
 - en: 'The COUNTING-SORT procedure on the facing page takes as input an array *A*[1
     : *n*], the size *n* of this array, and the limit *k* on the nonnegative integer
     values in *A*. It returns its sorted output in the array *B*[1 : *n*] and uses
     an array *C* [0 : *k*] for temporary working storage.'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '面对页面上的 COUNTING-SORT 程序接受数组 *A*[1 : *n*]、该数组的大小 *n*，以及 *A* 中非负整数值的限制 *k* 作为输入，并将排序后的输出存储在数组
+    *B*[1 : *n*] 中，并使用数组 *C* [0 : *k*] 作为临时工作存储。'
 - en: COUNTING-SORT(*A*, *n*, *k*)
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 计数排序(*A*, *n*, *k*)
 - en: '|   1 | let *B*[1 : *n*] and *C* [0 : *k*] be new arrays |  |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | 令 *B*[1 : *n*] 和 *C* [0 : *k*] 为新数组 |  |'
 - en: '|   2 | **for** *i* = 0 **to** *k* |  |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | **for** *i* = 0 **to** *k* |  |'
 - en: '|   3 | *C* [*i*] = 0 |  |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | *C* [*i*] = 0 |  |'
 - en: '|   4 | **for** *j* = 1 **to** *n* |  |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | **for** *j* = 1 **to** *n* |  |'
 - en: '|   5 | *C* [*A*[*j*]] = *C* [*A*[*j*]] + 1 |  |'
+  id: totrans-45
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | *C* [*A*[*j*]] = *C* [*A*[*j*]] + 1 |  |'
 - en: '|   6 | **//** *C* [*i*] now contains the number of elements equal to *i*.
     |'
+  id: totrans-46
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **//** *C* [*i*] 现在包含等于 *i* 的元素数量。 |'
 - en: '|   7 | **for** *i* = 1 **to** *k* |  |'
+  id: totrans-47
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **for** *i* = 1 **to** *k* |  |'
 - en: '|   8 | *C* [*i*] = *C* [*i*] + *C* [*i* – 1] |  |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *C* [*i*] = *C* [*i*] + *C* [*i* – 1] |  |'
 - en: '|   9 | **//** *C* [*i*] now contains the number of elements less than or equal
     to *i*. |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **//** *C* [*i*] 现在包含小于或等于 *i* 的元素数量。 |'
 - en: '| 10 | **//** Copy *A* to *B*, starting from the end of *A*. |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | **//** 从 *A* 的末尾开始将 *A* 复制到 *B*。 |'
 - en: '| 11 | **for** *j* = *n* **downto** 1 |  |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | **for** *j* = *n* **downto** 1 |  |'
 - en: '| 12 | *B*[*C* [*A*[*j*]]] = *A*[*j*] |  |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *B*[*C* [*A*[*j*]]] = *A*[*j*] |  |'
 - en: '| 13 | *C* [*A*[*j*]] = *C* [*A*[*j*]] – 1 | **//** to handle duplicate values
     |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | *C* [*A*[*j*]] = *C* [*A*[*j*]] – 1 | **//** 用于处理重复值 |'
 - en: '| 14 | **return** *B* |  |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | **return** *B* |  |'
 - en: '[Figure 8.2](chapter008.xhtml#Fig_8-2) illustrates counting sort. After the
     **for** loop of lines 2–3 initializes the array *C* to all zeros, the **for**
     loop of lines 4–5 makes a pass over the array *A* to inspect each input element.
@@ -272,8 +406,13 @@
     for each integer *i* = 0, 1, … , *k*. Lines 7–8 determine for each *i* = 0, 1,
     … , *k* how many input elements are less than or equal to *i* by keeping a running
     sum of the array *C*.'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 8.2](chapter008.xhtml#Fig_8-2) 展示了计数排序。在第 2-3 行的 **for** 循环初始化数组 *C* 为全零后，第
+    4-5 行的 **for** 循环遍历数组 *A* 来检查每个输入元素。每当找到一个值为 *i* 的输入元素时，就会增加 *C* [*i*]。因此，第 5
+    行后，*C* [*i*] 存储了每个整数 *i* = 0, 1, … , *k* 的输入元素数量。第 7-8 行根据数组 *C* 的累加和确定了每个 *i*
+    = 0, 1, … , *k* 有多少个小于或等于 *i* 的输入元素。'
 - en: Finally, the **for** loop of lines 11–13 makes another pass over *A*, but in
     reverse, to place each element *A*[*j*] into its correct sorted position in the
     output array *B*. If all *n* elements are distinct, then when line 11 is first
@@ -284,25 +423,39 @@
     *C* [*A*[*j*]] causes the previous element in *A* with a value equal to *A*[*j*],
     if one exists, to go to the position immediately before *A*[*j*] in the output
     array *B*.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，第 11-13 行的 **for** 循环再次遍历 *A*，但是是逆序的，将每个元素 *A*[*j*] 放入输出数组 *B* 中的正确排序位置。如果所有
+    *n* 个元素都是不同的，那么当第一次进入第 11 行时，对于每个 *A*[*j*]，*C* [*A*[*j*]] 的值就是 *A*[*j*] 在输出数组中的正确最终位置，因为有
+    *C* [*A*[*j*]] 个元素小于或等于 *A*[*j*]。由于元素可能不是唯一的，循环每次将值 *A*[*j*] 放入 *B* 时都会减少 *C*
+    [*A*[*j*]]。减少 *C* [*A*[*j*]] 会导致前一个值等于 *A*[*j*] 的元素（如果存在）移动到输出数组 *B* 中 *A*[*j*]
+    的前一个位置。
 - en: How much time does counting sort require? The **for** loop of lines 2–3 takes
     Θ(*k*) time, the **for** loop of lines 4–5 takes Θ(*n*) time, the **for** loop
     of lines 7–8 takes Θ(*k*) time, and the **for** loop of lines 11–13 takes Θ(*n*)
     time. Thus, the overall time is Θ(*k* + *n*). In practice, we usually use counting
     sort when we have *k* = *O*(*n*), in which case the running time is Θ(*n*).
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 计数排序需要多少时间？第2-3行的**for**循环需要Θ(*k*)时间，第4-5行的**for**循环需要Θ(*n*)时间，第7-8行的**for**循环需要Θ(*k*)时间，第11-13行的**for**循环需要Θ(*n*)时间。因此，总体时间为Θ(*k*
+    + *n*)。实际上，我们通常在*k* = *O*(*n*)时使用计数排序，此时运行时间为Θ(*n*)。
 - en: Counting sort can beat the lower bound of Ω(*n* lg *n*) proved in [Section 8.1](chapter008.xhtml#Sec_8.1)
     because it is not a comparison sort. In fact, no comparisons between input elements
     occur anywhere in the code. Instead, counting sort uses the actual values of the
     elements to index into an array. The Ω(*n* lg *n*) lower bound for sorting does
     not apply when we depart from the comparison sort model.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 计数排序可以击败[第8.1节](chapter008.xhtml#Sec_8.1)中证明的Ω(*n* lg *n*)的下界，因为它不是一种比较排序。实际上，在代码中任何地方都不会发生输入元素之间的比较。相反，计数排序使用元素的实际值作为索引到数组中。当我们偏离比较排序模型时，Ω(*n*
+    lg *n*)的排序下界不适用。
 - en: '![art](images/Art_P325.jpg)'
+  id: totrans-59
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P325.jpg)'
 - en: '**Figure 8.2** The operation of COUNTING-SORT on an input array *A*[1 : 8],
     where each element of *A* is a nonnegative integer no larger than *k* = 5\. **(a)**
     The array *A* and the auxiliary array *C* after line 5\. **(b)** The array *C*
@@ -310,8 +463,12 @@
     one, two, and three iterations of the loop in lines 11–13, respectively. Only
     the tan elements of array *B* have been filled in. **(f)** The final sorted output
     array *B*.'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图8.2** COUNTING-SORT在输入数组*A*[1 : 8]上的操作，其中*A*的每个元素都是不大于*k* = 5的非负整数。**(a)**
+    第5行后的数组*A*和辅助数组*C*。**(b)** 第8行后的数组*C*。**(c)–(e)** 在第11-13行循环的一次、两次和三次迭代后的输出数组*B*和辅助数组*C*。只有数组*B*的棕色元素已经填充。**(f)**
+    最终排序的输出数组*B*。'
 - en: 'An important property of counting sort is that it is ***stable***: elements
     with the same value appear in the output array in the same order as they do in
     the input array. That is, it breaks ties between two elements by the rule that
@@ -321,82 +478,125 @@
     important for another reason: counting sort is often used as a subroutine in radix
     sort. As we shall see in the next section, in order for radix sort to work correctly,
     counting sort must be stable.'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 计数排序的一个重要特性是它是***稳定的***：具有相同值的元素在输出数组中的顺序与它们在输入数组中的顺序相同。也就是说，它通过规则打破两个元素之间的关系，即在输入数组中先出现的元素在输出数组中也先出现。通常，稳定性的特性仅在元素排序时携带卫星数据时才重要。计数排序的稳定性之所以重要还有另一个原因：计数排序经常用作基数排序的子程序。正如我们将在下一节中看到的，为了使基数排序正确工作，计数排序必须是稳定的。
 - en: '**Exercises**'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***8.2-1***'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-1***'
 - en: Using [Figure 8.2](chapter008.xhtml#Fig_8-2) as a model, illustrate the operation
     of COUNTING-SORT on the array *A* = 〈6, 0, 2, 0, 1, 3, 4, 6, 1, 3, 2〉.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图8.2](chapter008.xhtml#Fig_8-2)作为模型，说明在数组*A* = 〈6, 0, 2, 0, 1, 3, 4, 6, 1,
+    3, 2〉上COUNTING-SORT的操作。
 - en: '***8.2-2***'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-2***'
 - en: Prove that COUNTING-SORT is stable.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明COUNTING-SORT是稳定的。
 - en: '***8.2-3***'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-3***'
 - en: Suppose that we were to rewrite the **for** loop header in line 11 of the COUNTING-SORT
     as
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设我们要重写COUNTING-SORT中第11行的**for**循环头部为
 - en: '| 11 | **for** *j* = 1 **to** *n* |'
+  id: totrans-69
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | **for** *j* = 1 **to** *n* |'
 - en: Show that the algorithm still works properly, but that it is not stable. Then
     rewrite the pseudocode for counting sort so that elements with the same value
     are written into the output array in order of increasing index and the algorithm
     is stable.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明算法仍然能够正常工作，但不稳定。然后重新编写计数排序的伪代码，使具有相同值的元素按照递增索引的顺序写入输出数组，从而使算法稳定。
 - en: '***8.2-4***'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-4***'
 - en: 'Prove the following loop invariant for COUNTING-SORT:'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明COUNTING-SORT的以下循环不变性：
 - en: At the start of each iteration of the **for** loop of lines 11–13, the last
     element in *A* with value *i* that has not yet been copied into *B* belongs in
     *B*[*C* [*i*]].
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 在第11-13行的**for**循环的每次迭代开始时，具有尚未复制到*B*中的值为*i*的最后一个元素应该放在*B*[*C*[*i*]]中。
 - en: '***8.2-5***'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-5***'
 - en: Suppose that the array being sorted contains only integers in the range 0 to
     *k* and that there are no satellite data to move with those keys. Modify counting
     sort to use just the arrays *A* and *C*, putting the sorted result back into array
     *A* instead of into a new array *B*.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设要排序的数组仅包含范围在0到*k*之间的整数，并且没有卫星数据与这些键一起移动。修改计数排序，只使用数组*A*和*C*，将排序结果放回数组*A*而不是新数组*B*中。
 - en: '***8.2-6***'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-6***'
 - en: 'Describe an algorithm that, given *n* integers in the range 0 to *k*, preprocesses
     its input and then answers any query about how many of the *n* integers fall into
     a range [*a* : *b*] in *O*(1) time. Your algorithm should use Θ(*n* + *k*) preprocessing
     time.'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '描述一种算法，给定范围在0到*k*之间的*n*个整数，预处理其输入，然后在*O*(1)时间内回答关于*n*个整数中有多少个落入范围[*a* : *b*]的任何查询。您的算法应该使用Θ(*n*
+    + *k*)的预处理时间。'
 - en: '***8.2-7***'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.2-7***'
 - en: Counting sort can also work efficiently if the input values have fractional
     parts, but the number of digits in the fractional part is small. Suppose that
     you are given *n* numbers in the range 0 to *k*, each with at most *d* decimal
     (base 10) digits to the right of the decimal point. Modify counting sort to run
     in Θ(*n* + 10*^d k*) time.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果输入值具有小数部分，但小数部分��位数很小，计数排序也可以高效工作。假设给定范围在0到*k*之间的*n*个数字，每个数字的小数点右侧最多有*d*个十进制位。修改计数排序以在Θ(*n*
+    + 10*^d k*)时间内运行。
 - en: '[**8.3      Radix sort**](toc.xhtml#Rh1-47)'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**8.3      基数排序**](toc.xhtml#Rh1-47)'
 - en: '***Radix sort*** is the algorithm used by the card-sorting machines you now
     find only in computer museums. The cards have 80 columns, and in each column a
     machine can punch a hole in one of 12 places. The sorter can be mechanically “programmed”
@@ -404,30 +604,43 @@
     one of 12 bins depending on which place has been punched. An operator can then
     gather the cards bin by bin, so that cards with the first place punched are on
     top of cards with the second place punched, and so on.'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '***基数排序*** 是现在只能在计算机博物馆中找到的卡片分选机使用的算法。这些卡片有 80 列，在每一列中，机器可以在 12 个位置中的一个位置打孔。分选机可以被机械“编程”来检查牌堆中每张卡片的给定列，并根据打孔的位置将卡片分发到
+    12 个桶中的一个。然后操作员可以逐个桶地收集卡片，使得具有第一个打孔位置的卡片位于具有第二个打孔位置的卡片之上，依此类推。'
 - en: '![art](images/Art_P326.jpg)'
+  id: totrans-82
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P326.jpg)'
 - en: '**Figure 8.3** The operation of radix sort on seven 3-digit numbers. The leftmost
     column is the input. The remaining columns show the numbers after successive sorts
     on increasingly significant digit positions. Tan shading indicates the digit position
     sorted on to produce each list from the previous one.'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 8.3** 基数排序在七个 3 位数上的操作。最左边的列是输入。其余列显示了在越来越重要的数字位置上连续排序后的数字。棕色阴影表示为了生成每个列表，对应的数字位置进行的排序。'
 - en: For decimal digits, each column uses only 10 places. (The other two places are
     reserved for encoding nonnumeric characters.) A *d*-digit number occupies a field
     of *d* columns. Since the card sorter can look at only one column at a time, the
     problem of sorting *n* cards on a *d*-digit number requires a sorting algorithm.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于十进制数字，每一列只使用 10 个位置。（其他两个位置保留用于编码非数字字符。）一个 *d* 位数占据 *d* 列的字段。由于卡片分选机一次只能查看一列，因此在
+    *d* 位数上对 *n* 张卡片进行排序的问题需要一个排序算法。
 - en: Intuitively, you might sort numbers on their *most significant* (leftmost) digit,
     sort each of the resulting bins recursively, and then combine the decks in order.
     Unfortunately, since the cards in 9 of the 10 bins must be put aside to sort each
     of the bins, this procedure generates many intermediate piles of cards that you
     would have to keep track of. (See Exercise 8.3-6.)
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 直觉上，你可能会根据数字的*最高有效位*（最左边的位）对数字进行排序，然后递归地对每个结果桶进行排序，最后按顺序合并这些桶。不幸的是，由于必须将 10
+    个桶中的 9 个放在一边以对每个桶进行排序，这个过程会生成许多中间的卡片堆，你需要跟踪这些堆。（参见练习 8.3-6。）
 - en: Radix sort solves the problem of card sorting—counterintuitively—by sorting
     on the *least significant* digit first. The algorithm then combines the cards
     into a single deck, with the cards in the 0 bin preceding the cards in the 1 bin
@@ -437,14 +650,21 @@
     at that point the cards are fully sorted on the *d*-digit number. Thus, only *d*
     passes through the deck are required to sort. [Figure 8.3](chapter008.xhtml#Fig_8-3)
     shows how radix sort operates on a “deck” of seven 3-digit numbers.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 基数排序通过首先按*最不显著*的数字进行排序来解决卡片排序问题。然后算法将卡片组合成一个单一的牌堆，其中 0 桶中的卡片在 1 桶中的卡片之前，在 2
+    桶中的卡片之前，依此类推。然后再次在第二不显著的数字上对整个牌堆进行排序，并以类似的方式重新组合牌堆。这个过程一直持续，直到卡片在所有 *d* 位上都被排序。令人惊讶的是，在这一点上，卡片已经完全按照
+    *d* 位数排序。因此，只需要对牌堆进行 *d* 次遍历即可完成排序。[图 8.3](chapter008.xhtml#Fig_8-3)展示了基数排序在七个
+    3 位数的“牌堆”上的操作。
 - en: In order for radix sort to work correctly, the digit sorts must be stable. The
     sort performed by a card sorter is stable, but the operator must be careful not
     to change the order of the cards as they come out of a bin, even though all the
     cards in a bin have the same digit in the chosen column.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了使基数排序能够正确工作，数字排序必须是稳定的。卡片分选机执行的排序是稳定的，但操作员必须小心，不要改变卡片从一个桶中出来的顺序，即使一个桶中的所有卡片在所选列中具有相同的数字。
 - en: 'In a typical computer, which is a sequential random-access machine, we sometimes
     use radix sort to sort records of information that are keyed by multiple fields.
     For example, we might wish to sort dates by three keys: year, month, and day.
@@ -453,38 +673,58 @@
     compares days. Alternatively, we could sort the information three times with a
     stable sort: first on day (the “least significant” part), next on month, and finally
     on year.'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 在典型的计算机中，即顺序随机访问机器，有时我们会使用基数排序来对由多个字段键入的信息记录进行排序。例如，我们可能希望按照三个键（年、月和日）对日期进行排序。我们可以运行一个带有比较函数的排序算法，该函数在给定两个日期时比较年份，如果有平局，则比较月份，如果再次平局，则比较日期。另外，我们也可以使用稳定排序三次对信息进行排序：首先按日（“最不显著”部分）排序，然后按月排序，最后按年排序。
 - en: 'The code for radix sort is straightforward. The RADIX-SORT procedure assumes
     that each element in array *A*[1 : *n*] has *d* digits, where digit 1 is the lowest-order
     digit and digit *d* is the highest-order digit.'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '基数排序的���码很简单。RADIX-SORT 程序假设数组 *A*[1 : *n*] 中的每个元素都有 *d* 位数字，其中数字 1 是最低位数字，数字
+    *d* 是最高位数字。'
 - en: RADIX-SORT(*A*, *n*, *d*)
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: RADIX-SORT(*A*, *n*, *d*)
 - en: '| 1 | **for** *i* = 1 **to** *d* |'
+  id: totrans-91
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **对于** *i* = 1 **到** *d* |'
 - en: '| 2 | use a stable sort to sort array *A*[1 : *n*] on digit *i* |'
+  id: totrans-92
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 使用稳定排序算法对数组 *A*[1 : *n*] 在第 *i* 位进行排序。'
 - en: Although the pseudocode for RADIX-SORT does not specify which stable sort to
     use, COUNTING-SORT is commonly used. If you use COUNTING-SORT as the stable sort,
     you can make RADIX-SORT a little more efficient by revising COUNTING-SORT to take
     a pointer to the output array as a parameter, having RADIX-SORT preallocate this
     array, and alternating input and output between the two arrays in successive iterations
     of the **for** loop in RADIX-SORT.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管 RADIX-SORT 的伪代码没有指定使用哪种稳定排序算法，但通常会使用 COUNTING-SORT。如果使用 COUNTING-SORT 作为稳定排序算法，可以通过修改
+    COUNTING-SORT 以接受输出数组的指针作为参数，让 RADIX-SORT 预先分配这个数组，并在 RADIX-SORT 的 **for** 循环的连续迭代中在两个数组之间交替输入和输出，从而使
+    RADIX-SORT 更加高效。
 - en: '***Lemma 8.3***'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 8.3***'
 - en: Given *n* *d*-digit numbers in which each digit can take on up to *k* possible
     values, RADIX-SORT correctly sorts these numbers in Θ(*d*(*n* + *k*)) time if
     the stable sort it uses takes Θ(*n* + *k*) time.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定*n*个*d*位数字，其中每个数字位可以取最多*k*个可能的值，如果所使用的稳定排序算法在Θ(*n* + *k*)时间内完成排序，则基数排序可以在Θ(*d*(*n*
+    + *k*))时间内正确排序这些数字。
 - en: '***Proof***   The correctness of radix sort follows by induction on the column
     being sorted (see Exercise 8.3-3). The analysis of the running time depends on
     the stable sort used as the intermediate sorting algorithm. When each digit lies
@@ -492,23 +732,36 @@
     is not too large, counting sort is the obvious choice. Each pass over *n d*-digit
     numbers then takes Θ(*n* + *k*) time. There are *d* passes, and so the total time
     for radix sort is Θ(*d*(*n* + *k*)).'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   基数排序的正确性通过对正在排序的列进行归纳得到（参见练习8.3-3）。运行时间的分析取决于用作中间排序算法的稳定排序。当每个数字位于0到*k*
+    – 1的范围内（因此可以取*k*个可能的值），而*k*不太大时，计数排序是显而易见的选择。对于*n d*位数字的每次遍历都需要Θ(*n* + *k*)的时间。有*d*次遍历，因此基数排序的总时间为Θ(*d*(*n*
+    + *k*))。'
 - en: ▪
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: When *d* is constant and *k* = *O*(*n*), we can make radix sort run in linear
     time. More generally, we have some flexibility in how to break each key into digits.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 当*d*是常数且*k* = *O*(*n*)时，我们可以使基数排序在线性时间内运行。更一般地，我们可以灵活地将每个关键字分解为数字。
 - en: '***Lemma 8.4***'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 8.4***'
 - en: Given *n b*-bit numbers and any positive integer *r* ≤ *b*, RADIX-SORT correctly
     sorts these numbers in Θ((*b*/*r*)(*n* + 2*^r*)) time if the stable sort it uses
     takes Θ(*n* + *k*) time for inputs in the range 0 to *k*.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定*n*个*b*位数字和任意正整数*r* ≤ *b*，如果所使用的稳定排序算法对范围在0到*k*的输入需要Θ(*n* + *k*)时间，则基数排序可以在Θ((*b*/*r*)(*n*
+    + 2*^r*))时间内正确排序这些数字。
 - en: '***Proof***   For a value *r* ≤ *b*, view each key as having *d* = ⌈*b*/*r*⌉
     digits of *r* bits each. Each digit is an integer in the range 0 to 2^(*r*) –
     1, so that we can use counting sort with *k* = 2^(*r*) – 1\. (For example, we
@@ -516,11 +769,18 @@
     *k* = 2^(*r*) – 1 = 255, and *d* = *b*/*r* = 4.) Each pass of counting sort takes
     Θ(*n* + *k*) = Θ(*n* + 2*^r*) time and there are *d* passes, for a total running
     time of Θ(*d*(*n* + 2*^r*)) = Θ((*b*/*r*)(*n* + 2*^r*)).'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   对于值*r* ≤ *b*，将每个关键字视为具有*d* = ⌈*b*/*r*⌉位的*r*位。每个数字位于0到2^(*r*) – 1的范围内，因此我们可以使用取*k*
+    = 2^(*r*) – 1的计数排序。（例如，我们可以将32位字视为具有四个8位数字，因此*b* = 32，*r* = 8，*k* = 2^(*r*) –
+    1 = 255，*d* = *b*/*r* = 4。）每次计数排序需要Θ(*n* + *k*) = Θ(*n* + 2*^r*)的时间，有*d*次遍历，因此总运行时间为Θ(*d*(*n*
+    + 2*^r*)) = Θ((*b*/*r*)(*n* + 2*^r*))。'
 - en: ▪
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: Given *n* and *b*, what value of *r* ≤ *b* minimizes the expression (*b*/*r*)(*n*
     + 2*^r*)? As *r* decreases, the factor *b*/*r* increases, but as *r* increases
     so does 2*^r*. The answer depends on whether *b* < ⌊lg *n*⌋. If *b* < ⌊lg *n*⌋,
@@ -533,8 +793,14 @@
     in the denominator, and so increasing *r* above ⌊lg *n*⌋ yields a running time
     of Ω(*bn* / lg *n*). If instead *r* were to decrease below ⌊lg *n*⌋, then the
     *b*/*r* term increases and the *n* + 2^(*r*) term remains at Θ(*n*).
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定*n*和*b*，令*r* ≤ *b*，使表达式(*b*/*r*)(*n* + 2*^r*)最小化的值是多少？随着*r*的减小，因子*b*/*r*增加，但随着*r*的增加，2*^r*也增加。答案取决于*b*
+    < ⌊lg *n*⌋。如果*b* < ⌊lg *n*⌋，那么*r* ≤ *b*意味着(*n* + 2*^r*) = Θ(*n*)。因此，选择*r* = *b*得到的运行时间为(*b*/*b*)(*n*
+    + 2*^b*) = Θ(*n*)，这在渐近意义上是最优的。如果*b* ≥ ⌊lg *n*⌋，那么选择*r* = ⌊lg *n*⌋可以在一个常数因子内得到最佳运行时间，我们可以如下看到。^([1](#footnote_1))选择*r*
+    = ⌊lg *n*⌋得到的运行时间为Θ(*bn*/lg *n*)。随着*r*超过⌊lg *n*⌋，分子中的2^(*r*)项增长速度比分母中的*r*项快，因此将*r*增加到超过⌊lg
+    *n*⌋会得到Ω(*bn* / lg *n*)的运行时间。如果*r*减少到低于⌊lg *n*⌋，那么*b*/*r*项增加，而*n* + 2^(*r*)项保持在Θ(*n*)。
 - en: Is radix sort preferable to a comparison-based sorting algorithm, such as quicksort?
     If *b* = *O*(lg *n*), as is often the case, and *r* ≈ lg *n*, then radix sort’s
     running time is Θ(*n*), which appears to be better than quicksort’s expected running
@@ -547,61 +813,95 @@
     sort as the intermediate stable sort does not sort in place, which many of the
     Θ(*n* lg *n*)-time comparison sorts do. Thus, when primary memory storage is at
     a premium, an in-place algorithm such as quicksort could be the better choice.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 基数排序是否优于基于比较的排序算法，如快速排序？如果*b* = *O*(lg *n*)，通常情况下是这样，且*r* ≈ lg *n*，那么基数排序的运行时间为Θ(*n*)，看起来比快速排序的期望运行时间Θ(*n*
+    lg *n*)要好。���而，隐藏在Θ-符号中的常数因子是不同的。尽管基数排序可能比快速排序对*n*个关键字进行更少的遍历，但基数排序的每次遍历可能要花费更长的时间。要优先选择哪种排序算法取决于实现的特性，底层机器的特性（例如，快速排序通常比基数排序更有效地使用硬件缓存），以及输入数据的特性。此外，使用计数排序作为中间稳定排序的基数排序版本不是原地排序，而许多Θ(*n*
+    lg *n*)时间的比较排序是原地排序。因此，当主存储空间有限时，像快速排序这样的原地算法可能是更好的选择。
 - en: '**Exercises**'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***8.3-1***'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.3-1***'
 - en: 'Using [Figure 8.3](chapter008.xhtml#Fig_8-3) as a model, illustrate the operation
     of RADIX-SORT on the following list of English words: COW, DOG, SEA, RUG, ROW,
     MOB, BOX, TAB, BAR, EAR, TAR, DIG, BIG, TEA, NOW, FOX.'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图8.3](chapter008.xhtml#Fig_8-3)作为模型，说明基数排序在以下英文单词列表上的操作：COW, DOG, SEA, RUG,
+    ROW, MOB, BOX, TAB, BAR, EAR, TAR, DIG, BIG, TEA, NOW, FOX。
 - en: '***8.3-2***'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.3-2***'
 - en: 'Which of the following sorting algorithms are stable: insertion sort, merge
     sort, heapsort, and quicksort? Give a simple scheme that makes any comparison
     sort stable. How much additional time and space does your scheme entail?'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 下列哪些排序算法是稳定的：插入排序、归并排序、堆排序和快速排序？给出一个简单的方案，使任何比较排序都是稳定的。你的方案需要多少额外的时间和空间？
 - en: '***8.3-3***'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.3-3***'
 - en: Use induction to prove that radix sort works. Where does your proof need the
     assumption that the intermediate sort is stable?
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用归纳法证明基数排序的有效性。你的证明在哪里需要假设中间排序是稳定的？
 - en: '***8.3-4***'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.3-4***'
 - en: Suppose that COUNTING-SORT is used as the stable sort within RADIX-SORT. If
     RADIX-SORT calls COUNTING-SORT *d* times, then since each call of COUNTING-SORT
     makes two passes over the data (lines 4–5 and 11–13), altogether 2*d* passes over
     the data occur. Describe how to reduce the total number of passes to *d* + 1.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设在基数排序中使用 COUNTING-SORT 作为稳定排序。如果基数排序调用 COUNTING-SORT *d* 次，那么由于每次调用 COUNTING-SORT
+    都会对数据进行两次遍历（第 4–5 行和第 11–13 行），总共会有 2*d* 次对数据的遍历。描述如何将总遍历次数减少到 *d* + 1。
 - en: '***8.3-5***'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.3-5***'
 - en: Show how to sort *n* integers in the range 0 to *n*³ – 1 in *O*(*n*) time.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示如何在 *O*(*n*) 时间内对范围在 0 到 *n*³ – 1 之间的 *n* 个整数进行排序。
 - en: ★ ***8.3-6***
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***8.3-6***
 - en: In the first card-sorting algorithm in this section, which sorts on the most
     significant digit first, exactly how many sorting passes are needed to sort *d*-digit
     decimal numbers in the worst case? How many piles of cards does an operator need
     to keep track of in the worst case?
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本节中第一个卡片排序算法中，首先按最高有效位排序，最坏情况下需要多少次排序通行证来排序 *d* 位十进制数？在最坏情况下，操作员需要跟踪多少叠卡片？
 - en: '[**8.4      Bucket sort**](toc.xhtml#Rh1-48)'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**8.4      桶排序**](toc.xhtml#Rh1-48)'
 - en: '***Bucket sort*** assumes that the input is drawn from a uniform distribution
     and has an average-case running time of *O*(*n*). Like counting sort, bucket sort
     is fast because it assumes something about the input. Whereas counting sort assumes
@@ -609,66 +909,102 @@
     the input is generated by a random process that distributes elements uniformly
     and independently over the interval [0, 1). (See [Section C.2](appendix003.xhtml#Sec_C.2)
     for a definition of a uniform distribution.)'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '***桶排序*** 假设输入来自均匀分布，并且平均情况下运行时间为 *O*(*n*)。与计数排序类似，桶排序之所以快速是因为它对输入做了一些假设。计数排序假设输入由一个小范围内的整数组成，而桶排序假设输入是由一个随机过程生成的，该过程在区间
+    [0, 1) 上均匀且独立地分布元素。 (参见 [第 C.2 节](appendix003.xhtml#Sec_C.2) 有关均匀分布的定义。)'
 - en: Bucket sort divides the interval [0, 1) into *n* equal-sized subintervals, or
     ***buckets***, and then distributes the *n* input numbers into the buckets. Since
     the inputs are uniformly and independently distributed over [0, 1), we do not
     expect many numbers to fall into each bucket. To produce the output, we simply
     sort the numbers in each bucket and then go through the buckets in order, listing
     the elements in each.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 桶排序将区间 [0, 1) 划分为 *n* 个大小相等的子区间，或者 ***桶***，然后将 *n* 个输入数字分配到这些桶中。由于输入在 [0, 1)
+    上均匀且独立分布，我们不希望许多数字落入每个桶中。为了生成输出，我们只需对每个桶中的数字进行排序，然后按顺序遍历桶，列出每个元素。
 - en: 'The BUCKET-SORT procedure on the next page assumes that the input is an array
     *A*[1 : *n*] and that each element *A*[*i*] in the array satisfies 0 ≤ *A*[*i*]
     < 1\. The code requires an auxiliary array *B*[0 : *n* – 1] of linked lists (buckets)
     and assumes that there is a mechanism for maintaining such lists. ([Section 10.2](chapter010.xhtml#Sec_10.2)
     describes how to implement basic operations on linked lists.) [Figure 8.4](chapter008.xhtml#Fig_8-4)
     shows the operation of bucket sort on an input array of 10 numbers.'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '下一页的桶排序过程假设输入是一个数组 *A*[1 : *n*]，并且数组中的每个元素 *A*[*i*] 满足 0 ≤ *A*[*i*] < 1\. 该代码需要一个链表（桶）的辅助数组
+    *B*[0 : *n* – 1]，并假设有一种机制来维护这样的列表。 ([第 10.2 节](chapter010.xhtml#Sec_10.2) 描述了如何在链表上实现基本操作。)
+    [图 8.4](chapter008.xhtml#Fig_8-4) 展示了对 10 个数字的输入数组进行桶排序的操作。'
 - en: '![art](images/Art_P327.jpg)'
+  id: totrans-122
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P327.jpg)'
 - en: '**Figure 8.4** The operation of BUCKET-SORT for *n* = 10\. **(a)** The input
     array *A*[1 : 10]. **(b)** The array *B*[0 : 9] of sorted lists (buckets) after
     line 7 of the algorithm, with slashes indicating the end of each bucket. Bucket
     *i* holds values in the half-open interval [*i*/10, (*i* + 1)/10). The sorted
     output consists of a concatenation of the lists *B*[0], *B*[1], … , *B*[9] in
     order.'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图 8.4** 桶排序操作，*n* = 10\. **(a)** 输入数组 *A*[1 : 10]。**(b)** 算法第 7 行后排序列表（桶）的数组
+    *B*[0 : 9]，斜杠表示每个桶的结束。桶 *i* 包含半开区间 [*i*/10, (*i* + 1)/10) 中的值。排序后的输出是按顺序连接列表 *B*[0],
+    *B*[1], … , *B*[9]。'
 - en: BUCKET-SORT(*A*, *n*)
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 桶排序(*A*, *n*)
 - en: '| 1 | let *B*[0 : *n* – 1] be a new array |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 让 *B*[0 : *n* – 1] 成为一个新数组 |'
 - en: '| 2 | **for** *i* = 0 **to** *n* – 1 |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **对于** *i* = 0 **到** *n* – 1 |'
 - en: '| 3 | make *B*[*i*] an empty list |'
+  id: totrans-127
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | 使 *B*[*i*] 成为空列表 |'
 - en: '| 4 | **for** *i* = 1 **to** *n* |'
+  id: totrans-128
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **对于** *i* = 1 **到** *n* |'
 - en: '| 5 | insert *A*[*i*] into list *B*[⌊*n* · *A*[*i*]⌋] |'
+  id: totrans-129
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | 将 *A*[*i*] 插入到列表 *B*[⌊*n* · *A*[*i*]⌋] 中 |'
 - en: '| 6 | **for** *i* = 0 **to** *n* – 1 |'
+  id: totrans-130
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **对于** *i* = 0 **到** *n* – 1 |'
 - en: '| 7 | sort list *B*[*i*] with insertion sort |'
+  id: totrans-131
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | 使用插入排序对列表 *B*[*i*] 进行排序 |'
 - en: '| 8 | concatenate the lists *B*[0], *B*[1], … , *B*[*n* – 1] together in order
     |'
+  id: totrans-132
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | 按顺序连接列表 *B*[0], *B*[1], … , *B*[*n* – 1] |'
 - en: '| 9 | **return** the concatenated lists |'
+  id: totrans-133
   prefs: []
   type: TYPE_TB
+  zh: '| 9 | **返回** 连接的列表 |'
 - en: To see that this algorithm works, consider two elements *A*[*i*] and *A*[*j*].
     Assume without loss of generality that *A*[*i*] ≤ *A*[*j*]. Since ⌊*n* · *A*[*i*]⌋
     ≤ ⌊*n* · *A*[*j*]⌋, either element *A*[*i*] goes into the same bucket as *A*[*j*]
@@ -676,42 +1012,61 @@
     the same bucket, then the **for** loop of lines 6–7 puts them into the proper
     order. If *A*[*i*] and *A*[*j*] go into different buckets, then line 8 puts them
     into the proper order. Therefore, bucket sort works correctly.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 要看到这个算法是如何工作的，考虑两个元素*A*[*i*]和*A*[*j*]。不失一般性地假设*A*[*i*] ≤ *A*[*j*]。由于⌊*n* · *A*[*i*]⌋
+    ≤ ⌊*n* · *A*[*j*]⌋，要么元素*A*[*i*]进入与*A*[*j*]相同的桶中，要么进入索引较低的桶中。如果*A*[*i*]和*A*[*j*]进入相同的桶，那么第6-7行的**for**循环会将它们放入正确的顺序。如果*A*[*i*]和*A*[*j*]进入不同的桶，那么第8行会将它们放入正确的顺序。因此，桶排序能够正确工作。
 - en: To analyze the running time, observe that, together, all lines except line 7
     take *O*(*n*) time in the worst case. We need to analyze the total time taken
     by the *n* calls to insertion sort in line 7.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 要分析运行时间，观察到，除了第7行之外的所有行在最坏情况下都需要*O*(*n*)的时间。我们需要分析第7行对插入排序的*n*次调用所花费的总时间。
 - en: To analyze the cost of the calls to insertion sort, let *n[i]* be the random
     variable denoting the number of elements placed in bucket *B*[*i*]. Since insertion
     sort runs in quadratic time (see [Section 2.2](chapter002.xhtml#Sec_2.2)), the
     running time of bucket sort is
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 要分析插入排序调用的成本，让*n[i]*成为表示放入桶*B*[*i*]中的元素数量的随机变量。由于插入排序运行时间为二次时间（见[第2.2节](chapter002.xhtml#Sec_2.2)），桶排序的运行时间为
 - en: '![art](images/Art_P328.jpg)'
+  id: totrans-137
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P328.jpg)'
 - en: We now analyze the average-case running time of bucket sort, by computing the
     expected value of the running time, where we take the expectation over the input
     distribution. Taking expectations of both sides and using linearity of expectation
     (equation (C.24) on page 1192), we have
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现在通过计算运行时间的期望值来分析桶排序的平均情况运行时间，其中我们对输入分布进行期望。对两边取期望并使用期望的线性性（第1192页上的方程(C.24)），我们有
 - en: '![art](images/Art_P329.jpg)'
+  id: totrans-139
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P329.jpg)'
 - en: We claim that
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们声称
 - en: '![art](images/Art_P330.jpg)'
+  id: totrans-141
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P330.jpg)'
 - en: for *i* = 0, 1, … , *n* – 1\. It is no surprise that each bucket *i* has the
     same value of ![art](images/Art_P331.jpg), since each value in the input array
     *A* is equally likely to fall in any bucket.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*i* = 0, 1, … , *n* – 1\. 每个桶*i*具有相同的值![艺术](images/Art_P331.jpg)，并不奇怪，因为输入数组*A*中的每个值都有相同的可能性落入任何桶中。
 - en: To prove equation (8.3), view each random variable *n[i]* as the number of successes
     in *n* Bernoulli trials (see [Section C.4](appendix003.xhtml#Sec_C.4)). Success
     in a trial occurs when an element goes into bucket *B*[*i*], with a probability
@@ -719,71 +1074,112 @@
     counts *n[i]*, the number of successes, in the *n* trials. By equations (C.41)
     and (C.44) on pages 1199–1200, we have E [*n[i]*] = *np* = *n*(1/*n*) = 1 and
     Var [*n[i]*] = *npq* = 1 – 1/*n*. Equation (C.31) on page 1194 gives
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 要证明方程(8.3)，将每个随机变量*n[i]*视为*n*个伯努利试验中成功次数（见[第C.4节](appendix003.xhtml#Sec_C.4)）。试验中的成功发生在元素进入桶*B*[*i*]时，成功概率为*p*
+    = 1/*n*，失败概率为*q* = 1 – 1/*n*。二项分布计算了*n[i]*，在*n*次试验中的成功次数。通过第1199-1200页上的方程(C.41)和(C.44)，我们有E
+    [*n[i]*] = *np* = *n*(1/*n*) = 1和Var [*n[i]*] = *npq* = 1 – 1/*n*。第1194页上的方程(C.31)给出
 - en: '| ![art](images/Art_P332.jpg) | = | Var [*n[i]*] + E² [*n[i]*] |'
+  id: totrans-144
   prefs: []
   type: TYPE_TB
+  zh: '| ![艺术](images/Art_P332.jpg) | = | Var [*n[i]*] + E² [*n[i]*] |'
 - en: '|  | = | (1 – 1/*n*) + 1² |'
+  id: totrans-145
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | (1 – 1/*n*) + 1² |'
 - en: '|  | = | 2 – 1/*n*, |'
+  id: totrans-146
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 2 – 1/*n*, |'
 - en: which proves equation (8.3). Using this expected value in equation (8.2), we
     get that the average-case running time for bucket sort is Θ(*n*) + *n* · *O*(2
     – 1/*n*) = Θ(*n*).
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 这证明了方程(8.3)。使用这个期望值在方程(8.2)中，我们得到桶排序的平均情况运行时间为Θ(*n*) + *n* · *O*(2 – 1/*n*)
+    = Θ(*n*)。
 - en: Even if the input is not drawn from a uniform distribution, bucket sort may
     still run in linear time. As long as the input has the property that the sum of
     the squares of the bucket sizes is linear in the total number of elements, equation
     (8.1) tells us that bucket sort runs in linear time.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使输入不是来自均匀分布，桶排序仍然可能在线性时间内运行。只要输入具有这样的属性，即桶大小的平方和与元素总数成线性关系，方程(8.1)告诉我们桶排序在线性时间内运行。
 - en: '**Exercises**'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***8.4-1***'
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.4-1***'
 - en: Using [Figure 8.4](chapter008.xhtml#Fig_8-4) as a model, illustrate the operation
     of BUCKET-SORT on the array *A* = 〈.79, .13, .16, .64, .39, .20, .89, .53, .71,
     .42〉.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图8.4](chapter008.xhtml#Fig_8-4)作为模型，说明在数组*A* = 〈.79, .13, .16, .64, .39,
+    .20, .89, .53, .71, .42〉上的BUCKET-SORT操作。
 - en: '***8.4-2***'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.4-2***'
 - en: Explain why the worst-case running time for bucket sort is Θ(*n*²). What simple
     change to the algorithm preserves its linear average-case running time and makes
     its worst-case running time *O*(*n* lg *n*)?
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 解释为什么桶排序的最坏情况运行时间是Θ(*n*²)。对算法进行什么简单的改变可以保持其线性平均情况运行时间，并使其最坏情况运行时间为*O*(*n* lg
+    *n*)？
 - en: '***8.4-3***'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.4-3***'
 - en: Let *X* be a random variable that is equal to the number of heads in two flips
     of a fair coin. What is E [*X*²]? What is E² [*X*]?
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 让*X*是一个随机变量，表示抛两次公平硬币时出现正面的次数。E [*X*²]是多少？E² [*X*]是多少？
 - en: '***8.4-4***'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8.4-4***'
 - en: An array *A* of size *n* > 10 is filled in the following way. For each element
     *A*[*i*], choose two random variables *x[i]* and *y[i]* uniformly and independently
     from [0, 1). Then set
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 大于10的大小为*n*的数组*A*以以下方式填充。对于每个元素*A*[*i*]，从[0, 1)中独立均匀地选择两个随机变量*x[i]*和*y[i]*。然后设置
 - en: '![art](images/Art_P333.jpg)'
+  id: totrans-158
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P333.jpg)'
 - en: Modify bucket sort so that it sorts the array *A* in *O*(*n*) expected time.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改桶排序，使其在*O*(*n*)的期望时间内对数组*A*进行排序。
 - en: ★ ***8.4-5***
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***8.4-5***
 - en: You are given *n* points in the unit disk, *p[i]* = (*x[i]*, *y[i]*), such that
     ![art](images/Art_P334.jpg) for *i* = 1, 2, … , *n*. Suppose that the points are
     uniformly distributed, that is, the probability of finding a point in any region
@@ -791,136 +1187,206 @@
     an average-case running time of Θ(*n*) to sort the *n* points by their distances
     ![art](images/Art_P335.jpg) from the origin. (*Hint:* Design the bucket sizes
     in BUCKET-SORT to reflect the uniform distribution of the points in the unit disk.)
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定 *n* 个单位圆盘中的点，*p[i]* = (*x[i]*, *y[i]*)，使得 ![art](images/Art_P334.jpg) 对于
+    *i* = 1, 2, … , *n* 成立。假设这些点均匀分布，即在圆盘的任何区域找到一个点的概率与该区域的面积成比例。设计一个算法，其平均情况运行时间为
+    Θ(*n*)，按照它们到原点的距离 ![art](images/Art_P335.jpg) 对 *n* 个点进行排序。(*提示:* 设计 BUCKET-SORT
+    中的桶大小以反映单位圆盘中点的均匀分布。)
 - en: ★ ***8.4-6***
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***8.4-6***
 - en: A ***probability distribution function*** *P*(*x*) for a random variable *X*
     is defined by *P*(*x*) = Pr {*X* ≤ *x*}. Suppose that you draw a list of *n* random
     variables *X*[1], *X*[2], … , *X[n]* from a continuous probability distribution
     function *P* that is computable in *O*(1) time (given *y* you can find *x* such
     that *P*(*x*) = *y* in *O*(1) time). Give an algorithm that sorts these numbers
     in linear average-case time.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 随机变量 *X* 的***概率分布函数*** *P*(*x*) 定义为 *P*(*x*) = Pr {*X* ≤ *x*}。假设你从一个连续概率分布函数
+    *P* 中抽取 *n* 个随机变量 *X*[1], *X*[2], … , *X[n]*，该概率分布函数在 *O*(1) 时间内可计算（给定 *y*，你可以在
+    *O*(1) 时间内找到 *x*，使得 *P*(*x*) = *y*）。给出一个在线性平均情况时间内对这些数字进行排序的算法。
 - en: '**Problems**'
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***8-1     Probabilistic lower bounds on comparison sorting***'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-1     比较排序的概率下界***'
 - en: In this problem, you will prove a probabilistic Ω(*n* lg *n*) lower bound on
     the running time of any deterministic or randomized comparison sort on *n* distinct
     input elements. You’ll begin by examining a deterministic comparison sort *A*
     with decision tree *T[A]*. Assume that every permutation of *A*’s inputs is equally
     likely.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个问题中，你将证明对于 *n* 个不同输入元素的任何确定性或随机比较排序的运行时间存在一个概率性 Ω(*n* lg *n*) 下界。你将首先研究一个具有决策树
+    *T[A]* 的确定性比较排序 *A*。假设 *A* 的每个排列的输入都是等概率的。
 - en: '***a.*** Suppose that each leaf of *T[A]* is labeled with the probability that
     it is reached given a random input. Prove that exactly *n*! leaves are labeled
     1/*n*! and that the rest are labeled 0.'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 假设 *T[A]* 的每个叶子节点都标有在随机输入下到达该节点的概率。证明恰好有 *n*! 个叶子节点标有 1/*n*!，其余标有
+    0。'
 - en: '***b.*** Let *D*(*T*) denote the external path length of a decision tree *T*—the
     sum of the depths of all the leaves of *T*. Let *T* be a decision tree with *k*
     > 1 leaves, and let *LT* and *RT* be the left and right subtrees of *T*. Show
     that *D*(*T*) = *D*(*LT*) + *D*(*RT*) + *k*.'
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 让 *D*(*T*) 表示决策树 *T* 的外部路径长度——*T* 的所有叶子节点深度之和。设 *T* 是一个具有 *k* > 1
+    个叶子节点的决策树，*LT* 和 *RT* 分别是 *T* 的左子树和右子树。证明 *D*(*T*) = *D*(*LT*) + *D*(*RT*) + *k*。'
 - en: '***c.*** Let *d*(*k*) be the minimum value of *D*(*T*) over all decision trees
     *T* with *k* > 1 leaves. Show that *d*(*k*) = min {*d*(*i*) + *d*(*k* – *i*) +
     *k* : 1 ≤ *i* ≤ *k* – 1}. (*Hint:* Consider a decision tree *T* with *k* leaves
     that achieves the minimum. Let *i*[0] be the number of leaves in *LT* and *k*
     – *i*[0] the number of leaves in *RT*.)'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 让 *d*(*k*) 是所有具有 *k* > 1 个叶子节点的决策树 *T* 的最小 *D*(*T*) 值。证明 *d*(*k*)
+    = min {*d*(*i*) + *d*(*k* – *i*) + *k* : 1 ≤ *i* ≤ *k* – 1}。(*提示:* 考虑一个具有 *k*
+    个叶子节点且达到最小值的决策树 *T*。设 *i*[0] 是 *LT* 中的叶子节点数，*k* – *i*[0] 是 *RT* 中的叶子节点数。)'
 - en: '***d.*** Prove that for a given value of *k* > 1 and *i* in the range 1 ≤ *i*
     ≤ *k* – 1, the function *i* lg *i* + (*k* – *i*) lg(*k* – *i*) is minimized at
     *i* = *k*/2\. Conclude that *d*(*k*) = Ω (*k* lg *k*).'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明对于给定的 *k* > 1 和范围在 1 ≤ *i* ≤ *k* – 1 的 *i* 值，函数 *i* lg *i* + (*k*
+    – *i*) lg(*k* – *i*) 在 *i* = *k*/2 处取得最小值。得出 *d*(*k*) = Ω (*k* lg *k*)。'
 - en: '***e.*** Prove that *D*(*T[A]*) = Ω (*n*! lg(*n*!)), and conclude that the
     average-case time to sort *n* elements is Ω(*n* lg *n*).'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 证明 *D*(*T[A]*) = Ω (*n*! lg(*n*!*)，并得出对 *n* 个元素进行排序的平均情况时间为 Ω(*n lg
+    n*)。'
 - en: 'Now consider a *randomized* comparison sort *B*. We can extend the decision-tree
     model to handle randomization by incorporating two kinds of nodes: ordinary comparison
     nodes and “randomization” nodes. A randomization node models a random choice of
     the form RANDOM(1, *r*) made by algorithm *B*. The node has *r* children, each
     of which is equally likely to be chosen during an execution of the algorithm.'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在考虑一个*随机*比较排序 *B*。我们可以通过加入两种节点来扩展决策树模型以处理随机性：普通比较节点和“随机化”节点。随机化节点模拟了算法 *B*
+    所做的形式为 RANDOM(1, *r*) 的随机选择。该节点有 *r* 个子节点，每个子节点在算法执行过程中被等概率选择。
 - en: '***f.*** Show that for any randomized comparison sort *B*, there exists a deterministic
     comparison sort *A* whose expected number of comparisons is no more than those
     made by *B*.'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 证明对于任意随机比较排序 *B*，都存在一个确定性比较排序 *A*，其期望比较次数不超过 *B* 所做的比较次数。'
 - en: '***8-2     Sorting in place in linear time***'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-2     原地线性时间排序***'
 - en: 'You have an array of *n* data records to sort, each with a key of 0 or 1\.
     An algorithm for sorting such a set of records might possess some subset of the
     following three desirable characteristics:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一个包含 *n* 条数据记录的数组，每条记录的键为 0 或 1。对这样一组记录进行排序的算法可能具有以下三种理想特性的某个子集：
 - en: The algorithm runs in *O*(*n*) time.
+  id: totrans-176
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 该算法运行时间为 *O*(*n*)。
 - en: The algorithm is stable.
+  id: totrans-177
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 该算法是稳定的。
 - en: The algorithm sorts in place, using no more than a constant amount of storage
     space in addition to the original array.
+  id: totrans-178
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 该算法原地排序，除原始数组外不使用超过常量数量的存储空间。
 - en: '***a.*** Give an algorithm that satisfies criteria 1 and 2 above.'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 给出一个满足上述标准1和2的算法。'
 - en: '***b.*** Give an algorithm that satisfies criteria 1 and 3 above.'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 给出一个满足上述标准1和3的算法。'
 - en: '***c.*** Give an algorithm that satisfies criteria 2 and 3 above.'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 给出一个满足上述标准2和3的算法。'
 - en: '***d.*** Can you use any of your sorting algorithms from parts (a)–(c) as the
     sorting method used in line 2 of RADIX-SORT, so that RADIX-SORT sorts *n* records
     with *b*-bit keys in *O*(*bn*) time? Explain how or why not.'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 你能否使用部分(a)–(c)中的任何排序算法作为RADIX-SORT第2行中使用的排序方法，以便RADIX-SORT在*O*(*bn*)时间内对*b*位键的*n*条记录进行排序？解释如何或为什么不能。'
 - en: '***e.*** Suppose that the *n* records have keys in the range from 1 to *k*.
     Show how to modify counting sort so that it sorts the records in place in *O*(*n*
     + *k*) time. You may use *O*(*k*) storage outside the input array. Is your algorithm
     stable?'
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 假设*n*条记录的键在1到*k*的范围内。展示如何修改计数排序，使其能在*O*(*n* + *k*)时间内就地对记录进行排序。你可以在输入数组之外使用*O*(*k*)的存储空间。你的算法是稳定的吗？'
 - en: '***8-3     Sorting variable-length items***'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-3     排序可变长度的项目***'
 - en: '***a.*** You are given an array of integers, where different integers may have
     different numbers of digits, but the total number of digits over *all* the integers
     in the array is *n*. Show how to sort the array in *O*(*n*) time.'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 给定一个整数数组，其中不同的整数可能有不同位数，但数组中所有整数的总位数为*n*。展示如何在*O*(*n*)时间内对数组进行排序。'
 - en: '***b.*** You are given an array of strings, where different strings may have
     different numbers of characters, but the total number of characters over all the
     strings is *n*. Show how to sort the strings in *O*(*n*) time. (The desired order
     is the standard alphabetical order: for example, a < ab < b.)'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 给定一个字符串数组，其中不同的字符串可能有不同数量的字符，但所有字符串的总字符数为*n*。展示如何在*O*(*n*)时间内对字符串进行排序。（所需的顺序是标准字母顺序：例如，a
+    < ab < b。）'
 - en: '***8-4     Water jugs***'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-4     水壶***'
 - en: You are given *n* red and *n* blue water jugs, all of different shapes and sizes.
     All the red jugs hold different amounts of water, as do all the blue jugs, and
     you cannot tell from the size of a jug how much water it holds. Moreover, for
     every jug of one color, there is a jug of the other color that holds the same
     amount of water.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有*n*个红色和*n*个蓝色的水壶，所有水壶的形状和大小都不同。所有红色水壶装有不同数量的水，蓝色水壶也是如此，你无法从水壶的大小判断它们装有多少水。此外，对于一种颜色的水壶，总有一种另一种颜色的水壶装有相同数量的水。
 - en: 'Your task is to group the jugs into pairs of red and blue jugs that hold the
     same amount of water. To do so, you may perform the following operation: pick
     a pair of jugs in which one is red and one is blue, fill the red jug with water,
@@ -929,109 +1395,165 @@
     Assume that such a comparison takes one time unit. Your goal is to find an algorithm
     that makes a minimum number of comparisons to determine the grouping. Remember
     that you may not directly compare two red jugs or two blue jugs.'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的任务是将水壶分成红色和蓝色水壶的配对，它们装有相同数量的水。为此，你可以执行以下操作：选择一对水壶，其中一个是红色的，一个是蓝色的，将红色水壶装满水，然后将水倒入蓝色水壶。这个操作告诉你红色水壶或蓝色水壶能装更多水，或它们容量相同。假设这样的比较需要一个时间单位。你的目标是找到一个算法，使得最少的比较次数就能确定分组。记住你不能直接比较两个红色水壶或两个蓝色水壶。
 - en: '***a.*** Describe a deterministic algorithm that uses Θ(*n*²) comparisons to
     group the jugs into pairs.'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 描述一个确定性算法，使用Θ(*n*²)比较将水壶分组成一对。'
 - en: '***b.*** Prove a lower bound of Ω(*n* lg *n*) for the number of comparisons
     that an algorithm solving this problem must make.'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 证明解决这个问题的算法必须进行Ω(*n* lg *n*)次比较的下界。'
 - en: '***c.*** Give a randomized algorithm whose expected number of comparisons is
     *O*(*n* lg *n*), and prove that this bound is correct. What is the worst-case
     number of comparisons for your algorithm?'
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 给出一个随机算法，其期望比较次数为*O*(*n* lg *n*)，并证明这个界限是正确的。你的算法的最坏情况比较次数是多少？'
 - en: '***8-5     Average sorting***'
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-5     平均排序***'
 - en: 'Suppose that, instead of sorting an array, we just require that the elements
     increase on average. More precisely, we call an *n*-element array *A* ***k-sorted***
     if, for all *i* = 1, 2, … , *n* – *k*, the following holds:'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设，与其对数组进行排序，我们只要求元素平均增加。更确切地说，如果对于所有*i* = 1, 2, … , *n* – *k*，一个*n*元素数组*A*称为***k-排序***，则以下条件成立：
 - en: '![art](images/Art_P336.jpg)'
+  id: totrans-195
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P336.jpg)'
 - en: '***a.*** What does it mean for an array to be 1-sorted?'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 数组被1-排序是什么意思？'
 - en: '***b.*** Give a permutation of the numbers 1, 2, … , 10 that is 2-sorted, but
     not sorted.'
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 给出数字1, 2, … , 10的一个排列，它是2-排序的，但不是排序的。'
 - en: '***c.*** Prove that an *n*-element array is *k*-sorted if and only if *A*[*i*]
     ≤ *A*[*i* + *k*] for all *i* = 1, 2, … , *n* – *k*.'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明一个*n*元素数组是*k*-排序的当且仅当对于所有*i* = 1, 2, … , *n* – *k*，*A*[*i*] ≤ *A*[*i*
+    + *k*]成立。'
 - en: '***d.*** Give an algorithm that *k*-sorts an *n*-element array in *O*(*n* lg(*n*/*k*))
     time.'
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 给出一个在*O*(*n* lg(*n*/*k*))时间内对*n*个元素数组进行*k*排序的算法。'
 - en: We can also show a lower bound on the time to produce a *k*-sorted array, when
     *k* is a constant.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还可以展示当*k*是一个常数时，生成*k*-排序数组的时间下界。
 - en: '***e.*** Show how to sort a *k*-sorted array of length *n* in *O*(*n* lg *k*)
     time. (*Hint:* Use the solution to Exercise 6.5-11.)'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 展示如何在*O*(*n* lg *k*)时间内对长度为*n*的*k*-排序数组进行排序。(*提示:* 使用练习6.5-11的解决方案。)'
 - en: '***f.*** Show that when *k* is a constant, *k*-sorting an *n*-element array
     requires Ω(*n* lg *n*) time. (*Hint:* Use the solution to part (e) along with
     the lower bound on comparison sorts.)'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 展示当*k*是一个常数时，对*n*元素数组进行*k*-排序需要Ω(*n* lg *n*)时间。(*提示:* 使用部分(e)的解决方案以及比较排序的下界。)'
 - en: '***8-6     Lower bound on merging sorted lists***'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-6     合并排序列表的下界***'
 - en: The problem of merging two sorted lists arises frequently. We have seen a procedure
     for it as the subroutine MERGE in [Section 2.3.1](chapter002.xhtml#Sec_2.3.1).
     In this problem, you will prove a lower bound of 2*n* – 1 on the worst-case number
     of comparisons required to merge two sorted lists, each containing *n* items.
     First, you will show a lower bound of 2*n* – *o*(*n*) comparisons by using a decision
     tree.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 合并两个排序列表的问题经常出现。我们已经在[Section 2.3.1](chapter002.xhtml#Sec_2.3.1)中看到了一个用作子程序MERGE的过程。在这个问题中，你将证明合并两个包含*n*个项目的排序列表所需的最坏情况比较次数的下界为2*n*
+    – 1。首先，你将通过使用决策树展示2*n* – *o*(*n*)比较的下界。
 - en: '***a.*** Given 2*n* numbers, compute the number of possible ways to divide
     them into two sorted lists, each with *n* numbers.'
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 给定2*n*个数字，计算将它们分成两个包含 *n* 个数字的排序列表的可能方式的数量。'
 - en: '***b.*** Using a decision tree and your answer to part (a), show that any algorithm
     that correctly merges two sorted lists must perform at least 2*n* – *o*(*n*) comparisons.'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 使用决策树和您在(a)部分的答案，证明任何正确合并两个排序列表的算法必须执行至少2*n* – *o*(*n*)次比较。'
 - en: Now you will show a slightly tighter 2*n* – 1 bound.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在您将展示稍微更紧的2*n* – 1下界。
 - en: '***c.*** Show that if two elements are consecutive in the sorted order and
     from different lists, then they must be compared.'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 证明如果两个元素在排序顺序中是连续的且来自不同的列表，则它们必须进行比较。'
 - en: '***d.*** Use your answer to part (c) to show a lower bound of 2*n* – 1 comparisons
     for merging two sorted lists.'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 使用您在(c)部分的答案来展示合并两个排序列表所需的至少2*n* – 1次比较的下界。'
 - en: '***8-7     The 0-1 sorting lemma and columnsort***'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: '***8-7     0-1排序引理和列排序***'
 - en: A ***compare-exchange*** operation on two array elements *A*[*i*] and *A*[*j*],
     where *i* < *j*, has the form
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 对数组元素 *A*[*i*] 和 *A*[*j*] 进行***比较交换***操作，其中 *i* < *j*，形式如下
 - en: COMPARE-EXCHANGE(*A*, *i*, *j*)
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: COMPARE-EXCHANGE(*A*, *i*, *j*)
 - en: '| 1 | **if** *A*[*i*] > *A*[*j*] |'
+  id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **if** *A*[*i*] > *A*[*j*] |'
 - en: '| 2 | exchange *A*[*i*] with *A*[*j*] |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 交换 *A*[*i*] 和 *A*[*j*] |'
 - en: After the compare-exchange operation, we know that *A*[*i*] ≤ *A*[*j*].
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 经过比较交换操作后，我们知道 *A*[*i*] ≤ *A*[*j*]。
 - en: An ***oblivious compare-exchange algorithm*** operates solely by a sequence
     of prespecified compare-exchange operations. The indices of the positions compared
     in the sequence must be determined in advance, and although they can depend on
@@ -1041,26 +1563,38 @@
     a variation of insertion sort as an oblivious compare-exchange algorithm. (Unlike
     the INSERTION-SORT procedure on page 19, the oblivious version runs in Θ(*n*²)
     time in all cases.)
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***无意识的比较交换算法***仅通过一系列预先指定的比较交换操作来运行。在序列中比较的位置的索引必须提前确定，尽管它们可以取决于被排序的元素数量，但不能取决于被排序的值，也不能取决于任何先前比较交换操作的结果。例如，下一页显示的面向页面的COMPARE-EXCHANGE-INSERTION-SORT过程展示了插入排序的变体作为无意识的比较交换算法。（与第19页上的INSERTION-SORT过程不同，无意识版本在所有情况下都以Θ(*n*²)时间运行。）
 - en: The ***0-1 sorting lemma*** provides a powerful way to prove that an oblivious
     compare-exchange algorithm produces a sorted result. It states that if an oblivious
     compare-exchange algorithm correctly sorts all input sequences consisting of only
     0s and 1s, then it correctly sorts all inputs containing arbitrary values.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: '***0-1排序引理***提供了一种强有力的方法来证明无意识的比较交换算法产生排序结果。它指出，如果一个无意识的比较交换算法正确对所有仅由0和1组成的输入序列进行排序，则它将正确对包含任意值的所有输入进行排序。'
 - en: COMPARE-EXCHANGE-INSERTION-SORT(*A*, *n*)
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: COMPARE-EXCHANGE-INSERTION-SORT(*A*, *n*)
 - en: '| 1 | **for** *i* = 2 **to** *n* |'
+  id: totrans-219
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **for** *i* = 2 **to** *n* |'
 - en: '| 2 | **for** *j* = *i* – 1 **downto** 1 |'
+  id: totrans-220
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **for** *j* = *i* – 1 **downto** 1 |'
 - en: '| 3 | COMPARE-EXCHANGE(*A*, *j*, *j* + 1) |'
+  id: totrans-221
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | COMPARE-EXCHANGE(*A*, *j*, *j* + 1) |'
 - en: 'You will prove the 0-1 sorting lemma by proving its contrapositive: if an oblivious
     compare-exchange algorithm fails to sort an input containing arbitrary values,
     then it fails to sort some 0-1 input. Assume that an oblivious compare-exchange
@@ -1068,88 +1602,130 @@
     smallest value in *A* that algorithm X puts into the wrong location, and let *A*[*q*]
     be the value that algorithm X moves to the location into which *A*[*p*] should
     have gone. Define an array *B*[1 : *n*] of 0s and 1s as follows:'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: '通过证明其逆否命题，您将证明0-1排序引理：如果一个无意识的比较交换算法无法对包含任意值的输入进行排序，则它无法对某些0-1输入进行排序。假设无意识的比较交换算法X无法正确对数组
+    *A*[1 : *n*] 进行排序。让 *A*[*p*] 是算法X放入错误位置的最小值，并让 *A*[*q*] 是算法X移动到 *A*[*p*] 应该去的位置的值。按照以下方式定义一个由0和1组成的数组
+    *B*[1 : *n*]：'
 - en: '![art](images/Art_P337.jpg)'
+  id: totrans-223
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P337.jpg)'
 - en: '***a.*** Argue that *A*[*q*] > *A*[*p*], so that *B*[*p*] = 0 and *B*[*q*]
     = 1.'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 论证 *A*[*q*] > *A*[*p*]，因此 *B*[*p*] = 0 且 *B*[*q*] = 1。'
 - en: '***b.*** To complete the proof of the 0-1 sorting lemma, prove that algorithm
     X fails to sort array *B* correctly.'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 为了完成0-1排序引理的证明，证明算法X无法正确对数组 *B* 进行排序。'
 - en: 'Now you will use the 0-1 sorting lemma to prove that a particular sorting algorithm
     works correctly. The algorithm, ***columnsort***, works on a rectangular array
     of *n* elements. The array has *r* rows and *s* columns (so that *n* = *rs*),
     subject to three restrictions:'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在您将使用0-1排序引理来证明特定排序算法的正确性。该算法***列排序***适用于包含 *n* 个元素的矩形数组。该数组有 *r* 行 *s* 列（因此
+    *n* = *rs*），受到三个限制：
 - en: '*r* must be even,'
+  id: totrans-227
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*r* 必须是偶数，'
 - en: '*s* must be a divisor of *r*, and'
+  id: totrans-228
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*s* 必须是 *r* 的除数，并且'
 - en: '*r* ≥ 2*s*².'
+  id: totrans-229
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*r* ≥ 2*s*²。'
 - en: 'When columnsort completes, the array is sorted in ***column-major order***:
     reading down each column in turn, from left to right, the elements monotonically
     increase.'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 当列排序完成时，数组按***列主序***排序：依次从左到右读取每列中的元素，元素单调递增。
 - en: 'Columnsort operates in eight steps, regardless of the value of *n*. The odd
     steps are all the same: sort each column individually. Each even step is a fixed
     permutation. Here are the steps:'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 列排序分为八个步骤，无论 *n* 的值如何。奇数步骤都是相同的：单独对每列进行排序。每个偶数步骤都是一个固定的排列。以下是这些步骤：
 - en: Sort each column.
+  id: totrans-232
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每列排序。
 - en: Transpose the array, but reshape it back to *r* rows and *s* columns. In other
     words, turn the leftmost column into the top *r*/*s* rows, in order; turn the
     next column into the next *r*/*s* rows, in order; and so on.
+  id: totrans-233
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 转置数组，但将其重新整形为 *r* 行 *s* 列。换句话说，将最左边的列转换为前 *r*/*s* 行，按顺序；将下一列转换为接下来的 *r*/*s*
+    行，按顺序进行；依此类推。
 - en: Sort each column.
+  id: totrans-234
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每列排序。
 - en: Perform the inverse of the permutation performed in step 2.
+  id: totrans-235
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行步骤2中执行的排列的逆操作。
 - en: Sort each column.
+  id: totrans-236
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每列排序。
 - en: Shift the top half of each column into the bottom half of the same column, and
     shift the bottom half of each column into the top half of the next column to the
     right. Leave the top half of the leftmost column empty. Shift the bottom half
     of the last column into the top half of a new rightmost column, and leave the
     bottom half of this new column empty.
+  id: totrans-237
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 将每列的上半部分移动到同一列的下半部分，并将每列的下半部分移动到右侧下一列的上半部分。将最左侧列的上半部分留空。将最后一列的下半部分移动到新的最右侧列的上半部分，并将这个新列的下半部分留空。
 - en: Sort each column.
+  id: totrans-238
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对每列进行排序。
 - en: Perform the inverse of the permutation performed in step 6.
+  id: totrans-239
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行步骤6中执行的排列的逆操作。
 - en: '![art](images/Art_P338.jpg)'
+  id: totrans-240
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P338.jpg)'
 - en: '**Figure 8.5** The steps of columnsort. **(a)** The input array with 6 rows
     and 3 columns. (This example does not obey the *r* ≥ 2*s*² requirement, but it
     works.) **(b)** After sorting each column in step 1\. **(c)** After transposing
@@ -1160,18 +1736,27 @@
     8, which inverts the permutation from step 6\. Steps 6–8 sort the bottom half
     of each column with the top half of the next column. After step 8, the array is
     sorted in column-major order.'
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图8.5** columnsort的步骤。**(a)** 具有6行和3列的输入数组。（此示例不符合*r* ≥ 2*s*²的要求，但它有效。）**(b)**
+    在步骤1中对每列进行排序后。**(c)** 在步骤2中进行转置和重塑后。**(d)** 在步骤3中对每列进行排序后。**(e)** 在执行步骤2中的排列反转后。**(f)**
+    在步骤5中对每列进行排序后。**(g)** 在步骤6中移动半列后。**(h)** 在步骤7中对每列进行排序后。**(i)** 在执行步骤6中的排列反转后。步骤6-8对每列的下半部分和下一列的上半部分进行排序。在步骤8之后，数组按列主序排序。'
 - en: You can think of steps 6–8 as a single step that sorts the bottom half of each
     column and the top half of the next column. [Figure 8.5](chapter008.xhtml#Fig_8-5)
     shows an example of the steps of columnsort with *r* = 6 and *s* = 3\. (Even though
     this example violates the requirement that *r* ≥ 2*s*², it happens to work.)
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以将步骤6-8视为一个单独的步骤，该步骤对每列的下半部分和下一列的上半部分进行排序。[图8.5](chapter008.xhtml#Fig_8-5)展示了具有*r*
+    = 6和*s* = 3的columnsort步骤的示例。（尽管此示例违反了*r* ≥ 2*s*²的要求，但它确实有效。）
 - en: '***c.*** Argue that we can treat columnsort as an oblivious compare-exchange
     algorithm, even if we do not know what sorting method the odd steps use.'
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 论证我们可以将columnsort视为一个无意识的比较-交换算法，即使我们不知道奇数步骤使用的排序方法。'
 - en: Although it might seem hard to believe that columnsort actually sorts, you will
     use the 0-1 sorting lemma to prove that it does. The 0-1 sorting lemma applies
     because we can treat columnsort as an oblivious compare-exchange algorithm. A
@@ -1180,45 +1765,61 @@
     1s or if it is empty. Otherwise, the area might contain mixed 0s and 1s, and it
     is ***dirty***. From here on, assume that the input array contains only 0s and
     1s, and that we can treat it as an array with *r* rows and *s* columns.
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管可能难以相信columnsort实际上可以排序，但您将使用0-1排序引理来证明它可以。0-1排序引理适用，因为我们可以将columnsort视为一个无意识的比较-交换算法。一些定义将帮助您应用0-1排序引理。我们说数组的一个区域是***干净***的，如果我们知道它包含全部0或全部1，或者为空。否则，该区域可能包含混合的0和1，并且是***脏***的。从现在开始，假设输入数组仅包含0和1，并且我们可以将其视为具有*r*行和*s*列的数组。
 - en: '***d.*** Prove that after steps 1–3, the array consists of clean rows of 0s
     at the top, clean rows of 1s at the bottom, and at most *s* dirty rows between
     them. (One of the clean rows could be empty.)'
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 证明在步��1-3之后，数组由顶部的0干净行、底部的1干净行以及最多*s*个脏行组成。（其中一个干净行可能为空。）'
 - en: '***e.*** Prove that after step 4, the array, read in column-major order, starts
     with a clean area of 0s, ends with a clean area of 1s, and has a dirty area of
     at most *s*² elements in the middle. (Again, one of the clean areas could be empty.)'
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 证明在第4步之后，按列主序读取的数组以0的干净区域开头，以1的干净区域结尾，并在中间最多有*s*²个元素的脏区域。（再次强调，其中一个干净区域可能为空。）'
 - en: '***f.*** Prove that steps 5–8 produce a fully sorted 0-1 output. Conclude that
     columnsort correctly sorts all inputs containing arbitrary values.'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 证明步骤5-8产生完全排序的0-1输出。得出结论，columnsort可以正确排序包含任意值的所有输入。'
 - en: '***g.*** Now suppose that *s* does not divide *r*. Prove that after steps 1–3,
     the array consists of clean rows of 0s at the top, clean rows of 1s at the bottom,
     and at most 2*s* –1 dirty rows between them. (Once again, one of the clean areas
     could be empty.) How large must *r* be, compared with *s*, for columnsort to correctly
     sort when *s* does not divide *r*?'
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: '***g.*** 现在假设*s*不整除*r*。证明在步骤1-3之后，数组由顶部的0干净行、底部的1干净行以及最多2*s* - 1个位于它们之间的脏行组成。（再次强调，其中一个干净区域可能为空。）与*s*相比，*r*必须有多大才能在*s*不整除*r*时使columnsort正确排序？'
 - en: '***h.*** Suggest a simple change to step 1 that allows us to maintain the requirement
     that *r* ≥ 2*s*² even when *s* does not divide *r*, and prove that with your change,
     columnsort correctly sorts.'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: '***h.*** 建议对步骤1进行简单更改，以便在*s*不整除*r*时仍能保持*r* ≥ 2*s*²的要求，并证明通过您的更改，columnsort可以正确排序。'
 - en: '**Chapter notes**'
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: The decision-tree model for studying comparison sorts was introduced by Ford
     and Johnson [[150](bibliography001.xhtml#endnote_150)]. Knuth’s comprehensive
     treatise on sorting [[261](bibliography001.xhtml#endnote_261)] covers many variations
     on the sorting problem, including the information-theoretic lower bound on the
     complexity of sorting given here. Ben-Or [[46](bibliography001.xhtml#endnote_46)]
     studied lower bounds for sorting using generalizations of the decision-tree model.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 研究比较排序的决策树模型是由Ford和Johnson引入的[[150](bibliography001.xhtml#endnote_150)]。Knuth关于排序的综合论文[[261](bibliography001.xhtml#endnote_261)]涵盖了许多排序问题的变体，包括此处给出的排序复杂性的信息论下界。Ben-Or[[46](bibliography001.xhtml#endnote_46)]研究了使用决策树模型的排序下界的推广。
 - en: Knuth credits H. H. Seward with inventing counting sort in 1954, as well as
     with the idea of combining counting sort with radix sort. Radix sorting starting
     with the least significant digit appears to be a folk algorithm widely used by
@@ -1226,15 +1827,21 @@
     reference to the method is a 1929 document by L. J. Comrie describing punched-card
     equipment. Bucket sorting has been in use since 1956, when the basic idea was
     proposed by Isaac and Singleton [[235](bibliography001.xhtml#endnote_235)].
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: Knuth将1954年H.H. Seward归功于发明计数排序，并提出将计数排序与基数排序结合的想法。从最低有效位开始的基数排序似乎是机械卡片排序机操作员广泛使用的一种民间算法。据Knuth称，该方法的第一篇发表参考文献是1929年L.J.
+    Comrie描述打孔卡片设备的文件。桶排序自1956年以来一直在使用，当时Isaac和Singleton提出了基本思想[[235](bibliography001.xhtml#endnote_235)]。
 - en: Munro and Raman [[338](bibliography001.xhtml#endnote_338)] give a stable sorting
     algorithm that performs *O*(*n*^(1+*ϵ*)) comparisons in the worst case, where
     0 < *ϵ* ≤ 1 is any fixed constant. Although any of the *O*(*n* lg *n*)-time algorithms
     make fewer comparisons, the algorithm by Munro and Raman moves data only *O*(*n*)
     times and operates in place.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: Munro和Raman[[338](bibliography001.xhtml#endnote_338)]提供了一种稳定的排序算法，在最坏情况下执行*O*(*n*^(1+*ϵ*))次比较，其中0
+    < *ϵ* ≤ 1是任意固定常数。尽管任何*O*(*n* lg *n*)时间的算法都会比较少，但Munro和Raman的算法只移动数据*O*(*n*)次，并且原地操作。
 - en: The case of sorting *n b*-bit integers in *o*(*n* lg *n*) time has been considered
     by many researchers. Several positive results have been obtained, each under slightly
     different assumptions about the model of computation and the restrictions placed
@@ -1257,12 +1864,23 @@
     these algorithms are important theoretical breakthroughs, they are all fairly
     complicated and at the present time seem unlikely to compete with existing sorting
     algorithms in practice.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多研究人员考虑了在*o*(*n* lg *n*)时间内对*n b*位整数进行排序的情况。在计算模型和对算法的限制方面，已经获得了几个正面结果，每个结果都在略微不同的假设下。所有结果都假设计算机内存被划分为可寻址的*b*位字。Fredman和Willard[[157](bibliography001.xhtml#endnote_157)]引入了融合树数据结构，并用它来在*O*(*n*
+    lg *n*/lg lg *n*)时间内对*n*个整数进行排序。这个界限后来被Andersson[[17](bibliography001.xhtml#endnote_17)]改进到![art](images/Art_P339.jpg)时间。这些算法需要使用乘法和几个预先计算的常数。Andersson、Hagerup、Nilsson和Raman[[18](bibliography001.xhtml#endnote_18)]展示了如何在不使用乘法的情况下，在*O*(*n*
+    lg lg *n*)时间内对*n*个整数进行排序，但他们的方法需要存储空间可以根据*n*无限增长。使用乘法哈希，我们可以将所需的存储空间减少到*O*(*n*)，但这样一来，*O*(*n*
+    lg lg *n*)的最坏情况运行时间界限就变成了期望时间界限。将Andersson[[17](bibliography001.xhtml#endnote_17)]的指数搜索树进行泛化，Thorup[[434](bibliography001.xhtml#endnote_434)]提出了一种*O*(*n*(lg
+    lg *n*)²)时间的排序算法，不使用乘法或随机化，并且使用线性空间。结合这些技术和一些新思路，Han[[207](bibliography001.xhtml#endnote_207)]将排序的界限提高到*O*(*n*
+    lg lg *n* lg lg lg *n*)时间。尽管这些算法是重要的理论突破，但它们都相当复杂，目前看来不太可能在实践中与现有的排序算法竞争。
 - en: The columnsort algorithm in Problem 8-7 is by Leighton [[286](bibliography001.xhtml#endnote_286)].
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题8-7中的columnsort算法由Leighton[[286](bibliography001.xhtml#endnote_286)]提出。
 - en: '[¹](#footnote_ref_1) The choice of *r* = ⌊lg *n*⌋ assumes that *n* > 1\. If
     *n* ≤ 1, there is nothing to sort.'
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: '[¹](#footnote_ref_1) 选择*r* = ⌊lg *n*⌋假设*n* > 1。如果*n* ≤ 1，则没有需要排序的内容。'

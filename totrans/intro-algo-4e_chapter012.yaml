@@ -1,12 +1,16 @@
 - en: '[**12        Binary Search Trees**](toc.xhtml#chap-12)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**12        二叉搜索树**](toc.xhtml#chap-12)'
 - en: 'The search tree data structure supports each of the dynamic-set operations
     listed on page 250: SEARCH, MINIMUM, MAXIMUM, PREDECESSOR, SUCCESSOR, INSERT,
     and DELETE. Thus, you can use a search tree both as a dictionary and as a priority
     queue.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 搜索树数据结构支持250页上列出的每个动态集操作：SEARCH、MINIMUM、MAXIMUM、PREDECESSOR、SUCCESSOR、INSERT和DELETE。因此，您可以将搜索树用作字典和优先队列。
 - en: Basic operations on a binary search tree take time proportional to the height
     of the tree. For a complete binary tree with *n* nodes, such operations run in
     Θ(lg *n*) worst-case time. If the tree is a linear chain of *n* nodes, however,
@@ -15,19 +19,26 @@
     guarantee a height of *O*(lg *n*). We won’t prove it here, but if you build a
     binary search tree on a random set of *n* keys, its expected height is *O*(lg
     *n*) even if you don’t try to limit its height.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树上的基本操作的时间与树的高度成正比。对于具有*n*个节点的完全二叉树，这些操作在最坏情况下以Θ(lg *n*)的时间运行。然而，如果树是一个包含*n*个节点的线性链，相同的操作将以Θ(*n*)的最坏情况时间运行。在[第13��](chapter013.xhtml)中，我们将看到二叉搜索树的一种变体，红黑树，其操作保证高度为*O*(lg
+    *n*)。我们不会在这里证明，但是如果您在一组随机的*n*个键上构建二叉搜索树，即使不尝试限制其高度，其预期高度也是*O*(lg *n*)。
 - en: After presenting the basic properties of binary search trees, the following
     sections show how to walk a binary search tree to print its values in sorted order,
     how to search for a value in a binary search tree, how to find the minimum or
     maximum element, how to find the predecessor or successor of an element, and how
     to insert into or delete from a binary search tree. The basic mathematical properties
     of trees appear in [Appendix B](appendix002.xhtml).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在介绍了二叉搜索树的基本属性之后，接下来的章节将展示如何遍历二叉搜索树以按排序顺序打印其值，如何在二叉搜索树中搜索值，如何找到最小或最大元素，如何找到元素的前驱或后继，以及如何向二叉搜索树中插入或删除元素。树的基本数学属性出现在[附录B](appendix002.xhtml)中。
 - en: '[**12.1    What is a binary search tree?**](toc.xhtml#Rh1-69)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**12.1    什么是二叉搜索树？**](toc.xhtml#Rh1-69)'
 - en: A binary search tree is organized, as the name suggests, in a binary tree, as
     shown in [Figure 12.1](chapter012.xhtml#Fig_12-1). You can represent such a tree
     with a linked data structure, as in [Section 10.3](chapter010.xhtml#Sec_10.3).
@@ -37,11 +48,15 @@
     the appropriate attribute contains the value NIL. The tree itself has an attribute
     *root* that points to the root node, or NIL if the tree is empty. The root node
     *T.root* is the only node in a tree *T* whose parent is NIL.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树按照其名称所示的方式组织在二叉树中，如[图12.1](chapter012.xhtml#Fig_12-1)所示。您可以使用链接数据结构表示这样的树，就像[第10.3节](chapter010.xhtml#Sec_10.3)中所示。除了*key*和附加数据之外，每个节点对象还包含指向其左子节点、右子节点和父节点对应节点的属性*left*、*right*和*p*。如果子节点或父节点缺失，则相应的属性包含值NIL。树本身具有一个指向根节点的属性*root*，如果树为空，则指向NIL。根节点*T.root*是树*T*中唯一一个其父节点为NIL的节点。
 - en: '![art](images/Art_P416.jpg)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P416.jpg)'
 - en: '**Figure 12.1** Binary search trees. For any node *x*, the keys in the left
     subtree of *x* are at most *x.key*, and the keys in the right subtree of *x* are
     at least *x.key*. Different binary search trees can represent the same set of
@@ -51,25 +66,36 @@
     shows the *left*, *right*, and *p* attributes in each node, in the style of [Figure
     10.6](chapter010.xhtml#Fig_10-6) on page 266\. **(b)** A less efficient binary
     search tree, with height 4, that contains the same keys.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图12.1** 二叉搜索树。对于任意节点*x*，左子树中的键值最多为*x.key*，右子树中的键值至少为*x.key*。不同的二叉搜索树可以表示相同的值集。大多数搜索树操作的最坏运行时间与树的高度成正比。**(a)**
+    一个包含6个节点且高度为2的二叉搜索树。顶部图显示了如何概念化地查看树，底部图显示了每个节点中的*left*、*right*和*p*属性，类似于第266页的[图10.6](chapter010.xhtml#Fig_10-6)。**(b)**
+    一个高度为4的效率较低的二叉搜索树，包含相同的键。'
 - en: 'The keys in a binary search tree are always stored in such a way as to satisfy
     the ***binary-search-tree property***:'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树中的键值总是以满足***二叉搜索树属性***的方式存储：
 - en: Let *x* be a node in a binary search tree. If *y* is a node in the left subtree
     of *x*, then *y.key* ≤ *x.key*. If *y* is a node in the right subtree of *x*,
     then *y.key* ≥ *x.key*.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*x*为二叉搜索树中的一个节点。如果*y*是*x*的左子树中的一个节点，则*y.key* ≤ *x.key*。如果*y*是*x*的右子树中的一个节点，则*y.key*
+    ≥ *x.key*。
 - en: Thus, in [Figure 12.1(a)](chapter012.xhtml#Fig_12-1), the key of the root is
     6, the keys 2, 5, and 5 in its left subtree are no larger than 6, and the keys
     7 and 8 in its right subtree are no smaller than 6\. The same property holds for
     every node in the tree. For example, looking at the root’s left child as the root
     of a subtree, this subtree root has the key 5, the key 2 in its left subtree is
     no larger than 5, and the key 5 in its right subtree is no smaller than 5.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在[图12.1(a)](chapter012.xhtml#Fig_12-1)中，根的键值为6，其左子树中的键2、5和5均不大于6，右子树中的键7和8均不小于6。树中的每个节点都具有相同的性质。例如，将根的左子节点视为一个子树的根，该子树的根具有键值5，其左子树中的键2不大于5，右子树中的键5不小于5。
 - en: Because of the binary-search-tree property, you can print out all the keys in
     a binary search tree in sorted order by a simple recursive algorithm, called an
     ***inorder tree walk***, given by the procedure INORDER-TREE-WALK. This algorithm
@@ -82,177 +108,276 @@
     trees from [Figure 12.1](chapter012.xhtml#Fig_12-1) in the order 2, 5, 5, 6, 7,
     8\. The correctness of the algorithm follows by induction directly from the binary-search-tree
     property.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于二叉搜索树的性质，可以通过一个简单的递归算法按顺序打印二叉搜索树中的所有键，称为***中序遍历***，由过程INORDER-TREE-WALK给出。该算法之所以被命名为中序遍历，是因为它在打印左子树中的值和打印右子树中的值之间打印子树根的键。（类似地，***前序遍历***在打印任一子树的值之前打印根，***后序遍历***在打印子树的值之后打印根。）要打印二叉搜索树*T*中的所有元素，调用INORDER-TREE-WALK(*T.root*)。例如，中序遍历按顺序打印[图12.1](chapter012.xhtml#Fig_12-1)中的两个二叉搜索树中的键2,
+    5, 5, 6, 7, 8。该算法的正确性通过归纳直接从二叉搜索树的性质得出。
 - en: INORDER-TREE-WALK(*x*)
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: INORDER-TREE-WALK(*x*)
 - en: '| 1 | **if** *x* ≠ NIL |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *x* ≠ NIL |'
 - en: '| 2 | INORDER-TREE-WALK(*x.left*) |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | INORDER-TREE-WALK(*x.left*) |'
 - en: '| 3 | print *x.key* |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | 打印*x.key* |'
 - en: '| 4 | INORDER-TREE-WALK(*x.right*) |'
+  id: totrans-16
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | INORDER-TREE-WALK(*x.right*) |'
 - en: It takes Θ(*n*) time to walk an *n*-node binary search tree, since after the
     initial call, the procedure calls itself recursively exactly twice for each node
     in the tree—once for its left child and once for its right child. The following
     theorem gives a formal proof that it takes linear time to perform an inorder tree
     walk.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 遍历一个*n*个节点的二叉搜索树需要Θ(*n*)时间，因为在初始调用之后，该过程对树中的每个节点恰好递归调用两次——一次是其左子节点，一次是其右子节点。以下定理给出了一个正式证明，证明执行中序遍历需要线性时间。
 - en: '***Theorem 12.1***'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理12.1***'
 - en: If *x* is the root of an *n*-node subtree, then the call INORDER-TREE-WALK(*x*)
     takes Θ(*n*) time.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*x*是*n*个节点子树的根，则调用INORDER-TREE-WALK(*x*)需要Θ(*n*)时间。
 - en: '***Proof***   Let *T*(*n*) denote the time taken by INORDER-TREE-WALK when
     it is called on the root of an *n*-node subtree. Since INORDER-TREE-WALK visits
     all *n* nodes of the subtree, we have *T*(*n*) = Ω(*n*). It remains to show that
     *T*(*n*) = *O*(*n*).'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   设*T*(*n*)表示在*n*个节点的子树上调用INORDER-TREE-WALK所花费的时间。由于INORDER-TREE-WALK访问子树的所有*n*个节点，我们有*T*(*n*)
+    = Ω(*n*)。接下来要证明*T*(*n*) = *O*(*n*)。'
 - en: Since INORDER-TREE-WALK takes a small, constant amount of time on an empty subtree
     (for the test *x* ≠ NIL), we have *T*(0) = *c* for some constant *c* > 0.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于在空子树上（对于测试*x* ≠ NIL）执行INORDER-TREE-WALK需要很少的固定时间，我们有*T*(0) = *c*，其中*c* > 0是某个常数。
 - en: For *n* > 0, suppose that INORDER-TREE-WALK is called on a node *x* whose left
     subtree has *k* nodes and whose right subtree has *n* − *k* − 1 nodes. The time
     to perform INORDER-TREE-WALK(*x*) is bounded by *T*(*n*) ≤ *T*(*k*) + *T*(*n*
     − *k* − 1) + *d* for some constant *d* > 0 that reflects an upper bound on the
     time to execute the body of INORDER-TREE-WALK(*x*), exclusive of the time spent
     in recursive calls.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于*n* > 0，假设在具有*k*个节点的左子树和具有*n* − *k* − 1个节点的右子树上调用INORDER-TREE-WALK的节点*x*。执行INORDER-TREE-WALK(*x*)的时间受到*T*(*n*)
+    ≤ *T*(*k*) + *T*(*n* − *k* − 1) + *d*的限制，其中*d* > 0是反映执行INORDER-TREE-WALK(*x*)主体的时间的上界常数，不包括递归调用所花费的时间。
 - en: We use the substitution method to show that *T*(*n*) = *O*(*n*) by proving that
     *T*(*n*) ≤ (*c* + *d*)*n* + *c*. For *n* = 0, we have (*c* + *d*) · 0 + *c* =
     *c* = *T*(0). For *n* > 0, we have
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用替换法证明*T*(*n*) = *O*(*n*)，证明*T*(*n*) ≤ (*c* + *d*)*n* + *c*。对于*n* = 0，我们有(*c*
+    + *d*) · 0 + *c* = *c* = *T*(0)。对于*n* > 0，我们有
 - en: '| *T*(*n*) | ≤ | *T*(*k*) + *T*(*n* − *k* − 1) + *d* |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| *T*(*n*) | ≤ | *T*(*k*) + *T*(*n* − *k* − 1) + *d* |'
 - en: '|  | ≤ | ((*c* + *d*)*k* + *c*) + ((*c* + *d*)(*n* − *k* − 1) + *c*) + *d*
     |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '|  | ≤ | ((*c* + *d*)*k* + *c*) + ((*c* + *d*)(*n* − *k* − 1) + *c*) + *d*
+    |'
 - en: '|  | = | (*c* + *d*)*n* + *c* − (*c* + *d*) + *c* + *d* |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | (*c* + *d*)*n* + *c* − (*c* + *d*) + *c* + *d* |'
 - en: '|  | = | (*c* + *d*)*n* + *c*, |'
+  id: totrans-27
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | (*c* + *d*)*n* + *c*, |'
 - en: which completes the proof.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 完成证明。
 - en: ▪
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Exercises**'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***12.1-1***'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.1-1***'
 - en: For the set {1, 4, 5, 10, 16, 17, 21} of keys, draw binary search trees of heights
     2, 3, 4, 5, and 6.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于键集{1, 4, 5, 10, 16, 17, 21}，绘制高度为2、3、4、5和6的二叉搜索树。
 - en: '***12.1-2***'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.1-2***'
 - en: What is the difference between the binary-search-tree property and the min-heap
     property on page 163? Can the min-heap property be used to print out the keys
     of an *n*-node tree in sorted order in *O*(*n*) time? Show how, or explain why
     not.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树属性和第163页上的最小堆属性之间有什么区别？最小堆属性能否在*O*(*n*)时间内按顺序打印出*n*个节点树的键？展示如何，或解释为什么不能。
 - en: '***12.1-3***'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.1-3***'
 - en: Give a nonrecursive algorithm that performs an inorder tree walk. (*Hint:* An
     easy solution uses a stack as an auxiliary data structure. A more complicated,
     but elegant, solution uses no stack but assumes that you can test two pointers
     for equality.)
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出一个执行中序遍历的非递归算法。（*提示：*一种简单的解决方案使用栈作为辅助数据结构。一种更复杂但优雅的解决方案不使用栈，但假设您可以测试两个指针是否相等。）
 - en: '***12.1-4***'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.1-4***'
 - en: Give recursive algorithms that perform preorder and postorder tree walks in
     Θ(*n*) time on a tree of *n* nodes.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出在*n*个节点的树上以Θ(*n*)时间执行前序遍历和后序遍历的递归算法。
 - en: '***12.1-5***'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.1-5***'
 - en: Argue that since sorting *n* elements takes Ω(*n* lg *n*) time in the worst
     case in the comparison model, any comparison-based algorithm for constructing
     a binary search tree from an arbitrary list of *n* elements takes Ω(*n* lg *n*)
     time in the worst case.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 论证：由于在比较模型中，对*n*个元素进行排序在最坏情况下需要Ω(*n* lg *n*)的时间，因此基于比较的任何构建二叉搜索树的算法在最坏情况下需要Ω(*n*
+    lg *n*)的时间。
 - en: '[**12.2    Querying a binary search tree**](toc.xhtml#Rh1-70)'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**12.2    查询二叉搜索树**](toc.xhtml#Rh1-70)'
 - en: Binary search trees can support the queries MINIMUM, MAXIMUM, SUCCESSOR, and
     PREDECESSOR, as well as SEARCH. This section examines these operations and shows
     how to support each one in *O*(*h*) time on any binary search tree of height *h*.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树可以支持MINIMUM、MAXIMUM、SUCCESSOR和PREDECESSOR等查询，以及SEARCH。本节将研究这些操作，并展示如何在高度为*h*的任何二叉搜索树上以*O*(*h*)时间支持每个操作。
 - en: '**Searching**'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '**搜索**'
 - en: To search for a node with a given key in a binary search tree, call the TREE-SEARCH
     procedure. Given a pointer *x* to the root of a subtree and a key *k*, TREE-SEARCH(*x*,
     *k*) returns a pointer to a node with key *k* if one exists in the subtree; otherwise,
     it returns NIL. To search for key *k* in the entire binary search tree *T*, call
     TREE-SEARCH(*T.root*, *k*).
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在二叉搜索树中搜索具有给定键的节点，请调用TREE-SEARCH过程。给定指向子树根节点*x*和键*k*的指针，TREE-SEARCH(*x*, *k*)如果子树中存在具有键*k*的节点，则返回指向该节点的指针；否则返回NIL。要在整个二叉搜索树*T*中搜索键*k*，请调用TREE-SEARCH(*T.root*,
+    *k*)。
 - en: TREE-SEARCH(*x*, *k*)
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-SEARCH(*x*, *k*)
 - en: '| 1 | **if** *x* == NIL or *k* == *x.key* |'
+  id: totrans-46
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *x* == NIL 或 *k* == *x.key* |'
 - en: '| 2 | **return** *x* |'
+  id: totrans-47
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **返回** *x* |'
 - en: '| 3 | **if** *k* < *x.key* |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **如果** *k* < *x.key* |'
 - en: '| 4 | **return** TREE-SEARCH(*x.left*, *k*) |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **返回** TREE-SEARCH(*x.left*, *k*) |'
 - en: '| 5 | **else return** TREE-SEARCH(*x.right*, *k*) |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **否则返回** TREE-SEARCH(*x.right*, *k*) |'
 - en: ITERATIVE-TREE-SEARCH(*x*, *k*)
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 迭代树搜索(*x*, *k*)
 - en: '| 1 | **while** *x* ≠ NIL and *k* ≠ *x.key* |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **当** *x* ≠ NIL 且 *k* ≠ *x.key* |'
 - en: '| 2 | **if** *k* < *x.key* |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **如果** *k* < *x.key* |'
 - en: '| 3 | *x* = *x.left* |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *x* = *x.left* |'
 - en: '| 4 | **else** *x* = *x.right* |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **否则** *x* = *x.right* |'
 - en: '| 5 | **return** *x* |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **返回** *x* |'
 - en: The TREE-SEARCH procedure begins its search at the root and traces a simple
     path downward in the tree, as shown in [Figure 12.2(a)](chapter012.xhtml#Fig_12-2).
     For each node *x* it encounters, it compares the key *k* with *x.key*. If the
@@ -263,11 +388,15 @@
     during the recursion form a simple path downward from the root of the tree, and
     thus the running time of TREE-SEARCH is *O*(*h*), where *h* is the height of the
     tree.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-SEARCH过程从根节点开始搜索，并在树中向下跟踪简单路径，如[图12.2(a)](chapter012.xhtml#Fig_12-2)所示。对于遇到的每个节点*x*，它���键*k*与*x.key*进行比较。如果两个键相等，则搜索终止。如果*k*小于*x.key*，则搜索继续在*x*的左子树中进行，因为二叉搜索树属性意味着*k*不能位于右子树中。类似地，如果*k*大于*x.key*，则搜索继续在右子树中进行。递归期间遇到的节点形成了从树根向下的简单路径，因此TREE-SEARCH的运行时间为*O*(*h*)，其中*h*为树的高度。
 - en: '![art](images/Art_P417.jpg)'
+  id: totrans-58
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P417.jpg)'
 - en: '**Figure 12.2** Queries on a binary search tree. Nodes and paths followed in
     each query are colored blue. **(a)** A search for the key 13 in the tree follows
     the path 15 → 6 → 7 → 13 from the root. **(b)** The minimum key in the tree is
@@ -277,48 +406,74 @@
     the right subtree of 15\. **(d)** The node with key 13 has no right subtree, and
     thus its successor is its lowest ancestor whose left child is also an ancestor.
     In this case, the node with key 15 is its successor.'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图12.2** 二叉搜索树上的查询。每个查询中遵循的节点和路径均以蓝色标记。**(a)** 在树中搜索键为13的路径从根节点开始依次为15 → 6
+    → 7 → 13。**(b)** 树中的最小键为2，通过从根节点开始遵循*左*指针找到。最大键20通过从根节点开始遵循*右*指针找到。**(c)** 具有键为15的节点的后继是具有键为17的节点，因为它是15右子树中的最小键。**(d)**
+    具有键为13的节点没有右子树，因此其后继是其最低祖先，其左子节点也是祖先。在这种情况下，具有键为15的节点是其后继。'
 - en: Since the TREE-SEARCH procedure recurses on either the left subtree or the right
     subtree, but not both, we can rewrite the algorithm to “unroll” the recursion
     into a **while** loop. On most computers, the ITERATIVE-TREE-SEARCH procedure
     on the facing page is more efficient.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于TREE-SEARCH过程递归地在左子树或右子树上进行，但不会同时进行，因此我们可以将算法重写为“展开”递归为**while**循环。在大多数计算机上，此页上的ITERATIVE-TREE-SEARCH过程更有效。
 - en: '**Minimum and maximum**'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '**最小和最大**'
 - en: To find an element in a binary search tree whose key is a minimum, just follow
     *left* child pointers from the root until you encounter a NIL, as shown in [Figure
     12.2(b)](chapter012.xhtml#Fig_12-2). The TREE-MINIMUM procedure returns a pointer
     to the minimum element in the subtree rooted at a given node *x*, which we assume
     to be non-NIL.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在二叉搜索树中找到具有最小键的元素，只需从根节点开始沿着*左*子指针向下，直到遇到NIL，如[图12.2(b)](chapter012.xhtml#Fig_12-2)所示。TREE-MINIMUM过程返回指向给定节点*x*所在子树中最小元素的指针，我们假设该节点为非NIL。
 - en: TREE-MINIMUM(*x*)
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-MINIMUM(*x*)
 - en: '| 1 | **while** *x.left* ≠ NIL |'
+  id: totrans-64
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **当** *x.left* ≠ NIL |'
 - en: '| 2 | *x* = *x.left* |'
+  id: totrans-65
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *x* = *x.left* |'
 - en: '| 3 | **return** *x* |'
+  id: totrans-66
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **返回** *x* |'
 - en: TREE-MAXIMUM(*x*)
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-MAXIMUM(*x*)
 - en: '| 1 | **while** *x.right* ≠ NIL |'
+  id: totrans-68
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **当** *x.right* ≠ NIL |'
 - en: '| 2 | *x* = *x.right* |'
+  id: totrans-69
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *x* = *x.right* |'
 - en: '| 3 | **return** *x* |'
+  id: totrans-70
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **返回** *x* |'
 - en: The binary-search-tree property guarantees that TREE-MINIMUM is correct. If
     node *x* has no left subtree, then since every key in the right subtree of *x*
     is at least as large as *x.key*, the minimum key in the subtree rooted at *x*
@@ -326,16 +481,22 @@
     is smaller than *x.key* and every key in the left subtree is not larger than *x.key*,
     the minimum key in the subtree rooted at *x* resides in the subtree rooted at
     *x.left*.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉搜索树属性保证了TREE-MINIMUM的正确性。如果节点*x*没有左子树，则由于*x*右子树中的每个键至少与*x.key*一样大，因此根节点*x*所在子树中的最小键为*x.key*。如果节点*x*有左子树，则由于右子树中没有比*x.key*小的键，左子树中的每个键都不大于*x.key*，因此根节点*x*所在子树中的最小键位于根节点*x.left*所在子树中。
 - en: The pseudocode for TREE-MAXIMUM is symmetric. Both TREE-MINIMUM and TREE-MAXIMUM
     run in *O*(*h*) time on a tree of height *h* since, as in TREE-SEARCH, the sequence
     of nodes encountered forms a simple path downward from the root.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-MAXIMUM的伪代码是对称的。TREE-MINIMUM和TREE-MAXIMUM在高度为*h*的树上都以*O*(*h*)时间运行，因为，就像TREE-SEARCH一样，遇到���节点序列形成了从根节点向下的简单路径。
 - en: '**Successor and predecessor**'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: '**后继和前驱**'
 - en: Given a node in a binary search tree, how can you find its successor in the
     sorted order determined by an inorder tree walk? If all keys are distinct, the
     successor of a node *x* is the node with the smallest key greater than *x.key*.
@@ -345,113 +506,173 @@
     keys. The TREE-SUCCESSOR procedure on the facing page returns the successor of
     a node *x* in a binary search tree if it exists, or NIL if *x* is the last node
     that would be visited during an inorder walk.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定二叉搜索树中的一个节点，如何找到其在中序树遍历确定的排序顺序中的后继？如果所有关键字都不同，节点*x*的后继是大于*x.key*的最小关键字的节点。无论关键字是否不同，我们将一个节点的***后继***定义为在中序树遍历中访问的下一个节点。二叉搜索树的结构允许您确定一个节点的后继而无需比较关键字。本页上的TREE-SUCCESSOR过程返回二叉搜索树中节点*x*的后继（如果存在），或者如果*x*是在中序遍历中访问的最后一个节点，则返回NIL。
 - en: The code for TREE-SUCCESSOR has two cases. If the right subtree of node *x*
     is nonempty, then the successor of *x* is just the leftmost node in *x*’s right
     subtree, which line 2 finds by calling TREE-MINIMUM(*x.right*). For example, the
     successor of the node with key 15 in [Figure 12.2(c)](chapter012.xhtml#Fig_12-2)
     is the node with key 17.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-SUCCESSOR的代码有两种情况。如果节点*x*的右子树非空，则*x*的后继就是*x*右子树中最左边的节点，第2行通过调用TREE-MINIMUM(*x.right*)找到。例如，在[图12.2(c)](chapter012.xhtml#Fig_12-2)中，关键字为15的节点的后继是关键字为17的节点。
 - en: On the other hand, as Exercise 12.2-6 asks you to show, if the right subtree
     of node *x* is empty and *x* has a successor *y*, then *y* is the lowest ancestor
     of *x* whose left child is also an ancestor of *x*. In [Figure 12.2(d)](chapter012.xhtml#Fig_12-2),
     the successor of the node with key 13 is the node with key 15\. To find *y*, go
     up the tree from *x* until you encounter either the root or a node that is the
     left child of its parent. Lines 4–8 of TREE-SUCCESSOR handle this case.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，正如练习12.2-6要求您展示的那样，如果节点*x*的右子树为空且*x*有后继*y*，那么*y*是*x*的左子树也是*x*祖先的最低祖先。在[图12.2(d)](chapter012.xhtml#Fig_12-2)中，关键字为13的节点的后继是关键字为15的节点。要找到*y*，从*x*向上遍历树，直到遇到根节点或者是其父节点的左子节点。TREE-SUCCESSOR的第4-8行处理这种情况。
 - en: TREE-SUCCESSOR(*x*)
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-SUCCESSOR(*x*)
 - en: '| 1 | **if** *x.right* ≠ NIL |'
+  id: totrans-78
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **如果** *x.right* ≠ NIL |'
 - en: '| 2 | **return** TREE-MINIMUM(*x.right*)  **//** leftmost node in right subtree
     |'
+  id: totrans-79
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **返回** TREE-MINIMUM(*x.right*)  **//** 右子树中最左边的节点 |'
 - en: '| 3 | **else** **//** find the lowest ancestor of *x* whose left child is an
     ancestor of *x* |'
+  id: totrans-80
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **否则** **//** 找到*x*的左子树是*x*祖先的最低祖先 |'
 - en: '| 4 | *y* = *x.p* |'
+  id: totrans-81
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *y* = *x.p* |'
 - en: '| 5 | **while** *y* ≠ NIL and *x* == *y.right* |'
+  id: totrans-82
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **当** *y* ≠ NIL 且 *x* == *y.right* |'
 - en: '| 6 | *x* = *y* |'
+  id: totrans-83
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *x* = *y* |'
 - en: '| 7 | *y* = *y.p* |'
+  id: totrans-84
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *y* = *y.p* |'
 - en: '| 8 | **return** *y* |'
+  id: totrans-85
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **返回** *y* |'
 - en: The running time of TREE-SUCCESSOR on a tree of height *h* is *O*(*h*), since
     it either follows a simple path up the tree or follows a simple path down the
     tree. The procedure TREE-PREDECESSOR, which is symmetric to TREE-SUCCESSOR, also
     runs in *O*(*h*) time.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在高度为*h*的树上，TREE-SUCCESSOR的运行时间为*O*(*h*)，因为它要么沿着树向上遵循简单路径，要么沿着树向下遵循简单路径。对称于TREE-SUCCESSOR的TREE-PREDECESSOR过程也在*O*(*h*)时间内运行。
 - en: In summary, we have proved the following theorem.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，我们已经证明了以下定理。
 - en: '***Theorem 12.2***'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理12.2***'
 - en: The dynamic-set operations SEARCH, MINIMUM, MAXIMUM, SUCCESSOR, and PREDECESSOR
     can be implemented so that each one runs in *O*(*h*) time on a binary search tree
     of height *h*.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态集合操作SEARCH、MINIMUM、MAXIMUM、SUCCESSOR和PREDECESSOR可以实现为在高度为*h*的二叉搜索树上每个操作都在*O*(*h*)时间内运行。
 - en: ▪
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Exercises**'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***12.2-1***'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-1***'
 - en: You are searching for the number 363 in a binary search tree containing numbers
     between 1 and 1000\. Which of the following sequences *cannot* be the sequence
     of nodes examined?
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 在包含1到1000之间数字的二叉搜索树中搜索数字363。以下哪个序列*不能*是检查的节点序列？
 - en: '***a.*** 2, 252, 401, 398, 330, 344, 397, 363.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 2, 252, 401, 398, 330, 344, 397, 363.'
 - en: '***b.*** 924, 220, 911, 244, 898, 258, 362, 363.'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 924, 220, 911, 244, 898, 258, 362, 363.'
 - en: '***c.*** 925, 202, 911, 240, 912, 245, 363.'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 925, 202, 911, 240, 912, 245, 363.'
 - en: '***d.*** 2, 399, 387, 219, 266, 382, 381, 278, 363.'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 2, 399, 387, 219, 266, 382, 381, 278, 363.'
 - en: '***e.*** 935, 278, 347, 621, 299, 392, 358, 363.'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 935, 278, 347, 621, 299, 392, 358, 363.'
 - en: '***12.2-2***'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-2***'
 - en: Write recursive versions of TREE-MINIMUM and TREE-MAXIMUM.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写TREE-MINIMUM和TREE-MAXIMUM的递归版本。
 - en: '***12.2-3***'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-3***'
 - en: Write the TREE-PREDECESSOR procedure.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写TREE-PREDECESSOR过程。
 - en: '***12.2-4***'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-4***'
 - en: 'Professor Kilmer claims to have discovered a remarkable property of binary
     search trees. Suppose that the search for key *k* in a binary search tree ends
     up at a leaf. Consider three sets: *A*, the keys to the left of the search path;
@@ -459,111 +680,171 @@
     path. Professor Kilmer claims that any three keys *a* ∈ *A*, *b* ∈ *B*, and *c*
     ∈ *C* must satisfy *a* ≤ *b* ≤ *c*. Give a smallest possible counterexample to
     the professor’s claim.'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 基尔默教授声称发现了二叉搜索树的一个显著特性。假设在二叉搜索树中查找关键字*k*的过程最终到达一个叶子节点。考虑三个集合：*A*，搜索路径左侧的关键字；*B*，搜索路径上的关键字；*C*，搜索路径右侧的关键字。基尔默教授声称，任意三个关键字*a*
+    ∈ *A*，*b* ∈ *B*，和*c* ∈ *C* 必须满足*a* ≤ *b* ≤ *c*。给出基尔默教授声明的最小可能反例。
 - en: '***12.2-5***'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-5***'
 - en: Show that if a node in a binary search tree has two children, then its successor
     has no left child and its predecessor has no right child.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明如果二叉搜索树中的一个节点有两个子节点，则其后继没有左子节点，其前驱没有右子节点。
 - en: '***12.2-6***'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-6***'
 - en: Consider a binary search tree *T* whose keys are distinct. Show that if the
     right subtree of a node *x* in *T* is empty and *x* has a successor *y*, then
     *y* is the lowest ancestor of *x* whose left child is also an ancestor of *x*.
     (Recall that every node is its own ancestor.)
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一棵具有不同键的二叉搜索树*T*。证明如果节点*x*的右子树为空且*x*有后继*y*，那么*y*是*x*的最低祖先，其左子节点也是*x*的祖先。（注意每个节点都是其自身的祖先。）
 - en: '***12.2-7***'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-7***'
 - en: An alternative method of performing an inorder tree walk of an *n*-node binary
     search tree finds the minimum element in the tree by calling TREE-MINIMUM and
     then making *n* − 1 calls to TREE-SUCCESSOR. Prove that this algorithm runs in
     Θ(*n*) time.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过调用TREE-MINIMUM找到树中的最小元素，然后进行*n* - 1次TREE-SUCCESSOR调用，可以执行*n*个节点的二叉搜索树的中序遍历的另一种方法。证明此算法的运行时间为Θ(*n*)。
 - en: '***12.2-8***'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-8***'
 - en: Prove that no matter what node you start at in a height-*h* binary search tree,
     *k* successive calls to TREE-SUCCESSOR take *O*(*k* + *h*) time.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明无论从高度为*h*的二叉搜索树中的哪个节点开始，对TREE-SUCCESSOR进行*k*次连续调用都需要*O*(*k* + *h*)的时间。
 - en: '***12.2-9***'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.2-9***'
 - en: Let *T* be a binary search tree whose keys are distinct, let *x* be a leaf node,
     and let *y* be its parent. Show that *y.key* is either the smallest key in *T*
     larger than *x.key* or the largest key in *T* smaller than *x.key*.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 设*T*为一棵具有不同键的二叉搜索树，设*x*为叶节点，*y*为其父节点。证明*y.key*要么是*T*中大于*x.key*的最小键，要么是*T*中小于*x.key*的最大键。
 - en: '[**12.3    Insertion and deletion**](toc.xhtml#Rh1-71)'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**12.3    插入和删除**](toc.xhtml#Rh1-71)'
 - en: The operations of insertion and deletion cause the dynamic set represented by
     a binary search tree to change. The data structure must be modified to reflect
     this change, but in such a way that the binary-search-tree property continues
     to hold. We’ll see that modifying the tree to insert a new element is relatively
     straightforward, but deleting a node from a binary search tree is more complicated.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 插入和删除操作会导致由二叉搜索树表示的动态集合发生变化。数据结构必须进行修改以反映这种变化，但必须以保持二叉搜索树属性的方式进行。我们将看到，修改树以插入新元素相对简单，但从二叉搜索树中删除节点则更加复杂。
 - en: '**Insertion**'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '**插入**'
 - en: The TREE-INSERT procedure inserts a new node into a binary search tree. The
     procedure takes a binary search tree *T* and a node *z* for which *z.key* has
     already been filled in, *z.left* = NIL, and *z.right* = NIL. It modifies *T* and
     some of the attributes of *z* so as to insert *z* into an appropriate position
     in the tree.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-INSERT过程将新节点插入二叉搜索树。该过程接受二叉搜索树*T*和一个节点*z*，其中*z.key*已经填充，*z.left* = NIL，*z.right*
+    = NIL。它修改*T*和*z*的一些属性，以便将*z*插入树中适当的位置。
 - en: TREE-INSERT(*T*, *z*)
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-INSERT(*T*, *z*)
 - en: '|   1 | *x* = *T.root* | **//** node being compared with *z* |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | *x* = *T.root* | **//** 与*z*进行比较的节点 |'
 - en: '|   2 | *y* = NIL | **//** *y* will be parent of *z* |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | *y* = NIL | **//** *y*将成为*z*的父节点 |'
 - en: '|   3 | **while** *x* ≠ NIL | **//** descend until reaching a leaf |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **当** *x* ≠ NIL | **//** 下降直到到达叶节点 |'
 - en: '|   4 | *y* = *x* |  |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | *y* = *x* |  |'
 - en: '|   5 | **if** *z.key* < *x.key* |  |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **如果** *z.key* < *x.key* |  |'
 - en: '|   6 | *x* = *x.left* |  |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | *x* = *x.left* |  |'
 - en: '|   7 | **else** *x* = *x.right* |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | **否则** *x* = *x.right* |'
 - en: '|   8 | *z.p* = *y* | **//** found the location—insert *z* with parent *y*
     |'
+  id: totrans-127
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *z.p* = *y* | **//** 找到位置——将*z*插入并设置父节点*y* |'
 - en: '|   9 | **if** *y* == NIL |  |'
+  id: totrans-128
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | **如果** *y* == NIL |  |'
 - en: '| 10 | *T.root* = *z* | **//** tree *T* was empty |'
+  id: totrans-129
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | *T.root* = *z* | **//** 树*T*为空 |'
 - en: '| 11 | **elseif** *z.key* < *y.key* |  |'
+  id: totrans-130
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | **否则如果** *z.key* < *y.key* |  |'
 - en: '| 12 | *y.left* = *z* |  |'
+  id: totrans-131
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *y.left* = *z* |  |'
 - en: '| 13 | **else** *y.right* = *z* |  |'
+  id: totrans-132
   prefs: []
   type: TYPE_TB
+  zh: '| 13 | **否则** *y.right* = *z* |  |'
 - en: '[Figure 12.3](chapter012.xhtml#Fig_12-3) shows how TREE-INSERT works. Just
     like the procedures TREE-SEARCH and ITERATIVE-TREE-SEARCH, TREE-INSERT begins
     at the root of the tree and the pointer *x* traces a simple path downward looking
@@ -577,37 +858,53 @@
     *y*, because by the time it finds the NIL where *z* belongs, the search has proceeded
     one step beyond the node that needs to be changed. Lines 8–13 set the pointers
     that cause *z* to be inserted.'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图12.3](chapter012.xhtml#Fig_12-3)展示了TREE-INSERT的工作原理。就像TREE-SEARCH和ITERATIVE-TREE-SEARCH过程一样，TREE-INSERT从树的根节点开始，指针*x*沿着向下查找NIL的简单路径，以便用输入节点*z*替换。该过程将***尾指针*** *y*作为*x*的父节点。初始化后，第3-7行的**while**循环使这两个指针向下移动，根据*z.key*与*x.key*的比较，向左或��右移动，直到*x*变为NIL。这个NIL占据了节点*z*将要插入的位置。更准确地说，这个NIL是将成为*z*父节点的节点的*left*或*right*属性，或者如果树*T*当前为空，则是*T.root*。该过程需要尾指针*y*，因为当它找到*z*应该放置的NIL时，搜索已经进行了一步超出需要更改的节点。第8-13行设置了导致*z*被插入的指针。'
 - en: '![art](images/Art_P418.jpg)'
+  id: totrans-134
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P418.jpg)'
 - en: '**Figure 12.3** Inserting a node with key 13 into a binary search tree. The
     simple path from the root down to the position where the node is inserted is shown
     in blue. The new node and the link to its parent are highlighted in orange.'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图12.3** 将具有键为13的节点插入二叉搜索树的过程。从根节点到插入节点位置的简单路径显示为蓝色。新节点及其与父节点的链接用橙色突出显示。'
 - en: Like the other primitive operations on search trees, the procedure TREE-INSERT
     runs in *O*(*h*) time on a tree of height *h*.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 与搜索树上的其他原始操作一样，TREE-INSERT过程在高度为*h*的树上运行时间为*O*(*h*)。
 - en: '**Deletion**'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: '**删除**'
 - en: The overall strategy for deleting a node *z* from a binary search tree *T* has
     three basic cases and, as we’ll see, one of the cases is a bit tricky.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 从二叉搜索树*T*中删除节点*z*的整体策略有三种基本情况，正如我们将看到的，其中一种情况有点棘手。
 - en: If *z* has no children, then simply remove it by modifying its parent to replace
     *z* with NIL as its child.
+  id: totrans-139
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*z*没有子节点，则通过修改其父节点以将*z*替换为NIL作为其子节点来简单地删除它。
 - en: If *z* has just one child, then elevate that child to take *z*’s position in
     the tree by modifying *z*’s parent to replace *z* by *z*’s child.
+  id: totrans-140
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*z*只有一个子节点，那么通过修改*z*的父节点，将该子节点提升到树中*z*的位置。
 - en: If *z* has two children, find *z*’s successor *y*—which must belong to *z*’s
     right subtree—and move *y* to take *z*’s position in the tree. The rest of *z*’s
     original right subtree becomes *y*’s new right subtree, and *z*’s left subtree
@@ -616,18 +913,24 @@
     with the rest of *y*’s original right subtree following automatically. This case
     is the tricky one because, as we’ll see, it matters whether *y* is *z*’s right
     child.
+  id: totrans-141
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*z*有两个子节点，则找到*z*的后继*y*—必须属于*z*的右子树—并将*y*移动到树中*z*的位置。*z*的原右子树的其余部分成为*y*的新右子树，*z*的左子树成为*y*的新左子树。因为*y*是*z*的后继，所以它不能有左子节点，*y*的原右子节点移动到*y*的原位置，其余*y*的原右子树自动跟随。这种情况比较棘手，因为，正如我们将看到的，*y*是否为*z*的右子节点很重要。
 - en: The procedure for deleting a given node *z* from a binary search tree *T* takes
     as arguments pointers to *T* and *z*. It organizes its cases a bit differently
     from the three cases outlined previously by considering the four cases shown in
     [Figure 12.4](chapter012.xhtml#Fig_12-4).
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 从二叉搜索树*T*中删除给定节点*z*的过程需要将指针传递给*T*和*z*。它通过考虑[图12.4](chapter012.xhtml#Fig_12-4)中所示的四种情况，有点不同于之前概述的三种情况来组织它的情况。
 - en: '![art](images/Art_P419.jpg)'
+  id: totrans-143
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P419.jpg)'
 - en: '**Figure 12.4** Deleting a node *z*, in blue, from a binary search tree. Node
     *z* may be the root, a left child of node *q*, or a right child of *q*. The node
     that will replace node *z* in its position in the tree is colored orange. **(a)**
@@ -640,73 +943,106 @@
     *l* and right child *r*), and its successor *y* ≠ *r* lies within the subtree
     rooted at *r*. First replace *y* by its own right child *x*, and set *y* to be
     *r*’s parent. Then set *y* to be *q*’s child and the parent of *l*.'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图12.4** 从二叉搜索树中删除节点*z*（蓝色）。节点*z*可能是根节点，节点*q*的左子节点，或*q*的右子节点。将替换节点*z*在树中的位置的节点标记为橙色。**(a)**
+    节点*z*没有左子节点。用其右子节点*r*替换*z*，该右子节点可能是NIL也可能不是NIL。**(b)** 节点*z*有左子节点*l*但没有右子节点。用*l*替换*z*。**(c)**
+    节点*z*有两个子节点。其左子节点是节点*l*，右子节点是其后继*y*（没有左子节点），*y*的右子节点是节点*x*。用*y*替换*z*，更新*y*的左子节点为*l*，但将*x*保留为*y*的右子节点。**(d)**
+    节点*z*有两个子节点（左子节点*l*和右子节点*r*），其后继*y* ≠ *r*位于以*r*为根的子树中。首先用其自己的右子节点*x*替换*y*，并将*y*设置为*r*的父节点。然后将*y*设置为*q*的子节点和*l*的父节点。'
 - en: If *z* has no left child, then as in part (a) of the figure, replace *z* by
     its right child, which may or may not be NIL. When *z*’s right child is NIL, this
     case deals with the situation in which *z* has no children. When *z*’s right child
     is non-NIL, this case handles the situation in which *z* has just one child, which
     is its right child.
+  id: totrans-145
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*z*没有左子节点，那么如图中的(a)部分所示，用其右子节点替换*z*，该右子节点可能是NIL也可能不是NIL。当*z*的右子节点为NIL时，这种情况处理*z*没有子节点的情况。当*z*的右子节点为非NIL时，这种情况处理*z*只有一个子节点的情况，即右子节点。
 - en: Otherwise, if *z* has just one child, then that child is a left child. As in
     part (b) of the figure, replace *z* by its left child.
+  id: totrans-146
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 否则，如果*z*只有一个子节点，则该子节点是左子节点。如图中的(b)部分所示，用其左子节点替换*z*。
 - en: 'Otherwise, *z* has both a left and a right child. Find *z*’s successor *y*,
     which lies in *z*’s right subtree and has no left child (see Exercise 12.2-5).
     Splice node *y* out of its current location and replace *z* by *y* in the tree.
     How to do so depends on whether *y* is *z*’s right child:'
+  id: totrans-147
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 否则，*z*既有左子节点又有右子节点。找到*z*的后继*y*，它位于*z*的右子树中且没有左子节点（参见练习12.2-5）。将节点*y*从当前位置剪切出来，并将*z*替换为*y*在树中的位置。如何做取决于*y*是否为*z*的右子节点：
 - en: If *y* is *z*’s right child, then as in part (c) of the figure, replace *z*
     by *y*, leaving *y*’s right child alone.
+  id: totrans-148
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果*y*是*z*的右子节点，则如图中的(c)部分所示，用*y*替换*z*，保持*y*的右子节点不变。
 - en: Otherwise, *y* lies within *z*’s right subtree but is not *z*’s right child.
     In this case, as in part (d) of the figure, first replace *y* by its own right
     child, and then replace *z* by *y*.
+  id: totrans-149
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 否则，*y*位于*z*的右子树中，但不是*z*的右子节点。在这种情况下，如图中的(d)部分所示，首先用其自己的右子节点替换*y*，然后用*y*替换*z*。
 - en: As part of the process of deleting a node, subtrees need to move around within
     the binary search tree. The subroutine TRANSPLANT replaces one subtree as a child
     of its parent with another subtree. When TRANSPLANT replaces the subtree rooted
     at node *u* with the subtree rooted at node *v*, node *u*’s parent becomes node
     *v*’s parent, and *u*’s parent ends up having *v* as its appropriate child. TRANSPLANT
     allows *v* to be NIL instead of a pointer to a node.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 在删除节点的过程中，子树需要在二叉搜索树中移动。子例程TRANSPLANT将一个子树替换为其父节点的子树。当TRANSPLANT用以节点*u*为根的子树替换以节点*v*为根的子树时，节点*u*的父节点变为节点*v*的父节点，*u*的父节点最终将*v*作为其适当的子节点。TRANSPLANT允许*v*为NIL而不是指向节点的指针。
 - en: TRANSPLANT(*T*, *u*, *v*)
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: TRANSPLANT(*T*, *u*, *v*)
 - en: '| 1 | **if** *u.p* == NIL |'
+  id: totrans-152
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **if** *u.p* == NIL |'
 - en: '| 2 | *T.root* = *v* |'
+  id: totrans-153
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *T.root* = *v* |'
 - en: '| 3 | **elseif** *u* == *u.p.left* |'
+  id: totrans-154
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **elseif** *u* == *u.p.left* |'
 - en: '| 4 | *u.p.left* = *v* |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *u.p.left* = *v* |'
 - en: '| 5 | **else** *u.p.right* = *v* |'
+  id: totrans-156
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **else** *u.p.right* = *v* |'
 - en: '| 6 | **if** *v* ≠ NIL |'
+  id: totrans-157
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **if** *v* ≠ NIL |'
 - en: '| 7 | *v.p* = *u.p* |'
+  id: totrans-158
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *v.p* = *u.p* |'
 - en: Here is how TRANSPLANT works. Lines 1–2 handle the case in which *u* is the
     root of *T*. Otherwise, *u* is either a left child or a right child of its parent.
     Lines 3–4 take care of updating *u.p.left* if *u* is a left child, and line 5
@@ -714,8 +1050,10 @@
     update *v.p* only if *v* is non-NIL. The procedure TRANSPLANT does not attempt
     to update *v.left* and *v.right*. Doing so, or not doing so, is the responsibility
     of TRANSPLANT’s caller.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: TRANSPLANT的工作原理如下。第1-2行处理*u*是*T*的根的情况。否则，*u*要么是其父节点的左孩子，要么是右孩子。第3-4行负责更新如果*u*是左孩子则更新*u.p.left*，第5行如果*u*是右孩子则更新*u.p.right*。因为*v*可能为NIL，所以第6-7行只有在*v*非NIL时才更新*v.p*。TRANSPLANT过程��尝试更新*v.left*和*v.right*。更新或不更新这些值是TRANSPLANT调用者的责任。
 - en: The procedure TREE-DELETE on the facing page uses TRANSPLANT to delete node
     *z* from binary search tree *T*. It executes the four cases as follows. Lines
     1–2 handle the case in which node *z* has no left child ([Figure 12.4(a)](chapter012.xhtml#Fig_12-4)),
@@ -735,115 +1073,177 @@
     12.4(c)](chapter012.xhtml#Fig_12-4)) and make *z*’s right child (*r* in the figure)
     become *y*’s right child instead. Finally, lines 10–12 replace *z* as a child
     of its parent by *y* and replace *y*’s left child by *z*’s left child.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下页上的TREE-DELETE过程使用TRANSPLANT从二叉搜索树*T*中删除节点*z*。它执行以下四种情况。第1-2行处理节点*z*没有左孩子的情况（[图12.4(a)](chapter012.xhtml#Fig_12-4)），第3-4行处理*z*有左孩子但没有右孩子的情况（[图12.4(b)](chapter012.xhtml#Fig_12-4)）。第5-12行处理剩下的两种情况，即*z*有两个孩子的情况。第5行找到节点*y*，它是*z*的后继。因为*z*有非空右子树，所以它的后继必须是该子树中具有最小键的节点；因此调用TREE-MINIMUM(*z.right*)。正如我们之前指出的，*y*没有左孩子。该过程需要将*y*从当前位置剪切出来，并在树中用*y*替换*z*。如果*y*是*z*的右孩子（[图12.4(c)](chapter012.xhtml#Fig_12-4)），那么第10-12行将*z*替换为其父节点的子节点*y*，并将*y*的左孩子替换为*z*的左孩子。节点*y*保留其右孩子（[图12.4(c)](chapter012.xhtml#Fig_12-4)中的*x*），因此*y.right*不需要发生变化。如果*y*不是*z*的右孩子（[图12.4(d)](chapter012.xhtml#Fig_12-4)），则需要移动两个节点。第7-9行将*y*替换为其父节点的子节点*y*的右孩子（[图12.4(c)](chapter012.xhtml#Fig_12-4)中的*x*），并使*z*的右孩子（图中的*r*）成为*y*的右孩子。最后，第10-12行将*z*替换为其父节点的子节点*y*，并将*y*的左孩子替换为*z*的左孩子。
 - en: TREE-DELETE(*T*, *z*)
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-DELETE(*T*, *z*)
 - en: '|   1 | **if** *z.left* == NIL |  |'
+  id: totrans-162
   prefs: []
   type: TYPE_TB
+  zh: '|   1 | **如果** *z.left* == NIL |  |'
 - en: '|   2 | TRANSPLANT(*T*, *z*, *z.right*) | **//** replace *z* by its right child
     |'
+  id: totrans-163
   prefs: []
   type: TYPE_TB
+  zh: '|   2 | TRANSPLANT(*T*, *z*, *z.right*) | **//** 用其右孩子替换*z* |'
 - en: '|   3 | **elseif** *z.right* == NIL |  |'
+  id: totrans-164
   prefs: []
   type: TYPE_TB
+  zh: '|   3 | **否则如果** *z.right* == NIL |  |'
 - en: '|   4 | TRANSPLANT(*T*, *z*, *z.left*) | **//** replace *z* by its left child
     |'
+  id: totrans-165
   prefs: []
   type: TYPE_TB
+  zh: '|   4 | TRANSPLANT(*T*, *z*, *z.left*) | **//** 用其左孩子替换*z* |'
 - en: '|   5 | **else** *y* = TREE-MINIMUM(*z.right*) | **//** *y* is *z*’s successor
     |'
+  id: totrans-166
   prefs: []
   type: TYPE_TB
+  zh: '|   5 | **否则** *y* = TREE-MINIMUM(*z.right*) | **//** *y* 是*z*的后继 |'
 - en: '|   6 | **if** *y* ≠ *z.right* | **//** is *y* farther down the tree? |'
+  id: totrans-167
   prefs: []
   type: TYPE_TB
+  zh: '|   6 | **如果** *y* ≠ *z.right* | **//** *y* 在树中更靠下吗？'
 - en: '|   7 | TRANSPLANT(*T*, *y*, *y.right*) | **//** replace *y* by its right child
     |'
+  id: totrans-168
   prefs: []
   type: TYPE_TB
+  zh: '|   7 | TRANSPLANT(*T*, *y*, *y.right*) | **//** 用其右孩子替换*y* |'
 - en: '|   8 | *y.right* = *z.right* | **//** *z*’s right child becomes |'
+  id: totrans-169
   prefs: []
   type: TYPE_TB
+  zh: '|   8 | *y.right* = *z.right* | **//** *z*的右孩子变为 |'
 - en: '|   9 | *y.right.p* = *y* | **//**      *y*’s right child |'
+  id: totrans-170
   prefs: []
   type: TYPE_TB
+  zh: '|   9 | *y.right.p* = *y* | **//**      *y*的右孩子 |'
 - en: '| 10 | TRANSPLANT(*T*, *z*, *y*) | **//** replace *z* by its successor *y*
     |'
+  id: totrans-171
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | TRANSPLANT(*T*, *z*, *y*) | **//** 用其后继*y*替换*z* |'
 - en: '| 11 | *y.left* = *z.left* | **//** and give *z*’s left child to y, |'
+  id: totrans-172
   prefs: []
   type: TYPE_TB
+  zh: '| 11 | *y.left* = *z.left* | **//** 并将*z*的左孩子给予*y* |'
 - en: '| 12 | *y.left.p* = *y* | **//**      which had no left child |'
+  id: totrans-173
   prefs: []
   type: TYPE_TB
+  zh: '| 12 | *y.left.p* = *y* | **//**      没有左孩子的情况 |'
 - en: Each line of TREE-DELETE, including the calls to TRANSPLANT, takes constant
     time, except for the call to TREE-MINIMUM in line 5\. Thus, TREE-DELETE runs in
     *O*(*h*) time on a tree of height *h*.
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: TREE-DELETE的每一行，包括对TRANSPLANT的调用，在除了第5行调用TREE-MINIMUM的情况下都需要常数时间。因此，在高度为*h*的树上，TREE-DELETE的运行时间为*O*(*h*)。
 - en: In summary, we have proved the following theorem.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，我们已经证明了以下定理。
 - en: '***Theorem 12.3***'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: '***定理12.3***'
 - en: The dynamic-set operations INSERT and DELETE can be implemented so that each
     one runs in *O*(*h*) time on a binary search tree of height *h*.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态集合操作INSERT和DELETE可以实现为在高度为*h*的二叉搜索树上每个操作运行时间为*O*(*h*)。
 - en: ▪
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: '**Exercises**'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***12.3-1***'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-1***'
 - en: Give a recursive version of the TREE-INSERT procedure.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 给出TREE-INSERT过程的递归版本。
 - en: '***12.3-2***'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-2***'
 - en: Suppose that you construct a binary search tree by repeatedly inserting distinct
     values into the tree. Argue that the number of nodes examined in searching for
     a value in the tree is 1 plus the number of nodes examined when the value was
     first inserted into the tree.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设你通过不断将不同的值插入树中来构建二叉搜索树。论证在搜索树中查找值时检查的节点数是在值首次插入树中时检查的节点数加1。
 - en: '***12.3-3***'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-3***'
 - en: You can sort a given set of *n* numbers by first building a binary search tree
     containing these numbers (using TREE-INSERT repeatedly to insert the numbers one
     by one) and then printing the numbers by an inorder tree walk. What are the worst-case
     and best-case running times for this sorting algorithm?
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过首先构建包含这些数字的二叉搜索树（使用TREE-INSERT重复插入数字）然后通过中序遍历打印数字，可以对给定的*n*个数字进行排序。这种排序算法的最坏情况和最佳情况运行时间是多少？
 - en: '***12.3-4***'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-4***'
 - en: When TREE-DELETE calls TRANSPLANT, under what circumstances can the parameter
     *v* of TRANSPLANT be NIL?
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 当TREE-DELETE调用TRANSPLANT时，TRANSPLANT的参数*v*何时可以为NIL？
 - en: '***12.3-5***'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-5***'
 - en: Is the operation of deletion “commutative” in the sense that deleting *x* and
     then *y* from a binary search tree leaves the same tree as deleting *y* and then
     *x*? Argue why it is or give a counterexample.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 删除操作在从二叉搜索树中删除*x*然后删除*y*后是否“可交换”，与从二叉搜索树中删除*y*然后删除*x*后是否留下相同的树？论证为什么是这样的或者举出反例。
 - en: '***12.3-6***'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-6***'
 - en: Suppose that instead of each node *x* keeping the attribute *x.p*, pointing
     to *x*’s parent, it keeps *x.succ*, pointing to *x*’s successor. Give pseudocode
     for TREE-SEARCH, TREE-INSERT, and TREE-DELETE on a binary search tree *T* using
@@ -851,74 +1251,107 @@
     is the height of the tree *T*. You may assume that all keys in the binary search
     tree are distinct. (*Hint:* You might wish to implement a subroutine that returns
     the parent of a node.)
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设每个节点*x*不再保留指向*x*父节点的属性*x.p*，而是保留指向*x*后继节点的属性*x.succ*。给出使用这种表示法在二叉搜索树*T*上进行TREE-SEARCH、TREE-INSERT和TREE-DELETE的伪代码。这些过程应在*O*(*h*)时间内运行，其中*h*是树*T*的高度。您可以假设二叉搜索树中的所有键都是不同的。（提示：您可能希望实现一个子程序，返回节点的父节点。）
 - en: '***12.3-7***'
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12.3-7***'
 - en: When node *z* in TREE-DELETE has two children, you can choose node *y* to be
     its predecessor rather than its successor. What other changes to TREE-DELETE are
     necessary if you do so? Some have argued that a fair strategy, giving equal priority
     to predecessor and successor, yields better empirical performance. How might TREE-DELETE
     be minimally changed to implement such a fair strategy?
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 当TREE-DELETE中的节点*z*有两个子节点时，您可以选择节点*y*作为其前驱而不是后继。如果这样做，TREE-DELETE需要做出哪些其他更改？有人认为公平策略，对前驱和后继给予相同的优先级，会产生更好的实际性能。如何最小程度地更改TREE-DELETE以实现这样一种公平策略？
 - en: '**Problems**'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***12-1     Binary search trees with equal keys***'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12-1     具有相等键的二叉搜索树***'
 - en: Equal keys pose a problem for the implementation of binary search trees.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 相等键对于二叉搜索树的实现构成了问题。
 - en: '***a.*** What is the asymptotic performance of TREE-INSERT when used to insert
     *n* items with identical keys into an initially empty binary search tree?'
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 当用于将*n*个具有相同键的项插入到最初为空的二叉搜索树中时，TREE-INSERT的渐近性能是多少？'
 - en: Consider changing TREE-INSERT to test whether *z.key* = *x.key* before line
     5 and to test whether *z.key* = *y.key* before line 11\. If equality holds, implement
     one of the following strategies. For each strategy, find the asymptotic performance
     of inserting *n* items with identical keys into an initially empty binary search
     tree. (The strategies are described for line 5, which compares the keys of *z*
     and *x*. Substitute *y* for *x* to arrive at the strategies for line 11.)
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑将TREE-INSERT更改为在第5行之前测试*z.key* = *x.key*，并在第11行之前测试*z.key* = *y.key*。如果相等成立，实施以下策略之一。对于每种策略，找出将*n*个具有相同键的项插入到最初为空的二叉���索树中的渐近性能。（这些策略是针对比较*z*和*x*键的第5行描述的。将*y*替换为*x*以得到第11行的策略。）
 - en: '***b.*** Keep a boolean flag *x.b* at node *x*, and set *x* to either *x.left*
     or *x.right* based on the value of *x.b*, which alternates between FALSE and TRUE
     each time TREE-INSERT visits *x* while inserting a node with the same key as *x*.'
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 在节点*x*处保持一个布尔标志*x.b*，根据*x.b*的值将*x*设置为*x.left*或*x.right*，当TREE-INSERT访问*x*时，*x.b*在插入具有与*x*相同键的节点时在FALSE和TRUE之间交替。'
 - en: '***c.*** Keep a list of nodes with equal keys at *x*, and insert *z* into the
     list.'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 在*x*处保持具有相同键的节点列表，并将*z*插入列表中。'
 - en: '***d.*** Randomly set *x* to either *x.left* or *x.right*. (Give the worst-case
     performance and informally derive the expected running time.)'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 随机将*x*设置为*x.left*或*x.right*。（给出最坏情况性能并非正式推导预期运行时间。）'
 - en: '***12-2     Radix trees***'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12-2     基数树***'
 - en: Given two strings *a* = *a*[0]*a*[1] … *a[p]* and *b* = *b*[0]*b*[1] … *b[q]*,
     where each *a[i]* and each *b[j]* belongs to some ordered set of characters, we
     say that string *a* is ***lexicographically less than*** string *b* if either
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定两个字符串*a* = *a*[0]*a*[1] … *a[p]*和*b* = *b*[0]*b*[1] … *b[q]*，其中每个*a[i]*和每个*b[j]*属于某个有序字符集，如果字符串*a****按字典顺序小于***字符串*b*，则表示
 - en: there exists an integer *j*, where 0 ≤ *j* ≤ min {*p*, *q*}, such that *a[i]*
     = *b[i]* for all *i* = 0, 1, …, *j* − 1 and *a[j]* < *b[j]*, or
+  id: totrans-204
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 存在一个整数*j*，其中0 ≤ *j* ≤ min {*p*, *q*}，使得对于所有*i* = 0, 1, …, *j* − 1 和 *a[i]* =
+    *b[i]*，以及*a[j]* < *b[j]*。
 - en: '*p* < *q* and *a[i]* = *b[i]* for all *i* = 0, 1, …, *p*.'
+  id: totrans-205
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*p* < *q* 并且对于所有*i* = 0, 1, …, *p*，*a[i]* = *b[i]*。'
 - en: For example, if *a* and *b* are bit strings, then 10100 < 10110 by rule 1 (letting
     *j* = 3) and 10100 < 101000 by rule 2\. This ordering is similar to that used
     in English-language dictionaries.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果*a*和*b*是位串，则根据规则1（令*j* = 3），10100 < 10110，根据规则2，10100 < 101000。这种排序类似于英语字典中使用的排序。
 - en: The ***radix tree*** data structure shown in [Figure 12.5](chapter012.xhtml#Fig_12-5)
     (also known as a ***trie***) stores the bit strings 1011, 10, 011, 100, and 0\.
     When searching for a key *a* = *a*[0]*a*[1] … *a[p]*, go left at a node of depth
@@ -926,21 +1359,30 @@
     whose lengths sum to *n*. Show how to use a radix tree to sort *S* lexicographically
     in Θ(*n*) time. For the example in [Figure 12.5](chapter012.xhtml#Fig_12-5), the
     output of the sort should be the sequence 0, 011, 10, 100, 1011.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图12.5](chapter012.xhtml#Fig_12-5)中显示的***基数树***数据结构（也称为***trie***）存储位串1011、10、011、100和0。在搜索键*a*
+    = *a*[0]*a*[1] … *a[p]*时，如果*a[i]* = 0，则在深度*i*的节点处向左移动，如果*a[i]* = 1，则向右移动。设*S*是一组长度总和为*n*的不同位串。展示如何使用基数树在Θ(*n*)时间内对*S*进行字典排序。对于[图12.5](chapter012.xhtml#Fig_12-5)中的示例，排序的输出应为序列0、011、10、100、1011。'
 - en: '![art](images/Art_P420.jpg)'
+  id: totrans-208
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P420.jpg)'
 - en: '**Figure 12.5** A radix tree storing the bit strings 1011, 10, 011, 100, and
     0\. To determine each node’s key, traverse the simple path from the root to that
     node. There is no need, therefore, to store the keys in the nodes. The keys appear
     here for illustrative purposes only. Keys corresponding to blue nodes are not
     in the tree. Such nodes are present only to establish a path to other nodes.'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '**图12.5** 存储位串1011, 10, 011, 100和0的基数树。为了确定每个节点的键，遍历从根到该节点的简单路径。因此，无需在节点中存储键。这里只是为了说明目的而显示键。对应于蓝色节点的键不在树中。这样的节点仅用于建立到其他节点的路径。'
 - en: '***12-3     Average node depth in a randomly built binary search tree***'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12-3*** 随机构建的二叉搜索树中节点的平均深度'
 - en: A ***randomly built binary search tree*** on *n* keys is a binary search tree
     created by starting with an empty tree and inserting the keys in random order,
     where each of the *n*! permutations of the keys is equally likely. In this problem,
@@ -948,124 +1390,192 @@
     tree with *n* nodes is *O*(lg *n*). The technique reveals a surprising similarity
     between the building of a binary search tree and the execution of RANDOMIZED-QUICKSORT
     from [Section 7.3](chapter007.xhtml#Sec_7.3).
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个***随机构建的二叉搜索树***有*n*个键，是通过从空树开始并以随机顺序插入键来创建的二叉搜索树，其中每个*n*!个键的排列都是等概率的。在这个问题中，你将证明具有*n*个节点的随机构建的二叉搜索树中节点的平均深度为*O*(lg
+    *n*)。这种技术揭示了二叉搜索树的构建与[第7.3节](chapter007.xhtml#Sec_7.3)中的RANDOMIZED-QUICKSORT执行之间的惊人相似性。
 - en: Denote the depth of any node *x* in tree *T* by *d*(*x*, *T*). Then the ***total
     path length*** *P*(*T*) of a tree *T* is the sum, over all nodes *x* in *T*, of
     *d*(*x*, *T*).
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 用*d*(*x*, *T*)表示树*T*中任意节点*x*的深度。那么树*T*的***总路径长度*** *P*(*T*)是*T*中所有节点*x*的*d*(*x*,
+    *T*)之和。
 - en: '***a.*** Argue that the average depth of a node in *T* is'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 论证*T*中节点的平均深度为'
 - en: '![art](images/Art_P421.jpg)'
+  id: totrans-214
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P421.jpg)'
 - en: Thus, you need to show that the expected value of *P*(*T*) is *O*(*n* lg *n*).
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，你需要展示*P*(*T*)的期望值为*O*(*n* lg *n*)。
 - en: '***b.*** Let *T[L]* and *T[R]* denote the left and right subtrees of tree *T*,
     respectively. Argue that if *T* has *n* nodes, then'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 让*T[L]*和*T[R]*表示树*T*的左子树和右子树。论证如果*T*有*n*个节点，则'
 - en: '*P*(*T*) = *P*(*T[L]*) + *P*(*T[R]*) + *n* − 1.'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: '*P*(*T*) = *P*(*T[L]*) + *P*(*T[R]*) + *n* − 1.'
 - en: '***c.*** Let *P*(*n*) denote the average total path length of a randomly built
     binary search tree with *n* nodes. Show that'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 让*P*(*n*)表示具有*n*个节点的随机构建的二叉搜索树的平均总路径长度。展示'
 - en: '![art](images/Art_P422.jpg)'
+  id: totrans-219
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P422.jpg)'
 - en: '***d.*** Show how to rewrite *P*(*n*) as'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 展示如何将*P*(*n*)重写为'
 - en: '![art](images/Art_P423.jpg)'
+  id: totrans-221
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P423.jpg)'
 - en: '***e.*** Recalling the alternative analysis of the randomized version of quicksort
     given in Problem 7-3, conclude that *P*(*n*) = *O*(*n* lg *n*).'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 回顾问题7-3中给出的随机快速排序的另一种分析，得出*P*(*n*) = *O*(*n* lg *n*)。'
 - en: Each recursive invocation of randomized quicksort chooses a random pivot element
     to partition the set of elements being sorted. Each node of a binary search tree
     partitions the set of elements that fall into the subtree rooted at that node.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 每次随机快速排序的递归调用都选择一个随机的枢轴元素来对正在排序的元素集进行分区。二叉搜索树的每个节点将元素集分区为根节点处的子树中的元素。
 - en: '***f.*** Describe an implementation of quicksort in which the comparisons to
     sort a set of elements are exactly the same as the comparisons to insert the elements
     into a binary search tree. (The order in which comparisons are made may differ,
     but the same comparisons must occur.)'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 描述一个快速排序的实现，其中用于对一组元素进行排序的比较与将元素插入二叉搜索树的比较完全相同。（进行比较的顺序可能不同，但必须发生相同的比较。）'
 - en: '***12-4     Number of different binary trees***'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: '***12-4*** 不同二叉树的数量'
 - en: Let *b[n]* denote the number of different binary trees with *n* nodes. In this
     problem, you will find a formula for *b[n]*, as well as an asymptotic estimate.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 让*b[n]*表示具有*n*个节点的不同二叉树的数量。在这个问题中，你将找到*b[n]*的一个公式，以及一个渐近估计。
 - en: '***a.*** Show that *b*[0] = 1 and that, for *n* ≥ 1,'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 展示*b*[0] = 1，并且对于*n* ≥ 1，'
 - en: '![art](images/Art_P424.jpg)'
+  id: totrans-228
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P424.jpg)'
 - en: '***b.*** Referring to Problem 4-5 on page 121 for the definition of a generating
     function, let *B*(*x*) be the generating function'
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 参考第121页的问题4-5中生成函数的定义，令*B*(*x*)为生成函数'
 - en: '![art](images/Art_P425.jpg)'
+  id: totrans-230
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P425.jpg)'
 - en: Show that *B*(*x*) = *xB*(*x*)² + 1, and hence one way to express *B*(*x*) in
     closed form is
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 展示*B*(*x*) = *xB*(*x*)² + 1，因此表达*B*(*x*)的一种方式是
 - en: '![art](images/Art_P426.jpg)'
+  id: totrans-232
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P426.jpg)'
 - en: The ***Taylor expansion*** of *f*(*x*) around the point *x* = *a* is given by
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: '*f*(*x*)在点*x* = *a*周围的***泰勒展开式***为'
 - en: '![art](images/Art_P427.jpg)'
+  id: totrans-234
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P427.jpg)'
 - en: where *f*^((*k*))(*x*) is the *k*th derivative of *f* evaluated at *x*.
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中*f*^((*k*))(*x*)是在*x*处求导的第*k*个导数。
 - en: '***c.*** Show that'
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 展示'
 - en: '![art](images/Art_P428.jpg)'
+  id: totrans-237
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P428.jpg)'
 - en: (the *n*th ***Catalan number***) by using the Taylor expansion of ![art](images/Art_P429.jpg)
     around *x* = 0\. (If you wish, instead of using the Taylor expansion, you may
     use the generalization of the binomial theorem, equation (C.4) on page 1181, to
     noninteger exponents *n*, where for any real number *n* and for any integer *k*,
     you can interpret ![art](images/Art_P430.jpg) to be *n*(*n* − 1) … (*n* − *k*
     + 1)/*k*! if *k* ≥ 0, and 0 otherwise.)
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: （第*n*个***卡特兰数***)通过在*x* = 0周围使用![art](images/Art_P429.jpg)的泰勒展开式来计算。（如果愿意，你可以使用二项式定理的推广，即第1181页上的方程(C.4)，对非整数指数*n*进行解释，其中对于任何实数*n*和任何整数*k*，如果*k*
+    ≥ 0，则可以解释![art](images/Art_P430.jpg)为*n*(*n* − 1) … (*n* − *k* + 1)/*k*!，否则为0。）
 - en: '***d.*** Show that'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 展示'
 - en: '![art](images/Art_P431.jpg)'
+  id: totrans-240
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P431.jpg)'
 - en: '**Chapter notes**'
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: Knuth [[261](bibliography001.xhtml#endnote_261)] contains a good discussion
     of simple binary search trees as well as many variations. Binary search trees
     seem to have been independently discovered by a number of people in the late 1950s.
     Radix trees are often called “tries,” which comes from the middle letters in the
     word *retrieval*. Knuth [[261](bibliography001.xhtml#endnote_261)] also discusses
     them.
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: Knuth [[261](bibliography001.xhtml#endnote_261)] 包含了对简单二叉搜索树以及许多变体的讨论。二叉搜索树似乎在20世纪50年代后期被许多人独立发现。基数树通常被称为“tries”，这个名字来自单词*retrieval*中的中间字母。Knuth
+    [[261](bibliography001.xhtml#endnote_261)] 也对它们进行了讨论。
 - en: Many texts, including the first two editions of this book, describe a somewhat
     simpler method of deleting a node from a binary search tree when both of its children
     are present. Instead of replacing node *z* by its successor *y*, delete node *y*
@@ -1076,12 +1586,16 @@
     Although the deletion method presented in this edition of this book is a bit more
     complicated, it guarantees that a call to delete node *z* deletes node *z* and
     only node *z*.
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多文本，包括本书的前两版，描述了一种稍微简化的方法，用于从二叉搜索树中删除一个同时具有两个子节点的节点。不是用其后继者*y*替换节点*z*，而是删除节点*y*，但将其键和卫星数据复制到节点*z*中。这种方法的缺点是实际删除的节点可能不是传递给删除过程的节点。如果程序的其他组件维护对树中节点的指针，它们可能错误地得到对已删除节点的“陈旧”指针。尽管本书的这一版中呈现的删除方法有点复杂，但它保证调用删除节点*z*会删除节点*z*，而且只有节点*z*。
 - en: '[Section 14.5](chapter014.xhtml#Sec_14.5) will show how to construct an optimal
     binary search tree when you know the search frequencies before constructing the
     tree. That is, given the frequencies of searching for each key and the frequencies
     of searching for values that fall between keys in the tree, a set of searches
     in the constructed binary search tree examines the minimum number of nodes.'
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第14.5节](chapter014.xhtml#Sec_14.5)将展示如何在构建树之前知道搜索频率时构建最佳二叉搜索树。也就是说，给定每个键搜索频率和搜索树中键之间值的搜索频率，构建的二叉搜索树中的一组搜索检查最少数量的节点。'

@@ -1,16 +1,22 @@
 - en: '[**5          Probabilistic Analysis and Randomized Algorithms**](toc.xhtml#chap-5)'
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**5          概率分析和随机算法**](toc.xhtml#chap-5)'
 - en: This chapter introduces probabilistic analysis and randomized algorithms. If
     you are unfamiliar with the basics of probability theory, you should read [Sections
     C.1](appendix003.xhtml#Sec_C.1)–[C.4](appendix003.xhtml#Sec_C.4) of [Appendix
     C](appendix003.xhtml), which review this material. We’ll revisit probabilistic
     analysis and randomized algorithms several times throughout this book.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了概率分析和随机算法。如果你对概率论的基础不熟悉，你应该阅读[附录 C](appendix003.xhtml)的[第 C.1](appendix003.xhtml#Sec_C.1)–[C.4](appendix003.xhtml#Sec_C.4)节，这些节回顾了这些内容。我们将在本书中多次回顾概率分析和随机算法。
 - en: '[**5.1      The hiring problem**](toc.xhtml#Rh1-25)'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**5.1      招聘问题**](toc.xhtml#Rh1-25)'
 - en: Suppose that you need to hire a new office assistant. Your previous attempts
     at hiring have been unsuccessful, and you decide to use an employment agency.
     The employment agency sends you one candidate each day. You interview that person
@@ -23,16 +29,20 @@
     the current office assistant, you will fire the current office assistant and hire
     the new applicant. You are willing to pay the resulting price of this strategy,
     but you wish to estimate what that price will be.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设你需要雇佣一个新的办公室助理。你之前的雇佣尝试都没有成功，于是你决定使用一家就业机构。就业机构每天发送给你一个候选人。你��试这个人，然后决定是否雇佣这个人。你必须支付就业机构一笔小费来面试一个申请者。实际雇佣一个申请者成本更高，因为你必须解雇你当前的办公室助理，并且还必须向就业机构支付大量的雇佣费。你承诺始终拥有最适合这份工作的人。因此，你决定，在面试每个申请者后，如果该申请者比当前办公室助理更合格，你将解雇当前办公室助理并雇佣新申请者。你愿意支付这种策略的结果价格，但你希望估计这个价格会是多少。
 - en: The procedure HIRE-ASSISTANT on the facing page expresses this strategy for
     hiring in pseudocode. The candidates for the office assistant job are numbered
     1 through *n* and interviewed in that order. The procedure assumes that after
     interviewing candidate *i*, you can determine whether candidate *i* is the best
     candidate you have seen so far. It starts by creating a dummy candidate, numbered
     0, who is less qualified than each of the other candidates.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 朝向下一页的雇佣助理过程以伪代码形式表达了这种雇佣策略。办公室助理工作的候选人编号为1到*n*，并按照这个顺序进行面试。该过程假设在面试候选人*i*后，你可以确定候选人*i*是否是迄今为止你见过的最优秀的候选人。它首先创建一个虚拟候选人，编号为0，比其他候选人都不合格。
 - en: The cost model for this problem differs from the model described in [Chapter
     2](chapter002.xhtml). We focus not on the running time of HIRE-ASSISTANT, but
     instead on the fees paid for interviewing and hiring. On the surface, analyzing
@@ -40,62 +50,90 @@
     time of, say, merge sort. The analytical techniques used, however, are identical
     whether we are analyzing cost or running time. In either case, we are counting
     the number of times certain basic operations are executed.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个问题的成本模型与[第2章](chapter002.xhtml)中描述的模型不同。我们关注的不是雇佣助理的运行时间，而是面试和雇佣所支付的费用。表面上，分析这个算法的成本可能与分析合并排序等算法的运行时间非常不同。然而，无论我们分析成本还是运行时间，所使用的分析技术都是相同的。在任何情况下，我们都在计算执行某些基本操作的次数。
 - en: HIRE-ASSISTANT(*n*)
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 雇佣助理(*n*)
 - en: '| 1 | *best* = 0 | **//** candidate 0 is a least-qualified dummy candidate
     |'
+  id: totrans-7
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *best* = 0 | **//** 候选人0是一个最不合格的虚拟候选人 |'
 - en: '| 2 | **for** *i* = 1 **to** *n* |'
+  id: totrans-8
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **对于** *i* = 1 **到** *n* |'
 - en: '| 3 | interview candidate *i* |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | 面试候选人 *i* |'
 - en: '| 4 | **if** candidate *i* is better than candidate *best* |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **如果** 候选人 *i* 比候选人 *best* 更好 |'
 - en: '| 5 | *best* = *i* |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | *best* = *i* |'
 - en: '| 6 | hire candidate *i* |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | 雇佣候选人 *i* |'
 - en: Interviewing has a low cost, say *c[i]*, whereas hiring is expensive, costing
     *c[h]*. Letting *m* be the number of people hired, the total cost associated with
     this algorithm is *O*(*c[i]n* + *c[h]m*). No matter how many people you hire,
     you always interview *n* candidates and thus always incur the cost *c[i]n* associated
     with interviewing. We therefore concentrate on analyzing *c[h]m*, the hiring cost.
     This quantity depends on the order in which you interview candidates.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 面试成本很低，比如*c[i]*，而雇佣成本很高，成本为*c[h]*。让*m*为被雇佣的人数，与这个算法相关的总成本是*O*(*c[i]n* + *c[h]m*)。无论你雇佣多少人，你总是面试*n*个候选人，因此总是承担与面试相关的成本*c[i]n*。因此，我们集中分析雇佣成本*c[h]m*。这个数量取决于你面试候选人的顺序。
 - en: This scenario serves as a model for a common computational paradigm. Algorithms
     often need to find the maximum or minimum value in a sequence by examining each
     element of the sequence and maintaining a current “winner.” The hiring problem
     models how often a procedure updates its notion of which element is currently
     winning.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种情景作为一个常见的计算范式的模型。算法通常需要通过检查序列的每个元素并维护当前的“获胜者”来找到序列中的最大值或最小值。招聘问题模拟了一个过程更新其当前获胜元素的概念有多频繁。
 - en: '**Worst-case analysis**'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '**最坏情况分析**'
 - en: In the worst case, you actually hire every candidate that you interview. This
     situation occurs if the candidates come in strictly increasing order of quality,
     in which case you hire *n* times, for a total hiring cost of *O*(*c[h]n*).
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最坏情况下，你实际上会雇佣每一个你面试的候选人。如果候选人严格按照质量递增的顺序出现，那么你会雇佣*n*次，总雇佣成本为*O*(*c[h]n*)。
 - en: Of course, the candidates do not always come in increasing order of quality.
     In fact, you have no idea about the order in which they arrive, nor do you have
     any control over this order. Therefore, it is natural to ask what we expect to
     happen in a typical or average case.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，候选人并不总是按质量递增的顺序出现。事实上，你对他们到达的顺序一无所知，也无法控制这个顺序。因此，自然而然地问，我们在典型或平均情况下会发生什么。
 - en: '**Probabilistic analysis**'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '**概率分析**'
 - en: '***Probabilistic analysis*** is the use of probability in the analysis of problems.
     Most commonly, we use probabilistic analysis to analyze the running time of an
     algorithm. Sometimes we use it to analyze other quantities, such as the hiring
@@ -105,16 +143,20 @@
     take the average, or expected value, over the distribution of the possible inputs.
     When reporting such a running time, we refer to it as the ***average-case running
     time***.'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '***概率分析*** 是在问题分析中使用概率的方法。最常见的情况是，我们使用概率分析来分析算法的运行时间。有时我们使用它来分析其他数量，比如在HIRE-ASSISTANT过程中的招聘成本。为了进行概率分析，我们必须使用对输入的分布的知识，或做出关于输入分布的假设。然后我们分析我们的算法，计算一个平均情况下的运行时间，其中我们取可能输入的分布的平均值或期望值。在报告这样的运行时间时，我们称之为***平均情况下的运行时间***。'
 - en: You must be careful in deciding on the distribution of inputs. For some problems,
     you may reasonably assume something about the set of all possible inputs, and
     then you can use probabilistic analysis as a technique for designing an efficient
     algorithm and as a means for gaining insight into a problem. For other problems,
     you cannot characterize a reasonable input distribution, and in these cases you
     cannot use probabilistic analysis.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 在决定输入的分布时，你必须小心。对于某些问题，你可以合理地假设关于所有可能输入的一些情况，然后你可以使用概率分析作为设计高效算法的技术，并作为获得问题洞察的手段。对于其他问题，你无法表征一个合理的输入分布，在这些情况下，你无法使用概率分析。
 - en: For the hiring problem, we can assume that the applicants come in a random order.
     What does that mean for this problem? We assume that you can compare any two candidates
     and decide which one is better qualified, which is to say that there is a total
@@ -128,23 +170,33 @@
     of the *n*! permutations of the numbers 1 through *n*. Alternatively, we say that
     the ranks form a ***uniform random permutation***, that is, each of the possible
     *n*! permutations appears with equal probability.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于招聘问题，我们可以假设申请人是以随机顺序出现的。这对这个问题意味着什么？我们假设你可以比较任意两个候选人并决定哪个更合格，也就是说，候选人之间存在一个完全顺序。（参见[附录B.2节](appendix002.xhtml#Sec_B.2)
+    关于完全顺序的定义。）因此，你可以为每个候选人排名，使用*rank*(*i*)表示申请人*i*的排名，并采用一个约定，即更高的排名对应更合格的申请人。有序列表〈*rank*(1),
+    *rank*(2), … , *rank*(*n*)〉是列表〈1, 2, … , *n*〉的一个排列。说候选人是以随机顺序出现等同于说这个排名列表等可能是1到*n*的所有*n*!个排列之一。或者，我们说排名形成一个***均匀���机排列***，也就是说，每个可能的*n*!个排列以相等的概率出现。
 - en: '[Section 5.2](chapter005.xhtml#Sec_5.2) contains a probabilistic analysis of
     the hiring problem.'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '[第5.2节](chapter005.xhtml#Sec_5.2) 包含了对招聘问题的概率分析。'
 - en: '**Randomized algorithms**'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '**随机算法**'
 - en: In order to use probabilistic analysis, you need to know something about the
     distribution of the inputs. In many cases, you know little about the input distribution.
     Even if you do know something about the distribution, you might not be able to
     model this knowledge computationally. Yet, probability and randomness often serve
     as tools for algorithm design and analysis, by making part of the algorithm behave
     randomly.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了使用概率分析，你需要了解输入的分布情况。在许多情况下，你对输入分布知之甚少。即使你对分布有所了解，也许无法将这种知识进行计算建模。然而，概率和随机性通常作为算法设计和分析的工具，通过使算法的一部分表现出随机性。
 - en: In the hiring problem, it may seem as if the candidates are being presented
     to you in a random order, but you have no way of knowing whether they really are.
     Thus, in order to develop a randomized algorithm for the hiring problem, you need
@@ -155,8 +207,10 @@
     we have made a significant change. Instead of accepting the order given to you
     by the employment agency and hoping that it’s random, you have instead gained
     control of the process and enforced a random order.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 在招聘问题中，候选人似乎是以随机顺序呈现给你的，但你无法知道它们是否真的是。因此，为了为招聘问题开发一个随机算法，你需要更好地控制你将面试候选人的顺序。因此，我们将稍微改变模型。就业机构提前向你发送了一个包含*n*名候选人的名单。每天，你随机选择要面试的候选人。虽然你对候选人一无所知（除了他们的名字），但我们已经做出了重大改变。你不再接受就业机构给你的顺序并希望它是随机的，而是获得了对过程的控制并强制执行了一个随机顺序。
 - en: 'More generally, we call an algorithm ***randomized*** if its behavior is determined
     not only by its input but also by values produced by a ***random-number generator***.
     We assume that we have at our disposal a random-number generator RANDOM. A call
@@ -168,8 +222,13 @@
     RANDOM as rolling a (*b* – *a* + 1)-sided die to obtain its output. (In practice,
     most programming environments offer a ***pseudorandom-number generator***: a deterministic
     algorithm returning numbers that “look” statistically random.)'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 更一般地，我们称一个算法为***随机化***，如果它的行为不仅由其输入决定，还由一个***随机数生成器***产生的值决定。我们假设我们可以使用一个随机数生成器RANDOM。调用RANDOM(*a*,
+    *b*)返回一个介于*a*和*b*之间（包括*a*和*b*）的整数，每个整数出现的概率相等。例如，RANDOM(0, 1)以1/2的概率产生0，以1/2的概率产生1。调用RANDOM(3,
+    7)以1/5的概率返回3、4、5、6或7中的任意一个整数。RANDOM返回的每个整数都与之前的调用无关。你可以将RANDOM想象成掷一个(*b* - *a*
+    + 1)面的骰子来获得输出。（实际上，大多数编程环境提供一个***伪随机数生成器***：一个返回“看起来”统计上随机的数字的确定性算法。）
 - en: When analyzing the running time of a randomized algorithm, we take the expectation
     of the running time over the distribution of values returned by the random number
     generator. We distinguish these algorithms from those in which the input is random
@@ -177,30 +236,44 @@
     time***. In general, we discuss the average-case running time when the probability
     distribution is over the inputs to the algorithm, and we discuss the expected
     running time when the algorithm itself makes random choices.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 在分析随机化算法的运行时间时，我们计算随机数生成器返回值的分布的期望值。我们通过将随机化算法的运行时间称为***期望运行时间***来区分这些算法与输入是随机的算法。一般来说，当概率分布是对算法的输入时，我们讨论平均情况下的运行时间，当算法本身做出随机选择时，我们讨论期望运行时间。
 - en: '**Exercises**'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***5.1-1***'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.1-1***'
 - en: Show that the assumption that you are always able to determine which candidate
     is best, in line 4 of procedure HIRE-ASSISTANT, implies that you know a total
     order on the ranks of the candidates.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明在HIRE-ASSISTANT过程的第4行中总是能确定哪个候选人是最好的这一假设意味着你知道候选人排名的总序。
 - en: ★ ***5.1-2***
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.1-2***
 - en: Describe an implementation of the procedure RANDOM(*a*, *b*) that makes calls
     only to RANDOM(0, 1). What is the expected running time of your procedure, as
     a function of *a* and *b*?
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 描述一个只调用RANDOM(0, 1)的过程RANDOM(*a*, *b*)的实现方法。你的过程的预期运行时间是多少，作为*a*和*b*的函数？
 - en: ★ ***5.1-3***
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.1-3***
 - en: You wish to implement a program that outputs 0 with probability 1/2 and 1 with
     probability 1/2\. At your disposal is a procedure BIASED-RANDOM that outputs either
     0 or 1, but it outputs 1 with some probability *p* and 0 with probability 1 –
@@ -208,79 +281,122 @@
     BIASED-RANDOM as a subroutine, and returns an unbiased answer, returning 0 with
     probability 1/2 and 1 with probability 1/2\. What is the expected running time
     of your algorithm as a function of *p*?
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 你希望实现一个程序，以1/2的概率输出0，以1/2的概率输出1。你可以使用一个输出0或1的过程BIASED-RANDOM，但它以概率*p*输出1，以概率1
+    - *p*输出0，其中0 < *p* < 1。你不知道*p*是多少。给出一个使用BIASED-RANDOM作为子程序的算法，并返回一个无偏答案，以1/2的概率返回0和1。作为*p*的函数，你的算法的预期运行时间是多少？
 - en: '[**5.2      Indicator random variables**](toc.xhtml#Rh1-26)'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**5.2      指示随机变量**](toc.xhtml#Rh1-26)'
 - en: In order to analyze many algorithms, including the hiring problem, we use indicator
     random variables. Indicator random variables provide a convenient method for converting
     between probabilities and expectations. Given a sample space *S* and an event
     *A*, the ***indicator random variable*** I {*A*} associated with event *A* is
     defined as
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了分析许多算法，包括雇佣问题，我们使用指示随机变量。指示随机变量提供了一个方便的方法来在概率和期望之间转换。给定一个样本空间*S*和一个事件*A*，与事件*A*相关联的***指示随机变量***I
+    {*A*}被定义为
 - en: '![art](images/Art_P245.jpg)'
+  id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P245.jpg)'
 - en: As a simple example, let us determine the expected number of heads obtained
     when flipping a fair coin. The sample space for a single coin flip is *S* = {*H*,
     *T*}, with Pr {*H*} = Pr {*T*} = 1/2\. We can then define an indicator random
     variable *X[H]*, associated with the coin coming up heads, which is the event
     *H*. This variable counts the number of heads obtained in this flip, and it is
     1 if the coin comes up heads and 0 otherwise. We write
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为一个简单的例子，让我们确定抛一枚公平硬币时获得正面的期望次数。一次硬币抛掷的样本空间是*S* = {*H*, *T*}，其中Pr {*H*} = Pr
+    {*T*} = 1/2。然后我们可以定义一个与硬币正面朝上事件*H*相关联的指示随机变量*X[H]*。这个变量计算这次抛掷中获得的正面次数，如果硬币正面朝上则为1，否则为0。我们写
 - en: '![art](images/Art_P246.jpg)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P246.jpg)'
 - en: 'The expected number of heads obtained in one flip of the coin is simply the
     expected value of our indicator variable *X[H]*:'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一次抛硬币中获得正面的期望次数简单地是我们的指示变量*X[H]*的期望值：
 - en: '| E [*X[H]*] | = | E [I {*H*}] |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| E [*X[H]*] | = | E [I {*H*}] |'
 - en: '|  | = | 1 · Pr {*H*} + 0 · Pr {*T*} |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1 · Pr {*H*} + 0 · Pr {*T*} |'
 - en: '|  | = | 1 · (1/2) + 0 · (1/2) |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1 · (1/2) + 0 · (1/2) |'
 - en: '|  | = | 1/2. |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1/2. |'
 - en: Thus the expected number of heads obtained by one flip of a fair coin is 1/2\.
     As the following lemma shows, the expected value of an indicator random variable
     associated with an event *A* is equal to the probability that *A* occurs.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，一次抛硬币获得正面的期望次数为1/2。正如下面的引理所示，与事件*A*相关的指示随机变量的期望值等于事件*A*发生的概率。
 - en: '***Lemma 5.1***'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 5.1***'
 - en: Given a sample space *S* and an event *A* in the sample space *S*, let *X[A]*
     = I {*A*}. Then E [*X[A]*] = Pr {*A*}.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定一个样本空��*S*和样本空间*S*中的事件*A*，令*X[A]* = I {*A*}。那么E [*X[A]*] = Pr {*A*}。
 - en: '***Proof***   By the definition of an indicator random variable from equation
     (5.1) and the definition of expected value, we have'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明*** 通过方程(5.1)中指示随机变量的定义和期望值的定义，我们有'
 - en: '| E [*X[A]*] | = | E [I {*A*}] |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| E [*X[A]*] | = | E [I {*A*}] |'
 - en: '|  | = | 1 · Pr {*A*} + 0 · Pr {*A*} |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1 · Pr {*A*} + 0 · Pr {*A*} |'
 - en: '|  | = | Pr {*A*}, |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | Pr {*A*}, |'
 - en: where *A* denotes *S* – *A*, the complement of *A*.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中*A*表示*A*的补集*S* – *A*。
 - en: ▪
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: 'Although indicator random variables may seem cumbersome for an application
     such as counting the expected number of heads on a flip of a single coin, they
     are useful for analyzing situations that perform repeated random trials. In [Appendix
@@ -294,18 +410,27 @@
     comes up heads: *X[i]* = I {the *i*th flip results in the event *H*}. Let *X*
     be the random variable denoting the total number of heads in the *n* coin flips,
     so that'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管对于像投掷单枚硬币预期头数这样的应用，指示随机变量可能看起来很繁琐，但它们对于分析执行重复随机试验的情况很有用。例如，在[附录C](appendix003.xhtml)中，指示随机变量提供了一种简单的方法来确定*n*次抛硬币中预期头数。一种选择是分别考虑获得0个头、1个头、2个头等的概率，以得到第1199页方程(C.41)的结果。另一种选择是使用方程(C.42)提出的更简单的方法，该方法隐式使用了指示随机变量。更明确地阐述这一论���，让*X[i]*是与第*i*次翻转出现头的事件相关联的指示随机变量：*X[i]*
+    = I {第*i*次翻转结果为事件*H*}。让*X*是表示*n*次抛硬币中头数的随机变量，因此
 - en: '![art](images/Art_P247.jpg)'
+  id: totrans-55
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P247.jpg)'
 - en: In order to compute the expected number of heads, take the expectation of both
     sides of the above equation to obtain
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了计算预期头数，对上述方程两边取期望值得到
 - en: '![art](images/Art_P248.jpg)'
+  id: totrans-57
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P248.jpg)'
 - en: 'By Lemma 5.1, the expectation of each of the random variables is E [*X[i]*]
     = 1/2 for *i* = 1, 2, … , *n*. Then we can compute the sum of the expectations:
     ![art](images/Art_P249.jpg). But equation (5.2) calls for the expectation of the
@@ -316,19 +441,27 @@
     random variables with linearity of expectation gives us a powerful technique to
     compute expected values when multiple events occur. We now can compute the expected
     number of heads:'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据引理5.1，每个随机变量的期望值为E [*X[i]*] = 1/2，对于*i* = 1, 2, … , *n*。然后我们可以计算期望值的总和：![art](images/Art_P249.jpg)。但是方程(5.2)要求计算总和的期望值，而不是期望值的总和。我们如何解决这个难题呢？期望的线性性，即第1192页的方程（C.24）：*总和的期望值总是等于期望值的总和*。即使随机变量之间存在依赖关系，期望的线性性也适用。将指示随机变量与期望的线性性结合起来，给了我们一个强大的技术，用于在多个事件发生时计算期望值。现在我们可以计算预期头数：
 - en: '![art](images/Art_P250.jpg)'
+  id: totrans-59
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P250.jpg)'
 - en: Thus, compared with the method used in equation (C.41), indicator random variables
     greatly simplify the calculation. We use indicator random variables throughout
     this book.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，与方程(C.41)中使用的方法相比，指示随机变量大大简化了计算。我们在本书中始终使用指示随机变量。
 - en: '**Analysis of the hiring problem using indicator random variables**'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用指示随机变量分析招聘问题**'
 - en: Returning to the hiring problem, we now wish to compute the expected number
     of times that you hire a new office assistant. In order to use a probabilistic
     analysis, let’s assume that the candidates arrive in a random order, as discussed
@@ -336,42 +469,62 @@
     how to remove this assumption.) Let *X* be the random variable whose value equals
     the number of times you hire a new office assistant. We could then apply the definition
     of expected value from equation (C.23) on page 1192 to obtain
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 返回到招聘问题，我们现在希望计算你雇佣新办公助理的预期次数。为了使用概率分析，让我们假设候选人是以随机顺序到达的，如[第5.1节](chapter005.xhtml#Sec_5.1)所讨论的。（我们将在[第5.3节](chapter005.xhtml#Sec_5.3)中看到如何消除这一假设。）设*X*是随机变量，其值等于你雇佣新办公助理的次数。然后我们可以应用第1192页方程（C.23）中的期望值定义来获得
 - en: '![art](images/Art_P251.jpg)'
+  id: totrans-63
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P251.jpg)'
 - en: but this calculation would be cumbersome. Instead, let’s simplify the calculation
     by using indicator random variables.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是这种计算将会很繁琐。相反，让我们通过使用指示随机变量来简化计算。
 - en: To use indicator random variables, instead of computing E [*X*] by defining
     just one variable denoting the number of times you hire a new office assistant,
     think of the process of hiring as repeated random trials and define *n* variables
     indicating whether each particular candidate is hired. In particular, let *X[i]*
     be the indicator random variable associated with the event in which the *i*th
     candidate is hired. Thus,
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用指示随机变量，而不是通过定义一个变量来表示你雇佣新办公助理的次数来计算E [*X*]，将雇佣过程视为重复的随机试验，并定义指示每个特定候选人是否被雇佣的*n*个变量。特别地，让*X[i]*是与第*i*个候选人被雇用事件相关联的指示随机变量。因此，
 - en: '![art](images/Art_P252.jpg)'
+  id: totrans-66
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P252.jpg)'
 - en: and
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 和
 - en: '![art](images/Art_P253.jpg)'
+  id: totrans-68
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P253.jpg)'
 - en: Lemma 5.1 gives
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 引理5.1给出
 - en: E [*X[i]*] = Pr {candidate *i* is hired},
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: E [*X[i]*] = Pr {候选人*i*被雇用},
 - en: and we must therefore compute the probability that lines 5–6 of HIRE-ASSISTANT
     are executed.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此我们必须计算HIRE-ASSISTANT的第5-6行被执行的概率。
 - en: Candidate *i* is hired, in line 6, exactly when candidate *i* is better than
     each of candidates 1 through *i* – 1\. Because we have assumed that the candidates
     arrive in a random order, the first *i* candidates have appeared in a random order.
@@ -379,68 +532,104 @@
     so far. Candidate *i* has a probability of 1/*i* of being better qualified than
     candidates 1 through *i* – 1 and thus a probability of 1/*i* of being hired. By
     Lemma 5.1, we conclude that
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 候选者*i*在第6行被聘用，当且仅当候选者*i*比候选者1到*i*-1中的每一个都更好时。因为我们假设候选者是以随机顺序到达的，前*i*个候选者以随机顺序出现。这些前*i*个候选者中的任何一个同样有可能是目前为止最合格的。候选者*i*有1/*i*的概率比候选者1到*i*-1更合格，因此有1/*i*的概率被聘用。根据引理5.1，我们得出结论
 - en: '![art](images/Art_P254.jpg)'
+  id: totrans-73
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P254.jpg)'
 - en: 'Now we can compute E [*X*]:'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们可以计算E [*X*]：
 - en: '![art](images/Art_P255.jpg)'
+  id: totrans-75
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P255.jpg)'
 - en: Even though you interview *n* people, you actually hire only approximately ln
     *n* of them, on average. We summarize this result in the following lemma.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使您面试了*n*个人，平均只雇佣了大约ln *n*个人。我们在以下引理中总结了这一结果。
 - en: '***Lemma 5.2***'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理5.2***'
 - en: Assuming that the candidates are presented in a random order, algorithm HIRE-ASSISTANT
     has an average-case total hiring cost of *O*(*c[h]* ln *n*).
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设候选者是以随机顺序呈现的，算法HIRE-ASSISTANT的平均情况总雇佣成本为*O*(*c[h]* ln *n*)。
 - en: '***Proof***   The bound follows immediately from our definition of the hiring
     cost and equation (5.6), which shows that the expected number of hires is approximately
     ln *n*.'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   该界限立即遵循我们对雇佣成本的定义和方程(5.6)的定义，该方程显示了雇佣人数的期望值大约为ln *n*。'
 - en: ▪
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: The average-case hiring cost is a significant improvement over the worst-case
     hiring cost of *O*(*c[h]n*).
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 平均情况下的雇佣成本相对于最坏情况下的*O*(*c[h]n*)的雇佣成本是一个显著的改进。
 - en: '**Exercises**'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***5.2-1***'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-1***'
 - en: In HIRE-ASSISTANT, assuming that the candidates are presented in a random order,
     what is the probability that you hire exactly one time? What is the probability
     that you hire exactly *n* times?
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 在HIRE-ASSISTANT中，假设候选者是以随机顺序呈现的，您恰好一次聘用的概率是多少？您恰好*n*次聘用的概率是多少？
 - en: '***5.2-2***'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-2***'
 - en: In HIRE-ASSISTANT, assuming that the candidates are presented in a random order,
     what is the probability that you hire exactly twice?
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在HIRE-ASSISTANT中，假设候选者是以随机顺序呈现的，那么您恰好聘用两次的概率是多少？
 - en: '***5.2-3***'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-3***'
 - en: Use indicator random variables to compute the expected value of the sum of *n*
     dice.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用指示随机变量计算*n*个骰子的和的期望值。
 - en: '***5.2-4***'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-4***'
 - en: This exercise asks you to (partly) verify that linearity of expectation holds
     even if the random variables are not independent. Consider two 6-sided dice that
     are rolled independently. What is the expected value of the sum? Now consider
@@ -449,38 +638,53 @@
     Now consider the case where the first die is rolled normally and the second die
     is set equal to 7 minus the value of the first die. What is the expected value
     of the sum?
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个练习要求您（部分）验证期望的线性性即使随机变量不是独立的。考虑独立掷出的两个6面骰子。和的期望值是多少？现在考虑第一个骰子正常掷出，然后第二个骰子的值设置为第一个骰子���示的值。和的期望值是多少？现在考虑第一个骰子正常掷出，第二个骰子设置为7减去第一个骰子的值。和的期望值是多少？
 - en: '***5.2-5***'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-5***'
 - en: Use indicator random variables to solve the following problem, which is known
     as the ***hat-check problem***. Each of *n* customers gives a hat to a hat-check
     person at a restaurant. The hat-check person gives the hats back to the customers
     in a random order. What is the expected number of customers who get back their
     own hat?
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用指示随机变量解决以下问题，这个问题被称为***帽子检查问题***。在餐馆里，每个*n*个顾客都把帽子交给一个帽检人员。帽检人员以随机顺序将帽子还给顾客。期望有多少顾客能拿回自己的帽子？
 - en: '***5.2-6***'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.2-6***'
 - en: 'Let *A*[1 : *n*] be an array of *n* distinct numbers. If *i* < *j* and *A*[*i*]
     > *A*[*j*], then the pair (*i*, *j*) is called an ***inversion*** of *A*. (See
     Problem 2-4 on page 47 for more on inversions.) Suppose that the elements of *A*
     form a uniform random permutation of 〈1, 2, … , *n*〉. Use indicator random variables
     to compute the expected number of inversions.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: '让*A*[1 : *n*]是一个包含*n*个不同数字的数组。如果*i* < *j*且*A*[*i*] > *A*[*j*]，那么这对(*i*, *j*)被称为*A*的***逆序***。（有关逆序的更多信息，请参见第47页的问题2-4。）假设*A*的元素形成〈1,
+    2, … , *n*〉的均匀随机排列。使用指示随机变量计算逆序的期望数量。'
 - en: '[**5.3      Randomized algorithms**](toc.xhtml#Rh1-27)'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: '[**5.3      随机算法**](toc.xhtml#Rh1-27)'
 - en: In the previous section, we showed how knowing a distribution on the inputs
     can help us to analyze the average-case behavior of an algorithm. What if you
     do not know the distribution? Then you cannot perform an average-case analysis.
     As mentioned in [Section 5.1](chapter005.xhtml#Sec_5.1), however, you might be
     able to use a randomized algorithm.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 在前一节中，我们展示了了解输入分布如何帮助我们分析算法的平均情况行为。如果您不知道分布怎么办？那么您无法进行平均情况分析。然而，正如在[第5.1节](chapter005.xhtml#Sec_5.1)中提到的，您可能能够使用随机算法。
 - en: For a problem such as the hiring problem, in which it is helpful to assume that
     all permutations of the input are equally likely, a probabilistic analysis can
     guide us when developing a randomized algorithm. Instead of *assuming* a distribution
@@ -490,8 +694,11 @@
     expect to hire a new office assistant approximately ln *n* times. But now we expect
     this to be the case for *any* input, rather than for inputs drawn from a particular
     distribution.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于像招聘问题这样的问题，在假设输入的所有排列都是等可能的情况下，概率分析可以指导我们开发随机算法。我们不再*假设*输入的分布，而是*强加*一个分布。特别是，在运行算法之前，让我们随机排列候选人，以强制每个排列都是等可能的属性。虽然我们修改了算法，但我们仍然期望大约ln
+    *n*次雇佣新办公助理。但现在我们期望这种情况发生在*任何*输入上，而不是发生在从特定分布中抽取的输入上。
 - en: 'Let us further explore the distinction between probabilistic analysis and randomized
     algorithms. In [Section 5.2](chapter005.xhtml#Sec_5.2), we claimed that, assuming
     that the candidates arrive in a random order, the expected number of times you
@@ -511,8 +718,14 @@
     Recalling that the cost of our algorithm depends on how many times you hire a
     new office assistant, we see that there are expensive inputs such as *A*[1], inexpensive
     inputs such as *A*[2], and moderately expensive inputs such as *A*[3].'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们进一步探讨概率分析和随机算法之间的区别。在[第5.2节](chapter005.xhtml#Sec_5.2)中，我们声称，假设候选人以随机顺序到达，您雇佣新办公助理的预期次数约为ln
+    *n*。这个算法是确定性的：对于任何特定的输入，雇佣新办公助理的次数总是相同的。此外，您雇佣新办公助理的次数因不同的输入而异，并且取决于各候选人的排名。由于这个数字仅取决于候选人的排名，为了表示特定的输入，我们只需按顺序列出候选人的排名〈*rank*(1),
+    *rank*(2), … , *rank*(*n*)〉。给定排名列表*A*[1] = 〈1, 2, 3, 4, 5, 6, 7, 8, 9, 10〉，新办公助理总是被雇佣10次，因为每个连续的候选人都比前一个更好，并且在每次迭代中执行HIRE-ASSISTANT的第5-6行。给定排名列表*A*[2]
+    = 〈10, 9, 8, 7, 6, 5, 4, 3, 2, 1〉，新办公助理只被雇佣一次，在第一次迭代中。给定排名列表*A*[3] = 〈5, 2, 1,
+    8, 4, 7, 10, 9, 3, 6〉，新办公助理被雇佣三次，分别是面试排名为5、8和10的候选人时。回想一下，我们的算法的成本取决于您雇佣新办公助理的次数，我们看到有昂贵的输入，如*A*[1]，廉价的输入，如*A*[2]，以及中等昂贵的输入，如*A*[3]。
 - en: Consider, on the other hand, the randomized algorithm that first permutes the
     list of candidates and then determines the best candidate. In this case, we randomize
     in the algorithm, not in the input distribution. Given a particular input, say
@@ -528,37 +741,55 @@
     produce a bad input array, since the random permutation makes the input order
     irrelevant. The randomized algorithm performs badly only if the random-number
     generator produces an “unlucky” permutation.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，考虑首先随机排列候选人列表，然后确定最佳候选人的随机算法。在这种情况下，我们在算法中随机化，而不是在输入分布中随机化。给定特定的输入，比如上面的*A*[3]，我们无法确定最大值更新的次数，因为这个数量在每次运行算法时都不同。第一次在*A*[3]上运行算法时，它可能产生排列*A*[1]并执行10次更新。但第二次运行算法时，它可能产生排列*A*[2]并只执行一次更新。第三次运行算法时，它可能执行其他次数的更新。每次运行算法时，其执行取决于随机选择，并且很可能与算法的先前执行不同。对于这个算法和许多其他随机算法，*没有特定的输入会引发其最坏情况的行为*。即使是您最坏的敌人也无法产生一个糟糕的输入数组，因为随机排列使输入顺序无关紧要。只有当随机数生成器产生“不幸”的排列时，随机算法才表现糟糕。
 - en: For the hiring problem, the only change needed in the code is to randomly permute
     the array, as done in the RANDOMIZED-HIRE-ASSISTANT procedure. This simple change
     creates a randomized algorithm whose performance matches that obtained by assuming
     that the candidates were presented in a random order.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于招聘问题，代码中唯一需要的更改是随机排列数组，就像在随机雇佣助理程序中所做的那样。这个简单的改变创建了一个随机算法，其性能与假设候选人以随机顺序呈现时获得的性能相匹配。
 - en: RANDOMIZED-HIRE-ASSISTANT(*n*)
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 随机雇佣助理(*n*)
 - en: '| 1 | randomly permute the list of candidates |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 随机排列候选人列表 |'
 - en: '| 2 | HIRE-ASSISTANT(*n*) |'
+  id: totrans-103
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 雇佣助理(*n*) |'
 - en: '***Lemma 5.3***'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理 5.3***'
 - en: The expected hiring cost of the procedure RANDOMIZED-HIRE-ASSISTANT is *O*(*c[h]*
     ln *n*).
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 随机雇佣助理程序的预期雇佣成本为*O*(*c[h]* ln *n*)。
 - en: '***Proof***   Permuting the input array achieves a situation identical to that
     of the probabilistic analysis of HIRE-ASSISTANT in Secetion 5.2.'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   对输入数组进行排列实现了与第5.2节中HIRE-ASSISTANT的概率分析相同的情况。'
 - en: ▪
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: By carefully comparing Lemmas 5.2 and 5.3, you can see the difference between
     probabilistic analysis and randomized algorithms. Lemma 5.2 makes an assumption
     about the input. Lemma 5.3 makes no such assumption, although randomizing the
@@ -566,84 +797,122 @@
     couched Lemma 5.2 in terms of the average-case hiring cost and Lemma 5.3 in terms
     of the expected hiring cost. In the remainder of this section, we discuss some
     issues involved in randomly permuting inputs.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过仔细比较引理5.2和5.3，您可以看到概率分析和随机化算法之间的区别。引理5.2对输入做出了假设。引理5.3没有做出这样的假设，尽管随机化输入需要额外的时间。为了保持术语的一致性，我们将引理5.2表述为平均情况下的雇佣成本，引理5.3表述为期望雇佣成本。在本节的其余部分，我们将讨论随机排列输入涉及的一些问题。
 - en: '**Randomly permuting arrays**'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '**随机排列数组**'
 - en: Many randomized algorithms randomize the input by permuting a given input array.
     We’ll see elsewhere in this book other ways to randomize an algorithm, but now,
     let’s see how we can randomly permute an array of *n* elements. The goal is to
     produce a ***uniform random permutation***, that is, a permutation that is as
     likely as any other permutation. Since there are *n*! possible permutations, we
     want the probability that any particular permutation is produced to be 1/*n*!.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多随机算法通过对给定的输入数组进行排列来随机化输入。本书的其他地方将介绍随机化算法的其他方法，但现在，让我们看看如何随机排列一个包含*n*个元素的数组。目标是生成一个***均匀随机排列***，即一个与其他任何排列一样可能的排列。由于存在*n*!种可能的排列，我们希望产生任何特定排列的概率为1/*n*!。
 - en: You might think that to prove that a permutation is a uniform random permutation,
     it suffices to show that, for each element *A*[*i*], the probability that the
     element winds up in position *j* is 1/*n*. Exercise 5.3-4 shows that this weaker
     condition is, in fact, insufficient.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可能认为要证明一个排列是均匀随机排列，只需证明对于每个元素*A*[*i*]，该元素最终位于位置*j*的概率为1/*n*。练习5.3-4表明，事实上，这个更弱的条件是不够的。
 - en: 'Our method to generate a random permutation permutes the array ***in place***:
     at most a constant number of elements of the input array are ever stored outside
     the array. The procedure RANDOMLY-PERMUTE permutes an array *A*[1 : *n*] in place
     in Θ(*n*) time. In its *i*th iteration, it chooses the element *A*[*i*] randomly
     from among elements *A*[*i*] through *A*[*n*]. After the *i*th iteration, *A*[*i*]
     is never altered.'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '我们生成随机排列的方法在***原地***对数组进行排列：最多只有常数个元素存储在数组之外。过程RANDOMLY-PERMUTE在Θ(*n*)时间内原地对数组*A*[1
+    : *n*]进行排列。在第*i*次迭代中，它从元素*A*[*i*]到*A*[*n*]中随机选择元素*A*[*i*]。第*i*次迭代后，*A*[*i*]不会被改变。'
 - en: RANDOMLY-PERMUTE(*A*, *n*)
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: RANDOMLY-PERMUTE(*A*, *n*)
 - en: '| 1 | **for** *i* = 1 **to** *n* |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **for** *i* = 1 **to** *n* |'
 - en: '| 2 | swap *A*[*i*] with *A*[RANDOM(*i*, *n*)] |'
+  id: totrans-115
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 交换*A*[*i*]和*A*[RANDOM(*i*, *n*)] |'
 - en: We use a loop invariant to show that procedure RANDOMLY-PERMUTE produces a uniform
     random permutation. A ***k-permutation*** on a set of *n* elements is a sequence
     containing *k* of the *n* elements, with no repetitions. (See page 1180 in [Appendix
     C](appendix003.xhtml).) There are *n*!/(*n* – *k*)! such possible *k*-permutations.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用循环不变量来展示过程RANDOMLY-PERMUTE生成一个均匀随机排列。在包含*n*个元素的集合��的一个***k-排列***是一个包含*n*个元素中的*k*个元素的序列，没有重复。（见[附录C](appendix003.xhtml)中的第1180页。）有*n*!/(*n*
+    – *k*)!种可能的*k*-排列。
 - en: '***Lemma 5.4***'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '***引理5.4***'
 - en: Procedure RANDOMLY-PERMUTE computes a uniform random permutation.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 过程RANDOMLY-PERMUTE计算一个均匀随机排列。
 - en: '***Proof***   We use the following loop invariant:'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '***证明***   我们使用以下循环不变量：'
 - en: 'Just prior to the *i*th iteration of the **for** loop of lines 1–2, for each
     possible (*i* – 1)-permutation of the *n* elements, the subarray *A*[1 : *i* –
     1] contains this (*i* – 1)-permutation with probability (*n* – *i* + 1)!/*n*!.'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '在第1-2行的**for**循环的第*i*次迭代之前，对于*n*个元素的每个可能的(*i* – 1)-排列，子数组*A*[1 : *i* – 1]以概率(*n*
+    – *i* + 1)!/*n*!包含这个(*i* – 1)-排列。'
 - en: We need to show that this invariant is true prior to the first loop iteration,
     that each iteration of the loop maintains the invariant, that the loop terminates,
     and that the invariant provides a useful property to show correctness when the
     loop terminates.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们需要在第一次循环迭代之前证明这个不变量是正确的，即循环的每次迭代都保持不变，循环终止，并且不变量在循环终止时提供了一个有用的属性来证明正确性。
 - en: '**Initialization:** Consider the situation just before the first loop iteration,
     so that *i* = 1\. The loop invariant says that for each possible 0-permutation,
     the subarray *A*[1 : 0] contains this 0-permutation with probability (*n* – *i*
     + 1)!/*n*! = *n*!/*n*! = 1\. The subarray *A*[1 : 0] is an empty subarray, and
     a 0-permutation has no elements. Thus, *A*[1 : 0] contains any 0-permutation with
     probability 1, and the loop invariant holds prior to the first iteration.'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: '**初始化：** 考虑在第一次循环迭代之前的情况，即*i* = 1。循环不变量表示对于每个可能的0-排列，子数组*A*[1 : 0]以概率(*n* –
+    *i* + 1)!/*n*! = *n*!/*n*! = 1包含这个0-排列。子数组*A*[1 : 0]是一个空子数组，0-排列没有元素。因此，*A*[1
+    : 0]以概率1包含任何0-排列，循环不变量在第一次迭代之前成立。'
 - en: '**Maintenance:** By the loop invariant, we assume that just before the *i*th
     iteration, each possible (*i* – 1)-permutation appears in the subarray *A*[1 :
     *i* – 1] with probability (*n* – *i* + 1)!/*n*!. We shall show that after the
     *i*th iteration, each possible *i*-permutation appears in the subarray *A*[1 :
     *i*] with probability (*n* – *i*)!/*n*!. Incrementing *i* for the next iteration
     then maintains the loop invariant.'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '**保持性：** 根据循环不变量，我们假设在第*i*次迭代之前，每个可能的(*i* – 1)-排列以概率(*n* – *i* + 1)!/*n*!出现在子数组*A*[1
+    : *i* – 1]中。我们将展示在第*i*次迭代之后，每个可能的*i*-排列以概率(*n* – *i*)!/*n*!出现在子数组*A*[1 : *i*]中。增加*i*以进行下一次迭代然后保持循环不变量。'
 - en: 'Let us examine the *i*th iteration. Consider a particular *i*-permutation,
     and denote the elements in it by 〈*x*[1], *x*[2], … , *x[i]*〉. This permutation
     consists of an (*i* – 1)-permutation 〈*x*[1], … , *x*[*i*–1]〉 followed by the
@@ -654,41 +923,67 @@
     *x*[*i*] in position *A*[*i*]. The *i*-permutation 〈*x*[1], … , *x[i]*〉 appears
     in *A*[1 : *i*] precisely when both *E*[1] and *E*[2] occur, and so we wish to
     compute Pr {*E*[2] ∩ *E*[1]}. Using equation (C.16) on page 1187, we have'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: '让我们检查第*i*次迭代。考虑一个特定的*i*排列，并用〈*x*[1], *x*[2], … , *x[i]*〉表示其中的元素。这个排列由一个(*i*
+    – 1)排列〈*x*[1], … , *x*[*i*–1]〉和算法放置在*A*[*i*]中的值*x*[*i*]组成。让*E*[1]表���前*i* – 1次迭代在*A*[1
+    : *i* – 1]中创建了特定的(*i* – 1)排列〈*x*[1], … , *x*[*i*–1]〉的事件。根据循环不变量，Pr {*E*[1]} =
+    (*n* – *i* + 1)!/*n*!。让*E*[2]表示第*i*次迭代将*x*[*i*]放在*A*[*i*]位置的事件。当且仅当*E*[1]和*E*[2]同时发生时，*i*排列〈*x*[1],
+    … , *x[i]*〉出现在*A*[1 : *i*]中，因此我们希望计算Pr {*E*[2] ∩ *E*[1]}。使用第1187页上的方程(C.16)，我们有'
 - en: Pr {*E*[2] ∩ *E*[1]} = Pr {*E*[2] | *E*[1]} Pr {*E*[1]}.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: Pr {*E*[2] ∩ *E*[1]} = Pr {*E*[2] | *E*[1]} Pr {*E*[1]}。
 - en: 'The probability Pr {*E*[2] | *E*[1]} equals 1/(*n* – *i* + 1) because in line
     2 the algorithm chooses *x[i]* randomly from the *n* – *i* + 1 values in positions
     *A*[*i* : *n*]. Thus, we have'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '概率Pr {*E*[2] | *E*[1]}等于1/(*n* – *i* + 1)，因为在第2行中，算法从位置*A*[*i* : *n*]中的*n*
+    – *i* + 1个值中随机选择*x[i]*。因此，我们有'
 - en: '![art](images/Art_P256.jpg)'
+  id: totrans-127
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P256.jpg)'
 - en: '**Termination:** The loop terminates, since it is a **for** loop iterating
     *n* times. At termination, *i* = *n* + 1, and we have that the subarray *A*[1
     : *n*] is a given *n*-permutation with probability (*n* – (*n* + 1) + 1)!/*n*!
     = 0!/*n*! = 1/*n*!.'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '**终止条件：** 循环终止，因为它是一个**对于**循环，迭代*n*次。在终止时，*i* = *n* + 1，并且我们有子数组*A*[1 : *n*]是给定的*n*排列的概率为(*n*
+    – (*n* + 1) + 1)!/*n*! = 0!/*n*! = 1/*n*!。'
 - en: Thus, RANDOMLY-PERMUTE produces a uniform random permutation.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，RANDOMLY-PERMUTE产生均匀随机排列。
 - en: ▪
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: ▪
 - en: A randomized algorithm is often the simplest and most efficient way to solve
     a problem.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 随机化算法通常是解决问题的最简单和最有效的方法。
 - en: '**Exercises**'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***5.3-1***'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.3-1***'
 - en: Professor Marceau objects to the loop invariant used in the proof of Lemma 5.4\.
     He questions whether it holds prior to the first iteration. He reasons that we
     could just as easily declare that an empty subarray contains no 0-permutations.
@@ -697,83 +992,129 @@
     the procedure RANDOMLY-PERMUTE so that its associated loop invariant applies to
     a nonempty subarray prior to the first iteration, and modify the proof of Lemma
     5.4 for your procedure.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: Marceau教授反对在引理5.4证明中使用的循环不变量。他质疑在第一次迭代之前是否成立。他认为我们可以同样地声明一个空子数组不包含任何0排列。因此，一个空子数组包含0排列的概率应为0，从而在第一次迭代之前使循环不变量无效。重写过程RANDOMLY-PERMUTE，使其相关的循环不变量适用于第一次迭代之前的非空子数组，并修改引理5.4的证明以适应您的过程。
 - en: '***5.3-2***'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.3-2***'
 - en: Professor Kelp decides to write a procedure that produces at random any permutation
     except the ***identity permutation***, in which every element ends up where it
     started. He proposes the procedure PERMUTE-WITHOUT-IDENTITY. Does this procedure
     do what Professor Kelp intends?
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: Kelp教授决定编写一个过程，随机生成除了***恒等排列***之外的任何排列，其中每个元素最终回到起始位置。他提出了过程PERMUTE-WITHOUT-IDENTITY。这个过程是否符合Kelp教授的意图？
 - en: PERMUTE-WITHOUT-IDENTITY(*A*, *n*)
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: PERMUTE-WITHOUT-IDENTITY(*A*, *n*)
 - en: '| 1 | **for** *i* = 1 **to** *n* – 1 |'
+  id: totrans-138
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **对于** *i* = 1 **到** *n* – 1 |'
 - en: '| 2 | swap *A*[*i*] with *A*[RANDOM(*i* + 1, *n*)] |'
+  id: totrans-139
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 交换*A*[*i*]和*A*[RANDOM(*i* + 1, *n*)] |'
 - en: '***5.3-3***'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.3-3***'
 - en: 'Consider the PERMUTE-WITH-ALL procedure on the facing page, which instead of
     swapping element *A*[*i*] with a random element from the subarray *A*[*i* : *n*],
     swaps it with a random element from anywhere in the array. Does PERMUTE-WITH-ALL
     produce a uniform random permutation? Why or why not?'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: '考虑下一页的PERMUTE-WITH-ALL过程，该过程不是将元素*A*[*i*]与子数组*A*[*i* : *n*]中的随机元素交换，而是与数组中任何位置的随机元素交换。PERMUTE-WITH-ALL是否产生均匀随机排列？为什么？'
 - en: PERMUTE-WITH-ALL(*A*, *n*)
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: PERMUTE-WITH-ALL(*A*, *n*)
 - en: '| 1 | **for** *i* = 1 **to** *n* |'
+  id: totrans-143
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | **对于** *i* = 1 **到** *n* |'
 - en: '| 2 | swap *A*[*i*] with *A*[RANDOM(1, *n*)] |'
+  id: totrans-144
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 交换*A*[*i*]和*A*[RANDOM(1, *n*)] |'
 - en: '***5.3-4***'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.3-4***'
 - en: Professor Knievel suggests the procedure PERMUTE-BY-CYCLE to generate a uniform
     random permutation. Show that each element *A*[*i*] has a 1/*n* probability of
     winding up in any particular position in *B*. Then show that Professor Knievel
     is mistaken by showing that the resulting permutation is not uniformly random.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: Knievel教授建议使用PERMUTE-BY-CYCLE生成均匀随机排列。证明每个元素*A*[*i*]以1/*n*的概率最终出现在*B*的任何特定位置。然后通过展示结果排列不是均匀随机的方式证明Knievel教授是错误的。
 - en: PERMUTE-BY-CYCLE(*A*, *n*)
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: PERMUTE-BY-CYCLE(*A*, *n*)
 - en: '| 1 | let *B*[1 : *n*] be a new array |'
+  id: totrans-148
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 让*B*[1 : *n*]成为一个新数组 |'
 - en: '| 2 | *offset* = RANDOM(1, *n*) |'
+  id: totrans-149
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | *offset* = RANDOM(1, *n*) |'
 - en: '| 3 | **for** *i* = 1 **to** *n* |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **对于** *i* = 1 **到** *n* |'
 - en: '| 4 | *dest* = *i* + *offset* |'
+  id: totrans-151
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *dest* = *i* + *offset* |'
 - en: '| 5 | **if** *dest* > *n* |'
+  id: totrans-152
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **如果** *dest* > *n* |'
 - en: '| 6 | *dest* = *dest* – *n* |'
+  id: totrans-153
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | *dest* = *dest* – *n* |'
 - en: '| 7 | *B*[*dest*] = *A*[*i*] |'
+  id: totrans-154
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | *B*[*dest*] = *A*[*i*] |'
 - en: '| 8 | **return** *B* |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **返回** *B* |'
 - en: '***5.3-5***'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.3-5***'
 - en: Professor Gallup wants to create a ***random sample*** of the set {1, 2, 3,
     … , *n*}, that is, an *m*-element subset *S*, where 0 ≤ *m* ≤ *n*, such that each
     *m*-subset is equally likely to be created. One way is to set *A*[*i*] = *i*,
@@ -781,40 +1122,64 @@
     first *m* array elements. This method makes *n* calls to the RANDOM procedure.
     In Professor Gallup’s application, *n* is much larger than *m*, and so the professor
     wants to create a random sample with fewer calls to RANDOM.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: Gallup教授想要创建一个***随机样本***，从集合{1, 2, 3, … , *n*}中，即一个*m*元素子集*S*，其中0 ≤ *m* ≤ *n*，使得每个*m*子集被创建的概率相等。一种方法是设置*A*[*i*]
+    = *i*，对于*i* = 1, 2, 3, … , *n*，调用RANDOMLY-PERMUTE(*A*)，然后只取前*m*个数组元素。这种方法调用RANDOM过程*n*次。在Gallup教授的应用中，*n*远大于*m*，因此教授希望在减少对RANDOM的调用的情况下创建一个随机样本。
 - en: RANDOM-SAMPLE(*m*, *n*)
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: RANDOM-SAMPLE(*m*, *n*)
 - en: '| 1 | *S* = ∅ |  |'
+  id: totrans-159
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *S* = ∅ |  |'
 - en: '| 2 | **for** *k* = *n* – *m* + 1 **to** *n* | **//** iterates *m* times |'
+  id: totrans-160
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **对于** *k* = *n* – *m* + 1 **到** *n* | **//** 迭代*m*次 |'
 - en: '| 3 | *i* = RANDOM(1, *k*) |  |'
+  id: totrans-161
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | *i* = RANDOM(1, *k*) |  |'
 - en: '| 4 | **if** *i* ∈ *S* |  |'
+  id: totrans-162
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | **如果** *i* ∈ *S* |  |'
 - en: '| 5 | *S* = *S* ⋃ {*k*} |  |'
+  id: totrans-163
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | *S* = *S* ⋃ {*k*} |  |'
 - en: '| 6 | **else** *S* = *S* ⋃ {*i*} |  |'
+  id: totrans-164
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **否则** *S* = *S* ⋃ {*i*} |  |'
 - en: '| 7 | **return** *S* |  |'
+  id: totrans-165
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **返回** *S* |  |'
 - en: Show that the procedure RANDOM-SAMPLE on the previous page returns a random
     *m*-subset *S* of {1, 2, 3, … , *n*}, in which each *m*-subset is equally likely,
     while making only *m* calls to RANDOM.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 证明前一页上的RANDOM-SAMPLE过程返回一个{1, 2, 3, … , *n*}的随机*m*子集*S*，其中每个*m*子集是等概率的，同时只调用RANDOM
+    *m*次。
 - en: '[★ **5.4      Probabilistic analysis and further uses of indicator random variables**](toc.xhtml#Rh1-28)'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '[★ **5.4      概率分析和指示器随机变量的进一步用途**](toc.xhtml#Rh1-28)'
 - en: This advanced section further illustrates probabilistic analysis by way of four
     examples. The first determines the probability that in a room of *k* people, two
     of them share the same birthday. The second example examines what happens when
@@ -822,18 +1187,24 @@
     heads when flipping coins. The final example analyzes a variant of the hiring
     problem in which you have to make decisions without actually interviewing all
     the candidates.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个高级部分通过四个例子进一步说明了概率分析。第一个例子确定了在一个有*k*个人的房间里，有两个人分享相同生日的概率。第二个例子研究了将球随机投入箱子时会发生什么。第三个例子调查了在抛硬币时出现连续正面的“连击”情况。最后一个例子分析了一种雇佣问题的变体，在这种问题中，你必须在实际面试所有候选人之前做出决定。
 - en: '**5.4.1    The birthday paradox**'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: '**5.4.1    生日悖论**'
 - en: Our first example is the ***birthday paradox***. How many people must there
     be in a room before there is a 50% chance that two of them were born on the same
     day of the year? The answer is surprisingly few. The paradox is that it is in
     fact far fewer than the number of days in a year, or even half the number of days
     in a year, as we shall see.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的第一个例子是***生日悖论***。在一个房间里必须有多少人才有50%的机会其中两人生日在一年中的同一天？答案令人惊讶地很少。悖论在于实际上比一年的天数少得多，甚至比一年的一半天数还少，我们将看到。
 - en: To answer this question, we index the people in the room with the integers 1,
     2, … , *k*, where *k* is the number of people in the room. We ignore the issue
     of leap years and assume that all years have *n* = 365 days. For *i* = 1, 2, …
@@ -841,111 +1212,172 @@
     where 1 ≤ *b[i]* ≤ *n*. We also assume that birthdays are uniformly distributed
     across the *n* days of the year, so that Pr {*b[i]* = *r*} = 1/*n* for *i* = 1,
     2, … , *k* and *r* = 1, 2, … , *n*.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了回答这个问题，我们用整数1, 2, … , *k*对房间里的人进行索引，其中*k*是房间里的人数。我们忽略闰年的问题，并假设所有年份都有*n* =
+    365天。对于*i* = 1, 2, … , *k*，让*b[i]*是人*i*生日的日期，其中1 ≤ *b[i]* ≤ *n*。我们还假设生日均匀分布在一年的*n*天中，因此对于*i*
+    = 1, 2, … , *k*和*r* = 1, 2, … , *n*，Pr {*b[i]* = *r*} = 1/*n*。
 - en: The probability that two given people, say *i* and *j*, have matching birthdays
     depends on whether the random selection of birthdays is independent. We assume
     from now on that birthdays are independent, so that the probability that *i*’s
     birthday and *j*’s birthday both fall on day *r* is
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 两个给定人，比如*i*和*j*，生日相同的概率取决于随机选择生日是否独立。我们从现在开始假设生日是独立的，因此*i*的生日和*j*的生日都在第*r*天的概率是
 - en: '![art](images/Art_P257.jpg)'
+  id: totrans-173
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P257.jpg)'
 - en: Thus, the probability that they both fall on the same day is
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，它们都在同一天的概率是
 - en: '![art](images/Art_P258.jpg)'
+  id: totrans-175
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P258.jpg)'
 - en: More intuitively, once *b[i]* is chosen, the probability that *b[j]* is chosen
     to be the same day is 1/*n*. As long as the birthdays are independent, the probability
     that *i* and *j* have the same birthday is the same as the probability that the
     birthday of one of them falls on a given day.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 更直观地说，一旦选择了*b[i]*，*b[j]*被选为相同日期的概率是1/*n*。只要生日是独立的，*i*和*j*生日相同的概率与其中一个生日在特定日期的概率相同。
 - en: We can analyze the probability of at least 2 out of *k* people having matching
     birthdays by looking at the complementary event. The probability that at least
     two of the birthdays match is 1 minus the probability that all the birthdays are
     different. The event *B[k]* that *k* people have distinct birthdays is
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过观察互补事件来分析至少有*k*个人中有两人生日相同的概率。至少两个生日匹配的概率是1减去所有生日不同的概率。事件*B[k]*表示*k*个人有不同生日的概率是
 - en: '![art](images/Art_P259.jpg)'
+  id: totrans-178
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P259.jpg)'
 - en: where *A[i]* is the event that person *i*’s birthday is different from person
     *j*’s for all *j* < *i*. Since we can write *B[k]* = *A[k]* ∩ *B*[*k*–1], we obtain
     from equation (C.18) on page 1189 the recurrence
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 其中*A[i]*是人*i*的生日与所有*j* < *i*的人*j*的生日不同的事件。由于我们可以写成*B[k]* = *A[k]* ∩ *B*[*k*–1]，我们从第1189页的方程(C.18)得到递归
 - en: '![art](images/Art_P260.jpg)'
+  id: totrans-180
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P260.jpg)'
 - en: where we take Pr {*B*[1]} = Pr {*A*[1]} = 1 as an initial condition. In other
     words, the probability that *b*[1], *b*[2], … , *b[k]* are distinct birthdays
     equals the probability that *b*[1], *b*[2], … , *b*[*k*–1] are distinct birthdays
     multiplied by the probability that *b[k]* ≠ *b[i]* for *i* = 1, 2, … , *k* – 1,
     given that *b*[1], *b*[2], … , *b*[*k*–1] are distinct.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们将 Pr {*B*[1]} = Pr {*A*[1]} = 1 作为初始条件时。换句话说，*b*[1]、*b*[2]、…、*b[k]* 是不同生日的概率等于
+    *b*[1]、*b*[2]、…、*b*[*k*–1] 是不同生日的概率乘以 *b[k]* ≠ *b[i]*（*i* = 1, 2, …, *k* – 1）的概率，假设
+    *b*[1]、*b*[2]、…、*b*[*k*–1] 是不同的。
 - en: If *b*[1], *b*[2], … , *b*[*k*–1] are distinct, the conditional probability
     that *b[k]* ≠ *b[i]* for *i* = 1, 2, … , *k* – 1 is Pr {*A[k]* | *B*[*k*–1]} =
     (*n* – *k* + 1)/*n*, since out of the *n* days, *n* – (*k* – 1) days are not taken.
     We iteratively apply the recurrence (5.8) to obtain
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果 *b*[1]、*b*[2]、…、*b*[*k*–1] 是不同的，那么对于 *i* = 1, 2, …, *k* – 1，*b[k]* ≠ *b[i]*
+    的条件概率是 Pr {*A[k]* | *B*[*k*–1]} = (*n* – *k* + 1)/*n*，因为在 *n* 天中，有 *n* – (*k*
+    – 1) 天没有被占用。我们迭代地应用递推式（5.8）以获得
 - en: '![art](images/Art_P261.jpg)'
+  id: totrans-183
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P261.jpg)'
 - en: Inequality (3.14) on page 66, 1 + *x* ≤ *e^x*, gives us
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 不等式（3.14）在第 66 页，1 + *x* ≤ *e^x*，给出
 - en: '![art](images/Art_P262.jpg)'
+  id: totrans-185
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P262.jpg)'
 - en: when –*k*(*k* – 1)/2*n* ≤ ln(1/2). The probability that all *k* birthdays are
     distinct is at most 1/2 when *k*(*k* – 1) ≥ 2*n* ln 2 or, solving the quadratic
     equation, when ![art](images/Art_P263.jpg). For *n* = 365, we must have *k* ≥
     23\. Thus, if at least 23 people are in a room, the probability is at least 1/2
     that at least two people have the same birthday. Since a year on Mars is 669 Martian
     days long, it takes 31 Martians to get the same effect.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 当 –*k*(*k* – 1)/2*n* ≤ ln(1/2) 时。当 *k*(*k* – 1) ≥ 2*n* ln 2 或者解方程时，所有 *k* 个生日都是不同的概率最多为
+    1/2，即 ![art](images/Art_P263.jpg)。对于 *n* = 365，我们必须有 *k* ≥ 23。因此，如果一个房间里至少有 23
+    个人，那么至少有两个人有相同的生日的概率至少为 1/2。由于火星的一年有 669 天，需要 31 个火星人才能达到相同的效果。
 - en: '**An analysis using indicator random variables**'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用指示器随机变量的分析**'
 - en: Indicator random variables afford a simpler but approximate analysis of the
     birthday paradox. For each pair (*i*, *j*) of the *k* people in the room, define
     the indicator random variable *X[ij]*, for 1 ≤ *i* < *j* ≤ *k*, by
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 指示器随机变量为生日悖论提供了一个更简单但近似的分析。对于房间中的 *k* 个人中的每对（*i*，*j*），定义指示器随机变量 *X[ij]*，对于 1
+    ≤ *i* < *j* ≤ *k*，如下
 - en: '![art](images/Art_P264.jpg)'
+  id: totrans-189
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P264.jpg)'
 - en: By equation (5.7), the probability that two people have matching birthdays is
     1/*n*, and thus by Lemma 5.1 on page 130, we have
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据方程式 (5.7)，两个人有相同生日的概率为 1/*n*，因此根据第 130 页的引理 5.1，我们有
 - en: '| E [*X[ij]*] | = | Pr {person *i* and person *j* have the same birthday} |'
+  id: totrans-191
   prefs: []
   type: TYPE_TB
+  zh: '| E [*X[ij]*] | = | Pr {人 *i* 和人 *j* 生日相同} |'
 - en: '|  | = | 1/*n*. |'
+  id: totrans-192
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1/*n*。|'
 - en: Letting *X* be the random variable that counts the number of pairs of individuals
     having the same birthday, we have
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 让 *X* 是计算具有相同生日的人数对的随机变量，我们有
 - en: '![art](images/Art_P265.jpg)'
+  id: totrans-194
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P265.jpg)'
 - en: Taking expectations of both sides and applying linearity of expectation, we
     obtain
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 两边取期望并应用期望的线性性，我们得到
 - en: '![art](images/Art_P266.jpg)'
+  id: totrans-196
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P266.jpg)'
 - en: When *k*(*k* – 1) ≥ 2*n*, therefore, the expected number of pairs of people
     with the same birthday is at least 1\. Thus, if we have at least ![art](images/Art_P267.jpg)
     individuals in a room, we can expect at least two to have the same birthday. For
@@ -953,19 +1385,27 @@
     (28 · 27)/(2 · 365) ≈ 1.0356\. Thus, with at least 28 people, we expect to find
     at least one matching pair of birthdays. On Mars, with 669 days per year, we need
     at least 38 Martians.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 当 *k*(*k* – 1) ≥ 2*n* 时，具有相同生日的人数对的预期数量至少为 1。因此，如果一个房间里至少有 ![art](images/Art_P267.jpg)
+    个人，我们可以期望至少有两个人有相同的生日。对于 *n* = 365，如果 *k* = 28，具有相同生日的人数对的预期数量为 (28 · 27)/(2 ·
+    365) ≈ 1.0356。因此，至少有 28 个人时，我们期望找到至少一对相同生日的人。在火星上，一年有 669 天，我们需要至少 38 个火星人。
 - en: 'The first analysis, which used only probabilities, determined the number of
     people required for the probability to exceed 1/2 that a matching pair of birthdays
     exists, and the second analysis, which used indicator random variables, determined
     the number such that the expected number of matching birthdays is 1\. Although
     the exact numbers of people differ for the two situations, they are the same asymptotically:
     ![art](images/Art_P268.jpg).'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一次分析仅使用概率确定了使得存在一对匹配生日的概率超过 1/2 所需的人数，第二次分析使用了指示器随机变量，确定了使得匹配生日的预期数量为 1 的人数。尽管两种情况下确切的人数不同，但它们在渐近意义上是相同的：![art](images/Art_P268.jpg)。
 - en: '**5.4.2    Balls and bins**'
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: '**5.4.2    球和箱子**'
 - en: Consider a process in which you randomly toss identical balls into *b* bins,
     numbered 1, 2, … , *b*. The tosses are independent, and on each toss the ball
     is equally likely to end up in any bin. The probability that a tossed ball lands
@@ -976,72 +1416,104 @@
     [Chapter 11](chapter011.xhtml)), and we can answer a variety of interesting questions
     about the ball-tossing process. (Problem C-2 asks additional questions about balls
     and bins.)
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个过程，在这个过程中，你随机地将相同的球投入编号为 1、2、…、*b* 的箱子中。投掷是独立的，在每次投掷时，球等可能地落入任何箱子中。投掷的球落入任何给定箱子的概率为
+    1/*b*。如果我们将投掷球的过程视为伯努利试验的序列（参见 [附录 C.4](appendix003.xhtml#Sec_C.4)），其中成功意味着球落入给定箱子，则每次试验成功的概率为
+    1/*b*。这个模型特别适用于分析哈希（参见 [第 11 章](chapter011.xhtml)），我们可以回答关于投掷球的过程的各种有趣问题。（问题 C-2
+    提出了关于球和箱子的额外问题。）
 - en: '*How many balls fall in a given bin?* The number of balls that fall in a given
     bin follows the binomial distribution *b*(*k*;*n*, 1/*b*). If you toss *n* balls,
     equation (C.41) on page 1199 tells us that the expected number of balls that fall
     in the given bin is *n*/*b*.'
+  id: totrans-201
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*有多少个球掉入给定的箱子？* 掉入给定箱子的球的数量遵循二项分布 *b*(*k*;*n*, 1/*b*)。如果你投掷 *n* 个球，第 1199 页的方程式
+    (C.41) 告诉我们掉入给定箱子的球的预期数量是 *n*/*b*。'
 - en: '*How many balls must you toss, on the average, until a given bin contains a
     ball?* The number of tosses until the given bin receives a ball follows the geometric
     distribution with probability 1/*b* and, by equation (C.36) on page 1197, the
     expected number of tosses until success is 1/(1/*b*) = *b*.'
+  id: totrans-202
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*平均需要投掷多少次球，直到一个给定的箱子包含一个球？* 直到给定箱子接收到一个球的投掷次数遵循概率为1/*b*的几何分布，并且，根据第1197页的方程(C.36)，直到成功的预期投掷次数为1/(1/*b*)
+    = *b*。'
 - en: '*How many balls must you toss until every bin contains at least one ball?*
     Let us call a toss in which a ball falls into an empty bin a “hit.” We want to
     know the expected number *n* of tosses required to get *b* hits.'
+  id: totrans-203
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*直到每个箱子至少包含一个球需要投掷多少球？* 让我们称一个球掉入空箱子的投掷为“命中”。我们想知道获得*b*个命中所需的预期次数*n*。'
 - en: Using the hits, we can partition the *n* tosses into stages. The *i*th stage
     consists of the tosses after the (*i* – 1)st hit up to and including the *i*th
     hit. The first stage consists of the first toss, since you are guaranteed to have
     a hit when all bins are empty. For each toss during the *i*th stage, *i* – 1 bins
     contain balls and *b* – *i* + 1 bins are empty. Thus, for each toss in the *i*th
     stage, the probability of obtaining a hit is (*b* – *i* + 1)/*b*.
+  id: totrans-204
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 使用命中，我们可以将*n*次投掷分成阶段。第*i*阶段包括第(*i* – 1)次命中后的投掷，直到第*i*次命中。第一个阶段包括第一次投掷，因为当所有箱子都为空时，你肯定会有一个命中。对于第*i*阶段的每次投掷，*i*
+    – 1个箱子包含球，*b* – *i* + 1个箱子为空。因此，对于第*i*阶段的每次投掷，获得命中的概率为(*b* – *i* + 1)/*b*。
 - en: Let *n[i]* denote the number of tosses in the *i*th stage. The number of tosses
     required to get *b* hits is ![art](images/Art_P269.jpg). Each random variable
     *n[i]* has a geometric distribution with probability of success (*b* – *i* + 1)/*b*
     and thus, by equation (C.36), we have
+  id: totrans-205
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 让*n[i]*表示第*i*阶段所需的投掷次数。获得*b*个命中所需的投掷次数为![art](images/Art_P269.jpg)。每个随机变量*n[i]*都具有成功概率(*b*
+    – *i* + 1)/*b*的几何分布，因此，根据方程(C.36)，我们有
 - en: '![art](images/Art_P270.jpg)'
+  id: totrans-206
   prefs:
   - PREF_IND
   type: TYPE_IMG
+  zh: '![art](images/Art_P270.jpg)'
 - en: By linearity of expectation, we have
+  id: totrans-207
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 根据期望的线性性，我们有
 - en: '![art](images/Art_P271.jpg)'
+  id: totrans-208
   prefs:
   - PREF_IND
   type: TYPE_IMG
+  zh: '![art](images/Art_P271.jpg)'
 - en: It therefore takes approximately *b* ln *b* tosses before we can expect that
     every bin has a ball. This problem is also known as the ***coupon collector’s
     problem***, which says that if you are trying to collect each of *b* different
     coupons, then you should expect to acquire approximately *b* ln *b* randomly obtained
     coupons in order to succeed.
+  id: totrans-209
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 因此，在我们期望每个箱子都有一个球之前，大约需要*t* ln *t*次投掷。这个问题也被称为***收集优惠券问题***，它说如果你试图收集*b*张不同的优惠券，那么你应该期望获得大约*b*
+    ln *b*张随机获得的优惠券才能成功。
 - en: '**5.4.3    Streaks**'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: '**5.4.3    连续出现**'
 - en: Suppose that you flip a fair coin *n* times. What is the longest streak of consecutive
     heads that you expect to see? We’ll prove upper and lower bounds separately to
     show that the answer is Θ(lg *n*).
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设你抛掷一个公平的硬币*n*次。你期望看到的最长连续出现头的长度是多少？我们将分别证明上界和下界，以显示答案是Θ(lg *n*)。
 - en: We first prove that the expected length of the longest streak of heads is *O*(lg
     *n*). The probability that each coin flip is a head is 1/2\. Let *A[ik]* be the
     event that a streak of heads of length at least *k* begins with the *i*th coin
@@ -1049,29 +1521,43 @@
     + 1, … , *i* + *k* – 1 yield only heads, where 1 ≤ *k* ≤ *n* and 1 ≤ *i* ≤ *n*
     – *k* + 1\. Since coin flips are mutually independent, for any given event *A[ik]*,
     the probability that all *k* flips are heads is
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先证明最长连续出现头的预期长度为*O*(lg *n*)。每次硬币翻转为头的概率为1/2。让*A[ik]*表示长度至少为*k*的连续出现头的事件从第*i*次硬币翻转开始，或者更准确地说，长度为*k*的连续硬币翻转*i*,
+    *i* + 1, … , *i* + *k* – 1只产生头的事件，其中1 ≤ *k* ≤ *n*，1 ≤ *i* ≤ *n* – *k* + 1。由于硬币翻转是相互独立的，对于任何给定的事件*A[ik]*，所有*k*次翻转都是头的概率为
 - en: '![art](images/Art_P272.jpg)'
+  id: totrans-213
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P272.jpg)'
 - en: and thus the probability that a streak of heads of length at least 2 ⌈lg *n*⌉
     begins in position *i* is quite small. There are at most *n* – 2 ⌈lg *n*⌉ + 1
     positions where such a streak can begin. The probability that a streak of heads
     of length at least 2 ⌈lg *n*⌉ begins anywhere is therefore
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在位置*i*开始长度至少为2 ⌈lg *n*⌉的连续出现头的概率非常小。长度至少为2 ⌈lg *n*⌉的连续出现头可以开始的位置最多为*n* –
+    2 ⌈lg *n*⌉ + 1个。因此，长度至少为2 ⌈lg *n*⌉的连续出现头可以在任何位置开始的概率为
 - en: '![art](images/Art_P273.jpg)'
+  id: totrans-215
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P273.jpg)'
 - en: We can use inequality (5.10) to bound the length of the longest streak. For
     *j* = 0, 1, 2, … , *n*, let *L[j]* be the event that the longest streak of heads
     has length exactly *j*, and let *L* be the length of the longest streak. By the
     definition of expected value, we have
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以使用不等式(5.10)来限制最长连续出现的长度。对于*j* = 0, 1, 2, … , *n*，让*L[j]*表示最长连续出现头的长度恰好为*j*的事件，*L*表示最长连续出现的长度。根据期望值的定义，我们有
 - en: '![art](images/Art_P274.jpg)'
+  id: totrans-217
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P274.jpg)'
 - en: We could try to evaluate this sum using upper bounds on each Pr {*L[j]*} similar
     to those computed in inequality (5.10). Unfortunately, this method yields weak
     bounds. We can use some intuition gained by the above analysis to obtain a good
@@ -1084,38 +1570,61 @@
     at least 2 ⌈lg *n*⌉ begins anywhere is less than 1/*n*, which means that ![art](images/Art_P276.jpg).
     Also, noting that ![art](images/Art_P277.jpg), we have that ![art](images/Art_P278.jpg).
     Thus, we obtain
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以尝试使用类似于不等式（5.10）中计算的每个 Pr {*L[j]*} 的上界来评估这个求和。不幸的是，这种方法得到的界限较弱。然而，通过上述分析获得的一些直觉可以得到一个很好的界限。然而，对于方程（5.11）中求和中的任何一个项，因子
+    *j* 和 Pr {*L[j]*} 都不大。为什么？当 *j* ≥ 2 ⌈lg *n*⌉ 时，Pr {*L[j]*} 非常小，当 *j* < 2 ⌈lg *n*⌉
+    时，*j* 相当小。更确切地说，由于事件 *L[j]* 对于 *j* = 0, 1, … , *n* 是互不相交的，至少出现长度至少为 2 ⌈lg *n*⌉
+    的连续正面朝上的概率是 ![艺术](images/Art_P275.jpg)。不等式（5.10）告诉我们，至少出现长度至少为 2 ⌈lg *n*⌉ 的连续正面朝上的概率小于
+    1/*n*，这意味着 ![艺术](images/Art_P276.jpg)。另外，注意到 ![艺术](images/Art_P277.jpg)，我们有 ![艺术](images/Art_P278.jpg)。因此，我们得到
 - en: '![art](images/Art_P279.jpg)'
+  id: totrans-219
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P279.jpg)'
 - en: The probability that a streak of heads exceeds *r* ⌈lg *n*⌉ flips diminishes
     quickly with *r*. Let’s get a rough bound on the probability that a streak of
     at least *r* ⌈lg *n*⌉ heads occurs, for *r* ≥ 1\. The probability that a streak
     of at least *r* ⌈lg *n*⌉ heads starts in position *i* is
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 超过 *r* ⌈lg *n*⌉ 次连续正面朝上的概率随着 *r* 的增加迅速减小。让我们对至少出现 *r* ⌈lg *n*⌉ 个连续正面朝上的概率进行一个粗略的界限，对于
+    *r* ≥ 1。至少出现 *r* ⌈lg *n*⌉ 个连续正面朝上的概率在位置 *i* 开始的情况下为
 - en: '![art](images/Art_P280.jpg)'
+  id: totrans-221
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P280.jpg)'
 - en: A streak of at least *r* ⌈lg *n*⌉ heads cannot start in the last *n* – *r* ⌈lg
     *n*⌉ + 1 flips, but let’s overestimate the probability of such a streak by allowing
     it to start anywhere within the *n* coin flips. Then the probability that a streak
     of at least *r* ⌈lg *n*⌉ heads occurs is at most
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 至少 *r* ⌈lg *n*⌉ 个连续正面朝上的硬币不可能在最后 *n* – *r* ⌈lg *n*⌉ + 1 次翻转中开始，但让我们通过允许它在 *n*
+    次抛硬币中的任何位置开始来高估这种情况的概率。那么至少出现 *r* ⌈lg *n*⌉ 个连续正面朝上的概率最多为
 - en: '![art](images/Art_P281.jpg)'
+  id: totrans-223
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P281.jpg)'
 - en: Equivalently, the probability is at least 1 – 1/*n*^(*r*–1) that the longest
     streak has length less than *r* ⌈lg *n*⌉.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 等价地，概率至少为 1 – 1/*n*^(*r*–1) 最长连续正面朝上的长度小于 *r* ⌈lg *n*⌉。
 - en: As an example, during *n* = 1000 coin flips, the probability of encountering
     a streak of at least 2 ⌈lg *n*⌉ = 20 heads is at most 1/*n* = 1/1000\. The chance
     of a streak of at least 3 ⌈lg *n*⌉ = 30 heads is at most 1/*n*² = 1/1,000,000.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 举例来说，在 *n* = 1000 次抛硬币中，至少出现 2 ⌈lg *n*⌉ = 20 个连续正面朝上的概率最多为 1/*n* = 1/1000。至少出现
+    3 ⌈lg *n*⌉ = 30 个连续正面朝上的概率最多为 1/*n*² = 1/1,000,000。
 - en: 'Let’s now prove a complementary lower bound: the expected length of the longest
     streak of heads in *n* coin flips is Ω(lg *n*). To prove this bound, we look for
     streaks of length *s* by partitioning the *n* flips into approximately *n*/*s*
@@ -1123,32 +1632,48 @@
     likely that at least one of these groups comes up all heads, which means that
     it’s likely that the longest streak has length at least *s* = Ω(lg *n*). We’ll
     then show that the longest streak has expected length Ω(lg *n*).'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在让我们证明一个互补的下界：在 *n* 次抛硬币中，最长连续正面朝上的长度的期望是 Ω(lg *n*)。为了证明这个界限，我们通过将 *n* 次抛硬币分成大约
+    *n*/*s* 组，每组包含 *s* 次抛硬币来寻找长度为 *s* 的连续正面朝上的情况。如果我们选择 *s* = ⌊(lg *n*)/2⌋，我们会发现至少���一组全是正面朝上的情况，这意味着最长连续正面朝上的长度至少为
+    *s* = Ω(lg *n*) 的概率很高。然后我们将展示最长连续正面朝上的长度的期望为 Ω(lg *n*)。
 - en: Let’s partition the *n* coin flips into at least ⌊*n*/ ⌊(lg *n*)/2⌋⌋ groups
     of ⌊(lg *n*)/2⌋ consecutive flips and bound the probability that no group comes
     up all heads. By equation (5.9), the probability that the group starting in position
     *i* comes up all heads is
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们将 *n* 次抛硬币分成至少 ⌊*n*/ ⌊(lg *n*)/2⌋⌋ 组，每组包含 ⌊(lg *n*)/2⌋ 个连续抛硬币，并限制没有任何一组全是正面朝上的概率。根据方程（5.9），从位置
+    *i* 开始的组全是正面朝上的概率为
 - en: '![art](images/Art_P282.jpg)'
+  id: totrans-228
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P282.jpg)'
 - en: The probability that a streak of heads of length at least ⌊(lg *n*)/2⌋ does
     not begin in position *i* is therefore at most ![art](images/Art_P283.jpg). Since
     the ⌊*n*/ ⌊(lg *n*)/2⌋⌋ groups are formed from mutually exclusive, independent
     coin flips, the probability that every one of these groups *fails* to be a streak
     of length ⌊(lg *n*)/2⌋ is at most
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，长度至少为 ⌊(lg *n*)/2⌋ 的连续正面朝上的概率不在位置 *i* 开始的概率最多为 ![艺术](images/Art_P283.jpg)。由于这些
+    ⌊*n*/ ⌊(lg *n*)/2⌋⌋ 组是由互斥、独立的抛硬币组成的，每个组都不是长度为 ⌊(lg *n*)/2⌋ 的连续正面朝上的概率最多为
 - en: '![art](images/Art_P284.jpg)'
+  id: totrans-230
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P284.jpg)'
 - en: For this argument, we used inequality (3.14), 1 + *x* ≤ *e^x*, on page 66 and
     the fact, which you may verify, that ![art](images/Art_P285.jpg) for sufficiently
     large *n*.
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于这个论点，我们使用了不等式（3.14），1 + *x* ≤ *e^x*，在第 66 页上，以及事实，您可以验证，对于足够大的 *n*，![艺术](images/Art_P285.jpg)。
 - en: We want to bound the probability that the longest streak equals or exceeds ⌊(lg
     *n*)/2⌋. To do so, let *L* be the event that the longest streak of heads equals
     or exceeds *s* = ⌊(lg *n*)/2⌋. Let *L* be the complementary event, that the longest
@@ -1160,71 +1685,110 @@
     event *F* could occur even if event *L* does not (for example, if a streak of
     *s* or more heads crosses over the boundary between two groups), and so we have
     Pr {*L*} ≤ Pr {*F*} = *O*(1/*n*). Since Pr {*L*} + Pr {*L*} = 1, we have that
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们希望限制最长连续数目等于或超过⌊(lg *n*)/2⌋的概率。为此，让*L*为最长连续正面朝上的长度等于或超过*s* = ⌊(lg *n*)/2⌋的事件。让*L*为补事件，即最长连续正面朝上的长度严格小于*s*，以便Pr
+    {*L*} + Pr {*L*} = 1。让*F*为每组*s*次抛硬币都不构成*s*个正面朝上的连续的事件。根据不等式(5.12)，我们有Pr {*F*}
+    = *O*(1/*n*)。如果最长连续正面朝上的长度小于*s*，那么每组*s*次抛硬币肯定不构成*s*个正面朝上的连续，这意味着事件*L*蕴含事件*F*。当然，即使事件*L*不发生，事件*F*也可能发生（例如，如果长度为*s*或更多的连续越过两组之间的边界），因此我们有Pr
+    {*L*} ≤ Pr {*F*} = *O*(1/*n*)。由于Pr {*L*} + Pr {*L*} = 1，我们有
 - en: '| Pr {*L*} | = | 1 – Pr {*L*} |'
+  id: totrans-233
   prefs: []
   type: TYPE_TB
+  zh: '| Pr {*L*} | = | 1 – Pr {*L*} |'
 - en: '|  | ≥ | 1 – Pr {*F*} |'
+  id: totrans-234
   prefs: []
   type: TYPE_TB
+  zh: '|  | ≥ | 1 – Pr {*F*} |'
 - en: '|  | = | 1 – *O*(1/*n*). |'
+  id: totrans-235
   prefs: []
   type: TYPE_TB
+  zh: '|  | = | 1 – *O*(1/*n*). |'
 - en: That is, the probability that the longest streak equals or exceeds ⌊(lg *n*)/2⌋
     is
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 也就是说，最长连续数目等于或超过⌊(lg *n*)/2⌋的概率为
 - en: '![art](images/Art_P286.jpg)'
+  id: totrans-237
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P286.jpg)'
 - en: 'We can now calculate a lower bound on the expected length of the longest streak,
     beginning with equation (5.11) and proceeding in a manner similar to our analysis
     of the upper bound:'
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们可以计算最长连续数目的期望长度的下界，从方程(5.11)开始，类似于我们对上界的分析：
 - en: '![art](images/Art_P287.jpg)'
+  id: totrans-239
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P287.jpg)'
 - en: As with the birthday paradox, we can obtain a simpler, but approximate, analysis
     using indicator random variables. Instead of determining the expected length of
     the longest streak, we’ll find the expected number of streaks with at least a
     given length. Let *X[ik]* = I {*A[ik]*} be the indicator random variable associated
     with a streak of heads of length at least *k* beginning with the *i*th coin flip.
     To count the total number of such streaks, define
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 与生日悖论类似，我们可以使用指示器随机变量进行更简单但近似的分析。我们不是确定最长连续数目的期望长度，而是找到至少具有给定长度的连续数目的期望数量。设*X[ik]*
+    = I {*A[ik]*}为与从第*i*次抛硬币开始的长度至少为*k*的连续正面朝上的指示器随机变量。为了计算这类连续数目的总数，定义
 - en: '![art](images/Art_P288.jpg)'
+  id: totrans-241
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P288.jpg)'
 - en: Taking expectations and using linearity of expectation, we have
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过期望和期望的线性性，我们有
 - en: '![art](images/Art_P289.jpg)'
+  id: totrans-243
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P289.jpg)'
 - en: By plugging in various values for *k*, we can calculate the expected number
     of streaks of length at least *k*. If this expected number is large (much greater
     than 1), then we expect many streaks of length *k* to occur, and the probability
     that one occurs is high. If this expected number is small (much less than 1),
     then we expect to see few streaks of length *k*, and the probability that one
     occurs is low. If *k* = *c* lg *n*, for some positive constant *c*, we obtain
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过为*k*插入各种值，我们可以计算至少长度为*k*的连续数目的期望数量。如果这个期望数量很大（远大于1），那么我们预计会看到许多长度为*k*的连续，一个发生的概率很高。如果这个期望数量很小（远小于1），那么我们预计会看到很少长度为*k*的连续，一个发生的概率很低。如果*k*
+    = *c* lg *n*，对于某个正常常数*c*，我们得到
 - en: '![art](images/Art_P290.jpg)'
+  id: totrans-245
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P290.jpg)'
 - en: If *c* is large, the expected number of streaks of length *c* lg *n* is small,
     and we conclude that they are unlikely to occur. On the other hand, if *c* = 1/2,
     then we obtain E [*X*[(1/2) lg *n*]] = Θ(1/*n*^(1/2–1)) = Θ(*n*^(1/2)), and we
     expect there to be numerous streaks of length (1/2) lg *n*. Therefore, one streak
     of such a length is likely to occur. We can conclude that the expected length
     of the longest streak is Θ(lg *n*).
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果*c*很大，长度为*c* lg *n*的连续数目的期望值很小，我们得出它们不太可能发生。另一方面，如果*c* = 1/2，那么我们得到E [*X*[(1/2)
+    lg *n*]] = Θ(1/*n*^(1/2–1)) = Θ(*n*^(1/2))，我们预计会有许多长度为(1/2) lg *n*的连续数目。因此，一个这样长度的连续数目很可能发生。我们可以得出最长连续数目的期望长度为Θ(lg
+    *n*)。
 - en: '**5.4.4    The online hiring problem**'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: '**5.4.4    在线招聘问题**'
 - en: 'As a final example, let’s consider a variant of the hiring problem. Suppose
     now that you do not wish to interview all the candidates in order to find the
     best one. You also want to avoid hiring and firing as you find better and better
@@ -1233,8 +1797,10 @@
     after each interview you must either immediately offer the position to the applicant
     or immediately reject the applicant. What is the trade-off between minimizing
     the amount of interviewing and maximizing the quality of the candidate hired?'
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一个例子，让我们考虑招聘问题的一个变体。现在假设您不希望按顺序面试所有候选人以找到最佳候选人。您还希望避免在找到更好的申请人时进行雇佣和解雇。相反，您愿意为了只雇佣一次而接受接近最佳候选人的候选人。您必须遵守一家公司的要求：每次面试后，您必须立即向申请人提供职位或立即拒绝申请人。在最小化面试量和最大化雇佣的候选人质量之间存在什么权衡？
 - en: We can model this problem in the following way. After meeting an applicant,
     you are able to give each one a score. Let *score*(*i*) denote the score you give
     to the *i*th applicant, and assume that no two applicants receive the same score.
@@ -1247,35 +1813,57 @@
     *k* interviewed, then you hire the *n*th applicant—the last one interviewed. We
     formalize this strategy in the procedure ONLINE-MAXIMUM(*k*, *n*), which returns
     the index of the candidate you wish to hire.
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以用以下方式建模这个问题。在遇到一个申请者后，你可以给每个人一个分数。让*score*(*i*)表示你给第*i*个申请者的分数，并假设没有两个申请者会得到相同的分数。在你见过*j*个申请者后，你知道哪一个是得分最高的，但你不知道剩下的*n*
+    – *j*个申请者中是否有人会得到更高的分数。你决定采取这样的策略：选择一个小于*n*的正整数*k*，先面试并拒绝前*k*个申请者，然后雇佣第一个比之前所有申请者得分更高的申请者。如果最合格的申请者是前*k*个面试的人之一，那么你会雇佣第*n*个申请者——最后一个面试的人。我们在过程ONLINE-MAXIMUM(*k*,
+    *n*)中形式化这个策略，该过程返回你希望雇佣的候选人的索引。
 - en: ONLINE-MAXIMUM(*k*, *n*)
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: ONLINE-MAXIMUM(*k*, *n*)
 - en: '| 1 | *best*-*score* = –∞ |'
+  id: totrans-251
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | *best*-*score* = –∞ |'
 - en: '| 2 | **for** *i* = 1 **to** *k* |'
+  id: totrans-252
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | **对于** *i* = 1 **到** *k* |'
 - en: '| 3 | **if** *score*(*i*) > *best*-*score* |'
+  id: totrans-253
   prefs: []
   type: TYPE_TB
+  zh: '| 3 | **如果** *score*(*i*) > *best*-*score* |'
 - en: '| 4 | *best-score* = *score*(*i*) |'
+  id: totrans-254
   prefs: []
   type: TYPE_TB
+  zh: '| 4 | *best-score* = *score*(*i*) |'
 - en: '| 5 | **for** *i* = *k* + 1 **to** *n* |'
+  id: totrans-255
   prefs: []
   type: TYPE_TB
+  zh: '| 5 | **对于** *i* = *k* + 1 **到** *n* |'
 - en: '| 6 | **if** *score*(*i*) > *best-score* |'
+  id: totrans-256
   prefs: []
   type: TYPE_TB
+  zh: '| 6 | **如果** *score*(*i*) > *best-score* |'
 - en: '| 7 | **return** *i* |'
+  id: totrans-257
   prefs: []
   type: TYPE_TB
+  zh: '| 7 | **返回** *i* |'
 - en: '| 8 | **return** *n* |'
+  id: totrans-258
   prefs: []
   type: TYPE_TB
+  zh: '| 8 | **返回** *n* |'
 - en: 'If we determine, for each possible value of *k*, the probability that you hire
     the most qualified applicant, then you can choose the best possible *k* and implement
     the strategy with that value. For the moment, assume that *k* is fixed. Let *M*(*j*)
@@ -1286,11 +1874,17 @@
     we have that ![art](images/Art_P291.jpg). Noting that you never succeed when the
     best-qualified applicant is one of the first *k*, we have that Pr {*S[i]*} = 0
     for *i* = 1, 2, … , *k*. Thus, we obtain'
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: '如果我们确定每个可能的*k*值时你雇佣最合格申请者的概率，那么你可以选择最佳的*k*并使用该值实施策略。暂时假设*k*是固定的。让*M*(*j*) =
+    max {*score*(*i*) : 1 ≤ *i* ≤ *j*}表示申请者1到*j*中的最高分数。让*S*表示你成功选择最合格申请者的事件，*S[i]*表示当最合格的申请者是第*i*个被面试的时候你成功的事件。由于各个*S[i]*是不相交的，我们有![艺术](images/Art_P291.jpg)。注意到当最合格的申请者是前*k*个中的一个时，你永远不会成功，所以对于*i*
+    = 1, 2, … , *k*，我们有Pr {*S[i]*} = 0。因此，我们得到'
 - en: '![art](images/Art_P292.jpg)'
+  id: totrans-260
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P292.jpg)'
 - en: We now compute Pr {*S[i]*}. In order to succeed when the best-qualified applicant
     is the *i*th one, two things must happen. First, the best-qualified applicant
     must be in position *i*, an event which we denote by *B[i]*. Second, the algorithm
@@ -1309,128 +1903,199 @@
     the value in position *i* is greater than all of them, and the value in position
     *i* does not affect the ordering of the values in positions 1 through *i* – 1\.
     Thus, we can apply equation (C.17) on page 1188 to obtain
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们计算Pr {*S[i]*}。为了在最合格的申请者是第*i*个时成功，必须发生两件事。首先，最合格的申请者必须在第*i*个位置，我们用*B[i]*表示这个事件。其次，算法不能选择第*k*
+    + 1到*i* – 1个位置的任何申请者，只有当对于每个*j*，使得*k* + 1 ≤ *j* ≤ *i* – 1，第6行发现*score*(*j*) <
+    *best-score*时才会发生。 （因为分数是唯一的，我们可以忽略*score*(*j*) = *best-score*的可能性。）换句话说，*score*(*k*
+    + 1)到*score*(*i* – 1)的所有值都必须小于*M*(*k*)。如果有任何一个大于*M*(*k*)，算法将返回第一个大于*M*(*k*)的索引。我们用*O[i]*表示在第*k*
+    + 1到*i* – 1个位置的申请者都没有被选择的事件。幸运的是，事件*B[i]*和*O[i]*是独立的。事件*O[i]*仅取决于位置1到*i* – 1的值的相对顺序，而*B[i]*仅取决于位置*i*的值是否大于所有其他位置的值。位置1到*i*
+    – 1的值的顺序不会影响位置*i*的值是否大于它们所有，而位置*i*的值也不会影响位置1到*i* – 1的值的顺序。因此，我们可以应用第1188页的方程(C.17)得到
 - en: Pr {*S[i]*} = Pr {*B[i]* ∩ *O[i]*} = Pr {*B[i]*} Pr {*O[i]*}.
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: Pr {*S[i]*} = Pr {*B[i]* ∩ *O[i]*} = Pr {*B[i]*} Pr {*O[i]*}。
 - en: We have Pr {*B[i]*} = 1/*n* since the maximum is equally likely to be in any
     one of the *n* positions. For event *O[i]* to occur, the maximum value in positions
     1 through *i* –1, which is equally likely to be in any of these *i* – 1 positions,
     must be in one of the first *k* positions. Consequently, Pr {*O[i]*} = *k*/(*i*
     – 1) and Pr {*S[i]*} = *k*/(*n*(*i* – 1)). Using equation (5.14), we have
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们有 Pr {*B[i]*} = 1/*n*，因为最大值在任何一个*n*个位置中都有相同的可能性。为了使事件*O[i]*发生，前1到*i* –1个位置中的最大值（同样有可能在这*i*
+    – 1个位置中的任何一个）必须在前*k*个位置中的一个。因此，Pr {*O[i]*} = *k*/(*i* – 1)，Pr {*S[i]*} = *k*/(*n*(*i*
+    – 1))。使用方程(5.14)，我们有
 - en: '![art](images/Art_P293.jpg)'
+  id: totrans-264
   prefs: []
   type: TYPE_IMG
+  zh: '![艺术](images/Art_P293.jpg)'
 - en: We approximate by integrals to bound this summation from above and below. By
     the inequalities (A.19) on page 1150, we have
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们通过积分来估计上下界以限制这个求和。根据第1150页上的不等式（A.19），我们有
 - en: '![art](images/Art_P294.jpg)'
+  id: totrans-266
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P294.jpg)'
 - en: Evaluating these definite integrals gives us the bounds
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: 评估这些定积分给出了我们的界限
 - en: '![art](images/Art_P295.jpg)'
+  id: totrans-268
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P295.jpg)'
 - en: which provide a rather tight bound for Pr {*S*}. Because you wish to maximize
     your probability of success, let us focus on choosing the value of *k* that maximizes
     the lower bound on Pr {*S*}. (Besides, the lower-bound expression is easier to
     maximize than the upper-bound expression.) Differentiating the expression (*k*/*n*)(ln
     *n* – ln *k*) with respect to *k*, we obtain
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些为Pr {*S*}提供了一个相当紧密的界限。因为你希望最大化成功的概率，让我们专注于选择最大化Pr {*S*}下界的*k*的值。（此外，下界表达式比上界表达式更容易最大化。）对表达式(*k*/*n*)(ln
+    *n* – ln *k*)关于*k*求导，我们得到
 - en: '![art](images/Art_P296.jpg)'
+  id: totrans-270
   prefs: []
   type: TYPE_IMG
+  zh: '![art](images/Art_P296.jpg)'
 - en: Setting this derivative equal to 0, we see that you maximize the lower bound
     on the probability when ln *k* = ln *n* – 1 = ln(*n*/*e*) or, equivalently, when
     *k* = *n*/*e*. Thus, if you implement our strategy with *k* = *n*/*e*, you succeed
     in hiring the best-qualified applicant with probability at least 1/*e*.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 将这个导数设为0，我们发现当ln *k* = ln *n* – 1 = ln(*n*/*e*)时，可以最大化概率的下界，或者等价地，当*k* = *n*/*e*时。因此，如果你使用*k*
+    = *n*/*e*实施我们的策略，你成功雇佣最合格的申请人的概率至少为1/*e*。
 - en: '**Exercises**'
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: '**练习**'
 - en: '***5.4-1***'
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.4-1***'
 - en: How many people must there be in a room before the probability that someone
     has the same birthday as you do is at least 1/2? How many people must there be
     before the probability that at least two people have a birthday on July 4 is greater
     than 1/2?
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个房间里必须有多少人，才能使得有人与你有相同的生日的概率至少为1/2？在有这么多人的情况下，至少有两个人生日是7月4日的概率大于1/2，需要多少人？
 - en: '***5.4-2***'
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.4-2***'
 - en: How many people must there be in a room before the probability that two people
     have the same birthday is at least 0.99? For that many people, what is the expected
     number of pairs of people who have the same birthday?
+  id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个房间里必须有多少人，才能使得有两个人生日相同的概率至少为0.99？对于这么多人，有多少对人有相同生日的期望数量？
 - en: '***5.4-3***'
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5.4-3***'
 - en: You toss balls into *b* bins until some bin contains two balls. Each toss is
     independent, and each ball is equally likely to end up in any bin. What is the
     expected number of ball tosses?
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 你把球扔进*b*个箱子，直到某个箱子里有两个球。每次投掷都是独立的，每个球都有相等的机会落入任何一个箱子。预期投掷多少次球？
 - en: ★ ***5.4-4***
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.4-4***
 - en: For the analysis of the birthday paradox, is it important that the birthdays
     be mutually independent, or is pairwise independence sufficient? Justify your
     answer.
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于生日悖论的分析，生日之间是否相互独立很重要，还是成对独立就足够了？请证明你的答案。
 - en: ★ ***5.4-5***
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.4-5***
 - en: How many people should be invited to a party in order to make it likely that
     there are *three* people with the same birthday?
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使派对上有*三*个人生日相同的可能性较大，应该邀请多少人？
 - en: ★ ***5.4-6***
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.4-6***
 - en: What is the probability that a *k*-string (defined on page 1179) over a set
     of size *n* forms a *k*-permutation? How does this question relate to the birthday
     paradox?
+  id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个大小为*n*的集合上的*k*-字符串（在第1179页定义）形成一个*k*排列的概率是多少？这个问题与生日悖论有什么关系？
 - en: ★ ***5.4-7***
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.4-7***
 - en: You toss *n* balls into *n* bins, where each toss is independent and the ball
     is equally likely to end up in any bin. What is the expected number of empty bins?
     What is the expected number of bins with exactly one ball?
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: 你把*n*个球扔进*n*个箱子，每次投掷都是独立的，球有相等的机会落入任何一个箱子。预期有多少个空箱子？预期有多少个箱子里正好有一个球？
 - en: ★ ***5.4-8***
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: ★ ***5.4-8***
 - en: Sharpen the lower bound on streak length by showing that in *n* flips of a fair
     coin, the probability is at least 1 – 1/*n* that a streak of length lg *n* – 2
     lg lg *n* consecutive heads occurs.
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过展示在* n *次抛硬币中，连续出现长度为lg *n* – 2 lg lg *n*的头的概率至少为1 – 1/*n*，来加强连续长度的下界。
 - en: '**Problems**'
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '***5-1     Probabilistic counting***'
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5-1     概率计数***'
 - en: With a *b*-bit counter, we can ordinarily only count up to 2^(*b*) – 1\. With
     R. Morris’s ***probabilistic counting***, we can count up to a much larger value
     at the expense of some loss of precision.
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用一个*b*位计数器，通常只能计数到2^(*b*) – 1\. 使用R. Morris的***概率计数***，我们可以以牺牲一些精度为代价计数到更大的值。
 - en: We let a counter value of *i* represent a count of *n[i]* for *i* = 0, 1, …
     , 2^(*b*) – 1, where the *n[i]* form an increasing sequence of nonnegative values.
     We assume that the initial value of the counter is 0, representing a count of
@@ -1439,122 +2104,179 @@
     overflow error. Otherwise, the INCREMENT operation increases the counter by 1
     with probability 1/(*n*[*i* + 1] – *n[i]*), and it leaves the counter unchanged
     with probability 1 – 1/(*n*[*i* + 1] – *n[i]*).
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们让计数器值为*i*表示*i* = 0, 1, … , 2^(*b*) – 1的*n[i]*计数，其中*n[i]*形成一个递增的非负值序列。我们假设计数器的初始值为0，表示*n*[0]
+    = 0\. INCREMENT操作以概率方式作用于包含值*i*的计数器。如果*i* = 2^(*b*) – 1，则该操作报告溢出错误。否则，INCREMENT操作以1/(*n*[*i*
+    + 1] – *n[i]*)的概率增加计数器1，以1 – 1/(*n*[*i* + 1] – *n[i]*)的概率保持计数器不变。
 - en: If we select *n[i]* = *i* for all *i* ≥ 0, then the counter is an ordinary one.
     More interesting situations arise if we select, say, *n[i]* = 2^(*i* – 1) for
     *i* > 0 or *n[i]* = *F[i]* (the *i*th Fibonacci number—see equation (3.31) on
     page 69).
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们选择*n[i]* = *i*对所有*i* ≥ 0，则计数器是一个普通的计数器。如果我们选择，比如，*n[i]* = 2^(*i* – 1)对*i*
+    > 0或*n[i]* = *F[i]*（第*i*个斐波那契数—见第69页的方程（3.31））等更有趣的情况会出现。
 - en: For this problem, assume that ![art](images/Art_P297.jpg) is large enough that
     the probability of an overflow error is negligible.
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于这个问题，假设![art](images/Art_P297.jpg)足够大，使得溢出错误的概率可以忽略不计。
 - en: '***a.*** Show that the expected value represented by the counter after *n*
     INCREMENT operations have been performed is exactly *n*.'
+  id: totrans-295
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 展示经过*n*次INCREMENT操作后计数器表示的期望值恰好为*n*。'
 - en: '***b.*** The analysis of the variance of the count represented by the counter
     depends on the sequence of the *n[i]*. Let us consider a simple case: *n[i]* =
     100*i* for all *i* ≥ 0\. Estimate the variance in the value represented by the
     register after *n* INCREMENT operations have been performed.'
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 计数器表示的计数方差的分析取决于*n[i]*的序列。让我们考虑一个简单的情况：对于所有*i* ≥ 0，*n[i]* = 100*i*。在执行*n*次增量操作后，估计寄存器表示的值的方差。'
 - en: '***5-2     Searching an unsorted array***'
+  id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: '***5-2     搜索未排序的数组***'
 - en: This problem examines three algorithms for searching for a value *x* in an unsorted
     array *A* consisting of *n* elements.
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个问题考察了三种在由*n*个元素组成的未排序数组*A*中搜索值*x*的算法。
 - en: 'Consider the following randomized strategy: pick a random index *i* into *A*.
     If *A*[*i*] = *x*, then terminate; otherwise, continue the search by picking a
     new random index into *A*. Continue picking random indices into *A* until you
     find an index *j* such that *A*[*j*] = *x* or until every element of *A* has been
     checked. This strategy may examine a given element more than once, because it
     picks from the whole set of indices each time.'
+  id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑以下的随机策略：选择*A*中的一个随机索引*i*。如果*A*[*i*] = *x*，则终止；否则，通过选择*A*中的一个新的随机索引继续搜索。继续选择*A*中的随机索引，直到找到一个索引*j*使得*A*[*j*]
+    = *x*，或者直到检查了*A*的每个元素。这种策略可能多次检查给定的元素，因为它每次都从整个索引集中选择。
 - en: '***a.*** Write pseudocode for a procedure RANDOM-SEARCH to implement the strategy
     above. Be sure that your algorithm terminates when all indices into *A* have been
     picked.'
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: '***a.*** 编写一个实现上述策略的随机搜索（RANDOM-SEARCH）过程的伪代码。确保你的算法在选择了*A*的所有索引时终止。'
 - en: '***b.*** Suppose that there is exactly one index *i* such that *A*[*i*] = *x*.
     What is the expected number of indices into *A* that must be picked before *x*
     is found and RANDOM-SEARCH terminates?'
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: '***b.*** 假设存在一个索引*i*使得*A*[*i*] = *x*。在随机搜索（RANDOM-SEARCH）终止之前，必须选择*A*中的索引的预期数量是多少？'
 - en: '***c.*** Generalizing your solution to part (b), suppose that there are *k*
     ≥ 1 indices *i* such that *A*[*i*] = *x*. What is the expected number of indices
     into *A* that must be picked before *x* is found and RANDOM-SEARCH terminates?
     Your answer should be a function of *n* and *k*.'
+  id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: '***c.*** 将你对部分（b）的解决方案进行泛化，假设存在*k* ≥ 1个索引*i*，使得*A*[*i*] = *x*。在随机搜索（RANDOM-SEARCH）终止之前，必须选择*A*中的索引的预期数量是多少？你的答案应该是*n*和*k*的函数。'
 - en: '***d.*** Suppose that there are no indices *i* such that *A*[*i*] = *x*. What
     is the expected number of indices into *A* that must be picked before all elements
     of *A* have been checked and RANDOM-SEARCH terminates?'
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: '***d.*** 假设不存在索引*i*使得*A*[*i*] = *x*。在所有*A*的元素都被检查并且随机搜索（RANDOM-SEARCH）终止之前，必须选择*A*中的索引的预期数量是多少？'
 - en: Now consider a deterministic linear search algorithm. The algorithm, which we
     call DETERMINISTIC-SEARCH, searches *A* for *x* in order, considering *A*[1],
     *A*[2], *A*[3], … , *A*[*n*] until either it finds *A*[*i*] = *x* or it reaches
     the end of the array. Assume that all possible permutations of the input array
     are equally likely.
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在考虑一个确定性线性搜索算法。该算法，我们称之为确定性搜索（DETERMINISTIC-SEARCH），按顺序在*A*中搜索*x*，考虑*A*[1]、*A*[2]、*A*[3]，…，*A*[*n*]，直到找到*A*[*i*]
+    = *x*或者达到数组的末尾。假设输入数组的所有可能排列是等可能的。
 - en: '***e.*** Suppose that there is exactly one index *i* such that *A*[*i*] = *x*.
     What is the average-case running time of DETERMINISTIC-SEARCH? What is the worst-case
     running time of DETERMINISTIC-SEARCH?'
+  id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: '***e.*** 假设存在一个索引*i*使得*A*[*i*] = *x*。确定性搜索（DETERMINISTIC-SEARCH）的平均情况运行时间是多少？确定性搜索的最坏情况运行时间是多少？'
 - en: '***f.*** Generalizing your solution to part (e), suppose that there are *k*
     ≥ 1 indices *i* such that *A*[*i*] = *x*. What is the average-case running time
     of DETERMINISTIC-SEARCH? What is the worst-case running time of DETERMINISTIC-SEARCH?
     Your answer should be a function of *n* and *k*.'
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: '***f.*** 将你对部分（e）的解决方案进行泛化，假设存在*k* ≥ 1个索引*i*，使得*A*[*i*] = *x*。确定性搜索（DETERMINISTIC-SEARCH）的平均情况运行时间是多少？确定性搜索的最坏情况运行时间是多少？你的答案应该是*n*和*k*的函数。'
 - en: '***g.*** Suppose that there are no indices *i* such that *A*[*i*] = *x*. What
     is the average-case running time of DETERMINISTIC-SEARCH? What is the worst-case
     running time of DETERMINISTIC-SEARCH?'
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: '***g.*** 假设不存在索引*i*使得*A*[*i*] = *x*。确定性搜索（DETERMINISTIC-SEARCH）的平均情况运行时间是多少？确定性搜索的最坏情况运行时间是多少？'
 - en: Finally, consider a randomized algorithm SCRAMBLE-SEARCH that first randomly
     permutes the input array and then runs the deterministic linear search given above
     on the resulting permuted array.
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，考虑一个随机算法SCRAMBLE-SEARCH，首先随机排列输入数组，然后在结果排列的数组上运行上述的确定性线性搜索。
 - en: '***h.*** Letting *k* be the number of indices *i* such that *A*[*i*] = *x*,
     give the worst-case and expected running times of SCRAMBLE-SEARCH for the cases
     in which *k* = 0 and *k* = 1\. Generalize your solution to handle the case in
     which *k* ≥ 1.'
+  id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: '***h.*** 让*k*表示存在*A*[*i*] = *x*的索引*i*的数量，给出SCRAMBLE-SEARCH在*k* = 0和*k* = 1的情况下的最坏情况和预期运行时间。泛化你的解决方案以处理*k*
+    ≥ 1的情况。'
 - en: '***i.*** Which of the three searching algorithms would you use? Explain your
     answer.'
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: '***i.*** 你会使用哪种搜索算法？解释你的答案。'
 - en: '**Chapter notes**'
+  id: totrans-311
   prefs: []
   type: TYPE_NORMAL
+  zh: '**章节注释**'
 - en: Bollobás [[65](bibliography001.xhtml#endnote_65)], Hofri [[223](bibliography001.xhtml#endnote_223)],
     and Spencer [[420](bibliography001.xhtml#endnote_420)] contain a wealth of advanced
     probabilistic techniques. The advantages of randomized algorithms are discussed
     and surveyed by Karp [[249](bibliography001.xhtml#endnote_249)] and Rabin [[372](bibliography001.xhtml#endnote_372)].
     The textbook by Motwani and Raghavan [[336](bibliography001.xhtml#endnote_336)]
     gives an extensive treatment of randomized algorithms.
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: Bollobás [[65](bibliography001.xhtml#endnote_65)], Hofri [[223](bibliography001.xhtml#endnote_223)],
+    和 Spencer [[420](bibliography001.xhtml#endnote_420)] 包含了丰富的高级概率技术。随机算法的优势由 Karp
+    [[249](bibliography001.xhtml#endnote_249)] 和 Rabin [[372](bibliography001.xhtml#endnote_372)]
+    讨论和调查。Motwani 和 Raghavan 的教科书 [[336](bibliography001.xhtml#endnote_336)] 对随机算法进行了广泛的讨论。
 - en: The RANDOMLY-PERMUTE procedure is by Durstenfeld [[128](bibliography001.xhtml#endnote_128)],
     based on an earlier procedure by Fisher and Yates [[143](bibliography001.xhtml#endnote_143),
     p. 34].
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: RANDOMLY-PERMUTE 程序由 Durstenfeld [[128](bibliography001.xhtml#endnote_128)]
+    提出，基于 Fisher 和 Yates 早期的程序 [[143](bibliography001.xhtml#endnote_143), p. 34]。
 - en: Several variants of the hiring problem have been widely studied. These problems
     are more commonly referred to as “secretary problems.” Examples of work in this
     area are the paper by Ajtai, Meggido, and Waarts [[11](bibliography001.xhtml#endnote_11)]
     and another by Kleinberg [[258](bibliography001.xhtml#endnote_258)], which ties
     the secretary problem to online ad auctions.
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: 招聘问题的几个变体已被广泛研究。这些问题更常被称为“秘书问题”。在这一领域的工作示例包括 Ajtai、Meggido 和 Waarts 的论文 [[11](bibliography001.xhtml#endnote_11)]，以及
+    Kleinberg 的另一篇论文 [[258](bibliography001.xhtml#endnote_258)]，将秘书问题与在线广告拍卖联系起来。
