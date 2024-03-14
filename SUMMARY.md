@@ -1,6 +1,0 @@
-+   [数据结构思维中文版](docs/think-dast-zh/README.md)
-+   [Leetcode C++ 题解](docs/leetcode/cpp/README.md)
-+   [Leetcode Java 题解](docs/leetcode/java/README.md)
-+ [Leetcode JavaScript 题解](docs/leetcode/javascript/README.md)
-+   [Leetcode Python 题解](docs/leetcode/python/README.md)
-+   [剑指 Offer Java 题解](docs/jianzhioffer/java/README.md)
