@@ -1,0 +1,1213 @@
+- en: '**19        不相交集数据结构**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 一些应用涉及将*n*个不同元素分组到一组不相交的集合中，即没有共同元素的集合。这些应用通常需要执行两个特定操作：找到包含给定元素的唯一集合和合并两个集合。本章探讨了维护支持这些操作的数据结构的方法。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 第 19.1 节描述了不相交集数据结构支持的操作，并提供了一个简单的应用。第 19.2 节介绍了不相交集的简单链表实现。第 19.3 节介绍了使用根树的更有效表示。使用树表示的运行时间在理论上是超线性的，但在所有实际目的上都是线性的。第
+    19.4 节定义和讨论了一个增长非常快的��数及其增长非常慢的反函数，它们出现在基于树的实现的运行时间中，然后通过复杂的摊销分析证明了运行时间的上界，刚好是超线性的。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**19.1    不相交集操作**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 一个***不相交集数据结构***维护一组不相交的动态集合 S = {*S*[1], *S*[2], … , *S[k]*}。为了标识每个集合，选择一个***代表***，即集合的某个成员。在某些应用中，使用哪个成员作为代表并不重要；重要的是，如果在两次请求之间没有修改集合地询问动态集合的代表，那么两次都会得到相同的答案。其他应用可能需要一个预先规定的规则来选择代表，比如选择集合中最小的成员（对于元素可以排序的集合）。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 就像我们研究过的其他动态集实现一样，集合的每个元素都由一个对象表示。让*x*表示一个对象，我们将看到如何支持以下操作：
+  prefs: []
+  type: TYPE_NORMAL
+- en: MAKE-SET(*x*)，其中*x*尚未属于其他集合，创建一个只有*x*作为成员（因此也是代表）的新集合。
+  prefs: []
+  type: TYPE_NORMAL
+- en: UNION(*x*, *y*)将包含*x*和*y*的两个不相交动态集合，即*S[x]*和*S[y]*，合并成一个新集合，该集合是这两个集合的并集。结果集的代表是*S[x]*
+    ∪ *S[y]*中的任何成员，尽管许多 UNION 的实现特别选择*S[x]*或*S[y]*的代表作为新代表。由于集合在任何时候必须是不相交的，UNION
+    操作会销毁集合*S[x]*和*S[y]*，将它们从集合 S 中移除。在实践中，实现通常会将一个集合的元素吸收到另一个集合中。
+  prefs: []
+  type: TYPE_NORMAL
+- en: FIND-SET(*x*)返回指向包含*x*的唯一集合的代表的指针。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在本章中，我们将分析不相交集数据结构的运行时间，以两个参数*n*和*m*为基础，其中*n*是 MAKE-SET 操作的数量，*m*是 MAKE-SET、UNION
+    和 FIND-SET 操作的总数。因为总操作数*m*包括*n*个 MAKE-SET 操作，所以*m* ≥ *n*。前*n*个操作总是 MAKE-SET 操作，因此在前*n*个操作之后，集合由*n*个单例集合组成。由于集合始终是不相交的，每个
+    UNION 操作都会将集合数量减少 1。因此，在*n* − 1 个 UNION 操作之后，只剩下一个集合，因此最多可以发生*n* − 1 个 UNION 操作。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**不相交集数据结构的应用**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 不相交集数据结构的许多应用之一是确定无向图的连通分量（参见附录 B.4 节）。例如，图 19.1(a)展示了一个具有四个连通分量的图。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 过程 CONNECTED-COMPONENTS 在下一页上使用不相交集合操作来计算图的连通分量。一旦 CONNECTED-COMPONENTS 过程对图进行了预处理，SAME-COMPONENT
+    过程就可以回答关于两个顶点是否属于同一连通分量的查询。在伪代码中，我们用 *G* 表示图的顶点集，用 *G*.*E* 表示边集。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 过程 CONNECTED-COMPONENTS 最初将每个顶点 *v* 放入自己的集合中。然后，对于每条边 (*u*, *v*), 它将包含 *u* 和
+    *v* 的集合合并。根据练习 19.1-2，处理完所有边后，两个顶点属于同一连通分量当且仅当对应于顶点的对象属于同一集合。因此，CONNECTED-COMPONENTS
+    以这种方式计算集合，使得 SAME-COMPONENT 过程可以确定两个顶点是否属于同一连通分量。图 19.1(b) 说明了 CONNECTED-COMPONENTS
+    如何计算不相交集合。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P557.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**图 19.1 (a)** 一个具有四个连通分量的图：{*a*, *b*, *c*, *d*}, {*e*, *f*, *g*}, {*h*, *i*},
+    和 {*j* }。**(b)** 处理每条边后的不相交集合的集合。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: CONNECTED-COMPONENTS(*G*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **对于**图 *G*.*V* 中的每个顶点 *v* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | MAKE-SET(*v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **对于**图 *G*.*E* 中的每条边 (*u*, *v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **如果** FIND-SET(*u*) ≠ FIND-SET(*v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | UNION(*u*, *v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| SAME-COMPONENT(*u*, *v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 1 | **如果** FIND-SET(*u*) == FIND-SET(*v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | **返回** TRUE |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **否则返回**FALSE |'
+  prefs: []
+  type: TYPE_TB
+- en: 在这个连通分量算法的实际实现中，图的表示和不相交集合数据结构需要相互引用。也就是说，表示顶点的对象应包含指向相应不相交集合对象的指针，反之亦然。由于这些编程细节取决于实现语言，我们在这里不再详细讨论。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 当图的边是静态的——不随时间变化时——深度优先搜索可以更快地计算连通分量（参见第 572 页上的练习 20.3-12）。然而，有时边是动态添加的，随着每条边的添加，连通分量会更新。在这种情况下，这里给出的实现可能比为每条新边运行新的深度优先搜索更有效。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**练习**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.1-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: CONNECTED-COMPONENTS 过程在无向图 *G* = (*V*, *E*) 上运行，其中 *V* = {*a*, *b*, *c*, *d*,
+    *e*, *f*, *g*, *h*, *i*, *j*, *k*}，边 *E* 按顺序 (*d*, *i*), (*f*, *k*), (*g*, *i*),
+    (*b*, *g*), (*a*, *h*), (*i*, *j*), (*d*, *k*), (*b*, *j*), (*d*, *f*), (*g*,
+    *j*), (*a*, *e*) 处理。在每次执行第 3-5 行后，列出每个连通分量中的顶点。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.1-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 证明经过 CONNECTED-COMPONENTS 处理所有边后，两个顶点属于同一连通分量当且仅当它们属于同一集合。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.1-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在无向图 *G* = (*V*, *E*) 上运行 CONNECTED-COMPONENTS 过程时，有 *k* 个连通分量，FIND-SET 被调用多少次？UNION
+    被调用多少次？用 |*V* |, |*E*|, 和 *k* 表示你的答案。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**19.2    不相交集合的链表表示**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 图 19.2(a) 展示了一种实现不相交集合数据结构的简单方法：每个集合由其自己的链表表示。每个集合的对象具有属性 *head*，指向列表中的第一个对象，*tail*，指向列表中的最后一个对象。列表中的每个对象包含一个集合成员，指向列表中的下一个对象的指针，以及指回集合对象的指针。在每个链表中，对象可以以任何顺序出现。代表是列表中第一个对象中的集合成员。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 使用这种链表表示，MAKE-SET 和 FIND-SET 只需要*O*(1)的时间。执行 MAKE-SET(*x*)，创建一个只包含*x*的新链表。对于
+    FIND-SET(*x*)，只需从*x*返回到其集合对象的指针，然后返回指向*head*的对象中的成员。例如，在 19.2(a)图中，调用 FIND-SET(*g*)返回*f*。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P558.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**图 19.2 (a)** 两个集合的链表表示。集合*S*[1]包含成员*d*、*f*和*g*，代表是*f*，集合*S*[2]包含成员*b*、*c*、*e*和*h*，代表是*c*。列表中的每个对象包含一个集合成员、指向列表中下一个对象的指针以及指向集合对象的指针。每个集合对象都有指向第一个和最后一个对象的指针*head*和*tail*。**(b)**
+    UNION(*g*, *e*)的结果，将包含*e*的链表附加到包含*g*的链表。结果集的代表是*f*。*e*的列表的集合对象*S*[2]被销毁。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**联合的简单实现**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 使用链表集合表示的 UNION 操作的最简单实现所需的时间明显比 MAKE-SET 或 FIND-SET 多。如 19.2(b)图所示，UNION(*x*,
+    *y*)操作将*y*的列表附加到*x*的列表末尾。*x*的列表的代表成为结果集的代表。为了快速找到要附加*y*的列表的位置，使用*x*的列表的*tail*指针。因为*y*的列表的所有成员都加入*x*的列表，UNION
+    操作会销毁*y*的列表的集合对象。UNION 操作是这种实现付出代价的地方，因为 FIND-SET 花费恒定时间：UNION 还必须更新原始在*y*的列表上的每个对象的集合对象指针，这需要与*y*的列表长度成正比的时间。例如，在
+    19.2 图中，操作 UNION(*g*, *e*)导致*b*、*c*、*e*和*h*的对象中的指针被更新。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 实际上，我们可以对*n*个对象进行一系列*m*个操作，需要Θ(*n*²)的时间。从对象*x*[1]，*x*[2]，…，*x[n]*开始，执行 n.3 图中显示的*n*个
+    MAKE-SET 操作，然后是*n*−1 个 UNION 操作，使得*m* = 2*n*−1。这*n*个 MAKE-SET 操作需要Θ(*n*)的时间。因为第*i*个
+    UNION 操作更新*i*个对象，所有*n*−1 个 UNION 操作更新的对象总数形成一个等差数列：
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P559.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**图 19.3** 对*n*个对象进行的一系列 2*n*−1 个操作，使用链表集合表示和 UNION 的简单实现，需要Θ(*n*²)的时间，或者平均每个操作需要Θ(*n*)的时间。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P560.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 总操作数为 2*n*−1，因此每个操作平均需要Θ(*n*)的时间。也就是说，操作的摊销时间是Θ(*n*)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**加权联合启发式**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在最坏情况下，上述 UNION 的实现每次调用平均需要Θ(*n*)的时间，因为可能会将较长的列表附加到较短的列表上，而过程必须更新较长列表的每个成员的集合对象指针。相反，假设每个列表还包括列表的长度（可以通过常量开销简单地维护），并且
+    UNION 过程总是将较短的列表附加到较长的列表上，随机打破平局。使用这种简单的***加权联合启发式***，如果两个集合都有Ω(*n*)个成员，则单个 UNION
+    操作仍可能需要Ω(*n*)的时间。然而，如下定理所示，一系列*m*个 MAKE-SET、UNION 和 FIND-SET 操作，其中*n*个是 MAKE-SET
+    操作，需要*O*(*m* + *n* lg *n*)的时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***定理 19.1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 使用不相交集合的链表表示和加权并启发式方法，包含*m*个 MAKE-SET、UNION 和 FIND-SET 操作的序列，其中*n*个是 MAKE-SET
+    操作，需要*O*(*m* + *n* lg *n*)的时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明***  因为每个 UNION 操作将两个不相交的集合合并，所有操作中最多发生*n* − 1 次 UNION 操作。我们现在限制这些 UNION
+    操作所花费的总时间。我们首先确定每个对象的指针回到其集合对象的更新次数的上限。考虑一个特定的对象*x*。每次更新*x*的指针时，*x*必须起始于较小的集合。因此，第一次更新*x*的指针时，结果集合必须至少有
+    2 个成员。类似地，下一次更新*x*的指针时，结果集合必须至少有 4 个成员。继续下去，对于任何*k* ≤ *n*，在*x*的指针被更新⌈lg *k*⌉次后，结果集合必须至少有*k*个成员。由于最大的集合最多有*n*个成员，每个对象的指针在所有
+    UNION 操作中最多更新⌈lg *n*⌉次。因此，在所有 UNION 操作中花费在更新对象指针上的总时间为*O*(*n* lg *n*)。我们还必须考虑更新*tail*指针和列表长度，每个
+    UNION 操作仅需要Θ(1)的时间。因此，所有 UNION 操作中花费的总时间为*O*(*n* lg *n*)。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 整个*m*个操作序列的时间如下。每个 MAKE-SET 和 FIND-SET 操作都需要*O*(1)的时间，共有*O*(*m*)个。因此，整个序列的总时间为*O*(*m*
+    + *n* lg *n*)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**练习**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.2-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 使用链表表示和加权并启发式方法编写 MAKE-SET、FIND-SET 和 UNION 的伪代码。确保指定你假设的集合对象和列表对象的属性。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.2-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 展示由以下程序中的 FIND-SET 操作返回的数据结构和答案。使用带有加权并启发式方法的链表表示。假设如果包含*x[i]*和*x[j]*的集合大小相同，则操作
+    UNION(*x[i]*, *x[j]*)将*x[j]*的列表附加到*x[i]*的列表上。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|   1 | **for** *i* = 1 **to** 16 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   2 | MAKE-SET(*x[i]*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   3 | **for** *i* = 1 **to** 15 **by** 2 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   4 | UNION(*x[i]*, *x*[*i*+1]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   5 | **for** *i* = 1 **to** 13 **by** 4 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   6 | UNION(*x[i]*, *x*[*i*+2]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   7 | UNION(*x*[1], *x*[5]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   8 | UNION(*x*[11], *x*[13]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   9 | UNION(*x*[1], *x*[10]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 10 | FIND-SET(*x*[2]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 11 | FIND-SET(*x*[9]) |'
+  prefs: []
+  type: TYPE_TB
+- en: '***19.2-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 将定理 19.1 的总体证明改编为使用链表表示和加权并启发式方法获得 MAKE-SET 和 FIND-SET 的*O*(1)摊销时间界限，以及 UNION
+    的*O*(lg *n*)摊销时间界限。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.2-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 给出在图 19.3 中操作序列的运行时间的紧密渐近界限，假设使用链表表示和加权并启发式方法。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.2-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 教授戈姆珀斯怀疑可能只需在每个集合对象中保留一个指针，而不是两个（*head* 和 *tail*），同时保持每个列表元素中指针的数量为两个。通过描述如何用链表表示每个集合来证明教授的怀疑是正确的，使得每个操作的运行时间与本节描述的操作相同。还要描述操作的工作原理。你的方案应允许使用加权并启发式方法，效果与本节描述的相同。(*提示*：使用链表的尾部作为其集合的代表。)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.2-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 建议对链表表示的 UNION 过程进行简单更改，以消除保留每个列表中最后一个对象的*tail*指针的需要。无论是否使用加权合并启发式，您的更改都不应改变
+    UNION 过程的渐进运行时间。(*提示*：不要将一个列表附加到另一个列表，而是将它们拼接在一起。)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**19.3    不相交集合森林**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 更快的不相交集合实现通过根树表示集合，每个节点包含一个成员，每棵树表示一个集合。在***不相交集合森林***中，如图 19.4(a)所示，每个成员只指向其父节点。每棵树的根包含代表并且是自己的父节点。正如我们将看到的，尽管使用这种表示的直接算法并不比使用链表表示的算法更快，但两个启发式——“按秩合并”和“路径压缩”——产生了一个渐进最优的不相交集合数据结构。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 三个不相交集合操作有简单的实现。MAKE-SET 操作简单地创建一个只有一个节点的树。FIND-SET 操作沿着父指针向树根移动，直到达到树根。在这条通向根的简单路径上访问的节点构成***查找路径***。UNION
+    操作，如图 19.4(b)所示，只是使一棵树的根指向另一棵树的根。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P561.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**图 19.4** 不相交集合森林。**(a)** 代表图 19.2 中两个集合的树。左侧的树代表集合{*b*, *c*, *e*, *h*}，其中*c*是代表，右侧的树代表集合{*d*,
+    *f*, *g*}，其中*f*是代表。**(b)** UNION (*e*, *g*)的结果。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**改进运行时间的启发式**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 到目前为止，不相交集合森林并没有改进链表实现。一系列*n* − 1 个 UNION 操作可能创建一个只是*n*个节点的线性链的树。然而，通过使用两个启发式，我们可以实现一个几乎与操作总数*m*几乎线性的运行时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 第一个启发式，***按秩合并***，类似于我们在链表表示中使用的加权合并启发式。常识的方法是使节点较少的树的根指向节点较多的树的根。然而，与明确跟踪每个节点根的子树大小不同，我们将采用一种简化分析的方法。对于每个节点，维护一个***秩***，它是节点高度的一个上界。在
+    UNION 操作期间，按秩合并使秩较小的根指向秩较大的根。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 第二个启发式，***路径压缩***，也非常简单且高效。如图 19.5 所示，FIND-SET 操作使用它使沿查找路径的每个节点直接指向根。路径压缩不会改变任何秩。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**不相交集合森林的伪代码**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 按秩合并启发式要求其实现跟踪秩。对于每个节点*x*，维护整数值*x*.*rank*，它是*x*的高度的一个上界（从后代叶子到*x*的最长简单路径中的边数）。当
+    MAKE-SET 创建一个单例集时，对应树中的单个节点具有初始秩为 0。每个 FIND-SET 操作都不会改变所有秩。UNION 操作有两种情况，取决于树的根是否具有相等的秩。如果根的秩不相等，则使具有更高秩的根成为具有较低秩的根的父节点，但不更改秩本身。如果根的秩相等，则任意选择一个根作为父节点并增加其秩。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P562.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**图 19.5** 在执行 FIND-SET 操作期间的路径压缩。省略了根节点的箭头和自环。**(a)** 表示在执行 FIND-SET(*a*)之前表示集合的树。三角形代表根节点为所示节点的子树。每个节点都有指向其父节点的指针。**(b)**
+    在执行 FIND-SET(*a*)之后的同一集合。沿着查找路径的每个节点现在直接指向根节点。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 让我们将这种方法放入伪代码中，出现在下一页上。节点*x*的父节点用*x*.*p*表示。LINK 过程是 UNION 调用的子例程，接受两个根节点的指针作为输入。使用路径压缩实现的递归
+    FIND-SET 过程实际上非常简单。
+  prefs: []
+  type: TYPE_NORMAL
+- en: FIND-SET 过程是一个***两遍方法***：当递归时，它沿着查找路径向上进行一次查找以找到根节点，当递归解开时，它沿着查找路径向下进行第二次查找以更新每个节点直接指向根节点。FIND-SET(*x*)的每次调用在第
+    3 行返回*x*.*p*。如果*x*是根节点，则 FIND-SET 跳过第 2 行并直接返回*x*.*p*，即*x*。在这种情况下，递归到底。否则，第 2
+    行执行，带有*x*.*p*参数的递归调用返回指向根节点的指针。第 2 行更新节点*x*直接指向根节点，第 3 行返回此指针。
+  prefs: []
+  type: TYPE_NORMAL
+- en: MAKE-SET(*x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | *x*.*p* = *x* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | *x*.*rank* = 0 |'
+  prefs: []
+  type: TYPE_TB
+- en: UNION(*x*, *y*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | LINK(FIND-SET(*x*), FIND-SET(*y*)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: LINK(*x*, *y*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **if** *x*.*rank > y*.*rank* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | *y*.*p* = *x* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **else** *x*.*p* = *y* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | **if** *x*.*rank* == *y*.*rank* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | *y*.*rank* = *y*.*rank* + 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: FIND-SET(*x*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **if** *x* ≠ *x*.*p* | **//** 不是根节点？ |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | *x*.*p* = FIND-SET(*x*.*p*) | **//** 根节点成为父节点 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **return** *x*.*p* | **//** 返回根节点 |'
+  prefs: []
+  type: TYPE_TB
+- en: '**启发式对运行时间的影响**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 单独使用按秩合并或路径压缩都可以改善不相交集森林上的操作运行时间，而将这两种启发式方法结合起来会带来更大的改进。单独使用按秩合并，对于一系列*m*个操作，其中*n*个是
+    MAKE-SET 操作（参见练习 19.4-4），其运行时间为*O*(*m* lg *n*)，这个界限是紧的（参见练习 19.3-3）。虽然我们在这里不会证明，但对于*n*个
+    MAKE-SET 操作序列（因此最多*n*−1 个 UNION 操作）和*f*个 FIND-SET 操作，��使用路径压缩启发式方法的最坏情况运行时间是Θ(*n*
+    + *f* · (1 + log[2+*f*/*n*]*n*)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 将按秩合并和路径压缩结合起来，得到最坏情况下的运行时间为*O*(*m α*(*n*))，其中*α*(*n*)是一个增长非常缓慢的函数，在第 19.4 节中定义。在任何可能的不相交集数据结构应用中，*α*(*n*)
+    ≤ 4，因此，对于所有实际目的而言，其运行时间与*m*线性一样好。但从数学上讲，它是超线性的。第 19.4 节证明了这个*O*(*mα*(*n*))的上界。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**练习**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.3-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 使用按秩合并和路径压缩的不相交集森林重新做练习 19.2-2。展示每个节点的*x[i]*和秩的结果森林。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.3-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 编写一个具有路径压缩的 FIND-SET 的非递归版本。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.3-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 给出一个包含*m*个 MAKE-SET、UNION 和 FIND-SET 操作序列，其中*n*个是 MAKE-SET 操作，当仅使用按秩合并而不使用路径压缩时，需要Ω(*m*
+    lg *n*)时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.3-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 考虑操作 PRINT-SET(*x*)，给定一个节点*x*并按任意顺序打印*x*集合的所有成员。展示如何向不相交集森林中的每个节点添加一个属性，以便 PRINT-SET(*x*)的时间与*x*集合的成员数量线性，而其他操作的渐近运行时间保持不变。假设您可以在*O*(1)时间内打印集合的每个成员。
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***19.3-5***
+  prefs: []
+  type: TYPE_NORMAL
+- en: 证明任何一系列的*m*个 MAKE-SET、FIND-SET 和 LINK 操作，其中所有的 LINK 操作出现在任何 FIND-SET 操作之前，当使用路径压缩和秩并查集时，仅需要*O*(*m*)的时间。您可以假设
+    LINK 的参数是不相交集合森林中的根。当仅使用路径压缩而不使用秩并查集时，在相同情况下会发生什么？
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ **19.4 带路径压缩的秩的并查集分析**
+  prefs: []
+  type: TYPE_NORMAL
+- en: 正如第 19.3 节中所指出的，联合使用秩和路径压缩启发式方法在*n*个元素上进行*m*个不相交集合操作的时间复杂度为*O*(*m α*(*n*))。在本节中，我们将探讨函数*α*的增长速度。然后，我们将使用摊销分析的潜在方法分析运行时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**一个增长非常快的函数及其增长非常缓慢的逆函数**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于整数*j*，*k* ≥ 0，我们定义函数*A[k]*(*j*)为
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P563.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 式中的表达式 ![art](img/Art_P564.jpg) 使用了第 68 页方程（3.30）中定义的函数迭代符号。具体来说，方程（3.30）给出了
+    *i* ≥ 1 时的 ![art](img/Art_P565.jpg) 和 ![art](img/Art_P566.jpg)。我们将参数*k*称为函数*A*的***级别***。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 函数*A[k]*(*j*)随着*j*和*k*严格增加。为了了解这个函数增长的速度，我们首先得到了* A*1 和 *A*2 的闭合形式表达式。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于任何整数*j* ≥ 1，我们有 *A*1 = 2*j* + 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明***   我们首先对*i*使用归纳法证明 ![art](img/Art_P567.jpg)。对于基本情况，我们有 ![art](img/Art_P568.jpg)。对于归纳步骤，假设
+    ![art](img/Art_P569.jpg)。那么 ![art](img/Art_P570.jpg)。最后，我们注意到 ![art](img/Art_P571.jpg)。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于任何整数*j* ≥ 1，我们有 *A*[2] (*j*) = 2^(*j*+1)(*j* + 1) − 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明***   我们首先对*i*使用归纳法证明 ![art](img/Art_P572.jpg)。对于基本情况，我们有 ![art](img/Art_P573.jpg)。对于归纳步骤，假设
+    ![art](img/Art_P574.jpg)。那么 ![art](img/Art_P575.jpg)。最后，我们注意到 ![art](img/Art_P576.jpg)。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 现在我们可以通过简单地检查* A[k]*(*j*) 在级别*k* = 0, 1, 2, 3, 4 时的值来看出它增长的速度。根据*A*0 的定义和上述引理，我们有
+    *A*0 = 1 + 1 = 2, *A*1 = 2 *·* 1 + 1 = 3, 和 *A*2 = 2^(1+1) · (1 + 1) − 1 = 7。我们还有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *A*3 | = | ![art](img/Art_P577.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *A*2) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *A*2 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 2⁸ · 8 − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 2¹¹ − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 2047 |'
+  prefs: []
+  type: TYPE_TB
+- en: 和
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *A*4 | = | ![art](img/Art_P578.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *A*3) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *A*3 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | ![art](img/Art_P579.jpg) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≫ | *A*2 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 2²⁰⁴⁸ · 2048 − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 2²⁰⁵⁹ − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | > | 2²⁰⁵⁶ |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | (2⁴)⁵¹⁴ |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 16⁵¹⁴ |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≫ | 10⁸⁰, |'
+  prefs: []
+  type: TYPE_TB
+- en: 这是可观测宇宙中估计的原子数量。（符号“≫”表示“远大于”关系。）
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们定义整数*n* ≥ 0 时函数*A[k]*(*n*)的逆函数为
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P580.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 换句话说，*α*(*n*) 是*A[k]*(1) 至少为*n*的最低级别*k*。从上述值*A[k]*(1) 可以看出
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P581.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 仅当*n*的值非常大，以至于术语“天文数字”都无法描述它们（大于*A*4，一个巨大的数字）时，*α*(*n*) > 4，因此对于所有实际目的，*α*(*n*)
+    ≤ 4。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**秩的性质**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在本节的其余部分，我们证明了使用秩和路径压缩的不相交集合操作的运行时间具有*O*(*mα*(*n*))的上界。为了证明这个上界，我们首先证明了秩的一些简单性质。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于所有节点* x *，我们有* x *.*rank* ≤ * x *.*p *.*rank*，如果* x * ≠ * x *.*p *（* x *不是根节点），则严格不等式成立。*
+    x *.*rank*的值最初为 0，随着时间的推移逐渐增加，直到* x * ≠ * x *.*p *，从那时起，* x *.*rank*不再改变。* x *.*p
+    *.*rank*的值随时间单调增加。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 证明是对操作次数进行简单的归纳，使用出现在第 530 页上的 MAKE-SET，UNION 和 FIND-SET 的实现，并留作练习
+    19.4-1。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***推论 19.5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 从任何向根节点上升的简单路径上，节点的秩严格增加。
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 每个节点的秩最多为* n * − 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 每个节点的秩从 0 开始，仅在 LINK 操作时增加。因为最多有* n * − 1 个 UNION 操作，所以也最多有* n * −
+    1 个 LINK 操作。因为每个 LINK 操作要么保持所有秩不变，要么将某个节点的秩增加 1，所以所有秩最多为* n * − 1。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: 引理 19.6 提供了对秩的弱界限。实际上，每个节点的秩最多为⌊lg * n *⌋（参见练习 19.4-2）。然而，引理 19.6 的较松界限对我们的目的足够了。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**证明时间界**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 为了证明* O *（* mα *（* n *））时间界，我们将使用摊还分析的潜在方法，从第 16.3 节中。在进行摊还分析时，假设我们调用 LINK 操作而不是
+    UNION 操作将很方便。也就是说，由于 LINK 过程的参数是指向两个根节点的指针，我们假设分别执行适当的 FIND-SET 操作。以下引理表明，即使计算由
+    UNION 调用引起的额外 FIND-SET 操作，渐近运行时间也保持不变。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.7***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 假设我们通过将* m *′个 MAKE-SET，UNION 和 FIND-SET 操作的序列*S*′转换为* m *个 MAKE-SET，LINK 和
+    FIND-SET 操作的序列*S*，将每个 UNION 转换为两个 FIND-SET 操作，然后是一个 LINK 操作。那么，如果序列*S*运行在* O *（*
+    mα *（* n *））时间内，序列*S*′运行在* O *（* m *′ * α *（* n *））时间内。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 由于序列*S*′中的每个 UNION 操作在*S*中转换为三个操作，所以我们有* m *′ ≤ * m * ≤ 3* m *′，因此*
+    m * = Θ（* m *′），因此，对于转换后的序列*S*的* O *（* m α *（* n *））时间界意味着原始序列*S*′的* O *（* m *′
+    * α *（* n *））时间界。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: 从现在开始，我们假设* m *′个 MAKE-SET，UNION 和 FIND-SET 操作的初始序列已经转换为* m *个 MAKE-SET，LINK
+    和 FIND-SET 操作的序列。我们现在证明转换后的序列具有* O *（* m α *（* n *））时间界，并引用引理 19.7 证明原始* m *′操作序列的*
+    O *（* m *′ * α *（* n *））运行时间。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**潜在函数**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们使用的潜在函数为每个节点* x *在经过*q*次操作后的不相交集合森林中分配一个潜在值*ϕ*[* q *]（* x *）。对于经过*q*次操作后整个森林的潜在值Φ*[q]*，将各个节点的潜在值求和：![艺术](img/Art_P582.jpg)。因为在第一次操作之前森林是空的，所以总和是在一个空集合上进行的，因此Φ[0]
+    = 0。没有潜在值Φ*[q]*是负的。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*ϕ[q]*（* x *）的值取决于第*q*次操作后* x *是否为树根。如果是，或者* x *.*rank* = 0，则*ϕ[q]*（* x *）=
+    *α*（* n *）·* x *.*rank*。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 现在假设在第*q*次操作之后，* x *不是根节点且* x *.*rank* ≥ 1。我们需要在定义*ϕ[q]*（* x *）之前为* x *定义两个辅助函数。首先我们定义
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P583.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 也就是说，level（* x *）是最大的级别*k*，对于该级别，* A [k]*应用于* x *的秩，不大于* x *的父节点的秩。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们声称
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![艺术](img/Art_P584.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 我们如下所示。我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *x*.*p*.*rank* | ≥ | *x*.*rank* + 1 | （根据引理 19.4，因为*x*不是根节点） |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *A*[0]（* x *.*rank*） | （根据*A*[0]（* j *）的定义（19.1））， |'
+  prefs: []
+  type: TYPE_TB
+- en: 这意味着 level(*x*) ≥ 0，并且
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *A**α*(*n*) | ≥ | *A**α*(*n*) | （因为*A[k]*(*j*)是严格增加的） |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≥ | *n* | （根据*α*(*n*)的定义(19.2)）， |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | > | *x*.*p*.*rank* | (根据引理 19.6)， |'
+  prefs: []
+  type: TYPE_TB
+- en: 意味着级别(*x*) < *α*(*n*)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于给定的非根节点*x*，level(*x*)的值随时间单调递增。为什么？因为*x*不是根节点，其等级不会改变。*x*.*p*的等级随时间单调递增，因为如果*x*.*p*不是根节点，则其等级不会改变，如果*x*.*p*是根节点，则其等级永远不会减少。因此，*x*.*rank*和*x*.*p*.*rank*之间的差异随时间单调递增。因此，为了使*A[k]*(*x*.*rank*)超过*x*.*p*.*rank*所需的*k*值也会随时间单调递增。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 第二个辅助函数适用于*x*.*rank* ≥ 1：iter(*x*) = max
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P585.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 也就是说，iter(*x*)是我们可以在超过*x*的父节点的等级之前，最多可以迭代应用*A*[level(*x*)]的次数。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们声称当*x*.*rank* ≥ 1 时，我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P586.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 我们可以这样看。我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *x*.*p*.*rank* | ≥ | *A*level(*x*) | （根据 level(*x*)的定义(19.3)） |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | ![art](img/Art_P587.jpg) | （根据函数迭代的定义(3.30)）， |'
+  prefs: []
+  type: TYPE_TB
+- en: 这意味着 iter(*x*) ≥ 1。我们还有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| ![art](img/Art_P588.jpg) | = | *A*level(*x*)+1（根据*A[k]*(*j*)的定义(19.1)） |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | > | *x*.*p*.*rank* | （根据 level(*x*)的定义(19.3)）， |'
+  prefs: []
+  type: TYPE_TB
+- en: 这意味着 iter(*x*) ≤ *x*.*rank*。请注意，因为*x*.*p*.*rank*随时间单调递增，为了使 iter(*x*)减少，level(*x*)必须增加。只要
+    level(*x*)保持不变，iter(*x*)要么增加要么保持不变。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 有了这些辅助函数，我们就可以定义节点*x*在*q*次操作后的潜力：
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![art](img/Art_P589.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 我们接下来研究节点潜力的一些有用性质。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.8***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 对于每个节点*x*，以及所有操作次数*q*，我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: 0 ≤ *ϕ[q]*(*x*) ≤ *α*(*n*) · *x*.*rank*。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 如果*x*是根节点或*x*.*rank* = 0，则根据定义，*ϕ[q]*(*x*) = *α*(*n*) · *x*.*rank*。现在假设*x*不是根节点且*x*.*rank*
+    ≥ 1。我们可以通过最大化 level(*x*)和 iter(*x*)来获得*ϕ[q]*(*x*)的下界。不等式(19.4)和(19.6)给出了*α*(*n*)
+    − level(*x*) ≥ 1 和 iter(*x*) ≤ *x*.*rank*。因此，我们有'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *ϕ[q]*(*x*) | = | (*α*(*n*) − level(*x*)) · *x*.*rank* − iter(*x*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≥ | *x*.*rank* − *x*.*rank* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | 0。 |'
+  prefs: []
+  type: TYPE_TB
+- en: 类似地，最小化 level(*x*)和 iter(*x*)提供了*ϕ[q]*(*x*)的上界。根据不等式(19.4)，level(*x*) ≥ 0，根据不等式(19.6)，iter(*x*)
+    ≥ 1。因此，我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *ϕ[q]*(*x*) | ≤ | (*α*(*n*) − 0) · *x*.*rank* − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | *α*(*n*) · *x*.*rank* − 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | < | *α*(*n*) · *x*.*rank*。 |'
+  prefs: []
+  type: TYPE_TB
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***推论 19.9***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 如果节点*x*不是根节点且*x*.*rank >* 0，则*ϕ[q]*(*x*) < *α*(*n*) · *x*.*rank*。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**潜力变化和操作的摊销成本**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 现在我们准备研究不相交集操作如何影响节点���力。一旦我们了解每个操作如何改变潜力，我们就可以确定摊销成本。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.10***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 假设*x*是一个非根节点，并且假设*q*次操作是 LINK 或 FIND-SET。那么在*q*次操作后，*ϕ[q]*(*x*) ≤ *ϕ**q*−1。此外，如果*x*.*rank*
+    ≥ 1 并且由于*q*次操作而 level(*x*)或 iter(*x*)发生变化，则*ϕ[q]*(*x*) ≤ *ϕ**q*−1 − 1。也就是说，*x*的潜力不会增加，如果它具有正等级并且
+    level(*x*)或 iter(*x*)发生变化，则*x*的潜力至少下降 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 因为*x*不是根节点，第*q*次操作不会改变*x*.*rank*，并且在初始的*n*个 MAKE-SET 操作之后，*n*不会改变，*α*(*n*)也不会改变。因此，在第*q*次操作之后，*x*的潜力公式中这些部分保持不变。如果*x*.*rank*
+    = 0，则*ϕ**q* = *ϕ**q*−1 = 0。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 现在假设*x*.*rank* ≥ 1。回想一下，level(*x*)随时间单调递增。如果第*q*次操作使 level(*x*)保持不变，则 iter(*x*)要么增加要么保持不变。如果
+    level(*x*)和 iter(*x*)都保持不变，则*ϕ**q* = *ϕ**q*−1。��果 level(*x*)保持不变且 iter(*x*)增加，则增加至少
+    1，因此*ϕ**q* ≤ *ϕ**q*−1 − 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 最后，如果第*q*次操作增加了级别(*x*)，那么至少增加 1，因此术语(*α*(*n*) − level(*x*)) · *x*.*rank*的值至少下降*x*.*rank*。由于级别(*x*)增加了，iter(*x*)的值可能会下降，但根据不等式(19.6)，下降最多为*x*.*rank*
+    − 1。因此，由于 iter(*x*)的变化而导致的潜力增加小于由于级别(*x*)的变化而导致的潜力减少，得到*ϕ**q* ≤ *ϕ**q*−1 − 1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们最后的三个引理表明每个 MAKE-SET、LINK 和 FIND-SET 操作的摊销成本为*O*(*α*(*n*)). 请回顾第 456 页上方程(16.2)中的内容，即每个操作的摊销成本等于其实际成本加上由操作引起的潜力变化。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.11***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 每个 MAKE-SET 操作的摊销成本为*O*(1)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 假设第*q*次操作是 MAKE-SET(*x*)。此操作创建具有等级 0 的节点*x*，因此*ϕ**q* = 0。没有其他等级或潜力发生变化，因此Φ*[q]*
+    = Φ[*q*−1]。注意 MAKE-SET 操作的实际成本��*O*(1)完成了证明。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.12***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 每个 LINK 操作的摊销成本为*O*(*α*(*n*)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 假设第*q*次操作是 LINK(*x*, *y*)。LINK 操作的实际成本为*O*(1)。不失一般性地，假设 LINK 使*y*成为*x*的父节点。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 要确定 LINK 导致的潜力变化，请注意，唯一可能发生潜力变化的节点是*x*、*y*和操作之前*y*的子节点。我们将展示，唯一可能由 LINK 导致潜力增加的节点是*y*，而且它的增加最多为*α*(*n*)：
+  prefs: []
+  type: TYPE_NORMAL
+- en: 根据引理 19.10，LINK 之前是*y*的子节点的任何节点都不会因 LINK 而潜力增加。
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 根据*ϕ**q*的定义(19.7)，请注意，由于*x*在第*q*次操作之前是一个根节点，那时*ϕ**q*−1 = *α*(*n*) · *x*.*rank*。如果*x*.*rank*
+    = 0，则*ϕ**q* = *ϕ**q*−1 = 0。否则，
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '| *ϕ**q* | < | *α*(*n*) · *x*.*rank* | (根据推论 19.9) |'
+  prefs:
+  - PREF_IND
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs:
+  - PREF_IND
+  type: TYPE_TB
+- en: '|  | = | *ϕ**q*−1, |  |'
+  prefs:
+  - PREF_IND
+  type: TYPE_TB
+- en: 因此*x*的潜力减少。
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 因为 LINK 之前*y*是根节点，所以 LINK 操作之后，*y*仍然是根节点，因此*y*的潜力仍然等于操作后的等级乘以*α*(*n*)。LINK 操作要么保持*y*的等级不变，要么将*y*的等级增加
+    1。因此，要么*ϕ**q* = *ϕ**q*−1，要么*ϕ**q* = *ϕ**q*−1 + *α*(*n*)。
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 因此，由于 LINK 操作而导致的潜力增加最多为*α*(*n*)。LINK 操作的摊销成本为*O*(1) + *α*(*n*) = *O*(*α*(*n*)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***引理 19.13***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 每个 FIND-SET 操作的摊销成本为*O*(*α*(*n*)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明*** 假设第*q*次操作是 FIND-SET，并且查找路径包含*s*个节点。FIND-SET 操作的实际成本为*O*(*s*)。我们将展示，没有节点的潜力会因
+    FIND-SET 而增加，并且至少有 max {0, *s* − (*α*(*n*) + 2)}个节点在查找路径上的潜力至少减少 1。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 我们首先展示没有节点的潜力会增加。引理 19.10 照顾了除根节点以外的所有节点。如果*x*是根节点，则其潜力为*α*(*n*) · *x*.*rank*，由于
+    FIND-SET 操作不会改变，因此不会改变。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 现在我们展示至少 max {0, *s* − (*α*(*n*) + 2)}个节点的潜力至少减少 1。让*x*是查找路径上的一个节点，使得*x*.*rank
+    >* 0，并且在 FIND-SET 操作之前，跟随在查找路径上的另一个非根节点*y*，其中 level(*y*) = level(*x*)。 (节点*y*不一定*立即*跟在*x*后面的查找路径上。)
+    查找路径上除了最多*α*(*n*) + 2 个节点满足*x*的这些约束条件之外，其他节点都满足这些约束条件。不满足这些条件的节点是查找路径上的第一个节点(如果它的等级为
+    0)，路径的最后一个节点(即根节点)，以及路径上的最后一个节点*w*，其中 level(*w*) = *k*，对于每个*k* = 0, 1, 2, … ,
+    *α*(*n*)−1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 考虑这样一个节点*x*。它具有正等级，并且在路径压缩发生之前的查找路径上的某个位置后跟非根节点*y*，使得 level(*y*) = level(*x*)。我们声称路径压缩至少会使*x*的潜力减少
+    1。为了证明这一点，让*k* = level(*x*) = level(*y*)，*i* = 路径压缩发生之前的 iter(*x*)。就在由 FIND-SET
+    引起的路径压缩之前，我们有
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *x*.*p*.*rank* | ≥ | ![艺术](img/Art_P590.jpg) | (根据 iter(*x*)的定义(19.5)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *y*.*p*.*rank* | ≥ | *A[k]*(*y*.*rank*) | (根据 level(*y*)的定义(19.3)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *y*.*rank* | ≥ | *x*.*p*.*rank* | (根据推论 19.5 和因为*y*在查找路径上跟随*x*)。 |'
+  prefs: []
+  type: TYPE_TB
+- en: 将这些不等式放在一起得到
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| *y*.*p*.*rank* | ≥ | *A[k]*(*y*.*rank*) |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≥ | *A[k]*(*x*.*p*.*rank*) | (因为*A[k]*(*j*)是严格递增的) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | ≥ | ![艺术](img/Art_P591.jpg) |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | = | ![艺术](img/Art_P592.jpg) | (根据函数迭代的定义(3.30))。 |'
+  prefs: []
+  type: TYPE_TB
+- en: 因为路径压缩使*x*和*y*有相同的父节��，所以在路径压缩后，我们有*x*.*p*.*rank* = *y*.*p*.*rank*。由于路径压缩可能会改变*y*的父节点，但如果改变了，*y*的新父节点的等级与路径压缩之前*y*的父节点的等级要么相同要么更高。由于*x*.*rank*不会改变，所以路径压缩后，![艺术](img/Art_P593.jpg)。根据
+    iter 函数的定义(19.5)，iter(*x*)的值从*i*增加到至少*i* + 1。根据引理 19.10，*ϕ**q* ≤ *ϕ**q*−1 − 1，因此*x*的潜力至少减少
+    1。
+  prefs: []
+  type: TYPE_NORMAL
+- en: FIND-SET 操作的摊销成本是实际成本加上潜在变化。实际成本是*O*(*s*)，我们已经证明总潜力至少减少 max {0, *s* − (*α*(*n*)
+    + 2)}。因此，摊销成本最多为*O*(*s*) − (*s* − (*α*(*n*) + 2)) = *O*(*s*) − *s* + *O*(*α*(*n*))
+    = *O*(*α*(*n*))，因为我们可以扩大潜力单位来主导*O*(*s*)中隐藏的常数。 (参见练习 19.4-6。)
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: 将前述引理放在一起得到以下定理。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***定理 19.14***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 一系列*m*个 MAKE-SET、UNION 和 FIND-SET 操作可以在具有按秩合并和路径压缩的不相交集森林上以*O*(*m α*(*n*))的时间内完成，其中*n*个是
+    MAKE-SET 操作。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***证明***   根据引理 19.7、19.11、19.12 和 19.13，立即可得。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ▪
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**练习**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-1***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 证明引理 19.4。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-2***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 证明每个节点的等级最多为⌊lg *n*⌋。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-3***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 根据练习 19.4-2，为了存储每个节点*x*的*x*.*rank*需要多少位？
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-4***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 利用练习 19.4-2，简要证明具有按秩合并但没有路径压缩的不相交集森林上的操作在*O*(*m* lg *n*)时间内运行。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-5***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 但丁教授推断，因为节点等级沿着到根的简单路径严格增加，所以节点级别必须沿着路径单调增加。换句话说，如果 *x*.*rank >* 0 并且 *x*.*p*
+    不是根，�� level(*x*) ≤ level(*x*.*p*)。教授正确吗？
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19.4-6***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 引理 19.13 的证明以扩大潜在单位来主导 *O*(*s*) 项中隐藏的常数结束。为了在证明中更加精确，你需要改变潜在函数（19.7）的定义，将两种情况分别乘以一个主导
+    *O*(*s*) 项中的常数 *c*。分析的其余部分如何改变以适应这个更新后的潜在函数？
+  prefs: []
+  type: TYPE_NORMAL
+- en: ★ ***19.4-7***
+  prefs: []
+  type: TYPE_NORMAL
+- en: '考虑函数 *α*′(*n*) = min {*k* : *A[k]*(1) ≥ lg(*n* + 1)}。证明对于所有实际值的 *n*，*α*′(*n*)
+    ≤ 3，并使用练习 19.4-2，展示如何修改潜在函数论证来证明在具有按秩合并和路径压缩的不相交集森林上执行一系列 *m* 个 MAKE-SET、UNION
+    和 FIND-SET 操作，其中 *n* 个是 MAKE-SET 操作，需要 *O*(*mα*′(*n*)) 的时间。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**问题**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19-1     离线最小***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '在***离线最小问题***中，你在操作 INSERT 和 EXTRACT-MIN 下维护一个来自域 {1, 2, … , *n*} 的元素的动态集合
+    *T*。输入是一个包含 *n* 个 INSERT 和 *m* 个 EXTRACT-MIN 调用的序列 *S*，其中 {1, 2, … , *n*} 中的每个键仅插入一次。你的目标是确定每个
+    EXTRACT-MIN 调用返回哪个键。具体来说，你必须填写一个数组 *extracted*[1: *m*]，其中对于 *i* = 1, 2, … , *m*，*extracted*[*i*]
+    是第 *i* 个 EXTRACT-MIN 调用返回的键。这个问题是“离线”的，意味着你可以在确定任何返回的键之前处理整个序列 *S*。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** 考虑离线最小问题的以下实例，其中每个操作 INSERT(*i*) 由 *i* 的值表示，每个 EXTRACT-MIN 由字母 E 表示：'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4, 8, E, 3, E, 9, 2, 6, E, E, E, 1, 7, E, 5.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 填写 *extracted* 数组中的正确值。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 要为这个问题开发算法，将序列 *S* 分解为同质子序列。也就是说，用以下方式表示 *S*
+  prefs: []
+  type: TYPE_NORMAL
+- en: I[1], E, I[2], E, I[3], … , I*[m]*, E, I[*m*+1],
+  prefs: []
+  type: TYPE_NORMAL
+- en: 每个 E 代表一个单独的 EXTRACT-MIN 调用，每个 I*[j]* 代表一个（可能为空）的 INSERT 调用序列。对于每个子序列 I*[j]*，最初将这些操作插入的键放入一个集合
+    *K[j]* 中，如果 I*[j]* 为空，则 *K[j]* 为空。然后执行 OFFLINE-MINIMUM 程序。
+  prefs: []
+  type: TYPE_NORMAL
+- en: OFFLINE-MINIMUM(*m*, *n*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| 1 | **对于** *i* = 1 **到** *n* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 2 | 确定 *j*，使得 *i* ∈ *K[j]* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 3 | **如果** *j* ≠ *m* + 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 4 | *extracted*[*j*] = *i* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 5 | 让 *l* 是大于 *j* 的最小值，使得集合 *K[l]* 存在 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 6 | *K[l]* = *K[j]* ∪ *K[l]*，破坏 *K[j]* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 7 | **返回** *extracted* |'
+  prefs: []
+  type: TYPE_TB
+- en: '***b.*** 论证 OFFLINE-MINIMUM 返回的数组 *extracted* 是正确的。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** 描述如何使用不相交集数据结构高效实现 OFFLINE-MINIMUM。尽可能紧密地给出你的实现的最坏情况运行时间的上界。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19-2     深度确定***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在***深度确定问题***中，你维护一个根树的森林 ℱ = {*T[i]*}，支持三种操作：
+  prefs: []
+  type: TYPE_NORMAL
+- en: MAKE-TREE(*v*) 创建一个只有节点 *v* 的树。
+  prefs: []
+  type: TYPE_NORMAL
+- en: FIND-DEPTH(*v*) 返回节点 *v* 在其树中的深度。
+  prefs: []
+  type: TYPE_NORMAL
+- en: GRAFT(*r*, *v*) 使节点 *r*（假定为树的根）成为节点 *v* 的子节点，假定 *v* 位于与 *r* 不同的树中，但可能是或不是根节点。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** 假设您使用类似于不相交集森林的树表示：*v*.*p* 是节点 *v* 的父节点，除非 *v* 是根节点。进一步假设您通过设置 *r*.*p*
+    = *v* 来实现 GRAFT(*r*, *v*)，并通过从 *v* 开始沿着查找路径执行 FIND-DEPTH(*v*)，返回除 *v* 外遇到的所有节点的计数。证明一系列
+    *m* 个 MAKE-TREE、FIND-DEPTH 和 GRAFT 操作的最坏情况运行时间为 Θ(*m*²)。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 通过使用秩和路径压缩启发式方法，您可以减少最坏情况的运行时间。使用不相交集森林 S = {*S[i]*}，其中每个集合 *S[i]*（它本身是一棵树）对应于森林
+    ℱ 中的树 *T[i]*。然而，集合 *S[i]* 中的树结构不一定对应于 *T[i]* 的结构。实际上，*S[i]* 的实现并不记录确切的父子关系，但仍然允许您确定
+    *T[i]* 中任何节点的深度。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 关键思想是在每个节点 *v* 中维护一个“伪距离” *v*.*d*，定义为沿着从 *v* 到其集合 *S[i]* 根的简单路径的伪距离之和等于 *v*
+    在 *T[i]* 中的深度。也就是说，如果 *v* 到其在 *S[i]* 中的根的简单路径是 *v*[0], *v*[1], … , *v[k]*，其中 *v*[0]
+    = *v*，*v[k]* 是 *S[i]* 的根，则 *v* 在 *T[i]* 中的深度为 ![art](img/Art_P594.jpg)。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** 给出 MAKE-TREE 的实现。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***c.*** 展示如何修改 FIND-SET 来实现 FIND-DEPTH。您的实现应执行路径压缩，并且其运行时间应该与查找路径的长度成线性关系。确保您的实现正确更新伪距禇。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** 展示如何实现 GRAFT(*r*, *v*)，通过修改 UNION 和 LINK 程序来合并包含 *r* 和 *v* 的集合，并确保您的实现正确更新伪距离。请注意，集合
+    *S[i]* 的根不一定是相应树 *T[i]* 的根。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***e.*** 给出一系列 *m* 个 MAKE-TREE、FIND-DEPTH 和 GRAFT 操作的最坏情况运行时间的紧密界限，其中 *n* 个是
+    MAKE-TREE 操作。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***19-3     Tarjan 的离线最近公共祖先算法***'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 在根树 *T* 中，两个节点 *u* 和 *v* 的***最近公共祖先***是一个节点 *w*，它是 *u* 和 *v* 的祖先，并且在 *T* 中具有最大深度。在***离线最近公共祖先问题***中，给定一个根树
+    *T* 和一个任意集合 *P* = {{*u*, *v*}}，其中 *T* 中节点的无序对，并且您希望确定 *P* 中每对的最近公共祖先。
+  prefs: []
+  type: TYPE_NORMAL
+- en: 要解决离线最近公共祖先问题，下一页的 LCA 程序在初始调用 LCA(*T*.*root*) 时对 *T* 执行树遍历。假设每个节点在遍历之前都被涂成白色。
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***a.*** 论证第 10 行对于每对 {*u*, *v*} ∈ *P* 恰好执行一次。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***b.*** 论证在调用 LCA(*u*) 时，不相交集数据结构中集合的数量等于 *u* 在 *T* 中的深度。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: LCA(*u*)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|   1 | MAKE-SET(*u*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   2 | FIND-SET(*u*).*ancestor* = *u* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   3 | **对于** *T* 中 *u* 的每个子节点 *v* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   4 | LCA(*v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   5 | UNION(*u*, *v*) |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   6 | FIND-SET(*u*).*ancestor* = *u* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   7 | *u*.*color* = 黑色 |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   8 | **对于** 每个节点 *v*，使得 {*u*, *v*} ∈ *P* |'
+  prefs: []
+  type: TYPE_TB
+- en: '|   9 | **如果** *v*.*color* == 黑色 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 10 | 打印“最近公共祖先为” |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | *u* “和” *v* “是” FIND-SET(*v*).*ancestor* |'
+  prefs: []
+  type: TYPE_TB
+- en: '***c.*** 证明 LCA 对于每对 {*u*, *v*} ∈ *P* 正确打印最近公共祖先。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '***d.*** 分析 LCA 的运行时间，假设您在 第 19.3 节 中使用不相交集数据结构的实现。'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**章节注释**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 许多关于不相交集数据结构的重要结果至少部分归功于 R. E. Tarjan。通过聚合分析，Tarjan [427, 429] 在 Ackermann 函数的倒数非常缓慢增长的情况下给出了第一个紧密的上界。(*A[k]*(*j*)
+    函数在 Section 19.4 中给出，类似于 Ackermann 函数，而 *α*(*n*) 函数类似于 ![art](img/Art_P595.jpg)。对于所有可想象的
+    *m* 和 *n* 值，*α*(*n*) 和 ![art](img/Art_P595.jpg) 最多为 4。) Hopcroft 和 Ullman [5,
+    227] 早先证明了 *O*(*m* lg* *n*) 的上界。Section 19.4 中的处理是根据 Tarjan [431] 的后续分析进行的，该分析基于
+    Kozen [270] 的分析。Harfst 和 Reingold [209] 给出了 Tarjan 较早上界的基于潜力的版本。
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tarjan 和 van Leeuwen [432] 讨论了路径压缩启发式的变体，包括“一遍方法”，有时在性能上比两遍方法具有更好的常数因子。与 Tarjan
+    早期对基本路径压缩启发式的分析一样，Tarjan 和 van Leeuwen 的分析是聚合的。Harfst 和 Reingold [209] 后来展示了如何对潜力函数进行小改动，以适应这些一遍方法的路径压缩分析。Goel
+    等人 [182] 证明了随机链接不相交集树与按秩合并具有相同的渐近运行时间。Gabow 和 Tarjan [166] 表明在某些应用中，不相交集操作可以在
+    *O*(*m*) 时间内运行。
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tarjan [428] 表明对于满足特定技术条件的任何不相交集数据结构，操作需要 ![art](img/Art_P598.jpg) 时间的下界。这个下界后来被
+    Fredman 和 Saks [155] 推广，他们表明在最坏情况下，必须访问 ![art](img/Art_P599.jpg) (lg *n*) 位的内存。
+  prefs: []
+  type: TYPE_NORMAL
