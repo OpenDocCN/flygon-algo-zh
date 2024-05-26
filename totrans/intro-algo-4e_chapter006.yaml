@@ -4242,7 +4242,9 @@
     1-近似算法¹会产生一个最优解，而具有较大近似比率的近似算法可能返回比最优解差得多的解。  ## 需要排版的段落  输入：  -   ***d.*** 给出一个在
     *d*-ary max-heap 中实现 INCREASE-KEY 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。  输出：'
   type: TYPE_NORMAL
-- en: '***e.*** 给出一个在 *d*-ary max-heap 中实现 INSERT 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。'
+- answer: '-   ***e.*** 给出一个在 `d`-ary max-heap 中实现 INSERT 的高效算法。分析其运行时间与 `d` 和 `n`
+    的关系。'
+  en: '***e.*** 给出一个在 *d*-ary max-heap 中实现 INSERT 的高效算法。分析其运行时间与 *d* 和 *n* 的关系。'
   prefs: []
   question: '假如你是个高级程序员和文档工程师，请将给定 Markdown 中的公式按照给定要求排版。  ## 要求  +   将公式使用内联代码符号（`...`）包围，其它文本原样输出
     +   如果公式中有斜体符号（*...*），将符号删除并保留公式其它部分 +   输入可能有多行，不要遗漏其中任何一行 +   输出的每一行前面需要有分隔符（-   ），不然我无法处理   ##
@@ -4451,7 +4453,12 @@
     [456] 发明的，他还描述了如何使用堆实现优先队列。BUILD-MAX-HEAP 过程是由 Floyd [145] 建议的。Schaffer 和 Sedgewick
     [395] 表明，在最佳情况下，堆排序中元素移动的次数约为 (*n*/2) lg *n*，平均移动次数约为 *n* lg *n*。  输出：'
   type: TYPE_NORMAL
-- en: 我们在第十五章、第二十一章和第二十二章中使用小根堆来实现最小优先队列。其他更复杂的数据结构为某些最小优先队列操作提供了更好的时间界限。Fredman 和
+- answer: '-   我们在第十五章、第二十一章和第二十二章中使用小根堆来实现最小优先队列。其他更复杂的数据结构为某些最小优先队列操作提供了更好的时间界限。Fredman
+    和 Tarjan [156] 开发了 Fibonacci 堆，支持 INSERT 和 DECREASE-KEY 的`O(1)`摊销时间（参见第十六章）。也就是说，这些操作的平均最坏运行时间为`O(1)`。Brodal、Lagogiannis
+    和 Tarjan [73] 随后设计了严格的 Fibonacci 堆，使这些时间界限成为实际运行时间。如果键是唯一的，并且来自非负整数集合{0, 1, …
+    , `n - 1`}，van Emde Boas 树 [440, 441] 支持 INSERT、DELETE、SEARCH、MINIMUM、MAXIMUM、PREDECESSOR
+    和 SUCCESSOR 操作的`O(lg lg n)`时间。'
+  en: 我们在第十五章、第二十一章和第二十二章中使用小根堆来实现最小优先队列。其他更复杂的数据结构为某些最小优先队列操作提供了更好的时间界限。Fredman 和
     Tarjan [156] 开发了 Fibonacci 堆，支持 INSERT 和 DECREASE-KEY 的*O*(1)摊销时间（参见第十六章）。也就是说，这些操作的平均最坏运行时间为*O*(1)。Brodal、Lagogiannis
     和 Tarjan [73] 随后设计了严格的 Fibonacci 堆，使这些时间界限成为实际运行时间。如果键是唯一的，并且来自非负整数集合{0, 1, …
     , *n* – 1}，van Emde Boas 树 [440, 441] 支持 INSERT、DELETE、SEARCH、MINIMUM、MAXIMUM、PREDECESSOR
@@ -4474,7 +4481,10 @@
     , *n* – 1}，van Emde Boas 树 [440, 441] 支持 INSERT、DELETE、SEARCH、MINIMUM、MAXIMUM、PREDECESSOR
     和 SUCCESSOR 操作的*O*(lg lg *n*)时间。  输出：'
   type: TYPE_NORMAL
-- en: 如果数据是*b*位整数，并且计算机内存由可寻址的*b*位字组成，Fredman 和 Willard [157] 展示了如何在*O*(1)时间内实现 MINIMUM
+- answer: '-   如果数据是`b`位整数，并且计算机内存由可寻址的`b`位字组成，Fredman 和 Willard [157] 展示了如何在`O(1)`时间内实现
+    MINIMUM 和在![art](img/Art_P306.jpg)时间内实现 INSERT 和 EXTRACT-MIN。Thorup [436] 利用随机哈希改进了![art](img/Art_P307.jpg)的时间界限为`O(lg
+    lg n)`时间，仅需要线性空间。'
+  en: 如果数据是*b*位整数，并且计算机内存由可寻址的*b*位字组成，Fredman 和 Willard [157] 展示了如何在*O*(1)时间内实现 MINIMUM
     和在![art](img/Art_P306.jpg)时间内实现 INSERT 和 EXTRACT-MIN。Thorup [436] 利用随机哈希改进了![art](img/Art_P307.jpg)的时间界限为*O*(lg
     lg *n*)时间，仅需要线性空间。
   prefs: []
@@ -4493,7 +4503,15 @@
     和 Willard [157] 展示了如何在*O*(1)时间内实现 MINIMUM 和在![art](img/Art_P306.jpg)时间内实现 INSERT
     和 EXTRACT-MIN。Thorup [436] 利用随机哈希改进了![art](img/Art_P307.jpg)的时间界限为*O*(lg lg *n*)时间，仅需要线性空间。  输出：'
   type: TYPE_NORMAL
-- en: 优先队列的一个重要特殊情况是当 EXTRACT-MIN 操作序列是***单调***时，即，连续的 EXTRACT-MIN 操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如
+- answer: '-   优先队列的一个重要特殊情况是当 EXTRACT-MIN 操作序列是`单调`时，即，连续的 EXTRACT-MIN 操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如
+    Dijkstra 的单源最短路径算法，我们在第二十二章中讨论，以及在离散事件模拟中。对于 Dijkstra 算法，实现 DECREASE-KEY 操作的效率特别重要。对于单调情况，如果数据是范围在
+    1, 2, … , `C`的整数，Ahuja、Mehlhorn、Orlin 和 Tarjan [8] 描述了如何使用称为基数堆的数据结构在`O(lg C)`摊销时间内实现
+    EXTRACT-MIN 和 INSERT（第十六章介绍了摊销分析），以及在`O(1)`时间内实现 DECREASE-KEY。`O(lg C)`界限可以通过将
+    Fibonacci 堆与基数堆结合使用改进为![art](img/Art_P308.jpg)。Cherkassky、Goldberg 和 Silverstein
+    [90] 进一步将界限改进为`O(lg^(1/3+ϵ) *C)`预期时间，通过将 Denardo 和 Fox [112] 的多级桶结构与前面提到的 Thorup
+    的堆结合。Raman [375] 进一步改进了这些结果，获得了一个`O(min {lg^(1/4+ϵ) *C, lg^(1/3+ϵ) *n})`的界限，对于任意固定的`ϵ`
+    > 0。'
+  en: 优先队列的一个重要特殊情况是当 EXTRACT-MIN 操作序列是***单调***时，即，连续的 EXTRACT-MIN 操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如
     Dijkstra 的单源最短路径算法，我们在第二十二章中讨论，以及在离散事件模拟中。对于 Dijkstra 算法，实现 DECREASE-KEY 操作的效率特别重要。对于单调情况，如果数据是范围在
     1, 2, … , *C*的整数，Ahuja、Mehlhorn、Orlin 和 Tarjan [8] 描述了如何使用称为基数堆的数据结构在*O*(lg *C*)摊销时间内实现
     EXTRACT-MIN 和 INSERT（第十六章介绍了摊销分析），以及在*O*(1)时间内实现 DECREASE-KEY。*O*(lg *C*)界限可以通过将
