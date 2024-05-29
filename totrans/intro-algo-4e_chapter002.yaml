@@ -1944,7 +1944,8 @@
     n*) | *cost* | *times* |  输出：'
   type: TYPE_TB
   zh: '| INSERTION-SORT(`A, n`) | *cost* | *times* |'
-- en: '| --- | --- | --- |'
+- answer: '-   | --- | --- | --- |'
+  en: '| --- | --- | --- |'
   prefs: []
   question: '假如你是个高级程序员和文档工程师，请将给定 Markdown 中的公式按照给定要求排版。
 
@@ -2005,6 +2006,7 @@
 
     '
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - answer: '-   | `1` | **for** *i* = `2` **to** *n* | *c*[`1`] | *n* |'
   en: '| 1 | **for** *i* = 2 **to** *n* | *c*[1] | *n* |'
   prefs: []
