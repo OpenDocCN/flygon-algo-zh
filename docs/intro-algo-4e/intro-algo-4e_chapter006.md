@@ -28,7 +28,7 @@ LEFT(i)
 
 `RIGHT(i)`  
 
-| ` | 1 | **return** 2*i* + 1 | ` |
+| 1 | **return** 2*i* + 1 |
 | --- | --- |
 
 在大多数计算机上，LEFT 过程可以通过将 `i` 的二进制表示向左移动一个位位置来在一条指令中计算出 2*i*。类似地，RIGHT 过程可以通过将 `i` 的二进制表示向左移动一个位位置，然后加 1 来快速计算出 2*i* + 1。PARENT 过程可以通过将 `i` 右移一个位位置来计算 ⌊*i*/2⌋。堆排序的良好实现通常将这些过程实现为宏或内联过程。
@@ -95,7 +95,7 @@ LEFT(i)
 
 图 6.2 说明了 `MAX-HEAPIFY` 的操作。每一步找到元素`A[i]`、`A[LEFT(i)]`和`A[RIGHT(i)]`中最大的元素，并将最大元素的索引存储在`largest`中。如果`A[i]`最大，则以节点`i`为根的子树已经是最大堆，不需要进行其他操作。否则，两个子节点中有一个包含最大元素。位置`i`和`largest`交换其内容，这导致节点`i`及其子节点满足最大堆属性。然而，索引为`largest`的节点刚刚减小了其值，因此以`largest`为根的子树可能违反最大堆属性。因此，`MAX-HEAPIFY` 在该子树上递归调用自身。
 
-`![art](img/Art_P299.jpg)`
+![art](img/Art_P299.jpg)
 
 **图 6.2** MAX-HEAPIFY(`A`, 2)的操作，其中`A.heap-size` = 10。潜在违反最大堆性质的节点显示为蓝色。**(a)** 初始配置，`A[2]`在节点`i` = 2 处违反最大堆性质，因为它不比两个子节点大。通过用`A[4]`交换`A[2]`来恢复节点 2 的最大堆性质，**(b)** 中破坏了节点 4 的最大堆性质。递归调用 MAX-HEAPIFY(`A`, 4)现在有`i` = 4。如**(c)**所示，交换`A[4]`和`A[9]`后，节点 4 被修复，递归调用 MAX-HEAPIFY(`A`, 9)对数据结构没有进一步更改。
 
@@ -106,7 +106,7 @@ LEFT(i)
 | `---` | `---` |
 |   `2` | *r* = RIGHT(`i`) |   |
 |   3 | **if** `l` ≤ `A.heap-size` and `A[l]` > `A[i]` |   |
-| ` | 4 | largest = l | ` |
+| 4 | largest = l |
 |   `5` | **else** *largest* = *i* |
 |   6 | **if** `r` ≤ `A.heap-size` and `A[r] > A[largest]` |   |
 |   7 | `largest` = `r` |
@@ -156,7 +156,7 @@ BUILD-MAX-HEAP 过程通过自底向上的方式调用 MAX-HEAPIFY 将数组`A[1
 
 `BUILD-MAX-HEAP(A, n)`  
 
-| ` | 1 | A.heap-size = n | `   |
+| 1 | A.heap-size = n | `   |
 | --- | --- |
 | 2 | **for** `i = ⌊n/2⌋` **downto** 1 |
 | `3` | `MAX-HEAPIFY(A, i)` |  |
@@ -215,14 +215,14 @@ HEAPSORT(`A`, `n`)
 
 | 1 | `BUILD-MAX-HEAP(A, n)` |
 | --- | --- |
-| ` | 2 | **对于** i = n **向下** 2 | ` |
+| 2 | **对于** i = n **向下** 2 |
 | `3` | 交换 `A[1]` 与 `A[i]` |
 | `4` | `A.heap-size = A.heap-size - 1` |   |
 | 5 | MAX-HEAPIFY(`A`, 1) |
 
 图 6.4 展示了在第 1 行构建初始最大堆后 HEAPSORT 操作的示例。该图显示了在行 2–5 的 `for` 循环的第一次迭代之前和每次迭代之后的最大堆。
 
-`![艺术](img/Art_P304.jpg)`
+![艺术](img/Art_P304.jpg)
 
 **图 6.4** HEAPSORT 的操作。 **(`a`)** 在第 1 行构建完初始最大堆后的最大堆数据结构。 **(`b`)–(`j`)** 在第 5 行的每次调用 MAX-HEAPIFY 后的最大堆，显示该时刻的 *i* 的值。堆中仅保留蓝色节点。棕色节点包含数组中最大的值，按顺序排列。 **(`k`)** 结果排序后的数组 *A*。
 
@@ -293,9 +293,9 @@ MAXIMUM(`S`)返回具有最大关键字的`S`中的元素。
 
 | 1 | `max` = MAX-HEAP-MAXIMUM(`A`) |   |
 | --- | --- |
-| ` | 2 | A[1] = A[A.heap-size] | ` |
-| ` | 3 | A.heap-size = A.heap-size - 1 | ` |
-| ` | 4 | MAX-HEAPIFY(A, 1) | ` |
+| 2 | A[1] = A[A.heap-size] |
+| 3 | A.heap-size = A.heap-size - 1 |
+| 4 | MAX-HEAPIFY(A, 1) |
 | `5` | **return** *max* |
 
 过程 `MAX-HEAP-INSERT` 在下一页实现了 `INSERT` 操作。它的输入是实现最大堆的数组`A`，要插入最大堆的新对象`x`，以及数组`A`的大小`n`。该过程首先验证数组是否有空间容纳新元素。然后通过向树中添加一个键为`-∞`的新叶子节点来扩展最大堆。然后调用 `MAX-HEAP-INCREASE-KEY` 来设置这个新元素的键值，并维护最大堆的性质。在`n`个元素的堆上，`MAX-HEAP-INSERT` 的运行时间是`O(lg n)`，再加上将优先队列对象映射到索引的开销。
@@ -321,7 +321,7 @@ MAXIMUM(`S`)返回具有最大关键字的`S`中的元素。
 | `3` | `A.heap-size = A.heap-size + 1` |
 | `4` | *k* = `x.key` |
 | 5 | *x.key* = –∞ |  |
-| ` | 6 | A[A.heap-size] = x | `   |
+| 6 | A[A.heap-size] = x | `   |
 | `7` | 在数组中将`x`映射到索引`heap-size` |
 | 8 | MAX-HEAP-INCREASE-KEY(`A`, `x`, `k`) |
 
@@ -395,7 +395,7 @@ MAX-HEAP-INCREASE-KEY 的第 6 行上的每次交换操作通常需要三次赋�
 
 | `1` | *A.heap-size* = `1` |   |
 | --- | --- |
-| ` | 2 | **for** i = 2 **to** n | ` |
+| 2 | **for** i = 2 **to** n |
 | `3` | `MAX-HEAP-INSERT(A, A[i], n)` |
 
 ***a.*** 当在相同的输入数组上运行时，`BUILD-MAX-HEAP` 和 `BUILD-MAX-HEAP′` 过程是否总是创建相同的堆？证明它们是，或提供一个反例。
