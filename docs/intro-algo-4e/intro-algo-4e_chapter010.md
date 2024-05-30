@@ -153,13 +153,13 @@ DEQUEUE(`Q`)
 
 **搜索链表**
 
-LIST-SEARCH(`L`, `k`)过程通过简单的线性搜索在列表`L`中找到具有键`k`的第一个元素，并返回指向该元素的指针。如果列表中没有键`k`的对象，则该过程返回 NIL。对于图 10.4(a)中的链表，调用 LIST-SEARCH(`L`, 4)返回指向第三个元素的指针，调用 LIST-SEARCH(`L`, 7)返回 NIL。要搜索包含`n`个对象的列表，LIST-SEARCH 过程在最坏情况下需要Θ(`n`)时间，因为��可能需要搜索整个列表。
+LIST-SEARCH(`L`, `k`)过程通过简单的线性搜索在列表`L`中找到具有键`k`的第一个元素，并返回指向该元素的指针。如果列表中没有键`k`的对象，则该过程返回 NIL。对于图 10.4(a)中的链表，调用 LIST-SEARCH(`L`, 4)返回指向第三个元素的指针，调用 LIST-SEARCH(`L`, 7)返回 NIL。要搜索包含`n`个对象的列表，LIST-SEARCH 过程在最坏情况下需要 `Θ(n)`时间，因为��可能需要搜索整个列表。
 
 `LIST-SEARCH(L, k)`
 
 | 1 | `x = L.head` |   |
 | --- | --- |
-| `2` | **while** `x ≠ NIL` and `x.key ≠ k` |   |
+| `2` | `while` `x ≠ NIL` and `x.key ≠ k` |   |
 | 3 | `x = x.next` |   |
 | `4` | **return** `x` |  |
 
@@ -173,7 +173,7 @@ LIST-PREPEND(`L`, `x`)
 | --- | --- | --- |
 | --- | --- |
 | `2` | `x.prev = NIL` |   |
-| \| 3 \| **if** `L.head` ≠ NIL |
+| \| 3 \| `if` `L.head` ≠ NIL |
 | `4` | `L.head.prev = x` |
 | `5` | `L.head = x` |
 
@@ -191,15 +191,15 @@ LIST-PREPEND(`L`, `x`)
 
 `从链表中删除`
 
-过程 `LIST-DELETE` 从链表`L`中移除元素`x`。它必须给出指向`x`的指针，然后通过更新指针“剪接”`x`出列表。要删除具有给定键的元素，首先调用 `LIST-SEARCH` 检索指向元素的指针。图 10.4(d)展示了如何从链表中删除一个元素。`LIST-DELETE` 在`O(1)`时间内运行，但要删除具有给定键的元素，调用 `LIST-SEARCH` 使得最坏情况运行时间为Θ(`n`)。
+过程 `LIST-DELETE` 从链表`L`中移除元素`x`。它必须给出指向`x`的指针，然后通过更新指针“剪接”`x`出列表。要删除具有给定键的元素，首先调用 `LIST-SEARCH` 检索指向元素的指针。图 10.4(d)展示了如何从链表中删除一个元素。`LIST-DELETE` 在`O(1)`时间内运行，但要删除具有给定键的元素，调用 `LIST-SEARCH` 使得最坏情况运行时间为 `Θ(n)`。
 
 `LIST-DELETE(L, x)`
 
-| `1` | **if** `x.prev` ≠ NIL |   |
+| `1` | `if` `x.prev` ≠ NIL |   |
 | --- | --- |
 | 2 | `x.prev.next = x.next` |
 | `3` | **else** `L.head` = `x.next` |   |
-| 4 | **if** `x.next` ≠ NIL |   |
+| 4 | `if x.next` ≠ NIL |   |
 | 5 | x.next.prev = x.prev |
 
 在双向链表上，插入和删除操作比在数组上快。如果要在数组中插入一个新的第一个元素或删除数组中的第一个元素，并保持所有现有元素的相对顺序，那么每个现有元素都需要移动一个位置。因此，在数组中，插入和删除在最坏情况下需要`Θ(n)`时间，而在双向链表中只需要`O(1)`时间。 （练习 10.2-1 要求您证明从单链表中删除元素在最坏情况下需要`Θ(n)`时间。）然而，如果要在线性顺序中找到第`k`个元素，在数组中只需要`O(1)`时间，而在链表中，您需要遍历`k`个元素，需要`Θ(k)`时间。
@@ -242,9 +242,9 @@ LIST-SEARCH′ (`L, k`)
 | --- | --- | --- |
 | \| --- \| --- \| --- \| |
 | `2` | `x = L.nil.next` | **//** 从列表头部开始 |
-| `3` | **while** `x.key` ≠ `k` |  |   |
+| `3` | `while` `x.key` ≠ `k` |  |   |
 | `4` | *x* = *x.next* |  |   |
-| `5` | **if** `x` == `L.nil` | **//** 在哨兵中找到`k` |   |
+| `5` | `if` `x` == `L.nil` | **//** 在哨兵中找到`k` |   |
 | `6` | **return** NIL | **//** *k*实际上不在列表中 |
 | 7 | **else return** *x* | **//** 在元素*x*中找到*k* | `   |
 
@@ -421,9 +421,9 @@ COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`)
 
 为了比较两个算法的执行，假设 RANDOM(1, *n*) 的调用序列对两个算法都产生相同的整数序列。
 
-***a.*** 论证对于任何 `t` 的值，COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`) 和 COMPACT-LIST-SEARCH′ (`key`, `next`, `head`, `n`, `k`, `t`) 返回相同的结果，并且 COMPACT-LIST-SEARCH 中第 2-8 行的 **while** 循环的迭代次数最多等于 COMPACT-LIST-SEARCH′ 中 **for** 和 **while** 循环的总迭代次数。
+***a.*** 论证对于任何 `t` 的值，COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`) 和 COMPACT-LIST-SEARCH′ (`key`, `next`, `head`, `n`, `k`, `t`) 返回相同的结果，并且 COMPACT-LIST-SEARCH 中第 2-8 行的 `while` 循环的迭代次数最多等于 COMPACT-LIST-SEARCH′ 中 `for` 和 `while` 循环的总迭代次数。
 
-在调用 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 时，让 `X[t]` 是描述链表中（即通过 `next` 指针链）从位置 `i` 到所需键 `k` 的距离的随机变量，经过第 2-7 行的 **for** 循环的 `t` 次迭代后。
+在调用 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 时，让 `X[t]` 是描述链表中（即通过 `next` 指针链）从位置 `i` 到所需键 `k` 的距离的随机变量，经过第 2-7 行的 `for` 循环的 `t` 次迭代后。
 
 ***b.*** 论证 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 的期望运行时间为 `O(t + E [X[t]])`。
 
