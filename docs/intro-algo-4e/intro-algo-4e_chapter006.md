@@ -97,7 +97,7 @@ LEFT(i)
 
 ![art](img/Art_P299.jpg)
 
-**图 6.2** MAX-HEAPIFY(`A`, 2)的操作，其中`A.heap-size` = 10。潜在违反最大堆性质的节点显示为蓝色。**(a)** 初始配置，`A₂`在节点`i` = 2 处违反最大堆性质，因为它不比两个子节点大。通过用`A[4]`交换`A₂`来恢复节点 2 的最大堆性质，**(b)** 中破坏了节点 4 的最大堆性质。递归调用 MAX-HEAPIFY(`A`, 4)现在有`i` = 4。如**(c)**所示，交换`A[4]`和`A[9]`后，节点 4 被修复，递归调用 MAX-HEAPIFY(`A`, 9)对数据结构没有进一步更改。
+**图 6.2** MAX-HEAPIFY(`A`, 2)的操作，其中`A.heap-size = 1`0。潜在违反最大堆性质的节点显示为蓝色。**(a)** 初始配置，`A₂`在节点`i` = 2 处违反最大堆性质，因为它不比两个子节点大。通过用`A[4]`交换`A₂`来恢复节点 2 的最大堆性质，**(b)** 中破坏了节点 4 的最大堆性质。递归调用 MAX-HEAPIFY(`A`, 4)现在有`i` = 4。如**(c)**所示，交换`A[4]`和`A[9]`后，节点 4 被修复，递归调用 MAX-HEAPIFY(`A`, 9)对数据结构没有进一步更改。
 
 `MAX-HEAPIFY(A, i)`
 
@@ -309,7 +309,7 @@ MAXIMUM(`S`)返回具有最大关键字的`S`中的元素。
 | `2` | **错误** “新键值小于当前键值” |
 | `3` | `x.key = k` |
 | 4 | 找到对象`x`在数组`A`中的索引`i` |
-| `5` | **当** `i` > 1 **且** `A`[PARENT(`i`)].`key < A`[`i`].`key` **时** |
+| `5` | **当** `i > 1` **且** `A`[PARENT(`i`)].`key < A`[`i`].`key` **时** |
 | 6 | 交换`A[i]`与`A[PARENT(i)]`，更新将优先队列对象映射到数组索引的信息 |
 | 7 | `i = PARENT(i)` |
 
@@ -440,7 +440,7 @@ MAX-HEAP-INCREASE-KEY 的第 6 行上的每次交换操作通常需要三次赋�
 
 如果数据是`b`位整数，并且计算机内存由可寻址的`b`位字组成，Fredman 和 Willard [157] 展示了如何在`O(1)`时间内实现 MINIMUM 和在![art](img/Art_P306.jpg)时间内实现 INSERT 和 EXTRACT-MIN。Thorup [436] 利用随机哈希改进了![art](img/Art_P307.jpg)的时间界限为`O(lg lg n)`时间，仅需要线性空间。
 
-优先队列的一个重要特殊情况是当 EXTRACT-MIN 操作序列是`单调`时，即，连续的 EXTRACT-MIN 操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如 Dijkstra 的单源最短路径算法，我们在第二十二章中讨论，以及在离散事件模拟中。对于 Dijkstra 算法，实现 DECREASE-KEY 操作的效率特别重要。对于单调情况，如果数据是范围在 1, 2, … , `C`的整数，Ahuja、Mehlhorn、Orlin 和 Tarjan [8] 描述了如何使用称为基数堆的数据结构在`O(lg C)`摊销时间内实现 EXTRACT-MIN 和 INSERT（第十六章介绍了摊销分析），以及在`O(1)`时间内实现 DECREASE-KEY。`O(lg C)`界限可以通过将 Fibonacci 堆与基数堆结合使用改进为![art](img/Art_P308.jpg)。Cherkassky、Goldberg 和 Silverstein [90] 进一步将界限改进为`O(lg^(1/3+ϵ) *C)`预期时间，通过将 Denardo 和 Fox [112] 的多级桶结构与前面提到的 Thorup 的堆结合。Raman [375] 进一步改进了这些结果，获得了一个`O(min {lg^(1/4+ϵ) *C, lg^(1/3+ϵ) *n})`的界限，对于任意固定的`ϵ` > 0。
+优先队列的一个重要特殊情况是当 EXTRACT-MIN 操作序列是`单调`时，即，连续的 EXTRACT-MIN 操作返回的值随时间单调递增。这种情况在几个重要应用中出现，例如 Dijkstra 的单源最短路径算法，我们在第二十二章中讨论，以及在离散事件模拟中。对于 Dijkstra 算法，实现 DECREASE-KEY 操作的效率特别重要。对于单调情况，如果数据是范围在 1, 2, … , `C`的整数，Ahuja、Mehlhorn、Orlin 和 Tarjan [8] 描述了如何使用称为基数堆的数据结构在`O(lg C)`摊销时间内实现 EXTRACT-MIN 和 INSERT（第十六章介绍了摊销分析），以及在`O(1)`时间内实现 DECREASE-KEY。`O(lg C)`界限可以通过将 Fibonacci 堆与基数堆结合使用改进为![art](img/Art_P308.jpg)。Cherkassky、Goldberg 和 Silverstein [90] 进一步将界限改进为`O(lg^(1/3+ϵ) *C)`预期时间，通过将 Denardo 和 Fox [112] 的多级桶结构与前面提到的 Thorup 的堆结合。Raman [375] 进一步改进了这些结果，获得了一个`O(min {lg^(1/4+ϵ) *C, lg^(1/3+ϵ) *n})`的界限，对于任意固定的`ϵ > 0`。
 
 提出了许多其他变体的堆。Brodal [72] 对其中一些发展进行了调查。
 
