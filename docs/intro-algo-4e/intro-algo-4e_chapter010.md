@@ -220,9 +220,9 @@ LIST-DELETE 的代码如果忽略列表头部和尾部的边界条件会更简�
 
 **哨兵**是一个虚拟对象，允许我们简化边界条件。在链表`L`中，哨兵是一个代表 NIL 的对象`L.nil`，但具有列表中其他对象的所有属性。对 NIL 的引用被替换为对哨兵`L.nil`的引用。如图 10.5 所示，这个改变将一个常规的双向链表转变为一个带有哨兵的**循环双向链表**，其中哨兵`L.nil`位于头部和尾部之间。属性`L.nil.next`指向列表的头部，`L.nil.prev`指向尾部。同样，尾部的`next`属性和头部的`prev`属性都指向`L.nil`。由于`L.nil.next`指向头部，属性`L.head`被完全消除，引用被替换为`L.nil.next`的引用。图 10.5(a)显示了一个空列表只包含哨兵，`L.nil.next`和`L.nil.prev`都指向`L.nil`。  
 
-要从列表中删除一个元素，只需使用之前的两行过程`LIST-DELETE′`。就像`LIST-INSERT`从不引用列表对象`L`一样，`LIST-DELETE′`也不会。除非你要删除整个列表，否则永远不要删除哨兵`L.nil`！
+要从列表中删除一个元素，只需使用之前的两行过程`LIST-DELETE'`。就像`LIST-INSERT`从不引用列表对象`L`一样，`LIST-DELETE'`也不会。除非你要删除整个列表，否则永远不要删除哨兵`L.nil`！
 
-LIST-INSERT′过程将元素`x`插入到对象`y`之后的列表中。不需要单独的前置过程：要在列表头部插入，让`y`为`L.nil`；要在尾部插入，让`y`为`L.nil.prev`。图 10.5 展示了 LIST-INSERT′和 LIST-DELETE′对示例列表的影响。
+LIST-INSERT'过程将元素`x`插入到对象`y`之后的列表中。不需要单独的前置过程：要在列表头部插入，让`y`为`L.nil`；要在尾部插入，让`y`为`L.nil.prev`。图 10.5 展示了 LIST-INSERT'和 LIST-DELETE'对示例列表的影响。
 
 `LIST-INSERT' (x, y)`
 
@@ -234,9 +234,9 @@ LIST-INSERT′过程将元素`x`插入到对象`y`之后的列表中。不需要
 
 使用哨兵的循环双向链表搜索具有与不使用哨兵相同的渐近运行时间，但可以减少常数因子。`LIST-SEARCH` 中第 2 行的测试进行两次比较：一次检查搜索是否已经超出列表的末尾，如果没有，则检查关键字是否位于当前元素`x`中。假设你`知道`关键字在列表中的某处。那么你就不需要检查搜索是否超出列表的末尾，从而在`while`循环的每次迭代中消除一次比较。  
 
-哨兵提供了一个放置关键字的位置，用于开始搜索。搜索从列表`L`的头部`L.nil.next`开始，并且如果在列表中找到关键字，则停止。现在搜索保证会在哨兵或在到达哨兵之前找到关键字。如果在到达哨兵之前找到了关键字，那么它确实在搜索停止的元素中。然而，如果搜索遍历列表中的所有元素，并且只在哨兵中找到关键字，则关键字实际上不在列表中，搜索返回 NIL。`LIST-SEARCH′`过程体现了这个想法。（如果你的哨兵需要其`key`属性为 NIL，则可能需要在第 5 行之前分配`L.nil.key = NIL`。）
+哨兵提供了一个放置关键字的位置，用于开始搜索。搜索从列表`L`的头部`L.nil.next`开始，并且如果在列表中找到关键字，则停止。现在搜索保证会在哨兵或在到达哨兵之前找到关键字。如果在到达哨兵之前找到了关键字，那么它确实在搜索停止的元素中。然而，如果搜索遍历列表中的所有元素，并且只在哨兵中找到关键字，则关键字实际上不在列表中，搜索返回 NIL。`LIST-SEARCH'`过程体现了这个想法。（如果你的哨兵需要其`key`属性为 NIL，则可能需要在第 5 行之前分配`L.nil.key = NIL`。）
 
-LIST-SEARCH′ (`L, k`)
+LIST-SEARCH' (`L, k`)
 
 | 1 | `L.nil.key = k` | **//** 将关键字存储在哨兵中以确保其在列表中 |
 | --- | --- | --- |
@@ -403,7 +403,7 @@ COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`)
 
 不直接分析 COMPACT-LIST-SEARCH 的性能，而是分析一个相关算法 `COMPACT-LIST-SEARCH`，该算法执行两个单独的循环。该算法接受一个额外的参数 `t`，指定第一个循环的迭代次数的上限。  
 
-`COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)`
+`COMPACT-LIST-SEARCH' (key, next, head, n, k, t)`
 
 |   1 | `i = head` |
 | --- | --- |
@@ -421,11 +421,11 @@ COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`)
 
 为了比较两个算法的执行，假设 RANDOM(1, `n`) 的调用序列对两个算法都产生相同的整数序列。
 
-**a.** 论证对于任何 `t` 的值，COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`) 和 COMPACT-LIST-SEARCH′ (`key`, `next`, `head`, `n`, `k`, `t`) 返回相同的结果，并且 COMPACT-LIST-SEARCH 中第 2-8 行的 `while` 循环的迭代次数最多等于 COMPACT-LIST-SEARCH′ 中 `for` 和 `while` 循环的总迭代次数。
+**a.** 论证对于任何 `t` 的值，COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`) 和 COMPACT-LIST-SEARCH' (`key`, `next`, `head`, `n`, `k`, `t`) 返回相同的结果，并且 COMPACT-LIST-SEARCH 中第 2-8 行的 `while` 循环的迭代次数最多等于 COMPACT-LIST-SEARCH' 中 `for` 和 `while` 循环的总迭代次数。
 
-在调用 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 时，让 `X[t]` 是描述链表中（即通过 `next` 指针链）从位置 `i` 到所需键 `k` 的距离的随机变量，经过第 2-7 行的 `for` 循环的 `t` 次迭代后。
+在调用 `COMPACT-LIST-SEARCH' (key, next, head, n, k, t)` 时，让 `X[t]` 是描述链表中（即通过 `next` 指针链）从位置 `i` 到所需键 `k` 的距离的随机变量，经过第 2-7 行的 `for` 循环的 `t` 次迭代后。
 
-**b.** 论证 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 的期望运行时间为 `O(t + E [X[t]])`。
+**b.** 论证 `COMPACT-LIST-SEARCH' (key, next, head, n, k, t)` 的期望运行时间为 `O(t + E [X[t]])`。
 
 **c.** 证明 ![art](img/Art_P375.jpg)。（提示： 使用第 1193 页上的方程式（C.28））
 
@@ -433,7 +433,7 @@ COMPACT-LIST-SEARCH(`key`, `next`, `head`, `n`, `k`)
 
 **e.** 证明 E [`X[t]`] ≤ `n/(t + 1)`。  
 
-**f.** 证明 `COMPACT-LIST-SEARCH′ (key, next, head, n, k, t)` 的期望运行时间为 `O(t + n/t)`。
+**f.** 证明 `COMPACT-LIST-SEARCH' (key, next, head, n, k, t)` 的期望运行时间为 `O(t + n/t)`。
 
 **g.** 得出结论，COMPACT-LIST-SEARCH 的期望运行时间为 ![`art`](img/Art_P377.jpg)。
 

@@ -390,7 +390,7 @@ RANDOMIZED-QUICKSORT 在 `n` 个不同元素的输入上的期望运行时间为
 
 **a.** 假设所有元素值都相等。在这种情况下，随机快速排序的运行时间是多少？
 
-**b.** PARTITION 过程返回一个索引`q`，使得`A[p : q - 1]`的每个元素都小于或等于`A[q]`，并且`A[q + 1 : r]`的每个元素都大于`A[q]`。修改 PARTITION 过程以生成一个过程 PARTITION′(`A`，`p`，`r`)，它重新排列`A[p : r]`的元素并返回两个索引`q`和`t`，其中`p ≤ q ≤ t ≤ r`，使得
+**b.** PARTITION 过程返回一个索引`q`，使得`A[p : q - 1]`的每个元素都小于或等于`A[q]`，并且`A[q + 1 : r]`的每个元素都大于`A[q]`。修改 PARTITION 过程以生成一个过程 PARTITION'(`A`，`p`，`r`)，它重新排列`A[p : r]`的元素并返回两个索引`q`和`t`，其中`p ≤ q ≤ t ≤ r`，使得
 
 +   `A[q : t]`的所有元素都相等，
 
@@ -400,7 +400,7 @@ RANDOMIZED-QUICKSORT 在 `n` 个不同元素的输入上的期望运行时间为
 
 像 `PARTITION` 一样，您的 `PARTITION'`过程应该花费Θ(r - p)的时间。
 
-**c.** 修改`RANDOMIZED-PARTITION`过程以调用`PARTITION′`，并命名新过程为`RANDOMIZED-PARTITION′`。然后修改`QUICKSORT`过程以生成一个调用`RANDOMIZED-PARTITION′`并仅在元素不相等的分区上递归的过程`QUICKSORT′(A, p, r)`。
+**c.** 修改`RANDOMIZED-PARTITION`过程以调用`PARTITION'`，并命名新过程为`RANDOMIZED-PARTITION'`。然后修改`QUICKSORT`过程以生成一个调用`RANDOMIZED-PARTITION'`并仅在元素不相等的分区上递归的过程`QUICKSORT'(A, p, r)`。
 
 **d.** 使用 `QUICKSORT'`，调整第 7.4.2 节中的分析，以避免所有元素都不同的假设。
 

@@ -389,16 +389,16 @@ MAX-HEAP-INCREASE-KEY 的第 6 行上的每次交换操作通常需要三次赋�
 
 **6-1     使用插入构建堆**
 
-   一种构建堆的方法是通过反复调用 `MAX-HEAP-INSERT` 将元素插入堆中。考虑页面上的 `BUILD-MAX-HEAP′` 过程。它假设被插入的对象只是堆元素
+   一种构建堆的方法是通过反复调用 `MAX-HEAP-INSERT` 将元素插入堆中。考虑页面上的 `BUILD-MAX-HEAP'` 过程。它假设被插入的对象只是堆元素
 
-`BUILD-MAX-HEAP′ (A, n)`  
+`BUILD-MAX-HEAP' (A, n)`  
 
 | `1` | *A.heap-size* = `1` |   |
 | --- | --- |
 | 2 | `for` i = 2 **to** n |
 | `3` | `MAX-HEAP-INSERT(A, A[i], n)` |
 
-**a.** 当在相同的输入数组上运行时，`BUILD-MAX-HEAP` 和 `BUILD-MAX-HEAP′` 过程是否总是创建相同的堆？证明它们是，或提供一个反例。
+**a.** 当在相同的输入数组上运行时，`BUILD-MAX-HEAP` 和 `BUILD-MAX-HEAP'` 过程是否总是创建相同的堆？证明它们是，或提供一个反例。
 
 **b.** 证明在最坏情况下，BUILD-MAX-HEAP' 需要 Θ(`n` `lg n`) 时间来构建一个 `n` 元素堆。
 
