@@ -105,12 +105,12 @@ LEFT(i)
 | --- | --- |
 | `---` | `---` |
 |   `2` | `r` = RIGHT(`i`) |   |
-|   3 | `if` `l` ≤ `A.heap-size` and `A[l]` > `A[i]` |   |
+|   3 | `if` `l` ≤ `A.heap-size` and `A[l] > A[i]` |   |
 | 4 | largest = l |
 |   `5` | **else** *largest* = `i` |
 |   6 | `if` `r` ≤ `A.heap-size` and `A[r] > A[largest]` |   |
 |   7 | `largest = r` |
-|   `8` | `if` `largest` ≠ `i` |
+|   `8` | `if` `largest ≠ i` |
 |   9 | 用`A[largest]`交换`A[i]` |   |
 | `10` | `MAX-HEAPIFY(A, largest)` |  |
 
@@ -304,12 +304,12 @@ MAXIMUM(`S`)返回具有最大关键字的`S`中的元素。
 
 `MAX-HEAP-INCREASE-KEY(A, x, k)`
 
-| 1 | **如果** `k` < `x.key` |   |
+| 1 | **如果** `k < x.key` |   |
 | --- | --- |
 | `2` | **错误** “新键值小于当前键值” |
 | `3` | `x.key = k` |
 | 4 | 找到对象`x`在数组`A`中的索引`i` |
-| `5` | **当** `i` > 1 **且** `A`[PARENT(`i`)].`key` < `A`[`i`].`key` **时** |
+| `5` | **当** `i` > 1 **且** `A`[PARENT(`i`)].`key < A`[`i`].`key` **时** |
 | 6 | 交换`A[i]`与`A[PARENT(i)]`，更新将优先队列对象映射到数组索引的信息 |
 | 7 | `i = PARENT(i)` |
 
