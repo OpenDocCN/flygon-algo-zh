@@ -539,7 +539,7 @@ Skelton 教授和 Baron 教授担心在 RB-DELETE-FIXUP 的第 1 个案例开始
 
 ***c.*** 如果持久性二叉搜索树`T`的高度为`h`，那么你对 PERSISTENT-TREE-INSERT 的实现需要的时间和空间是多少？（空间需求与被复制的节点数量成正比。）
 
-***d.*** 假设你在每个节点中包含了父属性。在这种情况下，`PERSISTENT-TREE-INSERT` 过程需要执行额外的复制。证明 `PERSISTENT-TREE-INSERT` 需要Ω(`n`)的时间和空间，其中`n`是树中节点的数量。
+***d.*** 假设你在每个节点中包含了父属性。在这种情况下，`PERSISTENT-TREE-INSERT` 过程需要执行额外的复制。证明 `PERSISTENT-TREE-INSERT` 需要`Ω(n)`的时间和空间，其中`n`是树中节点的数量。
 
 ***e.*** 展示如何使用红黑树来保证最坏情况下的运行时间和空间为每次插入或删除都是`O`(lg `n`)。你可以假设所有键都是不同的。
 
